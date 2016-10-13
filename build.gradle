@@ -1,0 +1,66 @@
+buildscript {
+  repositories {
+    maven { url 'http://dl.bintray.com/jetbrains/intellij-plugin-service' }
+  }
+}
+
+plugins {
+    id "org.jetbrains.intellij" version "0.1.10"
+    id 'jacoco'
+//    id 'com.github.kt3k.coveralls' version '2.6.3'
+}
+
+apply plugin: 'org.jetbrains.intellij'
+apply plugin: 'java'
+apply plugin: 'idea'
+
+
+repositories {
+    mavenCentral()
+}
+
+sourceCompatibility = jvmTargetVersion
+targetCompatibility = jvmTargetVersion
+
+tasks.withType(JavaCompile) { options.encoding = 'UTF-8' }
+
+intellij {
+    version ideaVersion
+    type ideaType
+    pluginName 'TestMe'
+    downloadSources Boolean.valueOf(ideaDownloadSources)
+    sameSinceUntilBuild false
+    updateSinceUntilBuild false
+
+//    plugins 'velocity?'
+
+    publish {
+        username ideaPublishUsername
+        password ideaPublishPassword
+        pluginId ideaPublishPluginId
+        channel ideaPublishChannel
+    }
+}
+idea {
+    project {
+        jdkName         = jvmTargetVersion
+        languageLevel   = jvmTargetVersion
+    }
+}
+
+test {
+    testLogging {
+        exceptionFormat = 'full'
+    }
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled = true
+        html.enabled = true
+    }
+}
+
+dependencies {
+    testCompile 'junit:junit:4.12'
+}
