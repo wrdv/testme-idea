@@ -45,6 +45,7 @@ idea {
     project {
         jdkName         = jvmTargetVersion
         languageLevel   = jvmTargetVersion
+        vcs = 'Git'
     }
 }
 

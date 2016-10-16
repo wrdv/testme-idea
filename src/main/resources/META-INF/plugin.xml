@@ -24,13 +24,15 @@
   <!-- uncomment to enable plugin in all products
   <depends>com.intellij.modules.lang</depends>
   -->
-
+  <depends>com.intellij.modules.java</depends>
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
   </extensions>
 
   <application-components>
-    <!-- Add your application components here -->
+    <component>
+      <implementation-class>com.weirddev.testme.intellij.TestMePluginRegistration</implementation-class>
+    </component>
   </application-components>
 
   <project-components>
