@@ -31,8 +31,7 @@ intellij {
     downloadSources Boolean.valueOf(ideaDownloadSources)
     sameSinceUntilBuild false
     updateSinceUntilBuild false
-
-//    plugins 'velocity?'
+    plugins = ['junit']   //TODO to be removed
 
     publish {
         username ideaPublishUsername

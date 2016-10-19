@@ -1,7 +1,8 @@
 # Created by .ignore support plugin (hsz.mobi)
-.gradle
-.idea
+.gradle/
+.idea/
 *.iws
 *.ipr
-build
+build/
 hs_err_pid*
+classes/

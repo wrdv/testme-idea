@@ -14,17 +14,12 @@
       <em>most HTML tags may be used</em>
     ]]>
   </change-notes>
-
   <!-- please see https://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
   <!--<idea-version since-build="139"/>       --><!--14 -->
   <idea-version since-build="141"/> <!--14.1-->
-
-  <!-- please see https://confluence.jetbrains.com/display/IDEADEV/Plugin+Compatibility+with+IntelliJ+Platform+Products
-       on how to target different products -->
-  <!-- uncomment to enable plugin in all products
-  <depends>com.intellij.modules.lang</depends>
-  -->
+  <!-- please see https://confluence.jetbrains.com/display/IDEADEV/Plugin+Compatibility+with+IntelliJ+Platform+Products   -->
   <depends>com.intellij.modules.java</depends>
+  <depends>JUnit</depends>
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
   </extensions>

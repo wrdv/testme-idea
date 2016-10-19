@@ -1,0 +1,8 @@
+import static org.junit.Assert.*;
+#parse("File Header.java")
+
+public class ${NAME} {
+  ${BODY}
+}
+
+/** Generated with love by TestMe :) For reporting issues and submitting feature requests please visit: https://github.com/yaronyam/testme-intellij/issues */

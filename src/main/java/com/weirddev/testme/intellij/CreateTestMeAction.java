@@ -1,6 +1,8 @@
 package com.weirddev.testme.intellij;
 
 import com.intellij.ide.util.PropertiesComponent;
+import com.intellij.openapi.command.CommandProcessor;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtilCore;
@@ -25,7 +27,13 @@ import java.util.Set;
  * @see CreateTestAction
  */
 public class CreateTestMeAction extends CreateTestAction {
+    private static final Logger LOG = Logger.getInstance(CreateTestMeAction.class.getName());
     private static final String CREATE_TEST_IN_THE_SAME_ROOT = "create.test.in.the.same.root";
+    private final TestMeGenerator testMeGenerator;
+
+    public CreateTestMeAction() {
+        testMeGenerator = new TestMeGenerator();
+    }
 
     @NotNull
     public String getText(){
@@ -39,12 +47,12 @@ public class CreateTestMeAction extends CreateTestAction {
 
 
     @Override
-    public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement element) throws IncorrectOperationException {
+    public void invoke(@NotNull final Project project, Editor editor, @NotNull PsiElement element) throws IncorrectOperationException {
         final Module srcModule = ModuleUtilCore.findModuleForPsiElement(element);
         final PsiClass srcClass = getContainingClass(element);
         if (srcClass == null) return;
         PsiDirectory srcDir = element.getContainingFile().getContainingDirectory();
-        PsiPackage srcPackage = JavaDirectoryService.getInstance().getPackage(srcDir);
+        final PsiPackage srcPackage = JavaDirectoryService.getInstance().getPackage(srcDir);
 
         final PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
         final HashSet<VirtualFile> testFolders = new HashSet<VirtualFile>();
@@ -56,22 +64,26 @@ public class CreateTestMeAction extends CreateTestAction {
             }
             propertiesComponent.setValue(CREATE_TEST_IN_THE_SAME_ROOT, String.valueOf(true));
         }
-        final TargetDirectoryLocator targetDirectoryLocator = new TargetDirectoryLocator(project, srcClass, srcPackage, srcModule);
-        PsiDirectory directory = targetDirectoryLocator.getOrCreateDirectory();
+        final String targetClass = getClassName(srcClass);
+        final TargetDirectoryLocator targetDirectoryLocator = new TargetDirectoryLocator();
+        final PsiDirectory targetDirectory = targetDirectoryLocator.getOrCreateDirectory(project, srcPackage, srcModule, targetClass);
         //TODO show merge , new , cancel prompt. alt. to com.intellij.refactoring.util.RefactoringMessageUtil.checkCanCreateClass()
-        if (directory != null) {
-            Messages.showInfoMessage("directory:"+directory.getVirtualFile().getUrl(), "Found It!");
+        if (targetDirectory != null) {
+            LOG.debug("targetDirectory:"+targetDirectory.getVirtualFile().getUrl());
+            CommandProcessor.getInstance().executeCommand(project, new Runnable() {
+                @Override
+                public void run() {
+                    testMeGenerator.generateTest(new FileTemplateContext(project, targetClass, srcPackage, srcModule, targetDirectory, srcClass));
+                }
+            }, "TestMe Generate Test", this);
         }
 
-//        CommandProcessor.getInstance().executeCommand(project, new Runnable() {
-//            @Override
-//            public void run() {
-//                TestFramework framework = targetDirectoryLocator.getSelectedTestFrameworkDescriptor();
-//                TestGenerator generator = TestGenerators.INSTANCE.forLanguage(framework.getLanguage());
-//                generator.generateTest(project, targetDirectoryLocator);
-//            }
-//        }, CodeInsightBundle.message("intention.create.test"), this);
+
     }
+    private String getClassName(PsiClass myTargetClass) {
+        return myTargetClass.getName()+"Test"; //TODO remove - should be added by Template
+    }
+
     protected static void checkForTestRoots(Module srcModule, Set<VirtualFile> testFolders) {
         CreateTestAction.checkForTestRoots(srcModule, testFolders);
     }

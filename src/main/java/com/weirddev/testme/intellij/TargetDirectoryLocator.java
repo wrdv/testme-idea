@@ -41,41 +41,25 @@ public class TargetDirectoryLocator{
 //    private static final String RECENTS_KEY = "TargetDirectoryLocator.RecentsKey";
 //    private static final String RECENT_SUPERS_KEY = "TargetDirectoryLocator.Recents.Supers";
 
-    private final Project myProject;
-    private final PsiClass myTargetClass;
-    private final PsiPackage myTargetPackage;
-    private final Module myTargetModule;
-
-    public TargetDirectoryLocator(@NotNull Project project, PsiClass targetClass, PsiPackage targetPackage, Module targetModule) {
-        myProject = project;
-        myTargetClass = targetClass;
-        myTargetPackage = targetPackage;
-        myTargetModule = targetModule;
-    }
-
-    public PsiDirectory getOrCreateDirectory() {
-        String packageQualifiedName = myTargetPackage.getQualifiedName();
-//        RecentsManager.getInstance(myProject).registerRecentEntry(RECENTS_KEY, packageQualifiedName);
-//        RecentsManager.getInstance(myProject).registerRecentEntry(RECENT_SUPERS_KEY, "" /*mySuperClassField.getText()*/ );
+    public PsiDirectory getOrCreateDirectory(@NotNull Project project, PsiPackage targetPackage, Module targetModule, String targetClass) {
+        String packageQualifiedName = targetPackage.getQualifiedName();
+//        RecentsManager.getInstance(project).registerRecentEntry(RECENTS_KEY, packageQualifiedName);
+//        RecentsManager.getInstance(project).registerRecentEntry(RECENT_SUPERS_KEY, "" /*mySuperClassField.getText()*/ );
 
         String errorMessage;
         PsiDirectory myTargetDirectory = null;
         try {
-            myTargetDirectory = selectTargetDirectory(packageQualifiedName, myProject, myTargetModule);
+            myTargetDirectory = selectTargetDirectory(packageQualifiedName, project, targetModule);
             if (myTargetDirectory == null) return null;
             //TODO skip exists check - offer to merge, new , cancel
-            errorMessage = RefactoringMessageUtil.checkCanCreateClass(myTargetDirectory, getClassName(myTargetClass));
+            errorMessage = RefactoringMessageUtil.checkCanCreateClass(myTargetDirectory, targetClass);
         } catch (IncorrectOperationException e) {
             errorMessage = e.getMessage();
         }
         if (errorMessage != null) {
-            Messages.showMessageDialog(myProject, errorMessage, CommonBundle.getErrorTitle(), Messages.getErrorIcon());
+            Messages.showMessageDialog(project, errorMessage, CommonBundle.getErrorTitle(), Messages.getErrorIcon());
         }
         return myTargetDirectory;
-    }
-
-    private String getClassName(PsiClass myTargetClass) {
-        return myTargetClass.toString()+"Test";
     }
 
 @Nullable
