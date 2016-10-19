@@ -1,0 +1,16 @@
+<spot>public class FooTest {
+
+  @Mock FooFighter fooFighter;
+
+  @InjectMocks Foo foo;
+
+  @Test
+  public void testFighter() {
+    String result=foo.fighter("someStr",new Integer(0);
+    Assert.assertEquals("expectedResult", result)
+  }
+
+  @Before public void initMocks() {
+    MockitoAnnotations.initMocks(this);
+  }
+}</spot>

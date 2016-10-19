@@ -2,46 +2,14 @@ package com.weirddev.testme.intellij;
 
 import javax.swing.*;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
- * Date: 10/15/2016
+ * Date: 10/19/2016
  *
  * @author Yaron Yamin
  */
-public class IconTokensReplacer {
-    static Map<String, Icon> token2Icon;
-    private static final String TOKEN_TEMPLATE = "<%s>";
-    static {
-        token2Icon = new HashMap<String, Icon>();
-        token2Icon.put("JUnit",Icons.JUNIT_DARK);
-        token2Icon.put("Mockito", Icons.MOCKITO);
-    }
+public interface IconTokensReplacer {
+    String stripTokens(String text);
 
-    public String stripTokens(String text) {
-        String regex = "";
-        for (String token : token2Icon.keySet()) {
-            if(!regex.isEmpty()){
-                regex += "|";
-            }
-            regex += String.format(TOKEN_TEMPLATE, token);
-        }
-        return text.replaceAll(regex, "");
-    }
-
-    public ArrayList<IconizedLabel> tokenize(String text, Icon icon) {
-        ArrayList<IconizedLabel> iconizedLabels = new ArrayList<IconizedLabel>();
-        iconizedLabels.add(new IconizedLabel(text, icon));
-        for (String token : token2Icon.keySet()) {
-            for (int i = 0; i < iconizedLabels.size(); i++) {
-                String[] subTexts = iconizedLabels.get(i).getText().split(String.format(TOKEN_TEMPLATE, token));
-                if (subTexts.length > 1) {
-                    iconizedLabels.get(i).setText(subTexts[0]);
-                    iconizedLabels.add(i+1,new IconizedLabel(subTexts[1], token2Icon.get(token)));
-                }
-            }
-        }
-        return iconizedLabels;
-    }
+    ArrayList<IconizedLabel> tokenize(String text, Icon icon);
 }

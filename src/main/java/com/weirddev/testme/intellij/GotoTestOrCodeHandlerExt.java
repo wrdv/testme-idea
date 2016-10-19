@@ -1,11 +1,11 @@
 package com.weirddev.testme.intellij;
 
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.testIntegration.GotoTestOrCodeHandler;
 import com.intellij.testIntegration.TestFinderHelper;
+import com.intellij.testIntegration.createTest.CreateTestAction;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -13,21 +13,27 @@ import org.jetbrains.annotations.Nullable;
  * @author Yaron Yamin
  */
 public class GotoTestOrCodeHandlerExt extends GotoTestOrCodeHandler {
-    private static final Logger LOG = Logger.getInstance(GotoTestOrCodeHandlerExt.class.getName());
     private final boolean supportIconTokens;
-    private final IconTokensReplacer iconTokensReplacer=new IconTokensReplacer();
+    private final IconTokensReplacer iconTokensReplacer;
+    private final TestMeCreator testMeCreator;
 
     public GotoTestOrCodeHandlerExt(boolean supportIconTokens) {
+        this(new IconTokensReplacerImpl(), new TestMeCreator(), supportIconTokens);
+    }
+
+    GotoTestOrCodeHandlerExt(IconTokensReplacer iconTokensReplacer, TestMeCreator testMeCreator, boolean supportIconTokens) {
         this.supportIconTokens = supportIconTokens;
+        this.iconTokensReplacer = iconTokensReplacer;
+        this.testMeCreator = testMeCreator;
     }
 
     @Nullable
     @Override
-    protected GotoData getSourceAndTargetElements(Editor editor, PsiFile file) {
+    protected GotoData getSourceAndTargetElements(final Editor editor, final PsiFile file) {
         GotoData sourceAndTargetElements = super.getSourceAndTargetElements(editor, file);
         if (sourceAndTargetElements == null) return null;
         PsiElement selectedElement = getSelectedElement(editor, file);
-        if (!TestFinderHelper.isTest(selectedElement)) {
+        if (!TestFinderHelper.isTest(selectedElement) && CreateTestAction.isAvailableForElement(selectedElement)) {
             String actionText = "TestMe with <JUnit>JUnit4 & <Mockito>Mockito";
             if (!supportIconTokens) {
                 actionText=iconTokensReplacer.stripTokens(actionText);
@@ -35,8 +41,7 @@ public class GotoTestOrCodeHandlerExt extends GotoTestOrCodeHandler {
             sourceAndTargetElements.additionalActions.add(0, new TestMeAdditionalAction(actionText,Icons.TEST_ME) {
                 @Override
                 public void execute() {
-                    LOG.debug("Executing TestMe generator");
-                    //TODO Implement Action
+                    testMeCreator.createTest(editor, file);
                 }
             });
         }

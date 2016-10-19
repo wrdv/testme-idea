@@ -1,0 +1,6 @@
+<spot>public class Foo</spot> {
+   private FooFighter fooFighter;
+
+   public String fighter(String someStr, Integer someNum) {
+  }
+}

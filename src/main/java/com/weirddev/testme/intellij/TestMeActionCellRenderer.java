@@ -14,7 +14,7 @@ import java.util.ArrayList;
  * @author Yaron Yamin
  */
 public class TestMeActionCellRenderer extends DefaultListCellRenderer {
-    private final IconTokensReplacer iconTokensReplacer=new IconTokensReplacer();
+    private final IconTokensReplacer iconTokensReplacer=new IconTokensReplacerImpl();
     @Override
     public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
         Component result = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
