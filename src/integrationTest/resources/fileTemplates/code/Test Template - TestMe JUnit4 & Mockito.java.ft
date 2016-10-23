@@ -1,0 +1,13 @@
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+#parse("TestMe Header.java")
+public class ${NAME} {
+  ${BODY}
+}
+
+/** Generated with love by TestMe :) For reporting issues and submitting feature requests please visit: https://github.com/yaronyam/testme-intellij/issues */

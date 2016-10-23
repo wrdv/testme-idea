@@ -24,6 +24,10 @@ import java.io.File;
  * @author Yaron Yamin
  */
 public class TestMeGeneratorTest extends LightCodeInsightFixtureTestCase {
+
+//    private static final String TEST_TEMPLATE = "TestMe with JUnit4 & Mockito.java";
+    private static final String TEST_TEMPLATE = "Test Template - TestMe JUnit4 & Mockito.java";
+
     public void testGenerateTest() throws Exception {
         final VirtualFile testDir = myFixture.getTempDirFixture().findOrCreateDir("test");
 //        myFixture.getFile()
@@ -31,7 +35,8 @@ public class TestMeGeneratorTest extends LightCodeInsightFixtureTestCase {
         assertNotNull("ref file not found", testDir);
         PsiFile psiFile = myFixture.configureByFile("Foo.java");
         PsiClass psiClass = myFixture.findClass("Foo");
-        PsiElement result = new TestMeGenerator().generateTest(new FileTemplateContext(new FileTemplateDescriptor("TestMe with JUnit4 & Mockito.java"), getProject(),
+
+        PsiElement result = new TestMeGenerator().generateTest(new FileTemplateContext(new FileTemplateDescriptor(TEST_TEMPLATE), getProject(),
                 "FooTest",
 //                new PsiPackageImpl(getPsiManager(), "im.the.generator"),
                 new PsiPackageImpl(getPsiManager(), ""),
@@ -48,7 +53,7 @@ public class TestMeGeneratorTest extends LightCodeInsightFixtureTestCase {
         ));
 //        myFixture.findFileInTempDir("test/FooTest.java");
 
-//        myFixture.checkResultByFile("FooTest.java","FooTest.java",false);
+        myFixture.checkResultByFile("FooTest.java","FooTest.java",false);
 
 
         System.out.println("result:"+result);
