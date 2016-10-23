@@ -7,13 +7,19 @@ buildscript {
 plugins {
     id "org.jetbrains.intellij" version "0.1.10"
     id 'jacoco'
+    id 'org.unbroken-dome.test-sets' version '1.2.0'
 //    id 'com.github.kt3k.coveralls' version '2.6.3'
 }
 
-apply plugin: 'org.jetbrains.intellij'
 apply plugin: 'java'
+apply plugin: 'groovy'
+apply plugin: 'application'
 apply plugin: 'idea'
+apply plugin: 'org.jetbrains.intellij'
 
+jacoco {
+    toolVersion = "0.7.6.201602180812"
+}
 
 repositories {
     mavenCentral()
@@ -21,6 +27,28 @@ repositories {
 
 sourceCompatibility = jvmTargetVersion
 targetCompatibility = jvmTargetVersion
+
+testSets {
+    integrationTest
+}
+check.dependsOn integrationTest
+integrationTest.mustRunAfter test
+
+tasks.withType(Test) {
+    reports.html.destination = file("${reporting.baseDir}/${name}")
+}
+test {
+    afterTest { desc, result ->
+        println "Executing test [${desc.className}].${desc.name} with result: ${result.resultType}"
+    }
+}
+integrationTest {
+    afterTest { desc, result ->
+        println "Executing test [${desc.className}].${desc.name} with result: ${result.resultType}"
+    }
+}
+
+tasks.build.dependsOn(jacocoTestReport)
 
 tasks.withType(JavaCompile) { options.encoding = 'UTF-8' }
 
@@ -56,9 +84,14 @@ test {
 
 jacocoTestReport {
     reports {
-        xml.enabled = true
-        html.enabled = true
+        xml.enabled false
+        csv.enabled false
+        html{
+            enabled true
+            destination "${buildDir}/reports/jacoco"
+        }
     }
+    executionData(test, integrationTest)
 }
 
 dependencies {

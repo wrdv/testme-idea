@@ -5,7 +5,6 @@ import com.intellij.codeInsight.CodeInsightUtil;
 import com.intellij.codeInsight.FileModificationService;
 import com.intellij.execution.junit.JUnit4Framework;
 import com.intellij.ide.fileTemplates.FileTemplate;
-import com.intellij.ide.fileTemplates.FileTemplateDescriptor;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.ide.fileTemplates.FileTemplateUtil;
 import com.intellij.openapi.application.ApplicationManager;
@@ -76,7 +75,6 @@ public class TestMeGenerator {
     private static PsiClass createTestClass(FileTemplateContext context) {
         final TestFramework testFrameworkDescriptor = new JUnit4Framework(); //TODO consider removing the dependency
 //        final FileTemplateDescriptor fileTemplateDescriptor = TestIntegrationUtils.MethodKind.TEST_CLASS.getFileTemplateDescriptor(testFrameworkDescriptor);
-        final FileTemplateDescriptor fileTemplateDescriptor = new FileTemplateDescriptor("TestMe with JUnit4 & Mockito.java");
         final PsiDirectory targetDirectory = context.getTargetDirectory();
 
         final PsiPackage aPackage = JavaDirectoryService.getInstance().getPackage(targetDirectory);
@@ -91,7 +89,7 @@ public class TestMeGenerator {
             }
         }
 //        if (fileTemplateDescriptor != null) {
-            final PsiClass classFromTemplate = createTestClassFromCodeTemplate(context, fileTemplateDescriptor, targetDirectory);
+            final PsiClass classFromTemplate = createTestClassFromCodeTemplate(context, targetDirectory);
             if (classFromTemplate != null) {
                 return classFromTemplate;
             }
@@ -100,11 +98,9 @@ public class TestMeGenerator {
         return JavaDirectoryService.getInstance().createClass(targetDirectory, context.getTargetClass());
     }
 
-    private static PsiClass createTestClassFromCodeTemplate(final FileTemplateContext context
-            ,
-                                                            final FileTemplateDescriptor fileTemplateDescriptor,
+    private static PsiClass createTestClassFromCodeTemplate(final FileTemplateContext context,
                                                             final PsiDirectory targetDirectory) {
-        final String templateName = fileTemplateDescriptor.getFileName();
+        final String templateName = context.getFileTemplateDescriptor().getFileName();
         final FileTemplate fileTemplate = FileTemplateManager.getInstance(targetDirectory.getProject()).getCodeTemplate(templateName);
         final Properties defaultProperties = FileTemplateManager.getInstance(targetDirectory.getProject()).getDefaultProperties();
         Properties properties = new Properties(defaultProperties);

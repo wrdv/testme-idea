@@ -1,5 +1,6 @@
 package com.weirddev.testme.intellij;
 
+import com.intellij.ide.fileTemplates.FileTemplateDescriptor;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.diagnostic.Logger;
@@ -73,7 +74,7 @@ public class CreateTestMeAction extends CreateTestAction {
             CommandProcessor.getInstance().executeCommand(project, new Runnable() {
                 @Override
                 public void run() {
-                    testMeGenerator.generateTest(new FileTemplateContext(project, targetClass, srcPackage, srcModule, targetDirectory, srcClass));
+                    testMeGenerator.generateTest(new FileTemplateContext(new FileTemplateDescriptor("TestMe with JUnit4 & Mockito.java"),project, targetClass, srcPackage, srcModule, targetDirectory, srcClass));
                 }
             }, "TestMe Generate Test", this);
         }
