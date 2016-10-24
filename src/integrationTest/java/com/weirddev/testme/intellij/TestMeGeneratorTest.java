@@ -29,35 +29,50 @@ public class TestMeGeneratorTest extends LightCodeInsightFixtureTestCase {
     private static final String TEST_TEMPLATE = "Test Template - TestMe JUnit4 & Mockito.java";
 
     public void testGenerateTest() throws Exception {
+        myFixture.copyDirectoryToProject("src","");
         final VirtualFile testDir = myFixture.getTempDirFixture().findOrCreateDir("test");
-//        myFixture.getFile()
         System.out.println("project test dir:"+testDir);
         assertNotNull("ref file not found", testDir);
-        PsiFile psiFile = myFixture.configureByFile("Foo.java");
-        PsiClass psiClass = myFixture.findClass("Foo");
+        String packageName = "com.example.services.impl";
+        String dirPath = packageName.replace(".", "/") + "/";
+//        myFixture.configureByFile(dirPath + "Fire.java");
+        PsiClass fooClass = myFixture.findClass("com.example.services.impl.Foo");
+        myFixture.openFileInEditor(fooClass.getContainingFile().getVirtualFile());
 
+        PsiPackageImpl targetPackage = new PsiPackageImpl(getPsiManager(), packageName);
         PsiElement result = new TestMeGenerator().generateTest(new FileTemplateContext(new FileTemplateDescriptor(TEST_TEMPLATE), getProject(),
                 "FooTest",
 //                new PsiPackageImpl(getPsiManager(), "im.the.generator"),
-                new PsiPackageImpl(getPsiManager(), ""),
+                targetPackage,
                 myModule,
-//                getProject().getProjectFile().createChildDirectory(this,"tset"),
-                PsiJavaDirectoryFactory.getInstance(getProject()).createDirectory(myFixture.getTempDirFixture().getFile(".")),
-//                PsiJavaDirectoryFactory.getInstance(getProject()).createDirectory(testDir),
+//                getProject().getProjectFile().createChildDirectory(this,"test"),
+//                targetPackage.getDirectories()[0],
+//                PsiJavaDirectoryFactory.getInstance(getProject()).createDirectory(myFixture.getTempDirFixture().getFile(".")),
+                fooClass.getContainingFile().getContainingDirectory(),
+//                PsiJavaDirectoryFactory.getInstance(getProject()).createDirectory(myFixture.getTempDirFixture().getFile(".").createChildDirectory(this,"com/example/services/impl")),
+//
+//               PsiJavaDirectoryFactory.getInstance(getProject()).createDirectory(testDir),
 //                new MockPsiDirectory(getProject(),myTestRootDisposable),
 //                PsiJavaDirectoryFactory.getInstance(getProject()).createDirectory(,
 //                new PsiDirectoryImpl((PsiManagerImpl) getPsiManager(),myFixture.getEditor().
 //                myFixture.getElementAtCaret().getContainingFile().getVirtualFile() /*getFile().getVirtualFile()*/),
-                psiClass
-//                PsiTreeUtil.getParentOfType(myFixture.getElementAtCaret(), PsiClass.class, false) /*getFile().getOriginalElement()*/)
+                fooClass
         ));
 //        myFixture.findFileInTempDir("test/FooTest.java");
 
-        myFixture.checkResultByFile("FooTest.java","FooTest.java",false);
-
-
         System.out.println("result:"+result);
+        myFixture.checkResultByFile(dirPath+"FooTest.java","test/"+dirPath+"FooTest.java",false);
+
     }
+  //TODO test with default package
+  //TODO test w/out formatting
+  //TODO test with static, final, primitive, primitive wrapper objects fields.
+    // TODO fields,params and return types that have generics. lambda params?
+  // TODO test no default c'tor
+    // TODO test overloaded methods
+    // TODO test class inheritance
+    //TODO test field/param types with same short names from different packages
+    //TODO test multiple field/param types from the same package
 
     @Override
     public void setUp() throws Exception {
@@ -73,7 +88,7 @@ public class TestMeGeneratorTest extends LightCodeInsightFixtureTestCase {
 //        moduleFixtureBuilder.addSourceContentRoot("test");
 //        myModule = moduleFixtureBuilder.getFixture().getModule();
 //        myFixture = JavaTestFixtureFactory.getFixtureFactory().createCodeInsightFixture(projectBuilder.getFixture());
-//        VirtualFile virtualFile = myFixture.copyFileToProject(getTestDataPath()+"/Foo.java","src");
+
 
 
     }

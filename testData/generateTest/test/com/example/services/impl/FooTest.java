@@ -1,6 +1,6 @@
 package com.example.services.impl;
 
-import com.example.services.FooFighter;
+import com.example.warriers.FooFighter;
 import com.example.wepons.Fire;
 import org.junit.Assert;
 import org.junit.Before;
@@ -13,12 +13,13 @@ import org.mockito.MockitoAnnotations;
  * created by TestMe integration test on MMXVI
  */
 public class FooTest {
+    @Mock
+    private FooFighter fooFighter;
+    @InjectMocks
+    private Foo foo;
 
-    @Mock private FooFighter fooFighter;
-
-    @InjectMocks private Foo foo;
-
-    @Before public void initMocks() {
+    @Before
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
     }
 
@@ -30,5 +31,5 @@ public class FooTest {
 }
 
 /**
- * Generated with love by TestMe :) For reporting issues and submitting feature requests please visit: https://github.com/yaronyam/testme-intellij/issues
+ * Generated with love by TestMe :) For reporting issues and submitting feature requests: https://github.com/yaronyam/testme-intellij/issues
  */

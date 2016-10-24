@@ -1,8 +1,47 @@
-import static org.junit.Assert.*;
+#if($PACKAGE_NAME)
+package ${PACKAGE_NAME};
+#end
+
+#foreach($field in $TESTED_CLASS_FIELDS)
+import $field.canonicalType;
+#end
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 #parse("File Header.java")
 
-public class ${NAME} {
-  ${BODY}
+public class ${CLASS_NAME} {
+#foreach($field in $TESTED_CLASS_FIELDS)
+    @Mock
+    private $field.shortType $field.name;
+#end
+#if(!$TESTED_CLASS_FIELDS.isEmpty())
+    @InjectMocks
+    private $TESTED_CLASS_NAME #deCapitalize($TESTED_CLASS_NAME);
+#else
+    private ${TESTED_CLASS_NAME} #deCapitalize($TESTED_CLASS_NAME)=new ${TESTED_CLASS_NAME}();
+#end
+#if(!$TESTED_CLASS_FIELDS.isEmpty())
+    @Before
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
+    }
+#end
+#foreach($method in $TESTED_CLASS_METHODS)
+#if($method.ownerClassCanonicalType!="java.lang.Object")
+    @Test
+    public void test#capitalize($method.name)() throws Exception{
+        #deCapitalize($TESTED_CLASS_NAME).${method.name}();
+    }
+#end
+#end
 }
 
-/** Generated with love by TestMe :) For reporting issues and submitting feature requests please visit: https://github.com/yaronyam/testme-intellij/issues */
+/** Generated with love by TestMe :) */
+#macro( deCapitalize $str)
+$str.substring(0,1).toLowerCase()$str.substring(1)#end
+#macro( capitalize $str)
+$str.substring(0,1).toUpperCase()$str.substring(1)#end
