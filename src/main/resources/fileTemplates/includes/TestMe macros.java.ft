@@ -1,0 +1,15 @@
+#macro( deCapitalize $str)$str.substring(0,1).toLowerCase()$str.substring(1)#end
+#macro( capitalize $str)$str.substring(0,1).toUpperCase()$str.substring(1)#end
+#macro( renderJavaCallParams $params)
+    #foreach($param in $params)
+            #if($foreach.count>1),#end #renderJavaCallParam($param)#end
+#end
+#macro( renderJavaCallParam $param)
+    #if($param.canonicalType == "String")
+        "${param.name}"#else
+    new ${param.shortType}()#end
+#end
+#macro( renderJavaTestClassImports $fields $methods)
+#foreach($field in $fields)
+        import $field.canonicalType;#end
+#end

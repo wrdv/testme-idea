@@ -165,7 +165,8 @@ public class TestMeGenerator {
     private List<Param> getMethodParams(PsiParameterList parameterList) {
         ArrayList<Param> params = new ArrayList<Param>();
         for (PsiParameter psiParameter : parameterList.getParameters()) {
-            params.add(new Param(psiParameter.getName(), psiParameter.getType().getCanonicalText()));
+            PsiType type = psiParameter.getType();
+            params.add(new Param(psiParameter.getName(), type.getPresentableText(), type.getCanonicalText()));
         }
         return params;
     }

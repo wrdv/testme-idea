@@ -1,10 +1,9 @@
+#parse("TestMe macros.java")
 #if($PACKAGE_NAME)
 package ${PACKAGE_NAME};
 #end
 
-#foreach($field in $TESTED_CLASS_FIELDS)
-import $field.canonicalType;
-#end
+#renderJavaTestClassImports($TESTED_CLASS_FIELDS,$TESTED_CLASS_METHODS)
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,14 +33,10 @@ public class ${CLASS_NAME} {
 #if($method.ownerClassCanonicalType!="java.lang.Object")
     @Test
     public void test#capitalize($method.name)() throws Exception{
-        #deCapitalize($TESTED_CLASS_NAME).${method.name}();
+        #deCapitalize($TESTED_CLASS_NAME).${method.name}(#renderJavaCallParams($method.methodParams));
     }
 #end
 #end
 }
 
 /** Generated with love by TestMe :) */
-#macro( deCapitalize $str)
-$str.substring(0,1).toLowerCase()$str.substring(1)#end
-#macro( capitalize $str)
-$str.substring(0,1).toUpperCase()$str.substring(1)#end

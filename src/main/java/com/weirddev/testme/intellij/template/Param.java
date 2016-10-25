@@ -5,9 +5,11 @@ package com.weirddev.testme.intellij.template;
  */
 public class Param {
     private String name;
+    private String shortType;
     private String canonicalType;
-    public Param(String name, String canonicalType) {
+    public Param(String name, String shortType, String canonicalType) {
         this.name = name;
+        this.shortType = shortType;
         this.canonicalType = canonicalType;
     }
 
@@ -17,5 +19,9 @@ public class Param {
 
     public String getCanonicalType() {
         return canonicalType;
+    }
+
+    public String getShortType() {
+        return shortType;
     }
 }
