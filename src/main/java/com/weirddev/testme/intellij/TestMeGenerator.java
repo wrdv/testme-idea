@@ -21,7 +21,6 @@ import com.intellij.testIntegration.createTest.JavaTestGenerator;
 import com.intellij.util.IncorrectOperationException;
 import com.weirddev.testme.intellij.template.Field;
 import com.weirddev.testme.intellij.template.Method;
-import com.weirddev.testme.intellij.template.Param;
 import com.weirddev.testme.intellij.template.TestMeTemplateParams;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -143,38 +142,20 @@ public class TestMeGenerator {
         for (PsiField psiField : context.getSrcClass().getAllFields()) {
             //TODO research how different types should be handled - i.e. PsiClassType ?
             //TODO handle fields initialized inline/in default constructor
-            PsiType psiType = psiField.getType();
-            //TODO add more metadata
-            fields.add(new Field(psiField.getName(), psiType.getCanonicalText(),psiType.getPresentableText(), psiType instanceof PsiPrimitiveType, isFinal(psiType, javaPsiFacade, context.getProject())));
+            fields.add(new Field(psiField, javaPsiFacade.findClass(psiField.getType().getCanonicalText(), GlobalSearchScope.allScope(context.getProject()))));
         }
         return fields;
     }
 
     private List<Method> getMethods(FileTemplateContext context) {
         ArrayList<Method> methods = new ArrayList<Method>();
-        //TODO should use only getMethods ?  or indicator if method inherited ?
-        //TODO research usage PACKAGE_LOCAL vs. DEFAULT
+        //TODO should use only getMethods() ?  or indicator if method inherited ?
         for (PsiMethod psiMethod : context.getSrcClass().getAllMethods()) {
-            methods.add(new Method(psiMethod.getName(), psiMethod.getReturnType()==null?null:psiMethod.getReturnType().getCanonicalText(),psiMethod.getContainingClass()==null?null:psiMethod.getContainingClass().getQualifiedName(), /*psiMethod.getTypeParameterList(),psiMethod.getTypeParameters(),*/getMethodParams(psiMethod.getParameterList()),
-                    psiMethod.hasModifierProperty(PsiModifier.PRIVATE), psiMethod.hasModifierProperty(PsiModifier.PROTECTED), psiMethod.hasModifierProperty(PsiModifier.DEFAULT), psiMethod.hasModifierProperty(PsiModifier.PUBLIC),
-                    psiMethod.hasModifierProperty(PsiModifier.ABSTRACT), psiMethod.hasModifierProperty(PsiModifier.NATIVE), psiMethod.hasModifierProperty(PsiModifier.STATIC)));
+            methods.add(new Method(psiMethod));
         }
         return methods;
     }
 
-    private List<Param> getMethodParams(PsiParameterList parameterList) {
-        ArrayList<Param> params = new ArrayList<Param>();
-        for (PsiParameter psiParameter : parameterList.getParameters()) {
-            PsiType type = psiParameter.getType();
-            params.add(new Param(psiParameter.getName(), type.getPresentableText(), type.getCanonicalText()));
-        }
-        return params;
-    }
-
-    private boolean isFinal(PsiType psiType, JavaPsiFacade javaPsiFacade, Project project) {
-        PsiClass aClass = javaPsiFacade.findClass(psiType.getCanonicalText(), GlobalSearchScope.allScope(project));
-        return aClass != null &&  aClass.getModifierList()!=null && !aClass.getModifierList().hasExplicitModifier(PsiModifier.FINAL);
-    }
     private static void showErrorLater(final Project project, final String targetClassName) {
         ApplicationManager.getApplication().invokeLater(new Runnable() {
             public void run() {

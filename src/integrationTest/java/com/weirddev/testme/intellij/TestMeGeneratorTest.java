@@ -58,8 +58,6 @@ public class TestMeGeneratorTest extends LightCodeInsightFixtureTestCase {
 //                myFixture.getElementAtCaret().getContainingFile().getVirtualFile() /*getFile().getVirtualFile()*/),
                 fooClass
         ));
-//        myFixture.findFileInTempDir("test/FooTest.java");
-
         System.out.println("result:"+result);
         myFixture.checkResultByFile(dirPath+"FooTest.java","test/"+dirPath+"FooTest.java",false);
 
@@ -73,11 +71,10 @@ public class TestMeGeneratorTest extends LightCodeInsightFixtureTestCase {
     // TODO test class inheritance
     //TODO test field/param types with same short names from different packages
     //TODO test multiple field/param types from the same package
-
+    //TODO test carent position with <caret>
     @Override
     public void setUp() throws Exception {
         super.setUp();
-
         System.out.println("TestDataPath:"+getTestDataPath());
         assertTrue(new File(getTestDataPath()).exists());
 
@@ -88,9 +85,6 @@ public class TestMeGeneratorTest extends LightCodeInsightFixtureTestCase {
 //        moduleFixtureBuilder.addSourceContentRoot("test");
 //        myModule = moduleFixtureBuilder.getFixture().getModule();
 //        myFixture = JavaTestFixtureFactory.getFixtureFactory().createCodeInsightFixture(projectBuilder.getFixture());
-
-
-
     }
 
     @Override

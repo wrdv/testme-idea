@@ -2,14 +2,32 @@
 #macro( capitalize $str)$str.substring(0,1).toUpperCase()$str.substring(1)#end
 #macro( renderJavaCallParams $params)
     #foreach($param in $params)
-            #if($foreach.count>1),#end #renderJavaCallParam($param)#end
+            #if($foreach.count>1),#end #renderJavaCallParam($param.type,$param.name)#end
 #end
-#macro( renderJavaCallParam $param)
-    #if($param.canonicalType == "String")
-        "${param.name}"#else
-    new ${param.shortType}()#end
+#macro( renderJavaCallParam $type $strValue )
+    #if($type.canonicalName == "String")
+        "${strValue}"#else
+    new ${type.name}()#end
 #end
-#macro( renderJavaTestClassImports $fields $methods)
-#foreach($field in $fields)
-        import $field.canonicalType;#end
+#macro( renderJavaTestClassImports $fields $methods $package)
+    #foreach($field in $fields)
+        #renderImport($field.type.canonicalName,$package)
+    #end
+    #foreach($method in $methods)
+        #if($method.returnType)
+            #renderImport($method.returnType.canonicalName,$package)#end
+        #foreach($param in $method.methodParams)
+            #renderImport($param.type.canonicalName,$package)
+        #end
+    #end
+#end
+#macro(renderImport $canonicalName $package)
+    #if($canonicalName!="String") ## TODO ... && $canonicalName does not belong to $package
+        import $canonicalName;#end
+#end
+#macro(renderJavaReturnVar $type)
+    #if($type)$type.name result = #end
+#end
+#macro(renderJUnitAssert $type)
+    #if($type)Assert.assertEquals(#renderJavaCallParam($type,"expectedResult"), result);#end
 #end

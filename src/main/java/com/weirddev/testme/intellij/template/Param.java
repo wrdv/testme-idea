@@ -1,27 +1,26 @@
 package com.weirddev.testme.intellij.template;
 
+import com.intellij.psi.PsiParameter;
+
 /**
- * Created by Admin on 24/10/2016.
+ * Date: 24/10/2016
+ * @author Yaron Yamin
  */
 public class Param {
+    private final Type type;
     private String name;
-    private String shortType;
-    private String canonicalType;
-    public Param(String name, String shortType, String canonicalType) {
-        this.name = name;
-        this.shortType = shortType;
-        this.canonicalType = canonicalType;
+
+    public Param(PsiParameter psiParameter) {
+        this.type = new Type(psiParameter.getType(), null);
+        this.name = psiParameter.getName();
+    }
+
+    public Type getType() {
+        return type;
     }
 
     public String getName() {
         return name;
     }
 
-    public String getCanonicalType() {
-        return canonicalType;
-    }
-
-    public String getShortType() {
-        return shortType;
-    }
 }

@@ -1,43 +1,56 @@
 package com.weirddev.testme.intellij.template;
 
+import com.intellij.psi.*;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by Admin on 24/10/2016.
+ * Date: 24/10/2016
+ * @author Yaron Yamin
  */
 public class Method {
-    private String name;
-    private String canonicalType;
-    private String ownerClassCanonicalType;
-    private List<Param> methodParams;
-    private boolean isPrivate;
-    private boolean isProtected;
-    private boolean isDefault;
-    private boolean isPublic;
-    private boolean isAbstract;
-    private boolean isNative;
-    private boolean isStatic;
+    private final Type returnType;
+    private final String name;
+    private final String ownerClassCanonicalType;
+    private final List<Param> methodParams;
+    private final boolean isPrivate;
+    private final boolean isProtected;
+    private final boolean isDefault;
+    private final boolean isPublic;
+    private final boolean isAbstract;
+    private final boolean isNative;
+    private final boolean isStatic;
 
-    public Method(String name, String canonicalType, String ownerClassCanonicalType, List<Param> params, boolean isPrivate, boolean isProtected, boolean isDefault, boolean isPublic, boolean isAbstract, boolean isNative, boolean isStatic) {
-        this.name = name;
-        this.canonicalType = canonicalType;
-        this.ownerClassCanonicalType = ownerClassCanonicalType;
-        this.methodParams = params;
-        this.isPrivate = isPrivate;
-        this.isProtected = isProtected;
-        this.isDefault = isDefault;
-        this.isPublic = isPublic;
-        this.isAbstract = isAbstract;
-        this.isNative = isNative;
-        this.isStatic = isStatic;
+    public Method(PsiMethod psiMethod) {
+        isPrivate=psiMethod.hasModifierProperty(PsiModifier.PRIVATE);
+        isProtected=psiMethod.hasModifierProperty(PsiModifier.PROTECTED);
+        isDefault=psiMethod.hasModifierProperty(PsiModifier.DEFAULT);         //TODO research usage PACKAGE_LOCAL vs. DEFAULT
+        isPublic=psiMethod.hasModifierProperty(PsiModifier.PUBLIC);
+        isAbstract=psiMethod.hasModifierProperty(PsiModifier.ABSTRACT);
+        isNative=psiMethod.hasModifierProperty(PsiModifier.NATIVE);
+        isStatic=psiMethod.hasModifierProperty(PsiModifier.STATIC);
+        returnType = psiMethod.getReturnType()==null?null:new Type(psiMethod.getReturnType(), null);
+        name = psiMethod.getName();
+        ownerClassCanonicalType = psiMethod.getContainingClass()==null?null:psiMethod.getContainingClass().getQualifiedName();
+        methodParams = extractMethodParams(psiMethod.getParameterList());
+    }
+
+    private List<Param> extractMethodParams(PsiParameterList parameterList) {
+        ArrayList<Param> params = new ArrayList<Param>();
+        for (PsiParameter psiParameter : parameterList.getParameters()) {
+            params.add(new Param(psiParameter));
+        }
+        return params;
     }
 
     public String getName() {
         return name;
     }
 
-    public String getCanonicalType() {
-        return canonicalType;
+    public Type getReturnType() {
+        return returnType;
     }
 
     public List<Param> getMethodParams() {
@@ -71,7 +84,7 @@ public class Method {
     public boolean isStatic() {
         return isStatic;
     }
-
+    @Nullable
     public String getOwnerClassCanonicalType() {
         return ownerClassCanonicalType;
     }

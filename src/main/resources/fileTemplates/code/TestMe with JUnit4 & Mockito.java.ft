@@ -3,7 +3,7 @@
 package ${PACKAGE_NAME};
 #end
 
-#renderJavaTestClassImports($TESTED_CLASS_FIELDS,$TESTED_CLASS_METHODS)
+#renderJavaTestClassImports($TESTED_CLASS_FIELDS,$TESTED_CLASS_METHODS,$PACKAGE_NAME)
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,7 +15,7 @@ import org.mockito.MockitoAnnotations;
 public class ${CLASS_NAME} {
 #foreach($field in $TESTED_CLASS_FIELDS)
     @Mock
-    private $field.shortType $field.name;
+    private $field.type.name $field.name;
 #end
 #if(!$TESTED_CLASS_FIELDS.isEmpty())
     @InjectMocks
@@ -33,7 +33,8 @@ public class ${CLASS_NAME} {
 #if($method.ownerClassCanonicalType!="java.lang.Object")
     @Test
     public void test#capitalize($method.name)() throws Exception{
-        #deCapitalize($TESTED_CLASS_NAME).${method.name}(#renderJavaCallParams($method.methodParams));
+        #renderJavaReturnVar($method.returnType)#deCapitalize($TESTED_CLASS_NAME).${method.name}(#renderJavaCallParams($method.methodParams));
+        #renderJUnitAssert($method.returnType)
     }
 #end
 #end
