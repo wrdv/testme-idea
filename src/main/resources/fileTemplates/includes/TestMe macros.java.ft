@@ -14,16 +14,20 @@
         #renderImport($field.type.canonicalName,$package)
     #end
     #foreach($method in $methods)
-        #if($method.returnType)
-            #renderImport($method.returnType.canonicalName,$package)#end
-        #foreach($param in $method.methodParams)
-            #renderImport($param.type.canonicalName,$package)
+        #if($method.ownerClassCanonicalType!="java.lang.Object")
+            #if($method.returnType)
+                #renderImport($method.returnType.canonicalName,$package)#end
+            #foreach($param in $method.methodParams)
+                #renderImport($param.type.canonicalName,$package)
+            #end
         #end
     #end
 #end
 #macro(renderImport $canonicalName $package)
     #if($canonicalName!="String") ## TODO ... && $canonicalName does not belong to $package
-        import $canonicalName;#end
+##    #if(!$canonicalName.matches("java\\.lang\\.[^.]*")) ## TODO ... && $canonicalName does not belong to $package
+        import $canonicalName;
+    #end
 #end
 #macro(renderJavaReturnVar $type)
     #if($type)$type.name result = #end

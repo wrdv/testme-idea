@@ -1,4 +1,8 @@
 package com.example.warriers;
-public class FooFighter{
 
+import com.example.foes.Fire;
+
+/** Test input class*/
+public interface FooFighter {
+    String fight(Fire withFire);
 }

@@ -1,7 +1,7 @@
 package com.example.services.impl;
 
 import com.example.warriers.FooFighter;
-import com.example.weapons.Fire;
+import com.example.foes.Fire;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,7 +25,7 @@ public class FooTest {
 
     @Test
     public void testFight() throws Exception {
-        String result = foo.fight(new Fire(), "someFoe");
+        String result = foo.fight(new Fire(), "foeName");
         Assert.assertEquals("expectedResult", result);
     }
 }
