@@ -1,14 +1,11 @@
 package com.weirddev.testme.intellij;
 
 import com.intellij.ide.fileTemplates.FileTemplateDescriptor;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.impl.file.PsiPackageImpl;
-import com.intellij.testFramework.PsiTestUtil;
-import com.intellij.testFramework.fixtures.TempDirTestFixture;
-import com.intellij.testFramework.fixtures.impl.TempDirTestFixtureImpl;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.testFramework.builders.JavaModuleFixtureBuilder;
+import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase;
 
 import java.io.File;
 
@@ -17,15 +14,15 @@ import java.io.File;
  *
  * @author Yaron Yamin
  */
-public class TestMeGeneratorTest extends LightCodeInsightFixtureTestCaseExt {
+public class TestMeGeneratorTest extends JavaCodeInsightFixtureTestCase {
 
 //    private static final String TEST_TEMPLATE = "TestMe with JUnit4 & Mockito.java";
+    //TODO use actual template and replace Header template dynamically
     private static final String TEST_TEMPLATE = "Test Template - TestMe JUnit4 & Mockito.java";
 
     public void testGenerateTest() throws Exception {
-        //TODO setup JAVA SDK
-        VirtualFile virtualFile = myFixture.copyDirectoryToProject("src", "src");
-        PsiTestUtil.addSourceRoot(myFixture.getModule(), virtualFile);
+        myFixture.copyDirectoryToProject("src", "");
+        //PsiTestUtil.addSourceRoot(myFixture.getModule(), myFixture.copyDirectoryToProject("src", "src"));
         System.out.println("temp dir path:"+myFixture.getTempDirPath());
 //        final VirtualFile testDir = myFixture.getTempDirFixture().findOrCreateDir("test");
 //        assertNotNull("ref file not found", testDir);
@@ -50,9 +47,7 @@ public class TestMeGeneratorTest extends LightCodeInsightFixtureTestCaseExt {
                 fooClass
         ));
         System.out.println("result:"+result);
-        myFixture.checkResultByFile("src/"+dirPath+"FooTest.java","test/"+dirPath+"FooTest.java",false);
-//        myFixture.checkResultByFile("test/"+dirPath+"FooTest.java",false);
-
+        myFixture.checkResultByFile(/*"src/"+*/dirPath+"FooTest.java","test/"+dirPath+"FooTest.java",false);
     }
   //TODO test with default package
   //TODO test w/out formatting
@@ -77,9 +72,8 @@ public class TestMeGeneratorTest extends LightCodeInsightFixtureTestCaseExt {
         return "testData/"+getTestName(true).replace('$', '/');
     }
 
-    @NotNull
     @Override
-    protected TempDirTestFixture getTempDirFixture() {
-        return new TempDirTestFixtureImpl();
+    protected void tuneFixture(JavaModuleFixtureBuilder moduleBuilder) throws Exception {
+        moduleBuilder.addJdk(new File(System.getProperty("java.home")).getParent());
     }
 }

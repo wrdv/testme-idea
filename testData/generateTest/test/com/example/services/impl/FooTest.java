@@ -26,7 +26,7 @@ public class FooTest {
     @Test
     public void testFight() throws Exception {
         String result = foo.fight(new Fire(), "foeName");
-        Assert.assertEquals("expectedResult", result);
+        Assert.assertEquals("replaceMeWithExpectedResult", result);
     }
 }
 

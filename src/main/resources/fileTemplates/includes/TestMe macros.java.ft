@@ -5,7 +5,7 @@
             #if($foreach.count>1),#end #renderJavaCallParam($param.type,$param.name)#end
 #end
 #macro( renderJavaCallParam $type $strValue )
-    #if($type.canonicalName == "String")
+    #if($type.canonicalName == "java.lang.String")
         "${strValue}"#else
     new ${type.name}()#end
 #end
@@ -24,8 +24,8 @@
     #end
 #end
 #macro(renderImport $canonicalName $package)
-    #if($canonicalName!="String") ## TODO ... && $canonicalName does not belong to $package
-##    #if(!$canonicalName.matches("java\\.lang\\.[^.]*")) ## TODO ... && $canonicalName does not belong to $package
+##    #if(!$canonicalName.matches("java\\.lang\\.[^.]*"))
+    #if(!$canonicalName.startsWith("java.lang.")) ## TODO ... && $canonicalName does not belong to $package
         import $canonicalName;
     #end
 #end
@@ -33,5 +33,5 @@
     #if($type)$type.name result = #end
 #end
 #macro(renderJUnitAssert $type)
-    #if($type)Assert.assertEquals(#renderJavaCallParam($type,"expectedResult"), result);#end
+    #if($type)Assert.assertEquals(#renderJavaCallParam($type,"replaceMeWithExpectedResult"), result);#end
 #end
