@@ -11,22 +11,21 @@
 #end
 #macro( renderJavaTestClassImports $fields $methods $package)
     #foreach($field in $fields)
-        #renderImport($field.type.canonicalName,$package)
+        #renderImport($field.type,$package)
     #end
     #foreach($method in $methods)
         #if($method.ownerClassCanonicalType!="java.lang.Object")
             #if($method.returnType)
-                #renderImport($method.returnType.canonicalName,$package)#end
+                #renderImport($method.returnType,$package)#end
             #foreach($param in $method.methodParams)
-                #renderImport($param.type.canonicalName,$package)
+                #renderImport($param.type,$package)
             #end
         #end
     #end
 #end
-#macro(renderImport $canonicalName $package)
-##    #if(!$canonicalName.matches("java\\.lang\\.[^.]*"))
-    #if(!$canonicalName.startsWith("java.lang.")) ## TODO ... && $canonicalName does not belong to $package
-        import $canonicalName;
+#macro(renderImport $type $package)
+    #if($type.packageName != "java.lang" && $type.packageName != $package)
+        import $type.canonicalName;
     #end
 #end
 #macro(renderJavaReturnVar $type)

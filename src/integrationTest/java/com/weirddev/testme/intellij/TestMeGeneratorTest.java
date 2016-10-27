@@ -58,7 +58,7 @@ public class TestMeGeneratorTest extends JavaCodeInsightFixtureTestCase {
     // TODO test class inheritance
     //TODO test field/param types with same short names from different packages
     //TODO test multiple field/param types from the same package
-    //TODO test carent position with <caret>
+    //TODO test caret position with <caret>
     @Override
     public void setUp() throws Exception {
         super.setUp();

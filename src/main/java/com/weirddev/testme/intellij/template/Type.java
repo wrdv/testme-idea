@@ -4,6 +4,7 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiModifier;
 import com.intellij.psi.PsiPrimitiveType;
 import com.intellij.psi.PsiType;
+import com.intellij.psi.util.ClassUtil;
 
 /**
  * Date: 24/10/2016
@@ -14,10 +15,12 @@ public class Type {
     private final String name;
     private final boolean isPrimitive;
     private final boolean isFinal;//TODO consider refactoring - not relevant in some contexts when  aClass is null
+    private final String packageName;
 
     public Type(PsiType psiType, PsiClass aClass) {
         this.canonicalName = psiType.getCanonicalText();
         this.name = psiType.getPresentableText();
+        packageName = ClassUtil.extractPackageName(canonicalName);
         this.isPrimitive = psiType instanceof PsiPrimitiveType;
         isFinal = isFinal(aClass);
     }
@@ -39,5 +42,9 @@ public class Type {
 
     public boolean isFinal() {
         return isFinal;
+    }
+
+    public String getPackageName() {
+        return packageName;
     }
 }
