@@ -1,6 +1,8 @@
 package com.weirddev.testme.intellij;
 
+import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateDescriptor;
+import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.impl.file.PsiPackageImpl;
@@ -16,14 +18,13 @@ import java.io.File;
  */
 public class TestMeGeneratorTest extends JavaCodeInsightFixtureTestCase {
 
-//    private static final String TEST_TEMPLATE = "TestMe with JUnit4 & Mockito.java";
-    //TODO use actual template and replace Header template dynamically
-    private static final String TEST_TEMPLATE = "Test Template - TestMe JUnit4 & Mockito.java";
+    private static final String FILE_HEADER_TEMPLATE = "File Header.java";
+    public static final String HEADER_TEMPLATE_TEXT = "/** created by TestMe integration test on MMXVI */";
 
     public void testGenerateTest() throws Exception {
         myFixture.copyDirectoryToProject("src", "");
         //PsiTestUtil.addSourceRoot(myFixture.getModule(), myFixture.copyDirectoryToProject("src", "src"));
-        System.out.println("temp dir path:"+myFixture.getTempDirPath());
+
 //        final VirtualFile testDir = myFixture.getTempDirFixture().findOrCreateDir("test");
 //        assertNotNull("ref file not found", testDir);
 //        System.out.println("project test dir:"+testDir);
@@ -34,7 +35,7 @@ public class TestMeGeneratorTest extends JavaCodeInsightFixtureTestCase {
 //        LightCodeInsightTestCase.getJavaFacade().findClass("src.com.example.services.impl.Foo", myFixture.getModule().getModuleScope());
         myFixture.openFileInEditor(fooClass.getContainingFile().getVirtualFile());
         PsiPackageImpl targetPackage = new PsiPackageImpl(getPsiManager(), packageName);
-        PsiElement result = new TestMeGenerator().generateTest(new FileTemplateContext(new FileTemplateDescriptor(TEST_TEMPLATE), getProject(),
+        PsiElement result = new TestMeGenerator().generateTest(new FileTemplateContext(new FileTemplateDescriptor(CreateTestMeAction.TESTME_WITH_JUNIT4_MOCKITO_JAVA), getProject(),
                 "FooTest",
 //                new PsiPackageImpl(getPsiManager(), "im.the.generator"),
                 targetPackage,
@@ -64,6 +65,17 @@ public class TestMeGeneratorTest extends JavaCodeInsightFixtureTestCase {
         super.setUp();
         System.out.println("TestDataPath:"+getTestDataPath());
         assertTrue(new File(getTestDataPath()).exists());
+        System.out.println("temp dir path:"+myFixture.getTempDirPath());
+        replacePatternTemplateText(FILE_HEADER_TEMPLATE, HEADER_TEMPLATE_TEXT);
+    }
+
+    private void replacePatternTemplateText(String templateName, String templateText) {
+        FileTemplateManager fileTemplateManager = FileTemplateManager.getInstance(getProject());
+        FileTemplate headerTemplate = fileTemplateManager.getPattern(templateName);
+        System.out.println("headerTemplate:"+headerTemplate);
+        System.out.println("Existing header Template text:\n"+headerTemplate.getText());
+        System.out.println("Replacing header Template text with:\n"+ templateText);
+        headerTemplate.setText(templateText);
     }
 
     @Override

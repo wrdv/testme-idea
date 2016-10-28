@@ -30,6 +30,7 @@ import java.util.Set;
 public class CreateTestMeAction extends CreateTestAction {
     private static final Logger LOG = Logger.getInstance(CreateTestMeAction.class.getName());
     private static final String CREATE_TEST_IN_THE_SAME_ROOT = "create.test.in.the.same.root";
+    public static final String TESTME_WITH_JUNIT4_MOCKITO_JAVA = "TestMe with JUnit4 & Mockito.java";
     private final TestMeGenerator testMeGenerator;
 
     public CreateTestMeAction() {
@@ -74,7 +75,7 @@ public class CreateTestMeAction extends CreateTestAction {
             CommandProcessor.getInstance().executeCommand(project, new Runnable() {
                 @Override
                 public void run() {
-                    testMeGenerator.generateTest(new FileTemplateContext(new FileTemplateDescriptor("TestMe with JUnit4 & Mockito.java"),project, targetClass, srcPackage, srcModule, targetDirectory, srcClass));
+                    testMeGenerator.generateTest(new FileTemplateContext(new FileTemplateDescriptor(TESTME_WITH_JUNIT4_MOCKITO_JAVA),project, targetClass, srcPackage, srcModule, targetDirectory, srcClass));
                 }
             }, "TestMe Generate Test", this);
         }

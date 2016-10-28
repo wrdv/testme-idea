@@ -40,4 +40,4 @@ public class ${CLASS_NAME} {
 #end
 }
 
-/** Generated with love by TestMe :) */
+//Generated with love by TestMe :) Please report issues and submit feature requests at: https://github.com/yaronyam/testme-intellij/issues
