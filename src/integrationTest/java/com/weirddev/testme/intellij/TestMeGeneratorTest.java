@@ -6,18 +6,13 @@ import com.intellij.ide.fileTemplates.FileTemplateDescriptor;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.psi.*;
-import com.intellij.psi.impl.file.PsiPackageImpl;
 import com.intellij.testFramework.builders.JavaModuleFixtureBuilder;
 import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase;
-import com.intellij.testIntegration.TestFramework;
-import com.intellij.testIntegration.createTest.TestGenerator;
-import com.intellij.testIntegration.createTest.TestGenerators;
 
 import java.io.File;
 
 /**
  * Date: 10/20/2016
- *
  * @author Yaron Yamin
  */
 public class TestMeGeneratorTest extends JavaCodeInsightFixtureTestCase {
@@ -30,6 +25,9 @@ public class TestMeGeneratorTest extends JavaCodeInsightFixtureTestCase {
     }
     public void testDefaultPackage() throws Exception {
         doTest("", "Foo", "FooTest");
+    }
+    public void testVariousFields() throws Exception {
+        doTest("com.example.services.impl", "Foo", "FooTest");
     }
 
     //TODO TC w/out formatting
@@ -57,7 +55,6 @@ public class TestMeGeneratorTest extends JavaCodeInsightFixtureTestCase {
         final PsiDirectory srcDir = fooClass.getContainingFile().getContainingDirectory();
         final PsiPackage targetPackage = JavaDirectoryService.getInstance().getPackage(srcDir);
 
-
         CommandProcessor.getInstance().executeCommand(getProject(), new Runnable() {
             @Override
             public void run() {
@@ -73,8 +70,6 @@ public class TestMeGeneratorTest extends JavaCodeInsightFixtureTestCase {
 //               PsiJavaDirectoryFactory.getInstance(getProject()).createDirectory(testDir),
                         fooClass
                 ));
-
-
                 System.out.println("result:"+result);
                 String expectedTestClassFilePath = (packageName.length() > 0 ? (packageName.replace(".", "/") + "/") : "") + expectedTestClassName + ".java";
                 myFixture.checkResultByFile(/*"src/"+*/expectedTestClassFilePath,"test/"+expectedTestClassFilePath,false);
