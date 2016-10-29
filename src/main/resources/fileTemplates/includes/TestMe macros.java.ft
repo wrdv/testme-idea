@@ -24,7 +24,7 @@
     #end
 #end
 #macro(renderImport $type $package)
-    #if($type.packageName != "java.lang" && $type.packageName != $package)
+    #if($type.packageName.length()>0 && $type.packageName != "java.lang" && $type.packageName != $package)
         import $type.canonicalName;
     #end
 #end
