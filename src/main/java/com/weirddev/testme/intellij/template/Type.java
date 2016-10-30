@@ -25,7 +25,7 @@ public class Type {
         isFinal = isFinal(aClass);
     }
     private boolean isFinal(PsiClass aClass) {
-        return aClass != null &&  aClass.getModifierList()!=null && !aClass.getModifierList().hasExplicitModifier(PsiModifier.FINAL);
+        return aClass != null &&  aClass.getModifierList()!=null && aClass.getModifierList().hasExplicitModifier(PsiModifier.FINAL);
     }
 
     public String getCanonicalName() {

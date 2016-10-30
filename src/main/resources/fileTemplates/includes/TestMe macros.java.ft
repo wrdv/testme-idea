@@ -1,3 +1,5 @@
+#set($trackedImports=[])
+
 #macro( deCapitalize $str)$str.substring(0,1).toLowerCase()$str.substring(1)#end
 #macro( capitalize $str)$str.substring(0,1).toUpperCase()$str.substring(1)#end
 #macro( renderJavaCallParams $params)
@@ -24,8 +26,9 @@
     #end
 #end
 #macro(renderImport $type $package)
-    #if($type.packageName.length()>0 && $type.packageName != "java.lang" && $type.packageName != $package)
+    #if($type.packageName.length()>0 && $type.packageName != "java.lang" && $type.packageName != $package && !$trackedImports.contains($type.canonicalName))
         import $type.canonicalName;
+        #set($devNull=$trackedImports.add($type.canonicalName))
     #end
 #end
 #macro(renderJavaReturnVar $type)

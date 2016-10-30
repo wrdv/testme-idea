@@ -30,18 +30,25 @@ public class TestMeGeneratorTest extends JavaCodeInsightFixtureTestCase {
         doTest("com.example.services.impl", "Foo", "FooTest");
     }
 
-    //TODO TC w/out formatting
-    //TODO TC with static, final, primitive, primitive wrapper objects fields.
+    // TODO TC with setters
+    //TODO TC with non-default c'tor that inits fields
+
+    //TODO TC field that inherit from java.lang.Number
+    //TODO TC params that inherit from java.lang.Number
+
+    //TODO TC caret position with <caret>
+
     // TODO TC fields,params and return types that have generics. lambda params?
     // TODO TC no default c'tor
-    // TODO TC overloaded methods
+    // TODO TC overloaded methods - test naming convention?
     // TODO TC class inheritance
-    // TODO TC inner class
+
     //TODO TC field/param types with same short names from different packages
     //TODO TC multiple field/param types from the same package
-    //TODO TC method overloading
-    //TODO TC caret position with <caret>
     //TODO TC different test target dir
+    //TODO TC w/out formatting
+
+    //TODO TC generate for exception scenario
 
     private void doTest(final String packageName, String testSubjectClassName, final String expectedTestClassName) {
         myFixture.copyDirectoryToProject("src", "");

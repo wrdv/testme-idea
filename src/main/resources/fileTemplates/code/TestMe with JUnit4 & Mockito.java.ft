@@ -14,8 +14,13 @@ import org.mockito.MockitoAnnotations;
 
 public class ${CLASS_NAME} {
 #foreach($field in $TESTED_CLASS_FIELDS)
-    @Mock
-    private $field.type.name $field.name;
+    #if(!${field.type.primitive} && !${field.type.final})
+        @Mock
+        private $field.type.name $field.name;
+    #end
+    #if(!${field.type.primitive} && ${field.type.final})
+        //TODO Field $field.name of type $field.type.name - was not mocked since Mockito doesn't mock a Final class
+    #end
 #end
 #if(!$TESTED_CLASS_FIELDS.isEmpty())
     @InjectMocks
