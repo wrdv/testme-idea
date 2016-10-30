@@ -1,6 +1,7 @@
 package com.weirddev.testme.intellij.template;
 
 import com.intellij.psi.*;
+import com.intellij.psi.util.PropertyUtil;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -22,6 +23,8 @@ public class Method {
     private final boolean isAbstract;
     private final boolean isNative;
     private final boolean isStatic;
+    private final boolean isSetter;
+    private final boolean isGetter;
 
     public Method(PsiMethod psiMethod) {
         isPrivate=psiMethod.hasModifierProperty(PsiModifier.PRIVATE);
@@ -35,6 +38,8 @@ public class Method {
         name = psiMethod.getName();
         ownerClassCanonicalType = psiMethod.getContainingClass()==null?null:psiMethod.getContainingClass().getQualifiedName();
         methodParams = extractMethodParams(psiMethod.getParameterList());
+        isSetter = PropertyUtil.isSimpleSetter(psiMethod);
+        isGetter = PropertyUtil.isSimpleGetter(psiMethod);
     }
 
     private List<Param> extractMethodParams(PsiParameterList parameterList) {
@@ -87,5 +92,13 @@ public class Method {
     @Nullable
     public String getOwnerClassCanonicalType() {
         return ownerClassCanonicalType;
+    }
+
+    public boolean isSetter() {
+        return isSetter;
+    }
+
+    public boolean isGetter() {
+        return isGetter;
     }
 }

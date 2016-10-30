@@ -20,26 +20,29 @@ public class TestMeGeneratorTest extends JavaCodeInsightFixtureTestCase {
     private static final String FILE_HEADER_TEMPLATE = "File Header.java";
     private static final String HEADER_TEMPLATE_REPLACEMENT_TEXT = "/** created by TestMe integration test on MMXVI */";
     private static boolean isHeaderTemplateReplaced=false;
+
     public void testSimpleClass() throws Exception {
         doTest("com.example.services.impl", "Foo", "FooTest");
     }
     public void testDefaultPackage() throws Exception {
         doTest("", "Foo", "FooTest");
     }
-    public void testVariousFields() throws Exception {
+    public void testVariousFieldTypes() throws Exception {
+        doTest("com.example.services.impl", "Foo", "FooTest");
+    }
+    public void testWithSetters() throws Exception {
         doTest("com.example.services.impl", "Foo", "FooTest");
     }
 
-    // TODO TC with setters
     //TODO TC with non-default c'tor that inits fields
+    // TODO TC no default c'tor
 
     //TODO TC field that inherit from java.lang.Number
     //TODO TC params that inherit from java.lang.Number
 
     //TODO TC caret position with <caret>
-
     // TODO TC fields,params and return types that have generics. lambda params?
-    // TODO TC no default c'tor
+
     // TODO TC overloaded methods - test naming convention?
     // TODO TC class inheritance
 
