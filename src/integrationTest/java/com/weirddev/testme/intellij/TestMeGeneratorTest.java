@@ -22,20 +22,20 @@ public class TestMeGeneratorTest extends JavaCodeInsightFixtureTestCase {
     private static boolean isHeaderTemplateReplaced=false;
 
     public void testSimpleClass() throws Exception {
-        doTest("com.example.services.impl", "Foo", "FooTest");
+        doTest();
     }
     public void testDefaultPackage() throws Exception {
         doTest("", "Foo", "FooTest");
     }
     public void testVariousFieldTypes() throws Exception {
-        doTest("com.example.services.impl", "Foo", "FooTest");
+        doTest();
     }
     public void testWithSetters() throws Exception {
-        doTest("com.example.services.impl", "Foo", "FooTest");
+        doTest();
     }
-
-    //TODO TC with non-default c'tor that inits fields
-    // TODO TC no default c'tor
+    public void testConstructors() throws Exception {
+        doTest();
+    }
 
     //TODO TC field that inherit from java.lang.Number
     //TODO TC params that inherit from java.lang.Number
@@ -52,6 +52,10 @@ public class TestMeGeneratorTest extends JavaCodeInsightFixtureTestCase {
     //TODO TC w/out formatting
 
     //TODO TC generate for exception scenario
+
+    private void doTest() {
+        doTest("com.example.services.impl", "Foo", "FooTest");
+    }
 
     private void doTest(final String packageName, String testSubjectClassName, final String expectedTestClassName) {
         myFixture.copyDirectoryToProject("src", "");

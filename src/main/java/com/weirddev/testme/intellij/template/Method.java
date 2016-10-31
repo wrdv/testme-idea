@@ -25,6 +25,7 @@ public class Method {
     private final boolean isStatic;
     private final boolean isSetter;
     private final boolean isGetter;
+    private final boolean constructor;
 
     public Method(PsiMethod psiMethod) {
         isPrivate=psiMethod.hasModifierProperty(PsiModifier.PRIVATE);
@@ -40,6 +41,7 @@ public class Method {
         methodParams = extractMethodParams(psiMethod.getParameterList());
         isSetter = PropertyUtil.isSimpleSetter(psiMethod);
         isGetter = PropertyUtil.isSimpleGetter(psiMethod);
+        constructor = psiMethod.isConstructor();
     }
 
     private List<Param> extractMethodParams(PsiParameterList parameterList) {
@@ -100,5 +102,9 @@ public class Method {
 
     public boolean isGetter() {
         return isGetter;
+    }
+
+    public boolean isConstructor() {
+        return constructor;
     }
 }

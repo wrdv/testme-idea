@@ -35,7 +35,7 @@ public class ${CLASS_NAME} {
     }
 #end
 #foreach($method in $TESTED_CLASS_METHODS)
-#if($method.ownerClassCanonicalType!="java.lang.Object" && !${method.setter}&& !${method.getter})
+#if($method.ownerClassCanonicalType!="java.lang.Object" && !${method.setter} && !${method.getter} && !${method.constructor})
     @Test
     public void test#capitalize($method.name)() throws Exception{
         #renderJavaReturnVar($method.returnType)#deCapitalize($TESTED_CLASS_NAME).${method.name}(#renderJavaCallParams($method.methodParams));
