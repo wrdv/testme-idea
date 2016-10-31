@@ -1,4 +1,5 @@
 #set($trackedImports=[])
+#set($trackedTestMethodsCount={})
 
 #macro( deCapitalize $str)$str.substring(0,1).toLowerCase()$str.substring(1)#end
 #macro( capitalize $str)$str.substring(0,1).toUpperCase()$str.substring(1)#end
@@ -37,3 +38,19 @@
 #macro(renderJUnitAssert $type)
     #if($type)Assert.assertEquals(#renderJavaCallParam($type,"replaceMeWithExpectedResult"), result);#end
 #end
+#macro(renderTestMethods $testedClassMethods $testedClassName)
+    #foreach($method in $testedClassMethods)
+        #if($method.ownerClassCanonicalType!="java.lang.Object" && !${method.setter} && !${method.getter} && !${method.constructor})
+            @Test
+            public void #renderTestMethodName($method.name)() throws Exception{
+                #renderJavaReturnVar($method.returnType)#deCapitalize($testedClassName).${method.name}(#renderJavaCallParams($method.methodParams));
+                #renderJUnitAssert($method.returnType)
+            }
+        #end
+    #end
+#end
+#macro(renderTestMethodName $methodName)
+     test#capitalize($methodName)#testMethodSuffix($methodName)
+#end
+#macro(testMethodSuffix $methodName)
+    $!trackedTestMethodsCount.put('$methodName',$trackedTestMethodsCount.get($methodName))#end

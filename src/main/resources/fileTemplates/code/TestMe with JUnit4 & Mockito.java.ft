@@ -34,15 +34,7 @@ public class ${CLASS_NAME} {
         MockitoAnnotations.initMocks(this);
     }
 #end
-#foreach($method in $TESTED_CLASS_METHODS)
-#if($method.ownerClassCanonicalType!="java.lang.Object" && !${method.setter} && !${method.getter} && !${method.constructor})
-    @Test
-    public void test#capitalize($method.name)() throws Exception{
-        #renderJavaReturnVar($method.returnType)#deCapitalize($TESTED_CLASS_NAME).${method.name}(#renderJavaCallParams($method.methodParams));
-        #renderJUnitAssert($method.returnType)
-    }
-#end
-#end
+#renderTestMethods($TESTED_CLASS_METHODS, $TESTED_CLASS_NAME)
 }
 
-//Generated with love by TestMe :) Please report issues and submit feature requests at: https://github.com/yaronyam/testme-intellij/issues
+#parse("TestMe Footer.java")

@@ -34,30 +34,30 @@ public class TestMeGeneratorTest extends JavaCodeInsightFixtureTestCase {
         doTest();
     }
     public void testConstructors() throws Exception {
+        doTest(); //TODO template should initialize test subject directly with c'tor in this use case
+    }
+    public void testOverloading() throws Exception {
         doTest();
     }
 
-    //TODO TC field that inherit from java.lang.Number
-    //TODO TC params that inherit from java.lang.Number
-
-    //TODO TC caret position with <caret>
     // TODO TC fields,params and return types that have generics. lambda params?
-
     // TODO TC overloaded methods - test naming convention?
     // TODO TC class inheritance
+    // TODO TC field/param types with same short names from different packages
 
-    //TODO TC field/param types with same short names from different packages
-    //TODO TC multiple field/param types from the same package
-    //TODO TC different test target dir
-    //TODO TC w/out formatting
+    // TODO TC caret position with <caret>
 
-    //TODO TC generate for exception scenario
+    // TODO TC different test target dir
+    // TODO TC w/out formatting
+
+    // TODO TC generate for exception scenario
 
     private void doTest() {
         doTest("com.example.services.impl", "Foo", "FooTest");
     }
 
     private void doTest(final String packageName, String testSubjectClassName, final String expectedTestClassName) {
+        //TODO copy common test src dir to proj
         myFixture.copyDirectoryToProject("src", "");
         //PsiTestUtil.addSourceRoot(myFixture.getModule(), myFixture.copyDirectoryToProject("src", "src"));
 //        final VirtualFile testDir = myFixture.getTempDirFixture().findOrCreateDir("test");
