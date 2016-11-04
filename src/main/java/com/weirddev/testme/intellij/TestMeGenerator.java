@@ -4,6 +4,7 @@ import com.intellij.codeInsight.CodeInsightBundle;
 import com.intellij.codeInsight.CodeInsightUtil;
 import com.intellij.codeInsight.FileModificationService;
 import com.intellij.execution.junit.JUnit4Framework;
+import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.ide.fileTemplates.FileTemplateUtil;
 import com.intellij.openapi.application.ApplicationManager;
@@ -115,7 +116,9 @@ public class TestMeGenerator {
             templateCtxtParams.put(TestMeTemplateParams.TESTED_CLASS_NAME, targetClass.getName());
         }
         try {
-            final PsiElement psiElement = FileTemplateUtil.createFromTemplate(fileTemplateManager.getCodeTemplate(templateName), templateName, templateCtxtParams, targetDirectory,null);
+            FileTemplate codeTemplate = fileTemplateManager.getCodeTemplate(templateName);
+            codeTemplate.setReformatCode(context.isReformatCode());
+            final PsiElement psiElement = FileTemplateUtil.createFromTemplate(codeTemplate, templateName, templateCtxtParams, targetDirectory,null);
             if (psiElement instanceof PsiClass) {
                 return (PsiClass)psiElement;
             }

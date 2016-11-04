@@ -50,7 +50,16 @@
     #end
 #end
 #macro(renderTestMethodName $methodName)
-     test#capitalize($methodName)#testMethodSuffix($methodName)
+test#capitalize($methodName)#testMethodSuffix($methodName)
 #end
+
 #macro(testMethodSuffix $methodName)
-    $!trackedTestMethodsCount.put('$methodName',$trackedTestMethodsCount.get($methodName))#end
+#if( $trackedTestMethodsCount.get($methodName))
+    #set( $suffix= $trackedTestMethodsCount.get($methodName))
+#else
+    #set( $suffix= 0)
+#end
+#set( $suffix= $suffix + 1)
+#set( $devNull= $trackedTestMethodsCount.put($methodName,$suffix))
+#if($suffix!=1)${suffix}#end
+#end

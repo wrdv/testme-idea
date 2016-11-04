@@ -35,6 +35,24 @@ public class FooTest {
         String result = foo.fight(new Fire(), new Ice(), "foeName");
         Assert.assertEquals("replaceMeWithExpectedResult", result);
     }
+
+    @Test
+    public void testFight3() throws Exception {
+        String result = foo.fight(new Fire(), new Ice(), new Ice(), "foeName");
+        Assert.assertEquals("replaceMeWithExpectedResult", result);
+    }
+
+    @Test
+    public void testFold() throws Exception {
+        String result = foo.fold("foeName");
+        Assert.assertEquals("replaceMeWithExpectedResult", result);
+    }
+
+    @Test
+    public void testFold2() throws Exception {
+        String result = foo.fold("foeName", "truce");
+        Assert.assertEquals("replaceMeWithExpectedResult", result);
+    }
 }
 
 //Generated with love by TestMe :) Please report issues and submit feature requests at: https://github.com/yaronyam/testme-intellij/issues

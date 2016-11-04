@@ -20,6 +20,7 @@ public class FileTemplateContext {
     private final Module targetModule;
     private final PsiDirectory targetDirectory;
     private final PsiClass srcClass;
+    private boolean reformatCode=true;
 
     public FileTemplateContext(FileTemplateDescriptor fileTemplateDescriptor, Project project, String targetClass, PsiPackage targetPackage, Module targetModule, PsiDirectory targetDirectory, PsiClass srcClass) {
         this.fileTemplateDescriptor = fileTemplateDescriptor;
@@ -57,5 +58,13 @@ public class FileTemplateContext {
 
     public FileTemplateDescriptor getFileTemplateDescriptor() {
         return fileTemplateDescriptor;
+    }
+
+    public boolean isReformatCode() {
+        return reformatCode;
+    }
+
+    public void setReformatCode(boolean reformatCode) {
+        this.reformatCode = reformatCode;
     }
 }
