@@ -1,7 +1,7 @@
 package com.example.services.impl;
 
 import com.example.warriers.FooFighter;
-import com.example.foes.Fear;
+import com.example.foes.Fire;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,7 +16,8 @@ public class FooTest {
     @Mock
     private FooFighter fooFighter;
     @Mock
-    private FooFighter fooFighterProperty;
+    private com.example.foes.Fire fireOfFoe;
+
     @InjectMocks
     private Foo foo;
 
@@ -27,7 +28,7 @@ public class FooTest {
 
     @Test
     public void testFight() throws Exception {
-        String result = foo.fight(new Fear(), "foeName");
+        String result = foo.fight(new Fire(), new com.example.hole.Fire());
         Assert.assertEquals("replaceMeWithExpectedResult", result);
     }
 }

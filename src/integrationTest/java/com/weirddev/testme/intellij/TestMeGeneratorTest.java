@@ -42,17 +42,31 @@ public class TestMeGeneratorTest extends JavaCodeInsightFixtureTestCase {
     public void testNoFormatting() throws Exception {
         doTest("com.example.services.impl", "Foo", "FooTest", false);
     }
+    public void testTypeNameCollision() throws Exception {
+        doTest();
+        /**
+         * TODO alg.
+         *
+         * render import:
+         *              If type has named package  && !in java.lang && !short name tracked  && no other type with short name in default package [need to loop params and fields - check if computed context can be added to template]=> add import
+         *
+         * render param:
+         * If type has named package  && !in java.lang && !canonical tracked  => use canonical type name
+         * Else => use short name
+         */
+    }
+    public void testTypeInDefaultPackageCollision() throws Exception {
+        doTest("", "Foo", "FooTest", true);
+    }
 
     // TODO TC fields,params and return types that have generics. lambda params?
-    // TODO TC class inheritance
-    // TODO TC field/param types with same short type names from different packages, param and fields with same name
+    // TODO TC class inheritance, overridden fields
 
     // TODO TC caret position with <caret>
 
     // TODO TC different test target dir
 
-
-    // TODO TC generate for exception scenario
+    // TODO TC generate for exception scenario (for post MVP ?)
 
     private void doTest() {
         doTest("com.example.services.impl", "Foo", "FooTest", true);
