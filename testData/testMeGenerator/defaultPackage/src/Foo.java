@@ -1,13 +1,14 @@
 
-import com.example.warriers.FooFighter;
+import com.example.warriers.Hunter;
 import com.example.foes.Fire;
-<caret>
+import com.example.foes.Pokemon;
+
 public class Foo{
+<caret>
+    private Hunter hunter;
 
-    private FooFighter fooFighter;
-
-    public String fight(Fire withFire,Flames andFlames,String foeName) {
-        return fooFighter.fight(withFire);
+    public String fight(Fire withFire,Flames andFlames,Pokemon pokey) {
+        return hunter.hunt(pokey);
     }
 
 }

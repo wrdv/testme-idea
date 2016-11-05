@@ -1,4 +1,5 @@
 import com.example.foes.Fire;
+import com.example.foes.Pokemon;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,7 +12,7 @@ import org.mockito.MockitoAnnotations;
  */
 public class FooTest {
     @Mock
-    private FooFighter fooFighter;
+    private Hunter hunter;
     @InjectMocks
     private Foo foo;
 
@@ -22,7 +23,7 @@ public class FooTest {
 
     @Test
     public void testFight() throws Exception {
-        String result = foo.fight(new Fire(), new Flames(), "foeName");
+        String result = foo.fight(new Fire(), new Flames(), new Pokemon());
         Assert.assertEquals("replaceMeWithExpectedResult", result);
     }
 }

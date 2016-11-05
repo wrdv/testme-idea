@@ -1,8 +1,8 @@
 package com.example.services.impl;
 
 import com.example.warriers.FooFighter;
-import com.example.weapons.Fire;
-import com.example.weapons.Ice;
+import com.example.foes.Fire;
+import com.example.foes.Ice;
 <caret>
 public class Foo{
 

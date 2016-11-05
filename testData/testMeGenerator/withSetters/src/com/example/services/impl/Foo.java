@@ -1,15 +1,15 @@
 package com.example.services.impl;
 
 import com.example.warriers.FooFighter;
-import com.example.warriers.Fire;
+import com.example.warriers.Fear;
 <caret>
 public class Foo{
 
     private FooFighter fooFighter;
     private FooFighter fooFighterProperty;
 
-    public String fight(Fire withFire,String foeName) {
-        return fooFighter.fight(withFire);
+    public String fight(Fear urFear,String foeName) {
+        return fooFighter.fight(urFear);
     }
 
     public void setFooFighter(FooFighter fooFighter){

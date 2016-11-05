@@ -39,16 +39,17 @@ public class TestMeGeneratorTest extends JavaCodeInsightFixtureTestCase {
     public void testOverloading() throws Exception {
         doTest();
     }
+    //TODO consolidate shared test data
+    // TODO TC w/out formatting
 
     // TODO TC fields,params and return types that have generics. lambda params?
-    // TODO TC overloaded methods - test naming convention?
     // TODO TC class inheritance
-    // TODO TC field/param types with same short names from different packages
+    // TODO TC field/param types with same short type names from different packages, param and fields with same name
 
     // TODO TC caret position with <caret>
 
     // TODO TC different test target dir
-    // TODO TC w/out formatting
+
 
     // TODO TC generate for exception scenario
 
@@ -59,6 +60,7 @@ public class TestMeGeneratorTest extends JavaCodeInsightFixtureTestCase {
     private void doTest(final String packageName, String testSubjectClassName, final String expectedTestClassName) {
         //TODO copy common test src dir to proj
         myFixture.copyDirectoryToProject("src", "");
+        myFixture.copyDirectoryToProject("../commonSrc", "");
         //PsiTestUtil.addSourceRoot(myFixture.getModule(), myFixture.copyDirectoryToProject("src", "src"));
 //        final VirtualFile testDir = myFixture.getTempDirFixture().findOrCreateDir("test");
 //        assertNotNull("ref file not found", testDir);
