@@ -10,30 +10,24 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-#parse("File Header.java")
 
+#parse("File Header.java")
 public class ${CLASS_NAME} {
-#foreach($field in $TESTED_CLASS_FIELDS)
-    #if(!${field.type.primitive} && !${field.type.final})
-        @Mock
-        private $field.type.name $field.name;
-    #end
-    #if(!${field.type.primitive} && ${field.type.final})
-        //TODO Field $field.name of type $field.type.name - was not mocked since Mockito doesn't mock a Final class
-    #end
-#end
+#renderMockedFields($TESTED_CLASS_FIELDS)
 #if(!$TESTED_CLASS_FIELDS.isEmpty())
     @InjectMocks
     private $TESTED_CLASS_NAME #deCapitalize($TESTED_CLASS_NAME);
 #else
     private ${TESTED_CLASS_NAME} #deCapitalize($TESTED_CLASS_NAME)=new ${TESTED_CLASS_NAME}();
 #end
+
 #if(!$TESTED_CLASS_FIELDS.isEmpty())
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
     }
 #end
+
 #renderTestMethods($TESTED_CLASS_METHODS, $TESTED_CLASS_NAME)
 }
 

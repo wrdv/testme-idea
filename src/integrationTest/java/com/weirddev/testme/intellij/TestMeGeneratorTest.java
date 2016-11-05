@@ -18,14 +18,14 @@ import java.io.File;
 public class TestMeGeneratorTest extends JavaCodeInsightFixtureTestCase {
 
     private static final String FILE_HEADER_TEMPLATE = "File Header.java";
-    private static final String HEADER_TEMPLATE_REPLACEMENT_TEXT = "/** created by TestMe integration test on MMXVI */";
+    private static final String HEADER_TEMPLATE_REPLACEMENT_TEXT = "/** created by TestMe integration test on MMXVI */\n";
     private static boolean isHeaderTemplateReplaced=false;
 
     public void testSimpleClass() throws Exception {
         doTest();
     }
     public void testDefaultPackage() throws Exception {
-        doTest("", "Foo", "FooTest");
+        doTest("", "Foo", "FooTest", true);
     }
     public void testVariousFieldTypes() throws Exception {
         doTest();
@@ -39,8 +39,9 @@ public class TestMeGeneratorTest extends JavaCodeInsightFixtureTestCase {
     public void testOverloading() throws Exception {
         doTest();
     }
-    //TODO consolidate shared test data
-    // TODO TC w/out formatting
+    public void testNoFormatting() throws Exception {
+        doTest("com.example.services.impl", "Foo", "FooTest", false);
+    }
 
     // TODO TC fields,params and return types that have generics. lambda params?
     // TODO TC class inheritance
@@ -54,10 +55,10 @@ public class TestMeGeneratorTest extends JavaCodeInsightFixtureTestCase {
     // TODO TC generate for exception scenario
 
     private void doTest() {
-        doTest("com.example.services.impl", "Foo", "FooTest");
+        doTest("com.example.services.impl", "Foo", "FooTest", true);
     }
 
-    private void doTest(final String packageName, String testSubjectClassName, final String expectedTestClassName) {
+    private void doTest(final String packageName, String testSubjectClassName, final String expectedTestClassName, final boolean reformatCode) {
         //TODO copy common test src dir to proj
         myFixture.copyDirectoryToProject("src", "");
         myFixture.copyDirectoryToProject("../commonSrc", "");
@@ -84,7 +85,8 @@ public class TestMeGeneratorTest extends JavaCodeInsightFixtureTestCase {
 //                testDirectory,
 //                PsiJavaDirectoryFactory.getInstance(getProject()).createDirectory(myFixture.getTempDirFixture().getFile(".").createChildDirectory(this,"com/example/services/impl")),
 //               PsiJavaDirectoryFactory.getInstance(getProject()).createDirectory(testDir),
-                        fooClass
+                        fooClass,
+                        reformatCode
                 ));
                 System.out.println("result:"+result);
                 String expectedTestClassFilePath = (packageName.length() > 0 ? (packageName.replace(".", "/") + "/") : "") + expectedTestClassName + ".java";

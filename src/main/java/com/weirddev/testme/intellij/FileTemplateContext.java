@@ -20,9 +20,9 @@ public class FileTemplateContext {
     private final Module targetModule;
     private final PsiDirectory targetDirectory;
     private final PsiClass srcClass;
-    private boolean reformatCode=true;
+    private final boolean reformatCode;
 
-    public FileTemplateContext(FileTemplateDescriptor fileTemplateDescriptor, Project project, String targetClass, PsiPackage targetPackage, Module targetModule, PsiDirectory targetDirectory, PsiClass srcClass) {
+    public FileTemplateContext(FileTemplateDescriptor fileTemplateDescriptor, Project project, String targetClass, PsiPackage targetPackage, Module targetModule, PsiDirectory targetDirectory, PsiClass srcClass, boolean reformatCode) {
         this.fileTemplateDescriptor = fileTemplateDescriptor;
         this.project = project;
         this.targetClass = targetClass;
@@ -30,6 +30,7 @@ public class FileTemplateContext {
         this.targetModule = targetModule;
         this.targetDirectory = targetDirectory;
         this.srcClass = srcClass;
+        this.reformatCode = reformatCode;
     }
 
     public Project getProject() {
@@ -62,9 +63,5 @@ public class FileTemplateContext {
 
     public boolean isReformatCode() {
         return reformatCode;
-    }
-
-    public void setReformatCode(boolean reformatCode) {
-        this.reformatCode = reformatCode;
     }
 }

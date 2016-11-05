@@ -1,58 +1,81 @@
+## Global vars ##
 #set($trackedImports=[])
 #set($trackedTestMethodsCount={})
-
+##
+## Macros ##
 #macro( deCapitalize $str)$str.substring(0,1).toLowerCase()$str.substring(1)#end
+##
 #macro( capitalize $str)$str.substring(0,1).toUpperCase()$str.substring(1)#end
-#macro( renderJavaCallParams $params)
-    #foreach($param in $params)
-            #if($foreach.count>1),#end #renderJavaCallParam($param.type,$param.name)#end
+##
+#macro( renderJavaCallParams $params)#*
+    *##foreach($param in $params)#*
+        *##if($foreach.count>1), #end#*
+        *##renderJavaCallParam($param.type,$param.name)#end
 #end
-#macro( renderJavaCallParam $type $strValue )
-    #if($type.canonicalName == "java.lang.String")
-        "${strValue}"#else
-    new ${type.name}()#end
+##
+#macro( renderJavaCallParam $type $strValue )#*
+    *##if($type.canonicalName == "java.lang.String")"${strValue}"#*
+    *##{else}new ${type.name}()#end
 #end
+##
 #macro( renderJavaTestClassImports $fields $methods $package)
-    #foreach($field in $fields)
-        #renderImport($field.type,$package)
-    #end
-    #foreach($method in $methods)
-        #if($method.ownerClassCanonicalType!="java.lang.Object")
-            #if($method.returnType)
-                #renderImport($method.returnType,$package)#end
-            #foreach($param in $method.methodParams)
-                #renderImport($param.type,$package)
-            #end
-        #end
-    #end
+#foreach($field in $fields)
+#renderImport($field.type,$package)
 #end
+#foreach($method in $methods)#*
+    *##if($method.ownerClassCanonicalType!="java.lang.Object")#*
+        *##if($method.returnType)#*
+            *##renderImport($method.returnType,$package)#end#*
+        *##foreach($param in $method.methodParams)#*
+            *##renderImport($param.type,$package)#end#*
+    *##end
+#end
+#end
+##
 #macro(renderImport $type $package)
-    #if($type.packageName.length()>0 && $type.packageName != "java.lang" && $type.packageName != $package && !$trackedImports.contains($type.canonicalName))
-        import $type.canonicalName;
-        #set($devNull=$trackedImports.add($type.canonicalName))
-    #end
+#if($type.packageName.length()>0 && $type.packageName != "java.lang" && $type.packageName != $package && !$trackedImports.contains($type.canonicalName))#*
+    *#import $type.canonicalName;
+#*  *##set($devNull=$trackedImports.add($type.canonicalName))
 #end
-#macro(renderJavaReturnVar $type)
-    #if($type)$type.name result = #end
 #end
+##
+#macro(renderMockedFields $testedClassFields)
+#foreach($field in $testedClassFields)
+#if(!${field.type.primitive} && !${field.type.final})
+    @Mock
+    private $field.type.name $field.name;
+#end
+#if(!${field.type.primitive} && ${field.type.final})
+    //TODO Field $field.name of type $field.type.name - was not mocked since Mockito doesn't mock a Final class
+#end
+#end
+#end
+##
+#macro(renderJavaReturnVar $type)#*
+    *##if($type)$type.name result = #end
+#end
+##
 #macro(renderJUnitAssert $type)
-    #if($type)Assert.assertEquals(#renderJavaCallParam($type,"replaceMeWithExpectedResult"), result);#end
+#if($type)Assert.assertEquals(#renderJavaCallParam($type,"replaceMeWithExpectedResult"), result);
 #end
+#end
+##
 #macro(renderTestMethods $testedClassMethods $testedClassName)
-    #foreach($method in $testedClassMethods)
-        #if($method.ownerClassCanonicalType!="java.lang.Object" && !${method.setter} && !${method.getter} && !${method.constructor})
-            @Test
-            public void #renderTestMethodName($method.name)() throws Exception{
-                #renderJavaReturnVar($method.returnType)#deCapitalize($testedClassName).${method.name}(#renderJavaCallParams($method.methodParams));
-                #renderJUnitAssert($method.returnType)
-            }
-        #end
-    #end
+#foreach($method in $testedClassMethods)
+#if($method.ownerClassCanonicalType!="java.lang.Object" && !${method.setter} && !${method.getter} && !${method.constructor})
+    @Test
+    public void #renderTestMethodName($method.name)() throws Exception {
+        #renderJavaReturnVar($method.returnType)#deCapitalize($testedClassName).${method.name}(#renderJavaCallParams($method.methodParams));
+        #renderJUnitAssert($method.returnType)
+    }
 #end
+#end
+#end
+##
 #macro(renderTestMethodName $methodName)
 test#capitalize($methodName)#testMethodSuffix($methodName)
 #end
-
+##
 #macro(testMethodSuffix $methodName)
 #if( $trackedTestMethodsCount.get($methodName))
     #set( $suffix= $trackedTestMethodsCount.get($methodName))

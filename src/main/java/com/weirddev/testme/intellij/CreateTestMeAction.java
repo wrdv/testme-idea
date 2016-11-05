@@ -75,7 +75,7 @@ public class CreateTestMeAction extends CreateTestAction {
             CommandProcessor.getInstance().executeCommand(project, new Runnable() {
                 @Override
                 public void run() {
-                    testMeGenerator.generateTest(new FileTemplateContext(new FileTemplateDescriptor(TESTME_WITH_JUNIT4_MOCKITO_JAVA),project, targetClass, srcPackage, srcModule, targetDirectory, srcClass));
+                    testMeGenerator.generateTest(new FileTemplateContext(new FileTemplateDescriptor(TESTME_WITH_JUNIT4_MOCKITO_JAVA),project, targetClass, srcPackage, srcModule, targetDirectory, srcClass, true));
                 }
             }, "TestMe Generate Test", this);
         }
