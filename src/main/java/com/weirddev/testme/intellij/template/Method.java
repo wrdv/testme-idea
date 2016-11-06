@@ -26,11 +26,12 @@ public class Method {
     private final boolean isSetter;
     private final boolean isGetter;
     private final boolean constructor;
+    private final boolean overridden;
 
-    public Method(PsiMethod psiMethod) {
+    public Method(PsiMethod psiMethod, PsiClass srcClass) {
         isPrivate=psiMethod.hasModifierProperty(PsiModifier.PRIVATE);
         isProtected=psiMethod.hasModifierProperty(PsiModifier.PROTECTED);
-        isDefault=psiMethod.hasModifierProperty(PsiModifier.DEFAULT);         //TODO research usage PACKAGE_LOCAL vs. DEFAULT
+        isDefault=psiMethod.hasModifierProperty(PsiModifier.DEFAULT);
         isPublic=psiMethod.hasModifierProperty(PsiModifier.PUBLIC);
         isAbstract=psiMethod.hasModifierProperty(PsiModifier.ABSTRACT);
         isNative=psiMethod.hasModifierProperty(PsiModifier.NATIVE);
@@ -42,6 +43,13 @@ public class Method {
         isSetter = PropertyUtil.isSimpleSetter(psiMethod);
         isGetter = PropertyUtil.isSimpleGetter(psiMethod);
         constructor = psiMethod.isConstructor();
+        overridden = isOverriddenInChild(psiMethod, srcClass);
+    }
+
+    private boolean isOverriddenInChild(PsiMethod method, PsiClass srcClass) {
+        String srcQualifiedName = srcClass.getQualifiedName();
+        String methodClsQualifiedName = method.getContainingClass()==null?null:method.getContainingClass().getQualifiedName();
+        return (srcQualifiedName!=null && methodClsQualifiedName!=null &&  !srcQualifiedName.equals(methodClsQualifiedName)) && srcClass.findMethodsBySignature(method, false).length > 0;
     }
 
     private List<Param> extractMethodParams(PsiParameterList parameterList) {
@@ -106,5 +114,9 @@ public class Method {
 
     public boolean isConstructor() {
         return constructor;
+    }
+
+    public boolean isOverridden() {
+        return overridden;
     }
 }

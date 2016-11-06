@@ -163,10 +163,11 @@ public class TestMeGenerator {
     private List<Field> getFields(FileTemplateContext context) {
         ArrayList<Field> fields = new ArrayList<Field>();
         JavaPsiFacade javaPsiFacade = JavaPsiFacade.getInstance(context.getProject());
-        for (PsiField psiField : context.getSrcClass().getAllFields()) {
+        PsiClass srcClass = context.getSrcClass();
+        for (PsiField psiField : srcClass.getAllFields()) {
             //TODO research how different types should be handled - i.e. PsiClassType ?
             //TODO handle fields initialized inline/in default constructor
-            fields.add(new Field(psiField, javaPsiFacade.findClass(psiField.getType().getCanonicalText(), GlobalSearchScope.allScope(context.getProject()))));
+            fields.add(new Field(psiField, javaPsiFacade.findClass(psiField.getType().getCanonicalText(), GlobalSearchScope.allScope(context.getProject())),srcClass));
         }
         return fields;
     }
@@ -175,7 +176,7 @@ public class TestMeGenerator {
         ArrayList<Method> methods = new ArrayList<Method>();
         //TODO should use only getMethods() ?  or indicator if method inherited ?
         for (PsiMethod psiMethod : context.getSrcClass().getAllMethods()) {
-            methods.add(new Method(psiMethod));
+            methods.add(new Method(psiMethod,context.getSrcClass()));
         }
         return methods;
     }

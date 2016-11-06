@@ -47,7 +47,7 @@
 ##
 #macro(renderMockedFields $testedClassFields)
 #foreach($field in $testedClassFields)
-#if(!${field.type.primitive} && !${field.type.final})
+#if(!${field.type.primitive} && !${field.type.final} && !${field.overridden})
     @Mock
     private #renderTypeName($field.type) $field.name;
 #end
@@ -68,7 +68,7 @@
 ##
 #macro(renderTestMethods $testedClassMethods $testedClassName)
 #foreach($method in $testedClassMethods)
-#if($method.ownerClassCanonicalType!="java.lang.Object" && !${method.setter} && !${method.getter} && !${method.constructor})
+#if($method.ownerClassCanonicalType!="java.lang.Object" && !${method.setter} && !${method.getter} && !${method.constructor} && !${method.private} && !${method.overridden})
     @Test
     public void #renderTestMethodName($method.name)() throws Exception {
         #renderJavaReturnVar($method.returnType)#deCapitalize($testedClassName).${method.name}(#renderJavaCallParams($method.methodParams));

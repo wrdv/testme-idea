@@ -44,23 +44,14 @@ public class TestMeGeneratorTest extends JavaCodeInsightFixtureTestCase {
     }
     public void testTypeNameCollision() throws Exception {
         doTest();
-        /**
-         * TODO alg.
-         *
-         * render import:
-         *              If type has named package  && !in java.lang && !short name tracked  && no other type with short name in default package [need to loop params and fields - check if computed context can be added to template]=> add import
-         *
-         * render param:
-         * If type has named package  && !in java.lang && !canonical tracked  => use canonical type name
-         * Else => use short name
-         */
     }
     public void testTypeInDefaultPackageCollision() throws Exception {
         doTest("", "Foo", "FooTest", true);
     }
-
+    public void testInheritance() throws Exception {
+        doTest();
+    }
     // TODO TC fields,params and return types that have generics. lambda params?
-    // TODO TC class inheritance, overridden fields
 
     // TODO TC caret position with <caret>
 
@@ -73,7 +64,6 @@ public class TestMeGeneratorTest extends JavaCodeInsightFixtureTestCase {
     }
 
     private void doTest(final String packageName, String testSubjectClassName, final String expectedTestClassName, final boolean reformatCode) {
-        //TODO copy common test src dir to proj
         myFixture.copyDirectoryToProject("src", "");
         myFixture.copyDirectoryToProject("../commonSrc", "");
         //PsiTestUtil.addSourceRoot(myFixture.getModule(), myFixture.copyDirectoryToProject("src", "src"));
