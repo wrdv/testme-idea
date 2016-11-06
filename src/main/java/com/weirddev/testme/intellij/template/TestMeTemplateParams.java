@@ -25,4 +25,5 @@ public interface TestMeTemplateParams {
     String CLASS_NAME = "CLASS_NAME";
 
     String ATTRIBUTE_FILE_NAME = "FILE_NAME";
+    String TESTED_CLASS_TYPES_IN_DEFAULT_PACKAGE = "TESTED_CLASS_TYPES_IN_DEFAULT_PACKAGE";
 }

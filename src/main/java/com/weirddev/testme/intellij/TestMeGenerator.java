@@ -20,9 +20,7 @@ import com.intellij.psi.search.GlobalSearchScopesCore;
 import com.intellij.testIntegration.TestFramework;
 import com.intellij.testIntegration.createTest.JavaTestGenerator;
 import com.intellij.util.IncorrectOperationException;
-import com.weirddev.testme.intellij.template.Field;
-import com.weirddev.testme.intellij.template.Method;
-import com.weirddev.testme.intellij.template.TestMeTemplateParams;
+import com.weirddev.testme.intellij.template.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -109,8 +107,12 @@ public class TestMeGenerator {
         HashMap<String, Object> templateCtxtParams = initTemplateContext(fileTemplateManager.getDefaultProperties());
         templateCtxtParams.put(TestMeTemplateParams.CLASS_NAME, context.getTargetClass());
         templateCtxtParams.put(TestMeTemplateParams.PACKAGE_NAME, context.getTargetPackage().getQualifiedName());
-        templateCtxtParams.put(TestMeTemplateParams.TESTED_CLASS_FIELDS, getFields(context));
-        templateCtxtParams.put(TestMeTemplateParams.TESTED_CLASS_METHODS, getMethods(context));
+        List<Field> fields = getFields(context);
+        templateCtxtParams.put(TestMeTemplateParams.TESTED_CLASS_FIELDS, fields);
+        List<Method> methods = getMethods(context);
+        templateCtxtParams.put(TestMeTemplateParams.TESTED_CLASS_METHODS, methods);
+        templateCtxtParams.put(TestMeTemplateParams.TESTED_CLASS_TYPES_IN_DEFAULT_PACKAGE, filterTypesInDefaultPackage(methods,fields));
+
         final PsiClass targetClass = context.getSrcClass();
         if (targetClass != null && targetClass.isValid()) {
             templateCtxtParams.put(TestMeTemplateParams.TESTED_CLASS_NAME, targetClass.getName());
@@ -126,6 +128,25 @@ public class TestMeGenerator {
         }
         catch (Exception e) {
             return null;
+        }
+    }
+
+    private Set<String> filterTypesInDefaultPackage(List<Method> methods, List<Field> fields) {
+        HashSet<String> typesInDefaultPackage = new HashSet<String>();
+        for (Field field : fields) {
+            addTypesInDefaultPackage(typesInDefaultPackage, field.getType());
+        }
+        for (Method method : methods) {
+            for (Param param : method.getMethodParams()) {
+                addTypesInDefaultPackage(typesInDefaultPackage, param.getType());
+            }
+        }
+        return typesInDefaultPackage;
+    }
+
+    private void addTypesInDefaultPackage(HashSet<String> typesInDefaultPackage, Type type) {
+        if ((type.getPackageName()==null || type.getPackageName().isEmpty()) && !type.isPrimitive()) {
+            typesInDefaultPackage.add(type.getName());
         }
     }
 

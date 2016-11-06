@@ -1,7 +1,4 @@
-package com.example.services.impl;
-
 import com.example.warriers.FooFighter;
-import com.example.foes.Fire;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,7 +14,6 @@ public class FooTest {
     private FooFighter fooFighter;
     @Mock
     private com.example.foes.Fire fireOfFoe;
-
     @InjectMocks
     private Foo foo;
 
