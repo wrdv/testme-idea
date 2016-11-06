@@ -51,13 +51,12 @@ public class TestMeGeneratorTest extends JavaCodeInsightFixtureTestCase {
     public void testInheritance() throws Exception {
         doTest();
     }
-    // TODO TC fields,params and return types that have generics. lambda params?
-
+    public void testGenerics() throws Exception {
+        doTest(); // TODO implement scenario
+    }
     // TODO TC caret position with <caret>
 
     // TODO TC different test target dir
-
-    // TODO TC generate for exception scenario (for post MVP ?)
 
     private void doTest() {
         doTest("com.example.services.impl", "Foo", "FooTest", true);
