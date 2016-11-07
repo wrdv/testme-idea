@@ -36,7 +36,7 @@ public class Method {
         isAbstract=psiMethod.hasModifierProperty(PsiModifier.ABSTRACT);
         isNative=psiMethod.hasModifierProperty(PsiModifier.NATIVE);
         isStatic=psiMethod.hasModifierProperty(PsiModifier.STATIC);
-        returnType = psiMethod.getReturnType()==null?null:new Type(psiMethod.getReturnType(), null);
+        returnType = psiMethod.getReturnType()==null?null:new Type(psiMethod.getReturnType());
         name = psiMethod.getName();
         ownerClassCanonicalType = psiMethod.getContainingClass()==null?null:psiMethod.getContainingClass().getQualifiedName();
         methodParams = extractMethodParams(psiMethod.getParameterList());

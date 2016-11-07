@@ -53,6 +53,7 @@ public class TestMeGeneratorTest extends JavaCodeInsightFixtureTestCase {
     }
     public void testGenerics() throws Exception {
         doTest(); // TODO implement scenario
+        //TODO test types with raw params + fix formatting
     }
     // TODO TC caret position with <caret>
 

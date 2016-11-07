@@ -25,7 +25,7 @@
 #end
 ##
 #macro( renderJavaTestClassImports $fields $methods $package)
-#foreach($field in $fields)
+#foreach($field in $fields)##
 #renderImport($field.type,$package)
 #end
 #foreach($method in $methods)#*
@@ -38,31 +38,33 @@
 #end
 #end
 ##
-#macro(renderImport $type $package)
-#if($type.packageName.length()>0 && $type.packageName != "java.lang" && $type.packageName != $package && !$trackedImports.get($type.name))#*
+#macro(renderImport $wrapperType $package)
+#foreach($type in $wrapperType.composedTypes)#*
+    *##if($type.packageName.length()>0 && $type.packageName != "java.lang" && $type.packageName != $package && !$trackedImports.get($type.name))#*
     *#import $type.canonicalName;
-#*  *##set($devNull=$trackedImports.put($type.name,$type.canonicalName))
-#end
-#end
+#*  *##set($devNull=$trackedImports.put($type.name,$type.canonicalName))#*
+    *##end##
+#end##
+#end##
 ##
 #macro(renderMockedFields $testedClassFields)
 #foreach($field in $testedClassFields)
-#if(!${field.type.primitive} && !${field.type.final} && !${field.overridden})
+#if(!${field.type.primitive} && !${field.finalType} && !${field.overridden})
     @Mock
     private #renderTypeName($field.type) $field.name;
 #end
-#if(!${field.type.primitive} && ${field.type.final})
+#if(!${field.type.primitive} && ${field.finalType})
     //TODO Field $field.name of type $field.type.name - was not mocked since Mockito doesn't mock a Final class
 #end
 #end
 #end
 ##
 #macro(renderJavaReturnVar $type)#*
-    *##if($type)$type.name result = #end
+    *##if($type && $type.name !="void")$type.name result = #end
 #end
 ##
 #macro(renderJUnitAssert $type)
-#if($type)Assert.assertEquals(#renderJavaCallParam($type,"replaceMeWithExpectedResult"), result);
+#if($type && $type.name !="void")Assert.assertEquals(#renderJavaCallParam($type,"replaceMeWithExpectedResult"), result);
 #end
 #end
 ##

@@ -40,8 +40,7 @@ public class FooTest {
 
     @Test
     public void testPeace() throws Exception {
-        void result = foo.peace();
-        Assert.assertEquals(new void (), result);
+        foo.peace();
     }
 }
 

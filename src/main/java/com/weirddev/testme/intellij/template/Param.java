@@ -11,7 +11,7 @@ public class Param {
     private String name;
 
     public Param(PsiParameter psiParameter) {
-        this.type = new Type(psiParameter.getType(), null);
+        this.type = new Type(psiParameter.getType());
         this.name = psiParameter.getName();
     }
 
