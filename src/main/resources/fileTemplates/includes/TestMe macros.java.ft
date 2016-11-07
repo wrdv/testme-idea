@@ -14,9 +14,27 @@
         *##renderJavaCallParam($param.type,$param.name)#end
 #end
 ##
-#macro( renderJavaCallParam $type $strValue )#*
-    *##if($type.canonicalName == "java.lang.String")"${strValue}"#*
-    *##{else}new #renderTypeName($type)()#end
+#macro( renderJavaCallParam $type $strValue )##
+#if($type.canonicalName == "java.lang.String")"${strValue}"##
+#elseif($type.canonicalName == "byte")(byte) 0##
+#elseif($type.canonicalName == "short")(short) 0##
+#elseif($type.canonicalName == "int")0##
+#elseif($type.canonicalName == "long")0L##
+#elseif($type.canonicalName == "float")0f##
+#elseif($type.canonicalName == "double")0d##
+#elseif($type.canonicalName == "char")'a'##
+#elseif($type.canonicalName == "boolean")true##
+#elseif($type.canonicalName == "java.lang.Byte")Byte.valueOf("00110")##
+#elseif($type.canonicalName == "java.lang.Short")Short.valueOf((short)0)##
+#elseif($type.canonicalName == "java.lang.Integer")Integer.valueOf(0)##
+#elseif($type.canonicalName == "java.lang.Integer")Integer.valueOf(0)##
+#elseif($type.canonicalName == "java.lang.Long")Long.valueOf(1)##
+#elseif($type.canonicalName == "java.lang.Float")Float.valueOf(1.1f)##
+#elseif($type.canonicalName == "java.lang.Double")Double.valueOf(0)##
+#elseif($type.canonicalName == "java.lang.Character")Character.valueOf('a')##
+#elseif($type.canonicalName == "java.lang.Boolean")Boolean.TRUE##
+#elseif($type.canonicalName == "java.math.BigDecimal")new java.math.BigDecimal(0)##
+#{else}new #renderTypeName($type)()#end
 #end
 ##
 #macro( renderTypeName $type)#*
