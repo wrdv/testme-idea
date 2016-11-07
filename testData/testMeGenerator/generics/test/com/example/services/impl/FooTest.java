@@ -1,12 +1,13 @@
 package com.example.services.impl;
 
 import java.util.Set;
+import com.example.foes.Ice;
 import java.util.Map;
+import com.example.foes.Pokemon;
+import java.util.List;
+import com.example.foes.Fire;
 import com.example.warriers.FooFighter;
 import java.util.ArrayList;
-import com.example.foes.Fire;
-import com.example.foes.Ice;
-import com.example.foes.Pokemon;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,14 +15,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-/**
- * created by TestMe integration test on MMXVI
- */
+/** created by TestMe integration test on MMXVI */
 public class FooTest {
     @Mock
     private Set<Ice> escimoRealEstate;
     @Mock
-    private Map<Pokemon, List<Fire>> iFart;
+    private Map<Pokemon,List<Fire>> iFart;
     @Mock
     private FooFighter fooFighter;
     @InjectMocks

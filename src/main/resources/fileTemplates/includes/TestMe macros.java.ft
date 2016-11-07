@@ -25,7 +25,7 @@
 #end
 ##
 #macro( renderJavaTestClassImports $fields $methods $package)
-#foreach($field in $fields)##
+#foreach($field in $fields)
 #renderImport($field.type,$package)
 #end
 #foreach($method in $methods)#*
@@ -59,22 +59,23 @@
 #end
 #end
 ##
-#macro(renderJavaReturnVar $type)#*
-    *##if($type && $type.name !="void")$type.name result = #end
+#macro(renderJavaReturnVar $type)
+#if($type && $type.name !="void")$type.name result = #end
 #end
 ##
 #macro(renderJUnitAssert $type)
-#if($type && $type.name !="void")Assert.assertEquals(#renderJavaCallParam($type,"replaceMeWithExpectedResult"), result);
+#if($type && $type.name !="void")        Assert.assertEquals(#renderJavaCallParam($type,"replaceMeWithExpectedResult"), result);
 #end
 #end
 ##
 #macro(renderTestMethods $testedClassMethods $testedClassName)
 #foreach($method in $testedClassMethods)
 #if($method.ownerClassCanonicalType!="java.lang.Object" && !${method.setter} && !${method.getter} && !${method.constructor} && !${method.private} && !${method.overridden})
+
     @Test
     public void #renderTestMethodName($method.name)() throws Exception {
         #renderJavaReturnVar($method.returnType)#deCapitalize($testedClassName).${method.name}(#renderJavaCallParams($method.methodParams));
-        #renderJUnitAssert($method.returnType)
+#renderJUnitAssert($method.returnType)
     }
 #end
 #end

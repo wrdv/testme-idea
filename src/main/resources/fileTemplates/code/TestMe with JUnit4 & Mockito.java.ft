@@ -27,7 +27,6 @@ public class ${CLASS_NAME} {
         MockitoAnnotations.initMocks(this);
     }
 #end
-
 #renderTestMethods($TESTED_CLASS_METHODS, $TESTED_CLASS_NAME)
 }
 

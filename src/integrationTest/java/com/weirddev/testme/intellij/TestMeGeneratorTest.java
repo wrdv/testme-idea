@@ -52,9 +52,10 @@ public class TestMeGeneratorTest extends JavaCodeInsightFixtureTestCase {
         doTest();
     }
     public void testGenerics() throws Exception {
-        doTest(); // TODO implement scenario
-        //TODO test types with raw params + fix formatting
+        doTest("com.example.services.impl", "Foo", "FooTest", false);
     }
+    //TODO test types with raw params
+
     // TODO TC caret position with <caret>
 
     // TODO TC different test target dir
