@@ -40,7 +40,7 @@ public class TestMeGeneratorTest extends JavaCodeInsightFixtureTestCase {
         doTest();
     }
     public void testNoFormatting() throws Exception {
-        doTest("com.example.services.impl", "Foo", "FooTest", false);
+        doTest(false);
     }
     public void testTypeNameCollision() throws Exception {
         doTest();
@@ -52,10 +52,13 @@ public class TestMeGeneratorTest extends JavaCodeInsightFixtureTestCase {
         doTest();
     }
     public void testGenerics() throws Exception {
-        doTest("com.example.services.impl", "Foo", "FooTest", false);
+        doTest(false);
     }
     public void testPrimitiveCallTypes() throws Exception {
-        doTest("com.example.services.impl", "Foo", "FooTest", false);
+        doTest(false);
+    }
+    public void testArrays() throws Exception {
+        doTest(false);
     }
     //TODO TC generic types with raw params
 
@@ -64,7 +67,11 @@ public class TestMeGeneratorTest extends JavaCodeInsightFixtureTestCase {
     // TODO TC different test target dir
 
     private void doTest() {
-        doTest("com.example.services.impl", "Foo", "FooTest", true);
+        doTest(true);
+    }
+
+    private void doTest(boolean reformatCode) {
+        doTest("com.example.services.impl", "Foo", "FooTest", reformatCode);
     }
 
     private void doTest(final String packageName, String testSubjectClassName, final String expectedTestClassName, final boolean reformatCode) {

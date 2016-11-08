@@ -18,46 +18,59 @@ public class Type {
     private final boolean isPrimitive;
     private final String packageName;
     private final List<Type> composedTypes;
+    private final boolean array;
 
-    Type(String canonicalName, String name, String packageName,boolean isPrimitive,  List<Type> composedTypes) {
+    Type(String canonicalName, String name, String packageName, boolean isPrimitive, boolean array, List<Type> composedTypes) {
         this.canonicalName = canonicalName;
         this.name = name;
         this.isPrimitive = isPrimitive;
         this.packageName = packageName;
+        this.array = array;
         this.composedTypes = composedTypes;
     }
 
     Type(String canonicalName) {
-        this(extractContainerType(canonicalName), extractClassName(canonicalName),extractPackageName(canonicalName),false,null);
+        this(extractContainerType(canonicalName), extractClassName(canonicalName),extractPackageName(canonicalName),false,isArray(canonicalName),null);
     }
 
     public Type(PsiType psiType) {
-        this.canonicalName = psiType.getCanonicalText();
-        this.name = psiType.getPresentableText();
+        String canonicalText = psiType.getCanonicalText();
+        array = isArray(canonicalText);
+        this.canonicalName = stripArrayDesignator(canonicalText);
+        this.name = stripArrayDesignator(psiType.getPresentableText());
         packageName = extractPackageName(canonicalName);
         this.isPrimitive = psiType instanceof PsiPrimitiveType;
         composedTypes = resolveTypes(psiType);
     }
+
+    private static  boolean isArray(String canonicalName) {
+        return canonicalName.endsWith("[]");
+    }
+
     public static String extractClassName(@NotNull String fqName) {
         fqName = extractContainerType(fqName);
         int i = fqName.lastIndexOf('.');
-        return i == -1 ? fqName : fqName.substring(i + 1);
+        return stripArrayDesignator((i == -1 ? fqName : fqName.substring(i + 1)));
     }
 
     public static String extractPackageName(String className) {
         if (className != null) {
             className = extractContainerType(className);
             int i = className.lastIndexOf('.');
-            return i == -1 ? "" : className.substring(0, i);
+            return stripArrayDesignator(i == -1 ? "" : className.substring(0, i));
         }
         return null;
+    }
+
+    private static String stripArrayDesignator(String typeName) {
+        return typeName.replace("[]", "");
     }
 
     @NotNull
     private static String extractContainerType(String className) {
         int j = className.indexOf('<');
         className=j==-1?className:className.substring(0, j);
-        return className;
+        return stripArrayDesignator(className);
     }
 
     private List<Type> resolveTypes(PsiType psiType) {
@@ -99,14 +112,20 @@ public class Type {
         return composedTypes;
     }
 
+    public boolean isArray() {
+        return array;
+    }
+
     @Override
     public boolean equals(Object o) {
+
         if (this == o) return true;
-        if (!(o instanceof Type)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
 
         Type type = (Type) o;
 
         if (isPrimitive != type.isPrimitive) return false;
+        if (array != type.array) return false;
         if (canonicalName != null ? !canonicalName.equals(type.canonicalName) : type.canonicalName != null)
             return false;
         if (name != null ? !name.equals(type.name) : type.name != null) return false;
@@ -122,6 +141,7 @@ public class Type {
         result = 31 * result + (isPrimitive ? 1 : 0);
         result = 31 * result + (packageName != null ? packageName.hashCode() : 0);
         result = 31 * result + (composedTypes != null ? composedTypes.hashCode() : 0);
+        result = 31 * result + (array ? 1 : 0);
         return result;
     }
 
@@ -133,6 +153,7 @@ public class Type {
                 ", isPrimitive=" + isPrimitive +
                 ", packageName='" + packageName + '\'' +
                 ", composedTypes=" + composedTypes +
+                ", array=" + array +
                 '}';
     }
 }
