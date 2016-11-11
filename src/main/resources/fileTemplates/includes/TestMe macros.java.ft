@@ -1,9 +1,9 @@
-## Global vars ##
+################## Global vars ###############
 #set($trackedImports={})## map (name -> canonicalName) of types allready imported
 #foreach($typeName in $TESTED_CLASS_TYPES_IN_DEFAULT_PACKAGE)#set( $devNull= $trackedImports.put($typeName,""))#end
 #set($trackedTestMethodsCount={})
 ##
-## Macros ##
+################## Macros #####################
 #macro( deCapitalize $str)$str.substring(0,1).toLowerCase()$str.substring(1)#end
 ##
 #macro( capitalize $str)$str.substring(0,1).toUpperCase()$str.substring(1)#end
@@ -47,7 +47,7 @@
 #renderImport($field.type,$package)
 #end
 #foreach($method in $methods)#*
-    *##if($method.ownerClassCanonicalType!="java.lang.Object")#*
+    *##if($method.isTestable())#*
         *##if($method.returnType)#*
             *##renderImport($method.returnType,$package)#end#*
         *##foreach($param in $method.methodParams)#*
@@ -91,7 +91,7 @@
 ##
 #macro(renderTestMethods $testedClassMethods $testedClassName)
 #foreach($method in $testedClassMethods)
-#if($method.ownerClassCanonicalType!="java.lang.Object" && !${method.setter} && !${method.getter} && !${method.constructor} &&(${method.default}&&!${method.inherited} || ${method.public}) && !${method.overridden}&& !${method.inInterface}&& !${method.abstract})
+#if($method.isTestable())
 
     @Test
     public void #renderTestMethodName($method.name)() throws Exception {

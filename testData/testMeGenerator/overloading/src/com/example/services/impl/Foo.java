@@ -1,9 +1,10 @@
 package com.example.services.impl;
 
+import com.example.foes.Pokemon;
 import com.example.warriers.FooFighter;
 import com.example.foes.Fire;
 import com.example.foes.Ice;
-<caret>
+
 public class Foo{
 
     private FooFighter fooFighter;
@@ -21,6 +22,12 @@ public class Foo{
         return fooFighter.fight(withFire);
     }
 
+    private Pokemon poke(int times) {
+        return new Pokemon();
+    }
+    protected String fight(int times) {
+        return String.valueOf(times);
+    }
     String fold(String foeName) {
         System.out.println(foeName+" friends?");
         return "truce";

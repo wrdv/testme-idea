@@ -136,4 +136,12 @@ public class Method {
     public boolean isInInterface() {
         return isInInterface;
     }
+
+    /**
+     *
+     * @return $method.ownerClassCanonicalType!="java.lang.Object" && !${method.setter} && !${method.getter} && !${method.constructor} &&(${method.default}&&!${method.inherited} ||${method.protected}&&!${method.inherited} || ${method.public}) && !${method.overridden}&& !${method.inInterface}&& !${method.abstract}
+     */
+    public boolean isTestable(){
+        return !"java.lang.Object".equals(ownerClassCanonicalType) && !isSetter && !isGetter && !constructor &&((isDefault|| isProtected ) && !inherited || isPublic) && !overridden && !isInInterface && !isAbstract;
+    }
 }

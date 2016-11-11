@@ -43,6 +43,12 @@ public class FooTest {
     }
 
     @Test
+    public void testFight4() throws Exception {
+        String result = foo.fight(0);
+        Assert.assertEquals("replaceMeWithExpectedResult", result);
+    }
+
+    @Test
     public void testFold() throws Exception {
         String result = foo.fold("foeName");
         Assert.assertEquals("replaceMeWithExpectedResult", result);
