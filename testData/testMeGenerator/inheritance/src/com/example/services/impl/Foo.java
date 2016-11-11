@@ -1,10 +1,11 @@
 package com.example.services.impl;
 
 import com.example.parents.impl.FooParent;
+import com.example.parents.impl.FooInterfaceExt;
 import com.example.warriers.FooFighter;
 import com.example.foes.Fire;
-<caret>
-public class Foo extends FooParent{
+
+public class Foo extends FooParent implements FooInterfaceExt{
 
     private FooFighter fooFighter;
 
@@ -12,4 +13,7 @@ public class Foo extends FooParent{
         return fooFighter.fight(withFire);
     }
 
+    void iDefault(){
+        System.out.println("iDefault");
+    }
 }

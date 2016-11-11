@@ -14,7 +14,7 @@ public class Foo{
 
     Set<Ice> escimoRealEstate;
 
-    Map<Pokemon, List<Fire>> iFart;
+    Map<Pokemon, List<Fire>> hotPokeys;
 
     private FooFighter fooFighter=new FooFighter() {
         @Override

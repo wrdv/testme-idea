@@ -91,7 +91,7 @@
 ##
 #macro(renderTestMethods $testedClassMethods $testedClassName)
 #foreach($method in $testedClassMethods)
-#if($method.ownerClassCanonicalType!="java.lang.Object" && !${method.setter} && !${method.getter} && !${method.constructor} && !${method.private} && !${method.overridden})
+#if($method.ownerClassCanonicalType!="java.lang.Object" && !${method.setter} && !${method.getter} && !${method.constructor} &&(${method.default}&&!${method.inherited} || ${method.public}) && !${method.overridden}&& !${method.inInterface}&& !${method.abstract})
 
     @Test
     public void #renderTestMethodName($method.name)() throws Exception {

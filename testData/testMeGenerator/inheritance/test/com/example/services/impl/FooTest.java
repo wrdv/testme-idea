@@ -33,14 +33,14 @@ public class FooTest {
     }
 
     @Test
-    public void testFight2() throws Exception {
-        String result = foo.fight("foeName");
-        Assert.assertEquals("replaceMeWithExpectedResult", result);
+    public void testIDefault() throws Exception {
+        foo.iDefault();
     }
 
     @Test
-    public void testPeace() throws Exception {
-        foo.peace();
+    public void testAsFather() throws Exception {
+        String result = foo.asFather("asSon");
+        Assert.assertEquals("replaceMeWithExpectedResult", result);
     }
 }
 

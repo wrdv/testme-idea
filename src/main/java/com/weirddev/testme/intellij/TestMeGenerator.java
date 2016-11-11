@@ -174,7 +174,6 @@ public class TestMeGenerator {
 
     private List<Method> getMethods(FileTemplateContext context) {
         ArrayList<Method> methods = new ArrayList<Method>();
-        //TODO should use only getMethods() ?  or indicator if method inherited ?
         for (PsiMethod psiMethod : context.getSrcClass().getAllMethods()) {
             methods.add(new Method(psiMethod,context.getSrcClass()));
         }

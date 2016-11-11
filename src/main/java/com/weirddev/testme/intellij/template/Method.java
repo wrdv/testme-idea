@@ -27,11 +27,13 @@ public class Method {
     private final boolean isGetter;
     private final boolean constructor;
     private final boolean overridden;
+    private final boolean inherited;
+    private final boolean isInInterface;
 
     public Method(PsiMethod psiMethod, PsiClass srcClass) {
         isPrivate=psiMethod.hasModifierProperty(PsiModifier.PRIVATE);
         isProtected=psiMethod.hasModifierProperty(PsiModifier.PROTECTED);
-        isDefault=psiMethod.hasModifierProperty(PsiModifier.DEFAULT);
+        isDefault=psiMethod.hasModifierProperty(PsiModifier.DEFAULT)||psiMethod.hasModifierProperty(PsiModifier.PACKAGE_LOCAL);
         isPublic=psiMethod.hasModifierProperty(PsiModifier.PUBLIC);
         isAbstract=psiMethod.hasModifierProperty(PsiModifier.ABSTRACT);
         isNative=psiMethod.hasModifierProperty(PsiModifier.NATIVE);
@@ -44,12 +46,19 @@ public class Method {
         isGetter = PropertyUtil.isSimpleGetter(psiMethod);
         constructor = psiMethod.isConstructor();
         overridden = isOverriddenInChild(psiMethod, srcClass);
+        inherited = isInherited(psiMethod, srcClass);
+        isInInterface = psiMethod.getContainingClass()!=null && psiMethod.getContainingClass().isInterface();
     }
 
     private boolean isOverriddenInChild(PsiMethod method, PsiClass srcClass) {
         String srcQualifiedName = srcClass.getQualifiedName();
         String methodClsQualifiedName = method.getContainingClass()==null?null:method.getContainingClass().getQualifiedName();
         return (srcQualifiedName!=null && methodClsQualifiedName!=null &&  !srcQualifiedName.equals(methodClsQualifiedName)) && srcClass.findMethodsBySignature(method, false).length > 0;
+    }
+    private boolean isInherited(PsiMethod method, PsiClass srcClass) {
+        String srcQualifiedName = srcClass.getQualifiedName();
+        String methodClsQualifiedName = method.getContainingClass()==null?null:method.getContainingClass().getQualifiedName();
+        return (srcQualifiedName!=null && methodClsQualifiedName!=null &&  !srcQualifiedName.equals(methodClsQualifiedName));
     }
 
     private List<Param> extractMethodParams(PsiParameterList parameterList) {
@@ -118,5 +127,13 @@ public class Method {
 
     public boolean isOverridden() {
         return overridden;
+    }
+
+    public boolean isInherited() {
+        return inherited;
+    }
+
+    public boolean isInInterface() {
+        return isInInterface;
     }
 }

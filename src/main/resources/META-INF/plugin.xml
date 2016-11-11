@@ -1,7 +1,7 @@
 <idea-plugin version="2">
   <id>com.dev.testme</id>
   <name>TestMe</name>
-  <version>1.0</version>
+  <version>1.0.0</version>
   <vendor email="yaronyam@dev.com" url="http://www.dev.com">Dev Inc.</vendor>
 
   <description><![CDATA[
