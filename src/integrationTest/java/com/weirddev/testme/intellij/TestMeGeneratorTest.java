@@ -60,6 +60,9 @@ public class TestMeGeneratorTest extends JavaCodeInsightFixtureTestCase {
     public void testArrays() throws Exception {
         doTest(false);
     }
+    public void testConstants() throws Exception {
+        doTest();
+    }
     // TODO TC caret position with <caret>
 
     // TODO TC different test target dir

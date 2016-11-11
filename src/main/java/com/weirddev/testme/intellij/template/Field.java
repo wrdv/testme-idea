@@ -12,6 +12,8 @@ public class Field {
     private final Type type;
     private final boolean overridden;
     private final boolean finalType;
+    private final boolean isFinal;
+    private final boolean isStatic;
     private String name;
 
     public Field(PsiField psiField, PsiClass fieldTypeClass, PsiClass srcClass) {
@@ -19,6 +21,8 @@ public class Field {
         type = new Type(psiField.getType());
         finalType = isFinal(fieldTypeClass);
         overridden = isOverriddenInChild(psiField, srcClass);
+        isFinal = psiField.getModifierList() != null && psiField.getModifierList().hasExplicitModifier(PsiModifier.FINAL);
+        isStatic = psiField.getModifierList() != null && psiField.getModifierList().hasExplicitModifier(PsiModifier.STATIC);
     }
     private boolean isOverriddenInChild(PsiField psiField, PsiClass srcClass) {
         String srcQualifiedName = srcClass.getQualifiedName();
@@ -42,5 +46,13 @@ public class Field {
 
     public boolean isFinalType() {
         return finalType;
+    }
+
+    public boolean isFinal() {
+        return isFinal;
+    }
+
+    public boolean isStatic() {
+        return isStatic;
     }
 }
