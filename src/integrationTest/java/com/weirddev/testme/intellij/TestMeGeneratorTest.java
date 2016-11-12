@@ -63,9 +63,14 @@ public class TestMeGeneratorTest extends JavaCodeInsightFixtureTestCase {
     public void testConstants() throws Exception {
         doTest();
     }
+    public void testCollections() throws Exception {
+        doTest(); //TODO java.util.* collections replacements, assert collections? - use arrays?
+    }
+
+    //TODO TC param of collection with same name as other type imported before - force usage of canonical type
     //TODO TC enum
 
-    //TODO java.util.* collections replacements
+    //TODO TC optimize imports
 
     // TODO TC caret position with <caret>
 

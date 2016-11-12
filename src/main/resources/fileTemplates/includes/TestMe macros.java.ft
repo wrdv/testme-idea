@@ -1,5 +1,5 @@
 ################## Global vars ###############
-#set($trackedImports={})## map (name -> canonicalName) of types allready imported
+#set($trackedImports={})## map (name -> canonicalName) of types already imported
 #foreach($typeName in $TESTED_CLASS_TYPES_IN_DEFAULT_PACKAGE)#set( $devNull= $trackedImports.put($typeName,""))#end
 #set($trackedTestMethodsCount={})
 ##
