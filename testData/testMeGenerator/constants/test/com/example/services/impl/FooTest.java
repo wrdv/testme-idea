@@ -13,9 +13,6 @@ import org.mockito.MockitoAnnotations;
  * created by TestMe integration test on MMXVI
  */
 public class FooTest {
-    //TODO Field MUTABLE of type String - was not mocked since Mockito doesn't mock a Final class
-    //TODO Field MUTABLE_INITIALIZED_IN_CTOR of type String - was not mocked since Mockito doesn't mock a Final class
-    //TODO Field MUTABLE_INITIALIZED_IN_DEFAULT_CTOR of type String - was not mocked since Mockito doesn't mock a Final class
     @Mock
     private FooFighter fooFighter;
     @InjectMocks

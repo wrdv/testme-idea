@@ -70,12 +70,10 @@
 #if(!${field.type.primitive} && !${field.finalType} && !${field.overridden} && !$field.type.array)
     @Mock
     private #renderTypeName($field.type) $field.name;
-#end
-#if(!${field.type.primitive} && ${field.finalType} && (!$field.static || !$field.final))
-    //TODO Field $field.name of type $field.type.name - was not mocked since Mockito doesn't mock a Final class
-#end
-#if($field.type.array && (!$field.static || !$field.final))
-    //TODO Field $field.name of type ${field.type.name}[] - was not mocked since Mockito doesn't mock arrays
+#elseif(!$field.type.primitive && !($field.type.canonicalName == "java.lang.String") && $field.finalType && (!$field.static || !$field.final))
+    //Field $field.name of type $field.type.name - was not mocked since Mockito doesn't mock a Final class
+#elseif($field.type.array && (!$field.static || !$field.final))
+    //Field $field.name of type ${field.type.name}[] - was not mocked since Mockito doesn't mock arrays
 #end
 #end
 #end

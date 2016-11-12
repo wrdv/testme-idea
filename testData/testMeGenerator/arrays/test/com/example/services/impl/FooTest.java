@@ -11,7 +11,7 @@ import org.mockito.MockitoAnnotations;
 
 /** created by TestMe integration test on MMXVI */
 public class FooTest {
-    //TODO Field fooFighter of type FooFighter[] - was not mocked since Mockito doesn't mock arrays
+    //Field fooFighter of type FooFighter[] - was not mocked since Mockito doesn't mock arrays
     @InjectMocks
     private Foo foo;
 

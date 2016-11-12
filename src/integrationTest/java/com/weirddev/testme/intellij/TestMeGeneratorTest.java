@@ -63,11 +63,13 @@ public class TestMeGeneratorTest extends JavaCodeInsightFixtureTestCase {
     public void testConstants() throws Exception {
         doTest();
     }
+    //TODO TC enum
+
+    //TODO java.util.* collections replacements
+
     // TODO TC caret position with <caret>
 
     // TODO TC different test target dir
-
-    //TODO TC enum
 
     private void doTest() {
         doTest(true);

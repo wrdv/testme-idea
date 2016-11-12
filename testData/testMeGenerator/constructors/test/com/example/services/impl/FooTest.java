@@ -15,7 +15,6 @@ import org.mockito.MockitoAnnotations;
 public class FooTest {
     @Mock
     private FooFighter fooFighter;
-    //TODO Field numFive of type String - was not mocked since Mockito doesn't mock a Final class
     @InjectMocks
     private Foo foo;
 
