@@ -67,6 +67,8 @@ public class TestMeGeneratorTest extends JavaCodeInsightFixtureTestCase {
 
     // TODO TC different test target dir
 
+    //TODO TC enum
+
     private void doTest() {
         doTest(true);
     }

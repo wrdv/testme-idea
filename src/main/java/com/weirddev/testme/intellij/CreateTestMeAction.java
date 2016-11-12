@@ -92,9 +92,10 @@ public class CreateTestMeAction extends CreateTestAction {
 
     /**
      * @see CreateTestAction#getContainingClass(com.intellij.psi.PsiElement)
+     * base method used to be private in IJ 14
      */
     @Nullable
-    private static PsiClass getContainingClass(PsiElement element) {
+    protected static PsiClass getContainingClass(PsiElement element) {
         final PsiClass psiClass = PsiTreeUtil.getParentOfType(element, PsiClass.class, false);
         if (psiClass == null) {
             final PsiFile containingFile = element.getContainingFile();

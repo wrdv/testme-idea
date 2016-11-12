@@ -18,17 +18,29 @@ public class GotoTestOrCodeActionExt extends GotoTestOrCodeAction {
     @Override
     protected CodeInsightActionHandler getHandler() {
         GotoTestOrCodeHandlerExt gotoTestOrCodeHandlerExt = new GotoTestOrCodeHandlerExt(true);
-        Field f;
+
         try {
-            f = GotoTargetHandler.class.getDeclaredField("myActionElementRenderer");
-            f.setAccessible(true);
-            f.set(gotoTestOrCodeHandlerExt, new TestMeActionCellRenderer());
-            return gotoTestOrCodeHandlerExt;
-        } catch (NoSuchFieldException e) {
-            LOG.warn("Unable to find field. TestMe plugin should get by without it, but looks like it should be updated for this IDEA version",e);
+            Field f = getAssignableFieldFor(TestMeActionCellRenderer.class);
+            if (f == null) {
+                LOG.warn("Unable to find field. TestMe plugin should get by without it, but some feature might not be available for this IDEA version");
+                return new GotoTestOrCodeHandlerExt(false);
+            } else {
+                f.setAccessible(true);
+                f.set(gotoTestOrCodeHandlerExt, new TestMeActionCellRenderer());
+                return gotoTestOrCodeHandlerExt;
+            }
         } catch (IllegalAccessException e) {
             LOG.warn(e);
+            return new GotoTestOrCodeHandlerExt(false);
         }
-        return new GotoTestOrCodeHandlerExt(false);
+    }
+    private Field getAssignableFieldFor(Class cls) {
+        Field[] declaredFields = GotoTargetHandler.class.getDeclaredFields();
+        for (Field declaredField : declaredFields) {
+            if (declaredField.getType().isAssignableFrom(cls)) {
+                return declaredField;
+            }
+        }
+        return null;
     }
 }
