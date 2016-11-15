@@ -112,6 +112,7 @@ public class TestMeGenerator {
         List<Method> methods = getMethods(context);
         templateCtxtParams.put(TestMeTemplateParams.TESTED_CLASS_METHODS, methods);
         templateCtxtParams.put(TestMeTemplateParams.TESTED_CLASS_TYPES_IN_DEFAULT_PACKAGE, filterTypesInDefaultPackage(methods,fields));
+        templateCtxtParams.put(TestMeTemplateParams.UTILS, new TemplateUtils());
 
         final PsiClass targetClass = context.getSrcClass();
         if (targetClass != null && targetClass.isValid()) {

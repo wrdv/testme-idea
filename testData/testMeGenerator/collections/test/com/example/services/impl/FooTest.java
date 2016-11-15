@@ -1,16 +1,13 @@
 package com.example.services.impl;
 
-import java.util.HashSet;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.HashMap;
 import java.util.List;
-
 import com.example.warriers.FooFighter;
+import java.util.ArrayList;
 import com.example.foes.Fire;
-
+import java.util.HashSet;
+import java.util.HashMap;
 import com.example.foes.Ice;
-
+import java.util.LinkedList;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,9 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-/**
- * Created by Admin on 12/11/2016.
- */
+/** created by TestMe integration test on MMXVI */
 public class FooTest {
     @Mock
     private List<FooFighter> fooFighter;
@@ -34,7 +29,7 @@ public class FooTest {
 
     @Test
     public void testFight() throws Exception {
-        List<String> result = foo.fight(new ArrayList<Fire>(), new HashSet<Fire>(), new HashMap<String, Ice>(), new ArrayList<String>(),new LinkedList<List<Fear>>());
+        List<String> result = foo.fight(new ArrayList<Fire>(), new HashSet<Fire>(), new HashMap<String, Ice>(), new ArrayList<String>(), new LinkedList<List<Fear>>());
         Assert.assertEquals(new ArrayList<String>(), result);
     }
 }

@@ -2,6 +2,19 @@
 #set($trackedImports={})## map (name -> canonicalName) of types already imported
 #foreach($typeName in $TESTED_CLASS_TYPES_IN_DEFAULT_PACKAGE)#set( $devNull= $trackedImports.put($typeName,""))#end
 #set($trackedTestMethodsCount={})
+#set($replacementTypes = {
+    "java.util.Collection": "java.util.ArrayList",
+    "java.util.Deque": "java.util.LinkedList",
+    "java.util.Deque": "java.util.LinkedList",
+    "java.util.List": "java.util.ArrayList",
+    "java.util.Map": "java.util.HashMap",
+    "java.util.NavigableMap": "java.util.TreeMap",
+    "java.util.NavigableSet": "java.util.TreeSet",
+    "java.util.Queue": "java.util.LinkedList",
+    "java.util.RandomAccess": "java.util.Vector",
+    "java.util.Set": "java.util.HashSet",
+    "java.util.SortedSet": "java.util.TreeSet"
+})
 ##
 ################## Macros #####################
 #macro( deCapitalize $str)$str.substring(0,1).toLowerCase()$str.substring(1)#end
@@ -34,12 +47,23 @@
 #elseif($type.canonicalName == "java.lang.Character")Character.valueOf('a')##
 #elseif($type.canonicalName == "java.lang.Boolean")Boolean.TRUE##
 #elseif($type.canonicalName == "java.math.BigDecimal")new java.math.BigDecimal(0)##
-#{else}new #renderTypeName($type)()#end
+#{else}new #renderTypeName($type $replacementTypes)()#end
 #end
 ##
-#macro( renderTypeName $type)#*
-    *##if($type.packageName.length()>0 && $type.packageName != "java.lang" && $type.packageName != $package && !($trackedImports.get($type.name)==${type.canonicalName}))${type.canonicalName}#*
-    *##{else}$type.name#end
+#macro( renderTypeName $type $replacementTypesMap)
+#set($name=$type.name)##
+#set($canonicalName=$type.canonicalName)##
+#set($sanitizedCanonicalName=$Utils.stripGenerics($canonicalName))##
+#set($sanitizedName=$Utils.stripGenerics($name))##
+#set($packageName=$type.packageName)##
+#if($replacementTypesMap && $replacementTypesMap.get( $sanitizedCanonicalName))#*
+    *##set($sanitizedCanonicalName=$replacementTypesMap.get($sanitizedCanonicalName))#*
+    *##set($sanitizedName = $Utils.extractClassName($sanitizedCanonicalName))#*
+    *##set($name = $Utils.replaceType($name,$sanitizedName))#*
+    *##set($canonicalName = $Utils.replaceType($canonicalName,$sanitizedCanonicalName))##
+#end
+#if($packageName.length()>0 && $packageName != "java.lang" && $packageName != $package && !($trackedImports.get($sanitizedName)==$sanitizedCanonicalName))$canonicalName##
+#{else}$name#end
 #end
 ##
 #macro( renderJavaTestClassImports $fields $methods $package)
@@ -51,16 +75,22 @@
         *##if($method.returnType)#*
             *##renderImport($method.returnType,$package)#end#*
         *##foreach($param in $method.methodParams)#*
-            *##renderImport($param.type,$package)#end#*
+            *##renderImport($param.type,$package, $replacementTypes)#end#*
     *##end
 #end
 #end
 ##
-#macro(renderImport $wrapperType $package)
+#macro(renderImport $wrapperType $package $replacementTypesMap)
 #foreach($type in $wrapperType.composedTypes)#*
-    *##if($type.packageName.length()>0 && $type.packageName != "java.lang" && $type.packageName != $package && !$trackedImports.get($type.name))#*
-    *#import $type.canonicalName;
-#*  *##set($devNull=$trackedImports.put($type.name,$type.canonicalName))#*
+    *##set($name=$type.name)#*
+    *##set($canonicalName=$type.canonicalName)#*
+    *##if($replacementTypesMap && $replacementTypesMap.get($canonicalName))#*
+        *##set($canonicalName=$replacementTypesMap.get($canonicalName))#*
+        *##set($name = $Utils.extractClassName($canonicalName))#*
+    *##end#*
+    *##if($type.packageName.length()>0 && $type.packageName != "java.lang" && $type.packageName != $package && !$trackedImports.get($name))#*
+        *#import $canonicalName;
+#*      *##set($devNull=$trackedImports.put($name,$canonicalName))#*
     *##end##
 #end##
 #end##

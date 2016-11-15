@@ -64,7 +64,7 @@ public class TestMeGeneratorTest extends JavaCodeInsightFixtureTestCase {
         doTest();
     }
     public void testCollections() throws Exception {
-        doTest(); //TODO java.util.* collections replacements, assert collections? - use arrays?
+        doTest(false); //TODO  refactor renderJavaCallParam to use map. assert collections? - use arrays?
     }
 
     //TODO TC param of collection with same name as other type imported before - force usage of canonical type
