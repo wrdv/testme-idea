@@ -20,7 +20,7 @@ public class FooTest {
     @Mock
     private Set<Ice> escimoRealEstate;
     @Mock
-    private Map<Pokemon,List<Fire>> hotPokeys;
+    private Map<Pokemon, List<Fire>> hotPokeys;
     @Mock
     private FooFighter fooFighter;
     @InjectMocks

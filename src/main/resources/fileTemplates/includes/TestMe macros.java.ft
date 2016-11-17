@@ -15,6 +15,27 @@
     "java.util.Set": "java.util.HashSet",
     "java.util.SortedSet": "java.util.TreeSet"
 })
+#set($defaultTypeValues = {
+    "byte": "(byte) 0",
+    "short": "(short) 0",
+    "int": "0",
+    "long": "0L",
+    "float": "0f",
+    "double": "0d",
+    "char": "'a'",
+    "boolean": "true",
+    "java.lang.Byte": "Byte.valueOf(""00110"")",
+    "java.lang.Short": "Short.valueOf((short)0)",
+    "java.lang.Integer": "Integer.valueOf(0)",
+    "java.lang.Integer": "Integer.valueOf(0)",
+    "java.lang.Long": "Long.valueOf(1)",
+    "java.lang.Float": "Float.valueOf(1.1f)",
+    "java.lang.Double": "Double.valueOf(0)",
+    "java.lang.Character": "Character.valueOf('a')",
+    "java.lang.Boolean": "Boolean.TRUE",
+    "java.math.BigDecimal": "new java.math.BigDecimal(0)"
+})
+##
 ##
 ################## Macros #####################
 #macro( deCapitalize $str)$str.substring(0,1).toLowerCase()$str.substring(1)#end
@@ -28,25 +49,8 @@
 #end
 ##
 #macro( renderJavaCallParam $type $strValue )##
-#if($type.canonicalName == "java.lang.String")"${strValue}"##
-#elseif($type.canonicalName == "byte")(byte) 0##
-#elseif($type.canonicalName == "short")(short) 0##
-#elseif($type.canonicalName == "int")0##
-#elseif($type.canonicalName == "long")0L##
-#elseif($type.canonicalName == "float")0f##
-#elseif($type.canonicalName == "double")0d##
-#elseif($type.canonicalName == "char")'a'##
-#elseif($type.canonicalName == "boolean")true##
-#elseif($type.canonicalName == "java.lang.Byte")Byte.valueOf("00110")##
-#elseif($type.canonicalName == "java.lang.Short")Short.valueOf((short)0)##
-#elseif($type.canonicalName == "java.lang.Integer")Integer.valueOf(0)##
-#elseif($type.canonicalName == "java.lang.Integer")Integer.valueOf(0)##
-#elseif($type.canonicalName == "java.lang.Long")Long.valueOf(1)##
-#elseif($type.canonicalName == "java.lang.Float")Float.valueOf(1.1f)##
-#elseif($type.canonicalName == "java.lang.Double")Double.valueOf(0)##
-#elseif($type.canonicalName == "java.lang.Character")Character.valueOf('a')##
-#elseif($type.canonicalName == "java.lang.Boolean")Boolean.TRUE##
-#elseif($type.canonicalName == "java.math.BigDecimal")new java.math.BigDecimal(0)##
+#if($defaultTypeValues.get($type.canonicalName))$defaultTypeValues.get($type.canonicalName)##
+#elseif($type.canonicalName == "java.lang.String")"${strValue}"##
 #{else}new #renderTypeName($type $replacementTypes)()#end
 #end
 ##
