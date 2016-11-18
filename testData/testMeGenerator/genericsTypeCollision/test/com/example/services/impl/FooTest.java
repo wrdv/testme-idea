@@ -1,7 +1,9 @@
 package com.example.services.impl;
 
 import com.example.warriers.FooFighter;
-import com.example.foes.Fire;
+import com.example.util.List;
+import com.example.hole.Fire;
+import java.util.ArrayList;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -9,9 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-/**
- * created by TestMe integration test on MMXVI
- */
+/** created by TestMe integration test on MMXVI */
 public class FooTest {
     @Mock
     private FooFighter fooFighter;
@@ -25,8 +25,8 @@ public class FooTest {
 
     @Test
     public void testFight() throws Exception {
-        Fire result = foo.fight(new Fire(), new com.example.hole.Fire());
-        Assert.assertEquals(new Fire(), result);
+        List<Fire> result = foo.fight(new ArrayList<com.example.foes.Fire>());
+        Assert.assertEquals(new List<Fire>(), result);
     }
 }
 

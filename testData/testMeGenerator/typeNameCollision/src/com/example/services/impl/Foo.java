@@ -9,8 +9,9 @@ public class Foo{
 
     private FooFighter fooFighter;
 
-    public String fight(Fire fireOfFoe, com.example.hole.Fire inTheHole) {
+    public Fire fight(Fire fireOfFoe, com.example.hole.Fire inTheHole) {
         System.out.println(inTheHole);
-        return fooFighter.fight(fireOfFoe);
+        System.out.println(fooFighter.fight(fireOfFoe));
+        return fireOfFoe;
     }
 }

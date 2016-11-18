@@ -64,11 +64,12 @@ public class TestMeGeneratorTest extends JavaCodeInsightFixtureTestCase {
         doTest();
     }
     public void testCollections() throws Exception {
-        doTest(false); //TODO  assert collections  (convert to arrays? toList?)
+        doTest(false);
     }
-    //TODO TC generic return var + assert
-    //TODO TC return var of un-imported duplicate type name
-    //TODO TC param of collection with same name as other type imported before - force usage of canonical type
+//    public void testGenericsTypeCollision() throws Exception {
+//        doTest(false); //TODO implement scenario
+//    }
+
     //TODO TC enum
 
     //TODO TC optimize imports
