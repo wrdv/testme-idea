@@ -42,13 +42,18 @@
 ##
 #macro( capitalize $str)$str.substring(0,1).toUpperCase()$str.substring(1)#end
 ##
-#macro( renderJavaCallParams $params)#*
-    *##foreach($param in $params)#*
-        *##if($foreach.count>1), #end#*
-        *##if($param.type.array)new #renderTypeName($param.type)[]{#end#renderJavaCallParam($param.type,$param.name)#if($param.type.array)}#end#end
+#macro( renderJavaCallParams $params)
+#foreach($param in $params)#*
+    *##if($foreach.count>1), #end#*
+    *##renderJavaCallParam($param.type,$param.name)##
+#end
 #end
 ##
-#macro( renderJavaCallParam $type $strValue )##
+#macro( renderJavaCallParam $type $strValue )
+#if($type.array)new #renderTypeName($type)[]{#end#renderJavaParam($type,$strValue)#if($type.array)}#end
+#end
+##
+#macro( renderJavaParam $type $strValue )
 #if($defaultTypeValues.get($type.canonicalName))$defaultTypeValues.get($type.canonicalName)##
 #elseif($type.canonicalName == "java.lang.String")"${strValue}"##
 #{else}new #renderTypeName($type $replacementTypes)()#end
@@ -113,12 +118,16 @@
 #end
 ##
 #macro(renderJavaReturnVar $type)
-#if($type && $type.name !="void")$type.name result = #end
+#if($type && $type.name !="void")#renderTypeName($type)#if($type.array)[]#end result = #end
 #end
 ##
 #macro(renderJUnitAssert $type)
-#if($type && $type.name !="void")        Assert.assertEquals(#renderJavaCallParam($type,"replaceMeWithExpectedResult"), result);
+#if($type && $type.name !="void")        Assert.#renderJunitAssertMethod($type)(#renderJavaCallParam($type,"replaceMeWithExpectedResult"), result);
 #end
+#end
+##
+#macro(renderJunitAssertMethod $type)
+#if($type && $type.array)assertArrayEquals#{else}assertEquals#end
 #end
 ##
 #macro(renderTestMethods $testedClassMethods $testedClassName)

@@ -22,8 +22,20 @@ public class FooTest {
 
     @Test
     public void testFight() throws Exception {
-        String result = foo.fight(new Fire[]{new Fire()}, new String[]{"foeName"}, new int[]{0});
-        Assert.assertEquals("replaceMeWithExpectedResult", result);
+        String[] result = foo.fight(new Fire[]{new Fire()}, new String[]{"foeName"}, new int[]{0});
+        Assert.assertArrayEquals(new String[]{"replaceMeWithExpectedResult"}, result);
+    }
+
+    @Test
+    public void testFireStarter() throws Exception {
+        Fire[] result = foo.fireStarter(new String[]{"foeName"}, new int[]{0});
+        Assert.assertArrayEquals(new Fire[]{new Fire()}, result);
+    }
+
+    @Test
+    public void testFireCounter() throws Exception {
+        int[] result = foo.fireCounter(new Fire[]{new Fire()});
+        Assert.assertArrayEquals(new int[]{0}, result);
     }
 }
 

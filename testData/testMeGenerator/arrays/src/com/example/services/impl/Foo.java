@@ -7,8 +7,14 @@ public class Foo{
 
     private FooFighter[] fooFighter;
 
-    public String fight(Fire[] withFire,String[] foeName, int[  ] times) {
-        return fooFighter[0].fight(withFire[0]);
+    public String[] fight(Fire[] withFire,String[] foeName, int[  ] times) {
+        return new String[]{fooFighter[0].fight(withFire[0])};
+    }
+    public Fire[] fireStarter(String[] foeName, int[  ] times) {
+        return new Fire[]{new Fire()};
+    }
+    public int[] fireCounter(Fire[] fires) {
+        return new int[]{fires.length};
     }
 
 }
