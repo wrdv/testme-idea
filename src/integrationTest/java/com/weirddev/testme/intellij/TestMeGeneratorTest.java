@@ -69,8 +69,9 @@ public class TestMeGeneratorTest extends JavaCodeInsightFixtureTestCase {
 //    public void testGenericsTypeCollision() throws Exception {
 //        doTest(false); //TODO implement scenario
 //    }
-
-    //TODO TC enum
+    public void testEnum() throws Exception {
+        doTest(false);
+    }
 
     //TODO TC optimize imports
 

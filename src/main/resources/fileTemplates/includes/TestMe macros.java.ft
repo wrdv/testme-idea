@@ -56,6 +56,7 @@
 #macro( renderJavaParam $type $strValue )
 #if($defaultTypeValues.get($type.canonicalName))$defaultTypeValues.get($type.canonicalName)##
 #elseif($type.canonicalName == "java.lang.String")"${strValue}"##
+#elseif($type.enumValues.size()>0)#renderTypeName($type).${type.enumValues[0]}##
 #{else}new #renderTypeName($type $replacementTypes)()#end
 #end
 ##
@@ -106,13 +107,15 @@
 ##
 #macro(renderMockedFields $testedClassFields)
 #foreach($field in $testedClassFields)
-#if(!${field.type.primitive} && !${field.finalType} && !${field.overridden} && !$field.type.array)
+#if(!${field.type.primitive} && !${field.finalType} && !${field.overridden} && !$field.type.array && !$field.type.enum)
     @Mock
     private #renderTypeName($field.type) $field.name;
 #elseif(!$field.type.primitive && !($field.type.canonicalName == "java.lang.String") && $field.finalType && (!$field.static || !$field.final))
     //Field $field.name of type $field.type.name - was not mocked since Mockito doesn't mock a Final class
 #elseif($field.type.array && (!$field.static || !$field.final))
     //Field $field.name of type ${field.type.name}[] - was not mocked since Mockito doesn't mock arrays
+#elseif($field.type.enum)
+    //Field $field.name of type ${field.type.name} - was not mocked since Mockito doesn't mock enums
 #end
 #end
 #end

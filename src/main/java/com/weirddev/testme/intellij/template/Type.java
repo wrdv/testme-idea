@@ -1,8 +1,8 @@
 package com.weirddev.testme.intellij.template;
 
-import com.intellij.psi.PsiPrimitiveType;
-import com.intellij.psi.PsiType;
+import com.intellij.psi.*;
 import com.intellij.psi.impl.source.PsiClassReferenceType;
+import com.intellij.psi.util.PsiUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -19,6 +19,8 @@ public class Type {
     private final String packageName;
     private final List<Type> composedTypes;
     private final boolean array;
+    private final List<String> enumValues;
+    private final boolean isEnum;
 
     Type(String canonicalName, String name, String packageName, boolean isPrimitive, boolean array, List<Type> composedTypes) {
         this.canonicalName = canonicalName;
@@ -27,6 +29,8 @@ public class Type {
         this.packageName = packageName;
         this.array = array;
         this.composedTypes = composedTypes;
+        enumValues = new ArrayList<String>();
+        isEnum = false;
     }
 
     Type(String canonicalName) {
@@ -41,6 +45,26 @@ public class Type {
         packageName = extractPackageName(canonicalName);
         this.isPrimitive = psiType instanceof PsiPrimitiveType;
         composedTypes = resolveTypes(psiType);
+        PsiClass psiClass = PsiUtil.resolveClassInType(psiType);
+        isEnum = psiClass != null && psiClass.isEnum();
+        enumValues = resolveEnumValues(psiType);
+    }
+
+    private static List<String> resolveEnumValues(PsiType psiType) {
+        PsiClass psiClass = PsiUtil.resolveClassInType(psiType);
+        List<String> enumValues = new ArrayList<String>();
+        if (psiClass != null && psiClass.isEnum()) {
+            for (PsiField field : psiClass.getFields()) {
+                if (field instanceof PsiEnumConstant) {
+                    final PsiEnumConstant enumConstant = (PsiEnumConstant) field;
+                    final PsiEnumConstantInitializer initializingClass = enumConstant.getInitializingClass();
+                    if (initializingClass == null) {
+                        enumValues.add(enumConstant.getName());
+                    }
+                }
+            }
+        }
+        return enumValues;
     }
 
     private static  boolean isArray(String canonicalName) {
@@ -116,9 +140,16 @@ public class Type {
         return array;
     }
 
+    public List<String> getEnumValues() {
+        return enumValues;
+    }
+
+    public boolean isEnum() {
+        return isEnum;
+    }
+
     @Override
     public boolean equals(Object o) {
-
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
@@ -126,11 +157,14 @@ public class Type {
 
         if (isPrimitive != type.isPrimitive) return false;
         if (array != type.array) return false;
+        if (isEnum != type.isEnum) return false;
         if (canonicalName != null ? !canonicalName.equals(type.canonicalName) : type.canonicalName != null)
             return false;
         if (name != null ? !name.equals(type.name) : type.name != null) return false;
         if (packageName != null ? !packageName.equals(type.packageName) : type.packageName != null) return false;
-        return composedTypes != null ? composedTypes.equals(type.composedTypes) : type.composedTypes == null;
+        if (composedTypes != null ? !composedTypes.equals(type.composedTypes) : type.composedTypes != null)
+            return false;
+        return enumValues != null ? enumValues.equals(type.enumValues) : type.enumValues == null;
 
     }
 
@@ -142,6 +176,8 @@ public class Type {
         result = 31 * result + (packageName != null ? packageName.hashCode() : 0);
         result = 31 * result + (composedTypes != null ? composedTypes.hashCode() : 0);
         result = 31 * result + (array ? 1 : 0);
+        result = 31 * result + (enumValues != null ? enumValues.hashCode() : 0);
+        result = 31 * result + (isEnum ? 1 : 0);
         return result;
     }
 
