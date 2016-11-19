@@ -6,7 +6,7 @@ import com.example.warriers.FooFighter;
 import com.example.foes.Fire;
 
 public class Foo{
-
+<caret>
     private FooFighter fooFighter;
 
     Result result=Result.Draw;

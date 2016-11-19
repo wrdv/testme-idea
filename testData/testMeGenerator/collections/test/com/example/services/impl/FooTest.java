@@ -3,7 +3,7 @@ package com.example.services.impl;
 import java.util.List;
 import com.example.warriers.FooFighter;
 import com.example.foes.Fire;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.HashMap;
 import com.example.foes.Ice;
@@ -30,8 +30,8 @@ public class FooTest {
 
     @Test
     public void testFight() throws Exception {
-        List<Fire> result = foo.fight(Arrays.asList(new Fire()), new HashSet<Fire>(Arrays.asList(new Fire())), new HashMap<String, Ice>(){{put("icebergs",new Ice());}}, Arrays.asList("strings"), Arrays.asList(Arrays.asList("collOfLists")), new LinkedList<List<Fear>>());
-        Assert.assertEquals(Arrays.asList(new Fire()), result);
+        List<Fire> result = foo.fight(new ArrayList<Fire>(), new HashSet<Fire>(), new HashMap<String, Ice>(), new ArrayList<String>(), new ArrayList<List<String>>(), new LinkedList<List<Fear>>());
+        Assert.assertEquals(new ArrayList<Fire>(), result);
     }
 }
 

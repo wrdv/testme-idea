@@ -5,9 +5,14 @@ import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateDescriptor;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.openapi.command.CommandProcessor;
+import com.intellij.openapi.projectRoots.JavaSdk;
+import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.psi.*;
-import com.intellij.testFramework.builders.JavaModuleFixtureBuilder;
-import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase;
+import com.intellij.testFramework.LightProjectDescriptor;
+import com.intellij.testFramework.fixtures.DefaultLightProjectDescriptor;
+import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
+import com.weirddev.testme.intellij.generator.TestMeGenerator;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 
@@ -15,7 +20,7 @@ import java.io.File;
  * Date: 10/20/2016
  * @author Yaron Yamin
  */
-public class TestMeGeneratorTest extends JavaCodeInsightFixtureTestCase {
+public class TestMeGeneratorTest extends LightCodeInsightFixtureTestCase /*JavaCodeInsightFixtureTestCase */{
 
     private static final String FILE_HEADER_TEMPLATE = "File Header.java";
     private static final String HEADER_TEMPLATE_REPLACEMENT_TEXT = "/** created by TestMe integration test on MMXVI */\n";
@@ -73,9 +78,7 @@ public class TestMeGeneratorTest extends JavaCodeInsightFixtureTestCase {
         doTest(false);
     }
 
-    //TODO TC optimize imports
-
-    // TODO TC caret position with <caret>
+    // TODO assert caret position with <caret>
 
     // TODO TC different test target dir
 
@@ -117,6 +120,7 @@ public class TestMeGeneratorTest extends JavaCodeInsightFixtureTestCase {
                         reformatCode
                 ));
                 System.out.println("result:"+result);
+//                myFixture.openFileInEditor(result.getContainingFile().getVirtualFile());
                 String expectedTestClassFilePath = (packageName.length() > 0 ? (packageName.replace(".", "/") + "/") : "") + expectedTestClassName + ".java";
                 myFixture.checkResultByFile(/*"src/"+*/expectedTestClassFilePath,"test/"+expectedTestClassFilePath,false);
             }
@@ -150,8 +154,19 @@ public class TestMeGeneratorTest extends JavaCodeInsightFixtureTestCase {
         return "testData/testMeGenerator/"+getTestName(true).replace('$', '/');
     }
 
+    @NotNull
     @Override
-    protected void tuneFixture(JavaModuleFixtureBuilder moduleBuilder) throws Exception {
-        moduleBuilder.addJdk(new File(System.getProperty("java.home")).getParent());
+    protected LightProjectDescriptor getProjectDescriptor() {
+        return new DefaultLightProjectDescriptor() {
+            @Override
+            public Sdk getSdk() {
+                return JavaSdk.getInstance().createJdk("java 1.7", new File(System.getProperty("java.home")).getParent(), false);
+            }
+        };
     }
+
+//    @Override //relevant when JavaCodeInsightFixtureTestCase is used
+//    protected void tuneFixture(JavaModuleFixtureBuilder moduleBuilder) throws Exception {
+//        moduleBuilder.addJdk(new File(System.getProperty("java.home")).getParent());
+//    }
 }

@@ -1,14 +1,12 @@
-package com.weirddev.testme.intellij;
+package com.weirddev.testme.intellij.generator;
 
 import com.intellij.codeInsight.CodeInsightBundle;
 import com.intellij.codeInsight.CodeInsightUtil;
 import com.intellij.codeInsight.FileModificationService;
-import com.intellij.execution.junit.JUnit4Framework;
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.ide.fileTemplates.FileTemplateUtil;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.ex.IdeDocumentHistory;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
@@ -17,10 +15,13 @@ import com.intellij.psi.*;
 import com.intellij.psi.impl.source.PostprocessReformattingAspect;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.GlobalSearchScopesCore;
-import com.intellij.testIntegration.TestFramework;
 import com.intellij.testIntegration.createTest.JavaTestGenerator;
 import com.intellij.util.IncorrectOperationException;
-import com.weirddev.testme.intellij.template.*;
+import com.weirddev.testme.intellij.FileTemplateContext;
+import com.weirddev.testme.intellij.template.Field;
+import com.weirddev.testme.intellij.template.Method;
+import com.weirddev.testme.intellij.template.TemplateUtils;
+import com.weirddev.testme.intellij.template.TestMeTemplateParams;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,6 +34,16 @@ import java.util.*;
  * @see JavaTestGenerator
  */
 public class TestMeGenerator {
+    private final TestClassElementsLocator testClassElementsLocator;
+    private final ClassElementsLocator classElementsLocator;
+
+    public TestMeGenerator() { this(new TestClassElementsLocator(), new ClassElementsLocator()); }
+
+    TestMeGenerator(TestClassElementsLocator testClassElementsLocator, ClassElementsLocator classElementsLocator) {
+        this.testClassElementsLocator = testClassElementsLocator;
+        this.classElementsLocator = classElementsLocator;
+    }
+
     public PsiElement generateTest(final FileTemplateContext context) {
         final Project project = context.getProject();
         return PostprocessReformattingAspect.getInstance(project).postponeFormattingInside(new Computable<PsiElement>() {
@@ -46,22 +57,7 @@ public class TestMeGenerator {
                             if (targetClass == null) {
                                 return null;
                             }
-                            final TestFramework frameworkDescriptor = new JUnit4Framework();// context.getSelectedTestFrameworkDescriptor();
-//                            final String defaultSuperClass = frameworkDescriptor.getDefaultSuperClass();
-//                            final String superClassName = null;//context.getSuperClassName();
-//                            if (!Comparing.strEqual(superClassName, defaultSuperClass)) {
-//                                addSuperClass(targetClass, project, superClassName);
-//                            }
-                            if (targetClass != null) {
-                                Editor editor = CodeInsightUtil.positionCursor(project, targetClass.getContainingFile(), targetClass.getLBrace());
-                            }
-
-//                            addTestMethods(editor,
-//                                    targetClass,
-//                                    frameworkDescriptor,
-//                                    null,//context.getSelectedMethods(),
-//                                    true /*context.shouldGeneratedBefore()*/,
-//                                    true /*context.shouldGeneratedAfter()*/);
+                            CodeInsightUtil.positionCursor(project, targetClass.getContainingFile(), testClassElementsLocator.findOptimalCursorLocation(targetClass));
                             return targetClass;
                         }
                         catch (IncorrectOperationException e) {
@@ -73,13 +69,9 @@ public class TestMeGenerator {
             }
         });
     }
-
     @Nullable
     private PsiClass createTestClass(FileTemplateContext context) {
-        final TestFramework testFrameworkDescriptor = new JUnit4Framework(); //TODO consider removing the dependency
-//        final FileTemplateDescriptor fileTemplateDescriptor = TestIntegrationUtils.MethodKind.TEST_CLASS.getFileTemplateDescriptor(testFrameworkDescriptor);
         final PsiDirectory targetDirectory = context.getTargetDirectory();
-
         final PsiPackage aPackage = JavaDirectoryService.getInstance().getPackage(targetDirectory);
         if (aPackage != null) {
             final GlobalSearchScope scope = GlobalSearchScopesCore.directoryScope(targetDirectory, false);
@@ -91,13 +83,10 @@ public class TestMeGenerator {
                 return classes[0];
             }
         }
-//        if (fileTemplateDescriptor != null) {
             final PsiClass classFromTemplate = createTestClassFromCodeTemplate(context, targetDirectory);
             if (classFromTemplate != null) {
                 return classFromTemplate;
             }
-//        }
-
         return JavaDirectoryService.getInstance().createClass(targetDirectory, context.getTargetClass());
     }
 
@@ -109,9 +98,9 @@ public class TestMeGenerator {
         templateCtxtParams.put(TestMeTemplateParams.PACKAGE_NAME, context.getTargetPackage().getQualifiedName());
         List<Field> fields = getFields(context);
         templateCtxtParams.put(TestMeTemplateParams.TESTED_CLASS_FIELDS, fields);
-        List<Method> methods = getMethods(context);
+        List<Method> methods = getMethods(context.getSrcClass());
         templateCtxtParams.put(TestMeTemplateParams.TESTED_CLASS_METHODS, methods);
-        templateCtxtParams.put(TestMeTemplateParams.TESTED_CLASS_TYPES_IN_DEFAULT_PACKAGE, filterTypesInDefaultPackage(methods,fields));
+        templateCtxtParams.put(TestMeTemplateParams.TESTED_CLASS_TYPES_IN_DEFAULT_PACKAGE, classElementsLocator.filterTypesInDefaultPackage(methods, fields));
         templateCtxtParams.put(TestMeTemplateParams.UTILS, new TemplateUtils());
 
         final PsiClass targetClass = context.getSrcClass();
@@ -129,25 +118,6 @@ public class TestMeGenerator {
         }
         catch (Exception e) {
             return null;
-        }
-    }
-
-    private Set<String> filterTypesInDefaultPackage(List<Method> methods, List<Field> fields) {
-        HashSet<String> typesInDefaultPackage = new HashSet<String>();
-        for (Field field : fields) {
-            addTypesInDefaultPackage(typesInDefaultPackage, field.getType());
-        }
-        for (Method method : methods) {
-            for (Param param : method.getMethodParams()) {
-                addTypesInDefaultPackage(typesInDefaultPackage, param.getType());
-            }
-        }
-        return typesInDefaultPackage;
-    }
-
-    private void addTypesInDefaultPackage(HashSet<String> typesInDefaultPackage, Type type) {
-        if ((type.getPackageName()==null || type.getPackageName().isEmpty()) && !type.isPrimitive()) {
-            typesInDefaultPackage.add(type.getName());
         }
     }
 
@@ -173,10 +143,10 @@ public class TestMeGenerator {
         return fields;
     }
 
-    private List<Method> getMethods(FileTemplateContext context) {
+    private List<Method> getMethods(PsiClass srcClass) {
         ArrayList<Method> methods = new ArrayList<Method>();
-        for (PsiMethod psiMethod : context.getSrcClass().getAllMethods()) {
-            methods.add(new Method(psiMethod,context.getSrcClass()));
+        for (PsiMethod psiMethod : srcClass.getAllMethods()) {
+            methods.add(new Method(psiMethod, srcClass));
         }
         return methods;
     }
@@ -190,7 +160,6 @@ public class TestMeGenerator {
             }
         });
     }
-
 
     @Override
     public String toString() {
