@@ -77,6 +77,9 @@ public class TestMeGeneratorTest extends LightCodeInsightFixtureTestCase /*JavaC
     public void testEnum() throws Exception {
         doTest(false);
     }
+    public void testStatic() throws Exception {
+        doTest(false);
+    }
 
     // TODO assert caret position with <caret>
 
@@ -93,12 +96,6 @@ public class TestMeGeneratorTest extends LightCodeInsightFixtureTestCase /*JavaC
     private void doTest(final String packageName, String testSubjectClassName, final String expectedTestClassName, final boolean reformatCode) {
         myFixture.copyDirectoryToProject("src", "");
         myFixture.copyDirectoryToProject("../commonSrc", "");
-        //PsiTestUtil.addSourceRoot(myFixture.getModule(), myFixture.copyDirectoryToProject("src", "src"));
-//        final VirtualFile testDir = myFixture.getTempDirFixture().findOrCreateDir("test");
-//        assertNotNull("ref file not found", testDir);
-//        System.out.println("project test dir:"+testDir);
-//        PsiDirectory testDirectory = PsiJavaDirectoryFactory.getInstance(getProject()).createDirectory(testDir);
-//        PsiPackageImpl targetPackage = new PsiPackageImpl(getPsiManager(), packageName);
         final PsiClass fooClass = myFixture.findClass(packageName+(packageName.length()>0?".":"") + testSubjectClassName);
         final PsiDirectory srcDir = fooClass.getContainingFile().getContainingDirectory();
         final PsiPackage targetPackage = JavaDirectoryService.getInstance().getPackage(srcDir);
@@ -109,18 +106,13 @@ public class TestMeGeneratorTest extends LightCodeInsightFixtureTestCase /*JavaC
                 myFixture.openFileInEditor(fooClass.getContainingFile().getVirtualFile());
                 PsiElement result = new TestMeGenerator().generateTest(new FileTemplateContext(new FileTemplateDescriptor(CreateTestMeAction.TESTME_WITH_JUNIT4_MOCKITO_JAVA), getProject(),
                         expectedTestClassName,
-//                new PsiPackageImpl(getPsiManager(), "im.the.generator"),
                         targetPackage,
                         myModule,
                         srcDir,
-//                testDirectory,
-//                PsiJavaDirectoryFactory.getInstance(getProject()).createDirectory(myFixture.getTempDirFixture().getFile(".").createChildDirectory(this,"com/example/services/impl")),
-//               PsiJavaDirectoryFactory.getInstance(getProject()).createDirectory(testDir),
                         fooClass,
                         reformatCode
                 ));
                 System.out.println("result:"+result);
-//                myFixture.openFileInEditor(result.getContainingFile().getVirtualFile());
                 String expectedTestClassFilePath = (packageName.length() > 0 ? (packageName.replace(".", "/") + "/") : "") + expectedTestClassName + ".java";
                 myFixture.checkResultByFile(/*"src/"+*/expectedTestClassFilePath,"test/"+expectedTestClassFilePath,false);
             }

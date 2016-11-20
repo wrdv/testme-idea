@@ -37,7 +37,9 @@ public class TestMeGenerator {
     private final TestClassElementsLocator testClassElementsLocator;
     private final ClassElementsLocator classElementsLocator;
 
-    public TestMeGenerator() { this(new TestClassElementsLocator(), new ClassElementsLocator()); }
+    public TestMeGenerator() {
+        this(new TestClassElementsLocator(), new ClassElementsLocator());
+    }
 
     TestMeGenerator(TestClassElementsLocator testClassElementsLocator, ClassElementsLocator classElementsLocator) {
         this.testClassElementsLocator = testClassElementsLocator;
@@ -59,8 +61,7 @@ public class TestMeGenerator {
                             }
                             CodeInsightUtil.positionCursor(project, targetClass.getContainingFile(), testClassElementsLocator.findOptimalCursorLocation(targetClass));
                             return targetClass;
-                        }
-                        catch (IncorrectOperationException e) {
+                        } catch (IncorrectOperationException e) {
                             showErrorLater(project, context.getTargetClass());
                             return null;
                         }
@@ -69,6 +70,7 @@ public class TestMeGenerator {
             }
         });
     }
+
     @Nullable
     private PsiClass createTestClass(FileTemplateContext context) {
         final PsiDirectory targetDirectory = context.getTargetDirectory();
@@ -83,10 +85,10 @@ public class TestMeGenerator {
                 return classes[0];
             }
         }
-            final PsiClass classFromTemplate = createTestClassFromCodeTemplate(context, targetDirectory);
-            if (classFromTemplate != null) {
-                return classFromTemplate;
-            }
+        final PsiClass classFromTemplate = createTestClassFromCodeTemplate(context, targetDirectory);
+        if (classFromTemplate != null) {
+            return classFromTemplate;
+        }
         return JavaDirectoryService.getInstance().createClass(targetDirectory, context.getTargetClass());
     }
 
@@ -110,13 +112,12 @@ public class TestMeGenerator {
         try {
             FileTemplate codeTemplate = fileTemplateManager.getCodeTemplate(templateName);
             codeTemplate.setReformatCode(context.isReformatCode());
-            final PsiElement psiElement = FileTemplateUtil.createFromTemplate(codeTemplate, templateName, templateCtxtParams, targetDirectory,null);
+            final PsiElement psiElement = FileTemplateUtil.createFromTemplate(codeTemplate, templateName, templateCtxtParams, targetDirectory, null);
             if (psiElement instanceof PsiClass) {
-                return (PsiClass)psiElement;
+                return (PsiClass) psiElement;
             }
             return null;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return null;
         }
     }
@@ -138,7 +139,7 @@ public class TestMeGenerator {
         for (PsiField psiField : srcClass.getAllFields()) {
             //TODO research how different types should be handled - i.e. PsiClassType ?
             //TODO handle fields initialized inline/in default constructor
-            fields.add(new Field(psiField, javaPsiFacade.findClass(psiField.getType().getCanonicalText(), GlobalSearchScope.allScope(context.getProject())),srcClass));
+            fields.add(new Field(psiField, javaPsiFacade.findClass(psiField.getType().getCanonicalText(), GlobalSearchScope.allScope(context.getProject())), srcClass));
         }
         return fields;
     }
