@@ -1,4 +1,4 @@
-package com.weirddev.testme.intellij;
+package com.weirddev.testme.intellij.generator;
 
 import com.intellij.codeInsight.CodeInsightBundle;
 import com.intellij.ide.fileTemplates.FileTemplate;
@@ -11,10 +11,14 @@ import com.intellij.psi.*;
 import com.intellij.testFramework.LightProjectDescriptor;
 import com.intellij.testFramework.fixtures.DefaultLightProjectDescriptor;
 import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
-import com.weirddev.testme.intellij.generator.TestMeGenerator;
+import com.weirddev.testme.intellij.CreateTestMeAction;
+import com.weirddev.testme.intellij.FileTemplateContext;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.util.GregorianCalendar;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * Date: 10/20/2016
@@ -25,6 +29,22 @@ public class TestMeGeneratorTest extends LightCodeInsightFixtureTestCase /*JavaC
     private static final String FILE_HEADER_TEMPLATE = "File Header.java";
     private static final String HEADER_TEMPLATE_REPLACEMENT_TEXT = "/** created by TestMe integration test on MMXVI */\n";
     private static boolean isHeaderTemplateReplaced=false;
+
+    private final TestTemplateContextBuilder testTemplateContextBuilder = new TestTemplateContextBuilder(){
+        @Override
+        public Map<String, Object> build(FileTemplateContext context, Properties defaultProperties) {
+            Properties mockedDefaultProperties = new Properties();
+            new GregorianCalendar(2016, java.util.Calendar.JANUARY, 11, 22, 45).getTime();
+            mockedDefaultProperties.put("YEAR", 2016);
+            mockedDefaultProperties.put("DAY", 11);
+            mockedDefaultProperties.put("HOUR", 22);
+            mockedDefaultProperties.put("MINUTE", 45);
+            Map<String, Object> contextMap = super.build(context, mockedDefaultProperties);
+            contextMap.put("MONTH_NAME_EN", "JANUARY");
+            //TODO set predfined date: contextMap.put("");
+            return contextMap;
+        }
+    };
 
     public void testSimpleClass() throws Exception {
         doTest();
@@ -80,6 +100,9 @@ public class TestMeGeneratorTest extends LightCodeInsightFixtureTestCase /*JavaC
     public void testStatic() throws Exception {
         doTest(false);
     }
+    public void testDate() throws Exception {
+        doTest(false);
+    }
 
     // TODO assert caret position with <caret>
 
@@ -104,7 +127,7 @@ public class TestMeGeneratorTest extends LightCodeInsightFixtureTestCase /*JavaC
             @Override
             public void run() {
                 myFixture.openFileInEditor(fooClass.getContainingFile().getVirtualFile());
-                PsiElement result = new TestMeGenerator().generateTest(new FileTemplateContext(new FileTemplateDescriptor(CreateTestMeAction.TESTME_WITH_JUNIT4_MOCKITO_JAVA), getProject(),
+                PsiElement result = new TestMeGenerator(new TestClassElementsLocator(), testTemplateContextBuilder).generateTest(new FileTemplateContext(new FileTemplateDescriptor(CreateTestMeAction.TESTME_WITH_JUNIT4_MOCKITO_JAVA), getProject(),
                         expectedTestClassName,
                         targetPackage,
                         myModule,

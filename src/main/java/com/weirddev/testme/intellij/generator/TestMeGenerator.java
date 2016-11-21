@@ -18,11 +18,7 @@ import com.intellij.psi.search.GlobalSearchScopesCore;
 import com.intellij.testIntegration.createTest.JavaTestGenerator;
 import com.intellij.util.IncorrectOperationException;
 import com.weirddev.testme.intellij.FileTemplateContext;
-import com.weirddev.testme.intellij.template.Field;
-import com.weirddev.testme.intellij.template.Method;
-import com.weirddev.testme.intellij.template.TemplateUtils;
 import com.weirddev.testme.intellij.template.TestMeTemplateParams;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -35,15 +31,15 @@ import java.util.*;
  */
 public class TestMeGenerator {
     private final TestClassElementsLocator testClassElementsLocator;
-    private final ClassElementsLocator classElementsLocator;
+    private final TestTemplateContextBuilder testTemplateContextBuilder;
 
     public TestMeGenerator() {
-        this(new TestClassElementsLocator(), new ClassElementsLocator());
+        this(new TestClassElementsLocator(), new TestTemplateContextBuilder());
     }
 
-    TestMeGenerator(TestClassElementsLocator testClassElementsLocator, ClassElementsLocator classElementsLocator) {
+    TestMeGenerator(TestClassElementsLocator testClassElementsLocator, TestTemplateContextBuilder testTemplateContextBuilder) {
         this.testClassElementsLocator = testClassElementsLocator;
-        this.classElementsLocator = classElementsLocator;
+        this.testTemplateContextBuilder = testTemplateContextBuilder;
     }
 
     public PsiElement generateTest(final FileTemplateContext context) {
@@ -95,15 +91,7 @@ public class TestMeGenerator {
     private PsiClass createTestClassFromCodeTemplate(final FileTemplateContext context, final PsiDirectory targetDirectory) {
         final String templateName = context.getFileTemplateDescriptor().getFileName();
         FileTemplateManager fileTemplateManager = FileTemplateManager.getInstance(targetDirectory.getProject());
-        HashMap<String, Object> templateCtxtParams = initTemplateContext(fileTemplateManager.getDefaultProperties());
-        templateCtxtParams.put(TestMeTemplateParams.CLASS_NAME, context.getTargetClass());
-        templateCtxtParams.put(TestMeTemplateParams.PACKAGE_NAME, context.getTargetPackage().getQualifiedName());
-        List<Field> fields = getFields(context);
-        templateCtxtParams.put(TestMeTemplateParams.TESTED_CLASS_FIELDS, fields);
-        List<Method> methods = getMethods(context.getSrcClass());
-        templateCtxtParams.put(TestMeTemplateParams.TESTED_CLASS_METHODS, methods);
-        templateCtxtParams.put(TestMeTemplateParams.TESTED_CLASS_TYPES_IN_DEFAULT_PACKAGE, classElementsLocator.filterTypesInDefaultPackage(methods, fields));
-        templateCtxtParams.put(TestMeTemplateParams.UTILS, new TemplateUtils());
+        Map<String, Object> templateCtxtParams = testTemplateContextBuilder.build(context, fileTemplateManager.getDefaultProperties());
 
         final PsiClass targetClass = context.getSrcClass();
         if (targetClass != null && targetClass.isValid()) {
@@ -120,36 +108,6 @@ public class TestMeGenerator {
         } catch (Exception e) {
             return null;
         }
-    }
-
-    @NotNull
-    private HashMap<String, Object> initTemplateContext(Properties defaultProperties) {
-        HashMap<String, Object> templateCtxtParams = new HashMap<String, Object>();
-        for (Map.Entry<Object, Object> entry : defaultProperties.entrySet()) {
-            templateCtxtParams.put((String) entry.getKey(), entry.getValue());
-        }
-        return templateCtxtParams;
-    }
-
-    @NotNull
-    private List<Field> getFields(FileTemplateContext context) {
-        ArrayList<Field> fields = new ArrayList<Field>();
-        JavaPsiFacade javaPsiFacade = JavaPsiFacade.getInstance(context.getProject());
-        PsiClass srcClass = context.getSrcClass();
-        for (PsiField psiField : srcClass.getAllFields()) {
-            //TODO research how different types should be handled - i.e. PsiClassType ?
-            //TODO handle fields initialized inline/in default constructor
-            fields.add(new Field(psiField, javaPsiFacade.findClass(psiField.getType().getCanonicalText(), GlobalSearchScope.allScope(context.getProject())), srcClass));
-        }
-        return fields;
-    }
-
-    private List<Method> getMethods(PsiClass srcClass) {
-        ArrayList<Method> methods = new ArrayList<Method>();
-        for (PsiMethod psiMethod : srcClass.getAllMethods()) {
-            methods.add(new Method(psiMethod, srcClass));
-        }
-        return methods;
     }
 
     private static void showErrorLater(final Project project, final String targetClassName) {

@@ -13,7 +13,8 @@
     "java.util.Queue": "java.util.LinkedList",
     "java.util.RandomAccess": "java.util.Vector",
     "java.util.Set": "java.util.HashSet",
-    "java.util.SortedSet": "java.util.TreeSet"
+    "java.util.SortedSet": "java.util.TreeSet",
+    "java.util.Date": "java.util.GregorianCalendar"
 })
 #set($defaultTypeValues = {
     "byte": "(byte) 0",
@@ -33,7 +34,8 @@
     "java.lang.Double": "Double.valueOf(0)",
     "java.lang.Character": "Character.valueOf('a')",
     "java.lang.Boolean": "Boolean.TRUE",
-    "java.math.BigDecimal": "new java.math.BigDecimal(0)"
+    "java.math.BigDecimal": "new java.math.BigDecimal(0)",
+    "java.util.Date": "new GregorianCalendar($YEAR, java.util.Calendar.$MONTH_NAME_EN.toUpperCase(), $DAY, $HOUR, $MINUTE).getTime()"
 })
 ##
 ##
