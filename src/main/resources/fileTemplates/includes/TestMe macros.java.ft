@@ -85,7 +85,8 @@
 #foreach($method in $methods)#*
     *##if($method.isTestable())#*
         *##if($method.returnType)#*
-            *##renderImport($method.returnType,$package)#end#*
+            *##renderImport($method.returnType,$package)#*
+            *##renderImport($method.returnType,$package, $replacementTypes)#end#*
         *##foreach($param in $method.methodParams)#*
             *##renderImport($param.type,$package, $replacementTypes)#end#*
     *##end

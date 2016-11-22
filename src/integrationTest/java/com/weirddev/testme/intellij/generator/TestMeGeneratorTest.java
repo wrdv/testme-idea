@@ -89,6 +89,9 @@ public class TestMeGeneratorTest extends LightCodeInsightFixtureTestCase /*JavaC
     public void testDate() throws Exception {
         doTest(false, true);  //TODO - possible naming collision with GregorianCalendar not handled
     }
+    public void testDateAssertion() throws Exception {
+        doTest(false, true);
+    }
 
     // TODO assert caret position with <caret>
 
