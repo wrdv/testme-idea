@@ -30,21 +30,7 @@ public class TestMeGeneratorTest extends LightCodeInsightFixtureTestCase /*JavaC
     private static final String HEADER_TEMPLATE_REPLACEMENT_TEXT = "/** created by TestMe integration test on MMXVI */\n";
     private static boolean isHeaderTemplateReplaced=false;
 
-    private final TestTemplateContextBuilder testTemplateContextBuilder = new TestTemplateContextBuilder(){
-        @Override
-        public Map<String, Object> build(FileTemplateContext context, Properties defaultProperties) {
-            Properties mockedDefaultProperties = new Properties();
-            new GregorianCalendar(2016, java.util.Calendar.JANUARY, 11, 22, 45).getTime();
-            mockedDefaultProperties.put("YEAR", 2016);
-            mockedDefaultProperties.put("DAY", 11);
-            mockedDefaultProperties.put("HOUR", 22);
-            mockedDefaultProperties.put("MINUTE", 45);
-            Map<String, Object> contextMap = super.build(context, mockedDefaultProperties);
-            contextMap.put("MONTH_NAME_EN", "JANUARY");
-            //TODO set predfined date: contextMap.put("");
-            return contextMap;
-        }
-    };
+    private final TestTemplateContextBuilder testTemplateContextBuilder = mockTestTemplateContextBuilder();
 
     public void testSimpleClass() throws Exception {
         doTest();
@@ -101,7 +87,7 @@ public class TestMeGeneratorTest extends LightCodeInsightFixtureTestCase /*JavaC
         doTest(false);
     }
     public void testDate() throws Exception {
-        doTest(false);
+        doTest(false); //TODO - possible naming collision with GregorianCalendar not handled
     }
 
     // TODO assert caret position with <caret>
@@ -176,6 +162,23 @@ public class TestMeGeneratorTest extends LightCodeInsightFixtureTestCase /*JavaC
             @Override
             public Sdk getSdk() {
                 return JavaSdk.getInstance().createJdk("java 1.7", new File(System.getProperty("java.home")).getParent(), false);
+            }
+        };
+    }
+    @NotNull
+    private TestTemplateContextBuilder mockTestTemplateContextBuilder() {
+        return new TestTemplateContextBuilder(){
+            @Override
+            public Map<String, Object> build(FileTemplateContext context, Properties defaultProperties) {
+                Properties mockedDefaultProperties = new Properties();
+                new GregorianCalendar(2016, java.util.Calendar.JANUARY, 11, 22, 45).getTime();
+                mockedDefaultProperties.put("YEAR", 2016);
+                mockedDefaultProperties.put("DAY", 11);
+                mockedDefaultProperties.put("HOUR", 22);
+                mockedDefaultProperties.put("MINUTE", 45);
+                Map<String, Object> contextMap = super.build(context, mockedDefaultProperties);
+                contextMap.put("MONTH_NAME_EN", "JANUARY");
+                return contextMap;
             }
         };
     }
