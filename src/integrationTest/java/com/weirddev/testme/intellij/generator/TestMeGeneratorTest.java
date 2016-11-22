@@ -36,7 +36,7 @@ public class TestMeGeneratorTest extends LightCodeInsightFixtureTestCase /*JavaC
         doTest();
     }
     public void testDefaultPackage() throws Exception {
-        doTest("", "Foo", "FooTest", true);
+        doTest("", "Foo", "FooTest", true, false);
     }
     public void testVariousFieldTypes() throws Exception {
         doTest();
@@ -51,43 +51,43 @@ public class TestMeGeneratorTest extends LightCodeInsightFixtureTestCase /*JavaC
         doTest();
     }
     public void testNoFormatting() throws Exception {
-        doTest(false);
+        doTest(false, false);
     }
     public void testTypeNameCollision() throws Exception {
         doTest();
     }
     public void testTypeInDefaultPackageCollision() throws Exception {
-        doTest("", "Foo", "FooTest", true);
+        doTest("", "Foo", "FooTest", true, false);
     }
     public void testInheritance() throws Exception {
         doTest();
     }
     public void testGenerics() throws Exception {
-        doTest(false);
+        doTest(false, false);
     }
     public void testPrimitiveCallTypes() throws Exception {
-        doTest(false);
+        doTest(false, false);
     }
     public void testArrays() throws Exception {
-        doTest(false);
+        doTest(false, false);
     }
     public void testConstants() throws Exception {
         doTest();
     }
     public void testCollections() throws Exception {
-        doTest(false);
+        doTest(false, false);
     }
 //    public void testGenericsTypeCollision() throws Exception {
 //        doTest(false); //TODO implement scenario
 //    }
     public void testEnum() throws Exception {
-        doTest(false);
+        doTest(false, false);
     }
     public void testStatic() throws Exception {
-        doTest(false);
+        doTest(false, false);
     }
     public void testDate() throws Exception {
-        doTest(false); //TODO - possible naming collision with GregorianCalendar not handled
+        doTest(false, true);  //TODO - possible naming collision with GregorianCalendar not handled
     }
 
     // TODO assert caret position with <caret>
@@ -95,14 +95,14 @@ public class TestMeGeneratorTest extends LightCodeInsightFixtureTestCase /*JavaC
     // TODO TC different test target dir
 
     private void doTest() {
-        doTest(true);
+        doTest(true, false);
     }
 
-    private void doTest(boolean reformatCode) {
-        doTest("com.example.services.impl", "Foo", "FooTest", reformatCode);
+    private void doTest(boolean reformatCode, boolean optimizeImports) {
+        doTest("com.example.services.impl", "Foo", "FooTest", reformatCode, optimizeImports);
     }
 
-    private void doTest(final String packageName, String testSubjectClassName, final String expectedTestClassName, final boolean reformatCode) {
+    private void doTest(final String packageName, String testSubjectClassName, final String expectedTestClassName, final boolean reformatCode, final boolean optimizeImports) {
         myFixture.copyDirectoryToProject("src", "");
         myFixture.copyDirectoryToProject("../commonSrc", "");
         final PsiClass fooClass = myFixture.findClass(packageName+(packageName.length()>0?".":"") + testSubjectClassName);
@@ -119,11 +119,11 @@ public class TestMeGeneratorTest extends LightCodeInsightFixtureTestCase /*JavaC
                         myModule,
                         srcDir,
                         fooClass,
-                        reformatCode
-                ));
+                        reformatCode,
+                        optimizeImports));
                 System.out.println("result:"+result);
                 String expectedTestClassFilePath = (packageName.length() > 0 ? (packageName.replace(".", "/") + "/") : "") + expectedTestClassName + ".java";
-                myFixture.checkResultByFile(/*"src/"+*/expectedTestClassFilePath,"test/"+expectedTestClassFilePath,false);
+                myFixture.checkResultByFile(/*"src/"+*/expectedTestClassFilePath,"test/"+expectedTestClassFilePath, false);
             }
         }, CodeInsightBundle.message("intention.create.test"), this);
 

@@ -21,8 +21,9 @@ public class FileTemplateContext {
     private final PsiDirectory targetDirectory;
     private final PsiClass srcClass;
     private final boolean reformatCode;
+    private final boolean optimizeImports;
 
-    public FileTemplateContext(FileTemplateDescriptor fileTemplateDescriptor, Project project, String targetClass, PsiPackage targetPackage, Module targetModule, PsiDirectory targetDirectory, PsiClass srcClass, boolean reformatCode) {
+    public FileTemplateContext(FileTemplateDescriptor fileTemplateDescriptor, Project project, String targetClass, PsiPackage targetPackage, Module targetModule, PsiDirectory targetDirectory, PsiClass srcClass, boolean reformatCode, boolean optimizeImports) {
         this.fileTemplateDescriptor = fileTemplateDescriptor;
         this.project = project;
         this.targetClass = targetClass;
@@ -31,6 +32,7 @@ public class FileTemplateContext {
         this.targetDirectory = targetDirectory;
         this.srcClass = srcClass;
         this.reformatCode = reformatCode;
+        this.optimizeImports = optimizeImports;
     }
 
     public Project getProject() {
@@ -63,5 +65,9 @@ public class FileTemplateContext {
 
     public boolean isReformatCode() {
         return reformatCode;
+    }
+
+    public boolean isOptimizeImports() {
+        return optimizeImports;
     }
 }

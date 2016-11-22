@@ -7,11 +7,13 @@ import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.ide.fileTemplates.FileTemplateUtil;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileEditor.ex.IdeDocumentHistory;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.Computable;
 import com.intellij.psi.*;
+import com.intellij.psi.codeStyle.JavaCodeStyleManager;
 import com.intellij.psi.impl.source.PostprocessReformattingAspect;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.GlobalSearchScopesCore;
@@ -21,7 +23,7 @@ import com.weirddev.testme.intellij.FileTemplateContext;
 import com.weirddev.testme.intellij.template.TestMeTemplateParams;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.Map;
 
 /**
  * Date: 10/19/2016
@@ -32,6 +34,7 @@ import java.util.*;
 public class TestMeGenerator {
     private final TestClassElementsLocator testClassElementsLocator;
     private final TestTemplateContextBuilder testTemplateContextBuilder;
+    private static final Logger LOG = Logger.getInstance(TestMeGenerator.class.getName());
 
     public TestMeGenerator() {
         this(new TestClassElementsLocator(), new TestTemplateContextBuilder());
@@ -102,10 +105,16 @@ public class TestMeGenerator {
             codeTemplate.setReformatCode(context.isReformatCode());
             final PsiElement psiElement = FileTemplateUtil.createFromTemplate(codeTemplate, templateName, templateCtxtParams, targetDirectory, null);
             if (psiElement instanceof PsiClass) {
-                return (PsiClass) psiElement;
+                PsiClass psiClass = (PsiClass) psiElement;
+                if (context.isOptimizeImports()) {
+                    JavaCodeStyleManager.getInstance(targetDirectory.getProject()).optimizeImports(psiClass.getContainingFile());//TODO check isOptimizeImports
+                }
+                return psiClass;
             }
             return null;
+
         } catch (Exception e) {
+            LOG.error("error generating test class",e);
             return null;
         }
     }

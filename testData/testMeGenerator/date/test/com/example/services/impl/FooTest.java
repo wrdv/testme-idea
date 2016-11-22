@@ -1,15 +1,16 @@
 package com.example.services.impl;
 
-import com.example.warriers.FooFighter;
-import java.util.Date;
 import com.example.foes.Fire;
-import java.util.GregorianCalendar;
+import com.example.warriers.FooFighter;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 /** created by TestMe integration test on MMXVI */
 public class FooTest {
