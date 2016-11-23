@@ -20,7 +20,6 @@ import com.intellij.psi.search.GlobalSearchScopesCore;
 import com.intellij.testIntegration.createTest.JavaTestGenerator;
 import com.intellij.util.IncorrectOperationException;
 import com.weirddev.testme.intellij.FileTemplateContext;
-import com.weirddev.testme.intellij.template.TestMeTemplateParams;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
@@ -95,11 +94,6 @@ public class TestMeGenerator {
         final String templateName = context.getFileTemplateDescriptor().getFileName();
         FileTemplateManager fileTemplateManager = FileTemplateManager.getInstance(targetDirectory.getProject());
         Map<String, Object> templateCtxtParams = testTemplateContextBuilder.build(context, fileTemplateManager.getDefaultProperties());
-
-        final PsiClass targetClass = context.getSrcClass();
-        if (targetClass != null && targetClass.isValid()) {
-            templateCtxtParams.put(TestMeTemplateParams.TESTED_CLASS_NAME, targetClass.getName());
-        }
         try {
             FileTemplate codeTemplate = fileTemplateManager.getCodeTemplate(templateName);
             codeTemplate.setReformatCode(context.isReformatCode());
@@ -107,7 +101,7 @@ public class TestMeGenerator {
             if (psiElement instanceof PsiClass) {
                 PsiClass psiClass = (PsiClass) psiElement;
                 if (context.isOptimizeImports()) {
-                    JavaCodeStyleManager.getInstance(targetDirectory.getProject()).optimizeImports(psiClass.getContainingFile());//TODO check isOptimizeImports
+                    JavaCodeStyleManager.getInstance(targetDirectory.getProject()).optimizeImports(psiClass.getContainingFile());
                 }
                 return psiClass;
             }
