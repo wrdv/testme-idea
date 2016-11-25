@@ -20,6 +20,7 @@ import com.intellij.psi.search.GlobalSearchScopesCore;
 import com.intellij.testIntegration.createTest.JavaTestGenerator;
 import com.intellij.util.IncorrectOperationException;
 import com.weirddev.testme.intellij.FileTemplateContext;
+import org.apache.velocity.app.Velocity;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
@@ -97,6 +98,7 @@ public class TestMeGenerator {
         try {
             FileTemplate codeTemplate = fileTemplateManager.getCodeTemplate(templateName);
             codeTemplate.setReformatCode(context.isReformatCode());
+            Velocity.setProperty( Velocity.VM_MAX_DEPTH, 200);
             final PsiElement psiElement = FileTemplateUtil.createFromTemplate(codeTemplate, templateName, templateCtxtParams, targetDirectory, null);
             if (psiElement instanceof PsiClass) {
                 PsiClass psiClass = (PsiClass) psiElement;

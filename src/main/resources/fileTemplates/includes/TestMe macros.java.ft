@@ -65,9 +65,10 @@
 new $typeName(#if($recursionDepth<=$MAX_RECURSION_DEPTH)#renderCtorParams($typeName,$type,$recursionDepth)#end)#end
 #end
 ##
-#macro( renderCtorParams $typeName $type $recursionDepth)#end
-#if($typeName==$type.name || $typeName==$type.canonicalName && $type.ctors)##
-#renderJavaCallParams($type.ctors[0].params, $recursionDepth)##pass recursion counter
+#macro( renderCtorParams $typeName $type $recursionDepth)
+#if(($typeName==$type.name || $typeName==$type.canonicalName) && $type.constructors.size()>0)##
+#renderJavaCallParams($type.constructors.get(0).methodParams, $recursionDepth)
+#end
 #end
 ##
 #macro( resolveTypeName $type $replacementTypesMap)

@@ -6,10 +6,7 @@ import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.weirddev.testme.intellij.FileTemplateContext;
-import com.weirddev.testme.intellij.template.Field;
-import com.weirddev.testme.intellij.template.Method;
-import com.weirddev.testme.intellij.template.TemplateUtils;
-import com.weirddev.testme.intellij.template.TestMeTemplateParams;
+import com.weirddev.testme.intellij.template.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.SimpleDateFormat;
@@ -35,12 +32,14 @@ public class TestTemplateContextBuilder {
         final PsiClass targetClass = context.getSrcClass();
         if (targetClass != null && targetClass.isValid()) {
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_NAME, targetClass.getName());
-            List<Field> fields = getFields(context);
+            List<Field> fields = createFields(context);
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_FIELDS, fields);
-            List<Method> methods = getMethods(context.getSrcClass());
+            int maxRecursionDepth = context.getMaxRecursionDepth();
+            ctxtParams.put(TestMeTemplateParams.MAX_RECURSION_DEPTH, maxRecursionDepth);
+            List<Method> methods = createMethods(context.getSrcClass(),maxRecursionDepth);
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_METHODS, methods);
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_TYPES_IN_DEFAULT_PACKAGE, classElementsLocator.filterTypesInDefaultPackage(methods, fields));
-            ctxtParams.put(TestMeTemplateParams.MAX_RECURSION_DEPTH, context.getMaxRecursionDepth());
+
         }
         ctxtParams.put(TestMeTemplateParams.UTILS, new TemplateUtils());
         return ctxtParams;
@@ -55,7 +54,7 @@ public class TestTemplateContextBuilder {
     }
 
     @NotNull
-    private List<Field> getFields(FileTemplateContext context) {
+    private List<Field> createFields(FileTemplateContext context) {
         ArrayList<Field> fields = new ArrayList<Field>();
         JavaPsiFacade javaPsiFacade = JavaPsiFacade.getInstance(context.getProject());
         PsiClass srcClass = context.getSrcClass();
@@ -67,10 +66,11 @@ public class TestTemplateContextBuilder {
         return fields;
     }
 
-    private List<Method> getMethods(PsiClass srcClass) {
+    private List<Method> createMethods(PsiClass srcClass, int maxRecursionDepth) {
+        Map<String, Type> resolvedTypes = new HashMap<String, Type>();
         ArrayList<Method> methods = new ArrayList<Method>();
         for (PsiMethod psiMethod : srcClass.getAllMethods()) {
-            methods.add(new Method(psiMethod, srcClass));
+            methods.add(new Method(psiMethod, srcClass,resolvedTypes,maxRecursionDepth));
         }
         return methods;
     }

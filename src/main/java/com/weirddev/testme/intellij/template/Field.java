@@ -18,7 +18,7 @@ public class Field {
 
     public Field(PsiField psiField, PsiClass fieldTypeClass, PsiClass srcClass) {
         this.name = psiField.getName();
-        type = new Type(psiField.getType());
+        type = new Type(psiField.getType(), null, 0);
         finalType = isFinal(fieldTypeClass);
         overridden = isOverriddenInChild(psiField, srcClass);
         isFinal = psiField.getModifierList() != null && psiField.getModifierList().hasExplicitModifier(PsiModifier.FINAL);

@@ -1,7 +1,7 @@
 package com.weirddev.testme.intellij.template;
 
 /**
- * Created by Admin on 24/10/2016.
+ * Created by Yaron Yamin on 24/10/2016.
  */
 public interface TestMeTemplateParams {
     String ATTRIBUTE_EXCEPTION = "EXCEPTION";

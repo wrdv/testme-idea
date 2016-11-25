@@ -6,6 +6,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Date: 24/10/2016
@@ -30,7 +31,7 @@ public class Method {
     private final boolean inherited;
     private final boolean isInInterface;
 
-    public Method(PsiMethod psiMethod, PsiClass srcClass) {
+    public Method(PsiMethod psiMethod, PsiClass srcClass, Map<String, Type> resolvedTypes, int maxRecursionDepth) {
         isPrivate=psiMethod.hasModifierProperty(PsiModifier.PRIVATE);
         isProtected=psiMethod.hasModifierProperty(PsiModifier.PROTECTED);
         isDefault=psiMethod.hasModifierProperty(PsiModifier.DEFAULT)||psiMethod.hasModifierProperty(PsiModifier.PACKAGE_LOCAL);
@@ -38,10 +39,10 @@ public class Method {
         isAbstract=psiMethod.hasModifierProperty(PsiModifier.ABSTRACT);
         isNative=psiMethod.hasModifierProperty(PsiModifier.NATIVE);
         isStatic=psiMethod.hasModifierProperty(PsiModifier.STATIC);
-        returnType = psiMethod.getReturnType()==null?null:new Type(psiMethod.getReturnType());
+        returnType = psiMethod.getReturnType()==null?null:new Type(psiMethod.getReturnType(),resolvedTypes,maxRecursionDepth);
         name = psiMethod.getName();
         ownerClassCanonicalType = psiMethod.getContainingClass()==null?null:psiMethod.getContainingClass().getQualifiedName();
-        methodParams = extractMethodParams(psiMethod.getParameterList());
+        methodParams = extractMethodParams(psiMethod.getParameterList(),resolvedTypes,maxRecursionDepth);
         isSetter = PropertyUtil.isSimpleSetter(psiMethod);
         isGetter = PropertyUtil.isSimpleGetter(psiMethod);
         constructor = psiMethod.isConstructor();
@@ -61,10 +62,10 @@ public class Method {
         return (srcQualifiedName!=null && methodClsQualifiedName!=null &&  !srcQualifiedName.equals(methodClsQualifiedName));
     }
 
-    private List<Param> extractMethodParams(PsiParameterList parameterList) {
+    private List<Param> extractMethodParams(PsiParameterList parameterList, Map<String, Type> resolvedTypes, int maxRecursionDepth) {
         ArrayList<Param> params = new ArrayList<Param>();
         for (PsiParameter psiParameter : parameterList.getParameters()) {
-            params.add(new Param(psiParameter));
+            params.add(new Param(psiParameter,resolvedTypes,maxRecursionDepth));
         }
         return params;
     }

@@ -1,9 +1,15 @@
 package com.example.beans;
 
 /**
- * Created by Admin on 24/11/2016.
+ * Created by Yaron Yamin on 24/11/2016.
  */
 public class BeanThere {
-    public BeanThere(DoneThat doneThat,Any news) {
+    public BeanThere() {
+    }
+    public BeanThere(DoneThat doneThat, Many times) {
+    }
+    public BeanThere(Many times) {
+    }
+    public BeanThere(int times) {
     }
 }

@@ -5,8 +5,7 @@ import com.intellij.psi.impl.source.PsiClassReferenceType;
 import com.intellij.psi.util.PsiUtil;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Date: 24/10/2016
@@ -21,6 +20,7 @@ public class Type {
     private final boolean array;
     private final List<String> enumValues;
     private final boolean isEnum;
+    private final List<Method> constructors=new ArrayList<Method>();
 
     Type(String canonicalName, String name, String packageName, boolean isPrimitive, boolean array, List<Type> composedTypes) {
         this.canonicalName = canonicalName;
@@ -37,7 +37,7 @@ public class Type {
         this(extractContainerType(canonicalName), extractClassName(canonicalName),extractPackageName(canonicalName),false,isArray(canonicalName),null);
     }
 
-    public Type(PsiType psiType) {
+    public Type(PsiType psiType, Map<String, Type> resolvedTypes, int maxRecursionDepth) {
         String canonicalText = psiType.getCanonicalText();
         array = isArray(canonicalText);
         this.canonicalName = stripArrayDesignator(canonicalText);
@@ -48,6 +48,17 @@ public class Type {
         PsiClass psiClass = PsiUtil.resolveClassInType(psiType);
         isEnum = psiClass != null && psiClass.isEnum();
         enumValues = resolveEnumValues(psiType);
+        if (psiClass != null && maxRecursionDepth>0) {
+            for (PsiMethod psiMethod : psiClass.getConstructors()) {
+                constructors.add(new Method(psiMethod,psiClass,resolvedTypes,maxRecursionDepth-1));
+            }
+            Collections.sort(constructors, new Comparator<Method>() {
+                @Override
+                public int compare(Method o1, Method o2) { //sort in reverse order by #no of c'tor params
+                    return o2.getMethodParams().size()-o1.getMethodParams().size();
+                }
+            });
+        }
     }
 
     private static List<String> resolveEnumValues(PsiType psiType) {
@@ -192,4 +203,9 @@ public class Type {
                 ", array=" + array +
                 '}';
     }
+
+    public List<Method> getConstructors() {
+        return constructors;
+    }
+
 }
