@@ -44,31 +44,39 @@
 ##
 #macro( capitalize $str)$str.substring(0,1).toUpperCase()$str.substring(1)#end
 ##
-#macro( renderJavaCallParams $params)
+#macro( renderJavaCallParams $params $recursionDepth)
+#set($recursionDepth=$recursionDepth+1)
 #foreach($param in $params)#*
     *##if($foreach.count>1), #end#*
-    *##renderJavaCallParam($param.type,$param.name)##
+    *##renderJavaCallParam($param.type,$param.name, $recursionDepth)##
 #end
 #end
 ##
-#macro( renderJavaCallParam $type $strValue )
-#if($type.array)new #renderTypeName($type)[]{#end#renderJavaParam($type,$strValue)#if($type.array)}#end
+#macro( renderJavaCallParam $type $strValue $recursionDepth)
+#if($type.array)new #resolveTypeName($type, {})[]{#end#renderJavaParam($type,$strValue $recursionDepth)#if($type.array)}#end
 #end
 ##
-#macro( renderJavaParam $type $strValue )
+#macro( renderJavaParam $type $strValue $recursionDepth)
 #if($defaultTypeValues.get($type.canonicalName))$defaultTypeValues.get($type.canonicalName)##
 #elseif($type.canonicalName == "java.lang.String")"${strValue}"##
-#elseif($type.enumValues.size()>0)#renderTypeName($type).${type.enumValues[0]}##
-#{else}new #renderTypeName($type $replacementTypes)()#end
+#elseif($type.enumValues.size()>0)#resolveTypeName($type, {}).${type.enumValues[0]}##
+#else##
+#set($typeName="#resolveTypeName($type $replacementTypes)")##
+new $typeName(#if($recursionDepth<=$MAX_RECURSION_DEPTH)#renderCtorParams($typeName,$type,$recursionDepth)#end)#end
 #end
 ##
-#macro( renderTypeName $type $replacementTypesMap)
+#macro( renderCtorParams $typeName $type $recursionDepth)#end
+#if($typeName==$type.name || $typeName==$type.canonicalName && $type.ctors)##
+#renderJavaCallParams($type.ctors[0].params, $recursionDepth)##pass recursion counter
+#end
+##
+#macro( resolveTypeName $type $replacementTypesMap)
 #set($name=$type.name)##
 #set($canonicalName=$type.canonicalName)##
 #set($sanitizedCanonicalName=$Utils.stripGenerics($canonicalName))##
 #set($sanitizedName=$Utils.stripGenerics($name))##
 #set($packageName=$type.packageName)##
-#if($replacementTypesMap && $replacementTypesMap.get( $sanitizedCanonicalName))#*
+#if($replacementTypesMap.get( $sanitizedCanonicalName))#*
     *##set($sanitizedCanonicalName=$replacementTypesMap.get($sanitizedCanonicalName))#*
     *##set($sanitizedName = $Utils.extractClassName($sanitizedCanonicalName))#*
     *##set($name = $Utils.replaceType($name,$sanitizedName))#*
@@ -80,12 +88,12 @@
 ##
 #macro( renderJavaTestClassImports $fields $methods $package)
 #foreach($field in $fields)
-#renderImport($field.type,$package)
+#renderImport($field.type,$package,{})
 #end
 #foreach($method in $methods)#*
     *##if($method.isTestable())#*
         *##if($method.returnType)#*
-            *##renderImport($method.returnType,$package)#*
+            *##renderImport($method.returnType,$package,{})#*
             *##renderImport($method.returnType,$package, $replacementTypes)#end#*
         *##foreach($param in $method.methodParams)#*
             *##renderImport($param.type,$package, $replacementTypes)#end#*
@@ -97,7 +105,7 @@
 #foreach($type in $wrapperType.composedTypes)#*
     *##set($name=$type.name)#*
     *##set($canonicalName=$type.canonicalName)#*
-    *##if($replacementTypesMap && $replacementTypesMap.get($canonicalName))#*
+    *##if($replacementTypesMap.get($canonicalName))#*
         *##set($canonicalName=$replacementTypesMap.get($canonicalName))#*
         *##set($name = $Utils.extractClassName($canonicalName))#*
     *##end#*
@@ -112,7 +120,7 @@
 #foreach($field in $testedClassFields)
 #if(!${field.type.primitive} && !${field.finalType} && !${field.overridden} && !$field.type.array && !$field.type.enum)
     @Mock
-    private #renderTypeName($field.type) $field.name;
+    private #resolveTypeName($field.type, {}) $field.name;
 #elseif(!$field.type.primitive && !($field.type.canonicalName == "java.lang.String") && $field.finalType && (!$field.static || !$field.final))
     //Field $field.name of type $field.type.name - was not mocked since Mockito doesn't mock a Final class
 #elseif($field.type.array && (!$field.static || !$field.final))
@@ -124,11 +132,11 @@
 #end
 ##
 #macro(renderJavaReturnVar $type)
-#if($type && $type.name !="void")#renderTypeName($type)#if($type.array)[]#end result = #end
+#if($type && $type.name !="void")#resolveTypeName($type, {})#if($type.array)[]#end result = #end
 #end
 ##
 #macro(renderJUnitAssert $type)
-#if($type && $type.name !="void")        Assert.#renderJunitAssertMethod($type)(#renderJavaCallParam($type,"replaceMeWithExpectedResult"), result);
+#if($type && $type.name !="void")        Assert.#renderJunitAssertMethod($type)(#renderJavaCallParams([{"type":$type,"name":"replaceMeWithExpectedResult"}] ,0), result);
 #end
 #end
 ##
@@ -142,7 +150,7 @@
 
     @Test
     public void #renderTestMethodName($method.name)() throws Exception {
-        #renderJavaReturnVar($method.returnType)#if($method.static)$testedClassName#{else}#deCapitalize($testedClassName)#end.${method.name}(#renderJavaCallParams($method.methodParams));
+        #renderJavaReturnVar($method.returnType)#if($method.static)$testedClassName#{else}#deCapitalize($testedClassName)#end.${method.name}(#renderJavaCallParams($method.methodParams, 0));
 #renderJUnitAssert($method.returnType)
     }
 #end

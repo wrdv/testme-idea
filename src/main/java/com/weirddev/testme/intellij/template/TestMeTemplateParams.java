@@ -28,4 +28,5 @@ public interface TestMeTemplateParams {
     String TESTED_CLASS_TYPES_IN_DEFAULT_PACKAGE = "TESTED_CLASS_TYPES_IN_DEFAULT_PACKAGE";
     String UTILS = "Utils";
     String MONTH_NAME_EN = "MONTH_NAME_EN";
+    String MAX_RECURSION_DEPTH = "MAX_RECURSION_DEPTH";
 }

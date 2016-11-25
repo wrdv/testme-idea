@@ -22,8 +22,9 @@ public class FileTemplateContext {
     private final PsiClass srcClass;
     private final boolean reformatCode;
     private final boolean optimizeImports;
+    private final int maxRecursionDepth;
 
-    public FileTemplateContext(FileTemplateDescriptor fileTemplateDescriptor, Project project, String targetClass, PsiPackage targetPackage, Module targetModule, PsiDirectory targetDirectory, PsiClass srcClass, boolean reformatCode, boolean optimizeImports) {
+    public FileTemplateContext(FileTemplateDescriptor fileTemplateDescriptor, Project project, String targetClass, PsiPackage targetPackage, Module targetModule, PsiDirectory targetDirectory, PsiClass srcClass, boolean reformatCode, boolean optimizeImports, int maxRecursionDepth) {
         this.fileTemplateDescriptor = fileTemplateDescriptor;
         this.project = project;
         this.targetClass = targetClass;
@@ -33,6 +34,7 @@ public class FileTemplateContext {
         this.srcClass = srcClass;
         this.reformatCode = reformatCode;
         this.optimizeImports = optimizeImports;
+        this.maxRecursionDepth = maxRecursionDepth;
     }
 
     public Project getProject() {
@@ -69,5 +71,9 @@ public class FileTemplateContext {
 
     public boolean isOptimizeImports() {
         return optimizeImports;
+    }
+
+    public int getMaxRecursionDepth() {
+        return maxRecursionDepth;
     }
 }

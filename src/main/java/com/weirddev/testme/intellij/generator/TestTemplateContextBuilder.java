@@ -40,6 +40,7 @@ public class TestTemplateContextBuilder {
             List<Method> methods = getMethods(context.getSrcClass());
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_METHODS, methods);
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_TYPES_IN_DEFAULT_PACKAGE, classElementsLocator.filterTypesInDefaultPackage(methods, fields));
+            ctxtParams.put(TestMeTemplateParams.MAX_RECURSION_DEPTH, context.getMaxRecursionDepth());
         }
         ctxtParams.put(TestMeTemplateParams.UTILS, new TemplateUtils());
         return ctxtParams;

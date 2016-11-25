@@ -92,6 +92,9 @@ public class TestMeGeneratorTest extends LightCodeInsightFixtureTestCase /*JavaC
     public void testDateAssertion() throws Exception {
         doTest(false, true);
     }
+    public void testParamsConstructors() throws Exception {
+        doTest(true, true);
+    }
 
     // TODO assert caret position with <caret>
 
@@ -123,7 +126,8 @@ public class TestMeGeneratorTest extends LightCodeInsightFixtureTestCase /*JavaC
                         srcDir,
                         fooClass,
                         reformatCode,
-                        optimizeImports));
+                        optimizeImports,
+                        5));
                 System.out.println("result:"+result);
                 String expectedTestClassFilePath = (packageName.length() > 0 ? (packageName.replace(".", "/") + "/") : "") + expectedTestClassName + ".java";
                 myFixture.checkResultByFile(/*"src/"+*/expectedTestClassFilePath,"test/"+expectedTestClassFilePath, false);
