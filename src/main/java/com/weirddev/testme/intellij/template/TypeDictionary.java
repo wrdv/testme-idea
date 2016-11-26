@@ -1,6 +1,10 @@
 package com.weirddev.testme.intellij.template;
 
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiMethod;
+import com.intellij.psi.PsiPackage;
 import com.intellij.psi.PsiType;
+import com.intellij.psi.util.PsiUtil;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -14,6 +18,13 @@ import java.util.Map;
 public class TypeDictionary {
 
     Map<String, Type> typeDictionary =new HashMap<String, Type>();
+    private final PsiClass srcClass;
+    private final PsiPackage targetPackage;
+
+    public TypeDictionary(PsiClass srcClass, PsiPackage targetPackage) {
+        this.srcClass = srcClass;
+        this.targetPackage = targetPackage;
+    }
 
     @Nullable
     public Type getType(PsiType psiType, int maxRecursionDepth) {
@@ -26,5 +37,9 @@ public class TypeDictionary {
             }
         }
         return type;
+    }
+
+    public boolean isAccessible(PsiMethod psiMethod) {
+        return PsiUtil.isAccessibleFromPackage(psiMethod, targetPackage);
     }
 }

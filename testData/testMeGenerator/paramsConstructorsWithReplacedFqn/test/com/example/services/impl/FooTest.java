@@ -2,8 +2,6 @@ package com.example.services.impl;
 
 import com.example.beans.BeanThere;
 import com.example.beans.BigBean;
-import com.example.beans.DoneThat;
-import com.example.beans.Many;
 import com.example.foes.Fire;
 import com.example.warriers.FooFighter;
 import org.junit.Assert;
@@ -33,8 +31,8 @@ public class FooTest {
 
     @Test
     public void testFight() throws Exception {
-        BigBean result = foo.fight(new Fire(), new ArrayList<String>(), new BigBean(new DoneThat(0, "aDay", new Many(), new GregorianCalendar(2016, Calendar.JANUARY, 11, 22, 45).getTime(), new BigBean(new DoneThat(0, "aDay", new Many(), new GregorianCalendar(2016, Calendar.JANUARY, 11, 22, 45).getTime(), new BigBean(new DoneThat(), new Many(), new DoneThat())), new Many(), new DoneThat())), new Many(), new DoneThat()), new BeanThere());
-        Assert.assertEquals(new BigBean(new DoneThat(0, "aDay", new Many(), new GregorianCalendar(2016, Calendar.JANUARY, 11, 22, 45).getTime(), new BigBean(new DoneThat(0, "aDay", new Many(), new GregorianCalendar(2016, Calendar.JANUARY, 11, 22, 45).getTime(), new BigBean(new DoneThat(), new Many(), new DoneThat())), new Many(), new DoneThat())), new Many(), new DoneThat()), result);
+        BigBean result = foo.fight(new Fire(), new ArrayList<String>(), new BigBean(new DoneThat(0, "aDay", new Many("family", "members", "only"), new GregorianCalendar(2016, Calendar.JANUARY, 11, 22, 45).getTime(), new BigBean(new DoneThat(0, "aDay", new Many(), new GregorianCalendar(2016, Calendar.JANUARY, 11, 22, 45).getTime(), new BigBean(), "ifYourInDaHood"), new Many(), new DoneThat()), "ifYourInDaHood"), new Many(), new DoneThat()), new BeanThere());
+        Assert.assertEquals(new BigBean(new DoneThat(0, "aDay", new Many("family", "members", "only"), new GregorianCalendar(2016, Calendar.JANUARY, 11, 22, 45).getTime(), new BigBean(new DoneThat(0, "aDay", new Many(), new GregorianCalendar(2016, Calendar.JANUARY, 11, 22, 45).getTime(), new BigBean(), "ifYourInDaHood"), new Many(), new DoneThat()), "ifYourInDaHood"), new Many(), new DoneThat()), result);
     }
 }
 

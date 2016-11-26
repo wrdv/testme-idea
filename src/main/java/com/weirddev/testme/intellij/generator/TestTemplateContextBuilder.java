@@ -1,9 +1,6 @@
 package com.weirddev.testme.intellij.generator;
 
-import com.intellij.psi.JavaPsiFacade;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiField;
-import com.intellij.psi.PsiMethod;
+import com.intellij.psi.*;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.weirddev.testme.intellij.FileTemplateContext;
 import com.weirddev.testme.intellij.template.Field;
@@ -41,7 +38,7 @@ public class TestTemplateContextBuilder {
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_FIELDS, fields);
             int maxRecursionDepth = context.getMaxRecursionDepth();
             ctxtParams.put(TestMeTemplateParams.MAX_RECURSION_DEPTH, maxRecursionDepth);
-            List<Method> methods = createMethods(context.getSrcClass(),maxRecursionDepth);
+            List<Method> methods = createMethods(context.getSrcClass(),maxRecursionDepth,context.getTargetPackage());
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_METHODS, methods);
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_TYPES_IN_DEFAULT_PACKAGE, classElementsLocator.filterTypesInDefaultPackage(methods, fields));
         }
@@ -71,8 +68,8 @@ public class TestTemplateContextBuilder {
         return fields;
     }
 
-    private List<Method> createMethods(PsiClass srcClass, int maxRecursionDepth) {
-        TypeDictionary typeDictionary = new TypeDictionary();
+    private List<Method> createMethods(PsiClass srcClass, int maxRecursionDepth, PsiPackage targetPackage) {
+        TypeDictionary typeDictionary = new TypeDictionary(srcClass,targetPackage);
         ArrayList<Method> methods = new ArrayList<Method>();
         for (PsiMethod psiMethod : srcClass.getAllMethods()) {
             methods.add(new Method(psiMethod, srcClass, maxRecursionDepth, typeDictionary));

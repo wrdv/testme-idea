@@ -3,7 +3,7 @@ package com.weirddev.testme.intellij.template;
 import com.intellij.psi.*;
 import com.intellij.psi.impl.source.PsiClassReferenceType;
 import com.intellij.psi.util.PsiUtil;
-import org.jetbrains.annotations.NotNull;
+import com.weirddev.testme.intellij.template.utils.ClassUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -38,15 +38,15 @@ public class Type {
     }
 
     Type(String canonicalName) {
-        this(extractContainerType(canonicalName), extractClassName(canonicalName),extractPackageName(canonicalName),false,isArray(canonicalName),null);
+        this(ClassUtils.extractContainerType(canonicalName), ClassUtils.extractClassName(canonicalName), ClassUtils.extractPackageName(canonicalName),false, ClassUtils.isArray(canonicalName),null);
     }
 
     public Type(PsiType psiType, @Nullable TypeDictionary typeDictionary, int maxRecursionDepth) {
         String canonicalText = psiType.getCanonicalText();
-        array = isArray(canonicalText);
-        this.canonicalName = stripArrayDesignator(canonicalText);
-        this.name = stripArrayDesignator(psiType.getPresentableText());
-        packageName = extractPackageName(canonicalName);
+        array = ClassUtils.isArray(canonicalText);
+        this.canonicalName = ClassUtils.stripArrayDesignator(canonicalText);
+        this.name = ClassUtils.stripArrayDesignator(psiType.getPresentableText());
+        packageName = ClassUtils.extractPackageName(canonicalName);
         this.isPrimitive = psiType instanceof PsiPrimitiveType;
         composedTypes = resolveTypes(psiType);
         PsiClass psiClass = PsiUtil.resolveClassInType(psiType);
@@ -54,7 +54,9 @@ public class Type {
         enumValues = resolveEnumValues(psiType);
         if (psiClass != null && maxRecursionDepth>0 && !canonicalText.startsWith("java.") /*todo consider replacing with just java.util.* || java.lang.*  */&& typeDictionary!=null) {
             for (PsiMethod psiMethod : psiClass.getConstructors()) {
-                constructors.add(new Method(psiMethod,psiClass, maxRecursionDepth-1, typeDictionary));
+                if (typeDictionary.isAccessible(psiMethod)) {
+                    constructors.add(new Method(psiMethod,psiClass, maxRecursionDepth-1, typeDictionary));
+                }
             }
             Collections.sort(constructors, new Comparator<Method>() {
                 @Override
@@ -80,36 +82,6 @@ public class Type {
             }
         }
         return enumValues;
-    }
-
-    private static  boolean isArray(String canonicalName) {
-        return canonicalName.endsWith("[]");
-    }
-
-    public static String extractClassName(@NotNull String fqName) {
-        fqName = extractContainerType(fqName);
-        int i = fqName.lastIndexOf('.');
-        return stripArrayDesignator((i == -1 ? fqName : fqName.substring(i + 1)));
-    }
-
-    public static String extractPackageName(String className) {
-        if (className != null) {
-            className = extractContainerType(className);
-            int i = className.lastIndexOf('.');
-            return stripArrayDesignator(i == -1 ? "" : className.substring(0, i));
-        }
-        return null;
-    }
-
-    private static String stripArrayDesignator(String typeName) {
-        return typeName.replace("[]", "");
-    }
-
-    @NotNull
-    private static String extractContainerType(String className) {
-        int j = className.indexOf('<');
-        className=j==-1?className:className.substring(0, j);
-        return stripArrayDesignator(className);
     }
 
     private List<Type> resolveTypes(PsiType psiType) {
