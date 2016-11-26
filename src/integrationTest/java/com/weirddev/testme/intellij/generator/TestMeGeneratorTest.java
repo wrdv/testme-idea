@@ -36,7 +36,7 @@ public class TestMeGeneratorTest extends LightCodeInsightFixtureTestCase /*JavaC
         doTest();
     }
     public void testDefaultPackage() throws Exception {
-        doTest("", "Foo", "FooTest", true, false, false);
+        doTest("", "Foo", "FooTest", true, false, true);
     }
     public void testVariousFieldTypes() throws Exception {
         doTest();
@@ -54,22 +54,22 @@ public class TestMeGeneratorTest extends LightCodeInsightFixtureTestCase /*JavaC
         doTest(false, false, false);
     }
     public void testTypeNameCollision() throws Exception {
-        doTest();
+        doTest(false,false,true);
     }
     public void testTypeInDefaultPackageCollision() throws Exception {
-        doTest("", "Foo", "FooTest", true, false, false);
+        doTest("", "Foo", "FooTest", true, true, true);
     }
     public void testInheritance() throws Exception {
         doTest();
     }
     public void testGenerics() throws Exception {
-        doTest(false, false, false);
+        doTest(false, false, true);
     }
     public void testPrimitiveCallTypes() throws Exception {
-        doTest(false, false, false);
+        doTest(false, false, true);
     }
     public void testArrays() throws Exception {
-        doTest(false, false, false);
+        doTest(false, false, true);
     }
     public void testConstants() throws Exception {
         doTest();
@@ -77,25 +77,25 @@ public class TestMeGeneratorTest extends LightCodeInsightFixtureTestCase /*JavaC
     public void testCollections() throws Exception {
         doTest(false, false, false);
     }
-//    public void testGenericsTypeCollision() throws Exception {
-//        doTest(false,false,false); //TODO implement scenario
-//    }
+    public void testGenericsTypeCollision() throws Exception {
+        doTest(false,false,true);
+    }
     public void testEnum() throws Exception {
-        doTest(false, false, false);
+        doTest(false, false, true);
     }
     public void testStatic() throws Exception {
-        doTest(false, false, false);
+        doTest(false, false, true);
     }
     public void testDate() throws Exception {
-        doTest(false, true, false);
+        doTest(false, true, true);
     }
     public void testDateAssertion() throws Exception {
-        doTest(false, true, false);
+        doTest(false, true, true);
     }
-    public void testParamsConstructors() throws Exception {
+    public void testParamsConstructorsNoFqnReplacement() throws Exception {
         doTest(true, true, false);
     }
-    public void testParamsConstructorsWithReplacedFqn() throws Exception {
+    public void testParamsConstructors() throws Exception {
         doTest(true, true, true);
     }
     //todo TC - use static init method when constructor not available. add default replacement for Class - Class.forName('?') (fqn of class under test?)

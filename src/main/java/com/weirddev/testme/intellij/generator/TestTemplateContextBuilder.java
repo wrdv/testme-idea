@@ -20,11 +20,6 @@ import java.util.*;
  * @author Yaron Yamin
  */
 public class TestTemplateContextBuilder {
-    ClassElementsLocator classElementsLocator;
-
-    public TestTemplateContextBuilder() {
-        classElementsLocator = new ClassElementsLocator();
-    }
 
     public Map<String, Object> build(FileTemplateContext context, Properties defaultProperties) {
         HashMap<String, Object> ctxtParams = initTemplateContext(defaultProperties);
@@ -40,7 +35,6 @@ public class TestTemplateContextBuilder {
             ctxtParams.put(TestMeTemplateParams.MAX_RECURSION_DEPTH, maxRecursionDepth);
             List<Method> methods = createMethods(context.getSrcClass(),maxRecursionDepth,context.getTargetPackage());
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_METHODS, methods);
-            ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_TYPES_IN_DEFAULT_PACKAGE, classElementsLocator.filterTypesInDefaultPackage(methods, fields));
         }
         ctxtParams.put(TestMeTemplateParams.CLASS_UTILS, new ClassUtils());
         ctxtParams.put(TestMeTemplateParams.STRING_UTILS, StringUtils.class);

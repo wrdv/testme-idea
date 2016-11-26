@@ -1,6 +1,4 @@
 ################## Global vars ###############
-#set($trackedImports={})## map (name -> canonicalName) of types already imported
-#foreach($typeName in $TESTED_CLASS_TYPES_IN_DEFAULT_PACKAGE)#set( $devNull= $trackedImports.put($typeName,""))#end
 #set($trackedTestMethodsCount={})
 #set($replacementTypes = {
     "java.util.Collection": "java.util.ArrayList",
@@ -67,50 +65,14 @@ new $typeName(#if($recursionDepth<=$MAX_RECURSION_DEPTH)#renderCtorParams($typeN
 #end
 ##
 #macro( resolveTypeName $type $replacementTypesMap)
-#set($name=$type.name)##
 #set($canonicalName=$type.canonicalName)##
 #set($sanitizedCanonicalName=$ClassUtils.stripGenerics($canonicalName))##
-#set($sanitizedName=$ClassUtils.stripGenerics($name))##
-#set($packageName=$type.packageName)##
 #if($replacementTypesMap.get( $sanitizedCanonicalName))#*
     *##set($sanitizedCanonicalName=$replacementTypesMap.get($sanitizedCanonicalName))#*
-    *##set($sanitizedName = $ClassUtils.extractClassName($sanitizedCanonicalName))#*
-    *##set($name = $ClassUtils.replaceType($name,$sanitizedName))#*
     *##set($canonicalName = $ClassUtils.replaceType($canonicalName,$sanitizedCanonicalName))##
 #end
-#if($packageName.length()>0 && $packageName != "java.lang" && $packageName != $package && !($trackedImports.get($sanitizedName)==$sanitizedCanonicalName))$canonicalName##
-#{else}$name#end
+$canonicalName##
 #end
-##
-#macro( renderJavaTestClassImports $fields $methods $package)
-#foreach($field in $fields)
-#renderImport($field.type,$package,{})
-#end
-#foreach($method in $methods)#*
-    *##if($method.isTestable())#*
-        *##if($method.returnType)#*
-            *##renderImport($method.returnType,$package,{})#*
-            *##renderImport($method.returnType,$package, $replacementTypes)#end#*
-        *##foreach($param in $method.methodParams)#*
-            *##renderImport($param.type,$package, $replacementTypes)#end#*
-    *##end
-#end
-#end
-##
-#macro(renderImport $wrapperType $package $replacementTypesMap)
-#foreach($type in $wrapperType.composedTypes)#*
-    *##set($name=$type.name)#*
-    *##set($canonicalName=$type.canonicalName)#*
-    *##if($replacementTypesMap.get($canonicalName))#*
-        *##set($canonicalName=$replacementTypesMap.get($canonicalName))#*
-        *##set($name = $ClassUtils.extractClassName($canonicalName))#*
-    *##end#*
-    *##if($type.packageName.length()>0 && $type.packageName != "java.lang" && $type.packageName != $package && !$trackedImports.get($name))#*
-        *#import $canonicalName;
-#*      *##set($devNull=$trackedImports.put($name,$canonicalName))#*
-    *##end##
-#end##
-#end##
 ##
 #macro(renderMockedFields $testedClassFields)
 #foreach($field in $testedClassFields)

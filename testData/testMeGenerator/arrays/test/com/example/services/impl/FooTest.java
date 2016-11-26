@@ -1,6 +1,5 @@
 package com.example.services.impl;
 
-import com.example.warriers.FooFighter;
 import com.example.foes.Fire;
 import org.junit.Assert;
 import org.junit.Before;

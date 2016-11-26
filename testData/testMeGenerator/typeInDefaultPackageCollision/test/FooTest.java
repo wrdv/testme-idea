@@ -1,3 +1,6 @@
+import com.example.foes.*;
+import com.example.foes.Fire;
+import com.example.hole.*;
 import com.example.warriers.FooFighter;
 import org.junit.Assert;
 import org.junit.Before;

@@ -1,15 +1,16 @@
 package com.example.services.impl;
 
-import com.example.warriers.FooFighter;
-import com.example.util.List;
 import com.example.hole.Fire;
-import java.util.ArrayList;
+import com.example.util.List;
+import com.example.warriers.FooFighter;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
+import java.util.ArrayList;
 
 /** created by TestMe integration test on MMXVI */
 public class FooTest {

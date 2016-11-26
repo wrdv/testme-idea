@@ -12,6 +12,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 /**
  * created by TestMe integration test on MMXVI
@@ -29,8 +31,8 @@ public class FooTest {
 
     @Test
     public void testFight() throws Exception {
-        BigBean result = foo.fight(new Fire(), new ArrayList<String>(), new BigBean(new DoneThat(0, "aDay", new Many("family", "members", "only"), new java.util.GregorianCalendar(2016, java.util.Calendar.JANUARY, 11, 22, 45).getTime(), new BigBean(new DoneThat(0, "aDay", new Many(), new java.util.GregorianCalendar(2016, java.util.Calendar.JANUARY, 11, 22, 45).getTime(), new BigBean(), "ifYourInDaHood"), new Many(), new DoneThat()), "ifYourInDaHood"), new Many(), new DoneThat()), new BeanThere());
-        Assert.assertEquals(new BigBean(new DoneThat(0, "aDay", new Many("family", "members", "only"), new java.util.GregorianCalendar(2016, java.util.Calendar.JANUARY, 11, 22, 45).getTime(), new BigBean(new DoneThat(0, "aDay", new Many(), new java.util.GregorianCalendar(2016, java.util.Calendar.JANUARY, 11, 22, 45).getTime(), new BigBean(), "ifYourInDaHood"), new Many(), new DoneThat()), "ifYourInDaHood"), new Many(), new DoneThat()), result);
+        BigBean result = foo.fight(new Fire(), new ArrayList<String>(), new BigBean(new DoneThat(0, "aDay", new Many("family", "members", "only"), new GregorianCalendar(2016, Calendar.JANUARY, 11, 22, 45).getTime(), new BigBean(new DoneThat(0, "aDay", new Many(), new GregorianCalendar(2016, Calendar.JANUARY, 11, 22, 45).getTime(), new BigBean(), "ifYourInDaHood"), new Many(), new DoneThat()), "ifYourInDaHood"), new Many(), new DoneThat()), new BeanThere());
+        Assert.assertEquals(new BigBean(new DoneThat(0, "aDay", new Many("family", "members", "only"), new GregorianCalendar(2016, Calendar.JANUARY, 11, 22, 45).getTime(), new BigBean(new DoneThat(0, "aDay", new Many(), new GregorianCalendar(2016, Calendar.JANUARY, 11, 22, 45).getTime(), new BigBean(), "ifYourInDaHood"), new Many(), new DoneThat()), "ifYourInDaHood"), new Many(), new DoneThat()), result);
     }
 }
 

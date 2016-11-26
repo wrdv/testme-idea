@@ -1,5 +1,4 @@
-import com.example.foes.Fire;
-import com.example.foes.Pokemon;
+import com.example.foes.*;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,7 +22,7 @@ public class FooTest {
 
     @Test
     public void testFight() throws Exception {
-        String result = foo.fight(new Fire(), new Flames(), new Pokemon());
+        String result = foo.fight(new com.example.foes.Fire(), new Flames(), new Pokemon());
         Assert.assertEquals("replaceMeWithExpectedResult", result);
     }
 }

@@ -3,7 +3,6 @@
 package ${PACKAGE_NAME};
 #end
 
-#renderJavaTestClassImports($TESTED_CLASS_FIELDS,$TESTED_CLASS_METHODS,$PACKAGE_NAME)
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
