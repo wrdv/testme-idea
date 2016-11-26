@@ -67,10 +67,10 @@ public class TestTemplateContextBuilder {
     }
 
     private List<Method> createMethods(PsiClass srcClass, int maxRecursionDepth) {
-        Map<String, Type> resolvedTypes = new HashMap<String, Type>();
+        TypeDictionary typeDictionary = new TypeDictionary();
         ArrayList<Method> methods = new ArrayList<Method>();
         for (PsiMethod psiMethod : srcClass.getAllMethods()) {
-            methods.add(new Method(psiMethod, srcClass,resolvedTypes,maxRecursionDepth));
+            methods.add(new Method(psiMethod, srcClass, maxRecursionDepth, typeDictionary));
         }
         return methods;
     }

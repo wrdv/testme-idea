@@ -6,7 +6,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Date: 24/10/2016
@@ -31,25 +30,26 @@ public class Method {
     private final boolean inherited;
     private final boolean isInInterface;
 
-    public Method(PsiMethod psiMethod, PsiClass srcClass, Map<String, Type> resolvedTypes, int maxRecursionDepth) {
-        isPrivate=psiMethod.hasModifierProperty(PsiModifier.PRIVATE);
-        isProtected=psiMethod.hasModifierProperty(PsiModifier.PROTECTED);
-        isDefault=psiMethod.hasModifierProperty(PsiModifier.DEFAULT)||psiMethod.hasModifierProperty(PsiModifier.PACKAGE_LOCAL);
-        isPublic=psiMethod.hasModifierProperty(PsiModifier.PUBLIC);
-        isAbstract=psiMethod.hasModifierProperty(PsiModifier.ABSTRACT);
-        isNative=psiMethod.hasModifierProperty(PsiModifier.NATIVE);
-        isStatic=psiMethod.hasModifierProperty(PsiModifier.STATIC);
-        returnType = psiMethod.getReturnType()==null?null:new Type(psiMethod.getReturnType(),resolvedTypes,maxRecursionDepth);
+    public Method(PsiMethod psiMethod, PsiClass srcClass, int maxRecursionDepth,TypeDictionary typeDictionary) {
+        isPrivate = psiMethod.hasModifierProperty(PsiModifier.PRIVATE);
+        isProtected = psiMethod.hasModifierProperty(PsiModifier.PROTECTED);
+        isDefault = psiMethod.hasModifierProperty(PsiModifier.DEFAULT) || psiMethod.hasModifierProperty(PsiModifier.PACKAGE_LOCAL);
+        isPublic = psiMethod.hasModifierProperty(PsiModifier.PUBLIC);
+        isAbstract = psiMethod.hasModifierProperty(PsiModifier.ABSTRACT);
+        isNative = psiMethod.hasModifierProperty(PsiModifier.NATIVE);
+        isStatic = psiMethod.hasModifierProperty(PsiModifier.STATIC);
+        this.returnType = typeDictionary.getType(psiMethod.getReturnType(),maxRecursionDepth);
         name = psiMethod.getName();
-        ownerClassCanonicalType = psiMethod.getContainingClass()==null?null:psiMethod.getContainingClass().getQualifiedName();
-        methodParams = extractMethodParams(psiMethod.getParameterList(),resolvedTypes,maxRecursionDepth);
+        ownerClassCanonicalType = psiMethod.getContainingClass() == null ? null : psiMethod.getContainingClass().getQualifiedName();
+        methodParams = extractMethodParams(psiMethod.getParameterList(), typeDictionary, maxRecursionDepth);
         isSetter = PropertyUtil.isSimpleSetter(psiMethod);
         isGetter = PropertyUtil.isSimpleGetter(psiMethod);
         constructor = psiMethod.isConstructor();
         overridden = isOverriddenInChild(psiMethod, srcClass);
         inherited = isInherited(psiMethod, srcClass);
-        isInInterface = psiMethod.getContainingClass()!=null && psiMethod.getContainingClass().isInterface();
+        isInInterface = psiMethod.getContainingClass() != null && psiMethod.getContainingClass().isInterface();
     }
+
 
     private boolean isOverriddenInChild(PsiMethod method, PsiClass srcClass) {
         String srcQualifiedName = srcClass.getQualifiedName();
@@ -62,10 +62,10 @@ public class Method {
         return (srcQualifiedName!=null && methodClsQualifiedName!=null &&  !srcQualifiedName.equals(methodClsQualifiedName));
     }
 
-    private List<Param> extractMethodParams(PsiParameterList parameterList, Map<String, Type> resolvedTypes, int maxRecursionDepth) {
+    private List<Param> extractMethodParams(PsiParameterList parameterList, TypeDictionary typeDictionary, int maxRecursionDepth) {
         ArrayList<Param> params = new ArrayList<Param>();
         for (PsiParameter psiParameter : parameterList.getParameters()) {
-            params.add(new Param(psiParameter,resolvedTypes,maxRecursionDepth));
+            params.add(new Param(psiParameter,typeDictionary,maxRecursionDepth));
         }
         return params;
     }

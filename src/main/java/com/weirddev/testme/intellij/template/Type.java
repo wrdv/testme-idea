@@ -4,8 +4,12 @@ import com.intellij.psi.*;
 import com.intellij.psi.impl.source.PsiClassReferenceType;
 import com.intellij.psi.util.PsiUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * Date: 24/10/2016
@@ -37,9 +41,9 @@ public class Type {
         this(extractContainerType(canonicalName), extractClassName(canonicalName),extractPackageName(canonicalName),false,isArray(canonicalName),null);
     }
 
-    public Type(PsiType psiType, Map<String, Type> resolvedTypes, int maxRecursionDepth) {
+    public Type(PsiType psiType, @Nullable TypeDictionary typeDictionary, int maxRecursionDepth) {
         String canonicalText = psiType.getCanonicalText();
-        array = isArray(canonicalText);
+        array = isArray(canonicalText);System.out.println("new type "+canonicalText);
         this.canonicalName = stripArrayDesignator(canonicalText);
         this.name = stripArrayDesignator(psiType.getPresentableText());
         packageName = extractPackageName(canonicalName);
@@ -48,9 +52,9 @@ public class Type {
         PsiClass psiClass = PsiUtil.resolveClassInType(psiType);
         isEnum = psiClass != null && psiClass.isEnum();
         enumValues = resolveEnumValues(psiType);
-        if (psiClass != null && maxRecursionDepth>0) {
+        if (psiClass != null && maxRecursionDepth>0 && !canonicalText.startsWith("java.") && typeDictionary!=null) {
             for (PsiMethod psiMethod : psiClass.getConstructors()) {
-                constructors.add(new Method(psiMethod,psiClass,resolvedTypes,maxRecursionDepth-1));
+                constructors.add(new Method(psiMethod,psiClass, maxRecursionDepth-1, typeDictionary));
             }
             Collections.sort(constructors, new Comparator<Method>() {
                 @Override

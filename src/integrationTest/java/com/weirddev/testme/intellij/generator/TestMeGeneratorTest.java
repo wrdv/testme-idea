@@ -93,7 +93,7 @@ public class TestMeGeneratorTest extends LightCodeInsightFixtureTestCase /*JavaC
         doTest(false, true);
     }
     public void testParamsConstructors() throws Exception {
-        doTest(true, true); //todo optimize type objects creation with reuse form shared map
+        doTest(true, true);
         //todo refactor when done with intention of "Replace qualified name with 'import'" on all non static calls
     }
     //todo replace created macros with Velocity StringUtils

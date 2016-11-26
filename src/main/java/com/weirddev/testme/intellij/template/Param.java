@@ -2,8 +2,6 @@ package com.weirddev.testme.intellij.template;
 
 import com.intellij.psi.PsiParameter;
 
-import java.util.Map;
-
 /**
  * Date: 24/10/2016
  * @author Yaron Yamin
@@ -12,8 +10,8 @@ public class Param {
     private final Type type;
     private String name;
 
-    public Param(PsiParameter psiParameter, Map<String, Type> resolvedTypes, int maxRecursionDepth) {
-        this.type = new Type(psiParameter.getType(), resolvedTypes, maxRecursionDepth);
+    public Param(PsiParameter psiParameter, TypeDictionary typeDictionary, int maxRecursionDepth) {
+        this.type = typeDictionary.getType(psiParameter.getType(), maxRecursionDepth);
         this.name = psiParameter.getName();
     }
 
