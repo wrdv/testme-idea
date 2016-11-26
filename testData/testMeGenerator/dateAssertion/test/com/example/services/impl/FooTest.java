@@ -10,7 +10,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.Date;
-import java.util.GregorianCalendar;
 
 /** created by TestMe integration test on MMXVI */
 public class FooTest {
@@ -27,7 +26,7 @@ public class FooTest {
     @Test
     public void testFight() throws Exception {
         Date result = foo.fight(new Fire());
-        Assert.assertEquals(new GregorianCalendar(2016, java.util.Calendar.JANUARY, 11, 22, 45).getTime(), result);
+        Assert.assertEquals(new java.util.GregorianCalendar(2016, java.util.Calendar.JANUARY, 11, 22, 45).getTime(), result);
     }
 }
 

@@ -102,8 +102,12 @@ public class TestMeGenerator {
             final PsiElement psiElement = FileTemplateUtil.createFromTemplate(codeTemplate, templateName, templateCtxtParams, targetDirectory, null);
             if (psiElement instanceof PsiClass) {
                 PsiClass psiClass = (PsiClass) psiElement;
+                JavaCodeStyleManager codeStyleManager = JavaCodeStyleManager.getInstance(targetDirectory.getProject());
                 if (context.isOptimizeImports()) {
-                    JavaCodeStyleManager.getInstance(targetDirectory.getProject()).optimizeImports(psiClass.getContainingFile());
+                    codeStyleManager.optimizeImports(psiClass.getContainingFile());
+                }
+                if (context.isReplaceFqn()) {
+                    codeStyleManager.shortenClassReferences(psiClass.getContainingFile());
                 }
                 return psiClass;
             }

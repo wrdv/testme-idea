@@ -43,7 +43,7 @@ public class Type {
 
     public Type(PsiType psiType, @Nullable TypeDictionary typeDictionary, int maxRecursionDepth) {
         String canonicalText = psiType.getCanonicalText();
-        array = isArray(canonicalText);System.out.println("new type "+canonicalText);
+        array = isArray(canonicalText);
         this.canonicalName = stripArrayDesignator(canonicalText);
         this.name = stripArrayDesignator(psiType.getPresentableText());
         packageName = extractPackageName(canonicalName);
