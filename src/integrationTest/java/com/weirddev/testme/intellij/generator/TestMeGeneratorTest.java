@@ -78,7 +78,7 @@ public class TestMeGeneratorTest extends LightCodeInsightFixtureTestCase /*JavaC
         doTest(false, false, false);
     }
 //    public void testGenericsTypeCollision() throws Exception {
-//        doTest(false); //TODO implement scenario
+//        doTest(false,false,false); //TODO implement scenario
 //    }
     public void testEnum() throws Exception {
         doTest(false, false, false);
@@ -98,6 +98,10 @@ public class TestMeGeneratorTest extends LightCodeInsightFixtureTestCase /*JavaC
     public void testParamsConstructorsWithReplacedFqn() throws Exception {
         doTest(true, true, true);
     }
+    //todo TC - for params and return type: filter out constructors that cannot be accessed
+
+    //todo TC - use static init method when constructor not available. add default replacement for Class - Class.forName('?') (fqn of class under test?)
+
     //todo replace created macros with Velocity StringUtils
 
     // TODO assert caret position with <caret>

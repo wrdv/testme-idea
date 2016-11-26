@@ -1,11 +1,11 @@
-package com.weirddev.testme.intellij.template;
+package com.weirddev.testme.intellij.template.utils;
 
 /**
  * Date: 15/11/2016
  *
  * @author Yaron Yamin
  */
-public class TemplateUtils {
+public class ClassUtils {
     public String extractClassName(String canonicalName) {
         return canonicalName.substring(canonicalName.lastIndexOf('.') + 1 );
     }

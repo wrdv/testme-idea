@@ -16,9 +16,9 @@ public class ${CLASS_NAME} {
 #renderMockedFields($TESTED_CLASS_FIELDS)
 #if(!$TESTED_CLASS_FIELDS.isEmpty())
     @InjectMocks
-    private $TESTED_CLASS_NAME #deCapitalize($TESTED_CLASS_NAME);
+    private $TESTED_CLASS_NAME $StringUtils.deCapitalizeFirstLetter($TESTED_CLASS_NAME);
 #else
-    private ${TESTED_CLASS_NAME} #deCapitalize($TESTED_CLASS_NAME)=new ${TESTED_CLASS_NAME}();
+    private ${TESTED_CLASS_NAME} $StringUtils.deCapitalizeFirstLetter($TESTED_CLASS_NAME)=new ${TESTED_CLASS_NAME}();
 #end
 
 #if(!$TESTED_CLASS_FIELDS.isEmpty())

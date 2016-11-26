@@ -52,7 +52,7 @@ public class Type {
         PsiClass psiClass = PsiUtil.resolveClassInType(psiType);
         isEnum = psiClass != null && psiClass.isEnum();
         enumValues = resolveEnumValues(psiType);
-        if (psiClass != null && maxRecursionDepth>0 && !canonicalText.startsWith("java.") && typeDictionary!=null) {
+        if (psiClass != null && maxRecursionDepth>0 && !canonicalText.startsWith("java.") /*todo consider replacing with just java.util.* || java.lang.*  */&& typeDictionary!=null) {
             for (PsiMethod psiMethod : psiClass.getConstructors()) {
                 constructors.add(new Method(psiMethod,psiClass, maxRecursionDepth-1, typeDictionary));
             }

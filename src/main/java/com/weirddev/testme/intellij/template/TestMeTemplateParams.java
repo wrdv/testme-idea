@@ -26,7 +26,8 @@ public interface TestMeTemplateParams {
 
     String ATTRIBUTE_FILE_NAME = "FILE_NAME";
     String TESTED_CLASS_TYPES_IN_DEFAULT_PACKAGE = "TESTED_CLASS_TYPES_IN_DEFAULT_PACKAGE";
-    String UTILS = "Utils";
+    String CLASS_UTILS = "ClassUtils";
     String MONTH_NAME_EN = "MONTH_NAME_EN";
     String MAX_RECURSION_DEPTH = "MAX_RECURSION_DEPTH";
+    String STRING_UTILS = "StringUtils";
 }

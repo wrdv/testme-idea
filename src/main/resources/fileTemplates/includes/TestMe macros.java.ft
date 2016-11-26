@@ -39,10 +39,6 @@
 ##
 ##
 ################## Macros #####################
-#macro( deCapitalize $str)$str.substring(0,1).toLowerCase()$str.substring(1)#end
-##
-#macro( capitalize $str)$str.substring(0,1).toUpperCase()$str.substring(1)#end
-##
 #macro( renderJavaCallParams $params $recursionDepth)
 #set($recursionDepth=$recursionDepth+1)
 #foreach($param in $params)#*
@@ -73,14 +69,14 @@ new $typeName(#if($recursionDepth<=$MAX_RECURSION_DEPTH)#renderCtorParams($typeN
 #macro( resolveTypeName $type $replacementTypesMap)
 #set($name=$type.name)##
 #set($canonicalName=$type.canonicalName)##
-#set($sanitizedCanonicalName=$Utils.stripGenerics($canonicalName))##
-#set($sanitizedName=$Utils.stripGenerics($name))##
+#set($sanitizedCanonicalName=$ClassUtils.stripGenerics($canonicalName))##
+#set($sanitizedName=$ClassUtils.stripGenerics($name))##
 #set($packageName=$type.packageName)##
 #if($replacementTypesMap.get( $sanitizedCanonicalName))#*
     *##set($sanitizedCanonicalName=$replacementTypesMap.get($sanitizedCanonicalName))#*
-    *##set($sanitizedName = $Utils.extractClassName($sanitizedCanonicalName))#*
-    *##set($name = $Utils.replaceType($name,$sanitizedName))#*
-    *##set($canonicalName = $Utils.replaceType($canonicalName,$sanitizedCanonicalName))##
+    *##set($sanitizedName = $ClassUtils.extractClassName($sanitizedCanonicalName))#*
+    *##set($name = $ClassUtils.replaceType($name,$sanitizedName))#*
+    *##set($canonicalName = $ClassUtils.replaceType($canonicalName,$sanitizedCanonicalName))##
 #end
 #if($packageName.length()>0 && $packageName != "java.lang" && $packageName != $package && !($trackedImports.get($sanitizedName)==$sanitizedCanonicalName))$canonicalName##
 #{else}$name#end
@@ -107,7 +103,7 @@ new $typeName(#if($recursionDepth<=$MAX_RECURSION_DEPTH)#renderCtorParams($typeN
     *##set($canonicalName=$type.canonicalName)#*
     *##if($replacementTypesMap.get($canonicalName))#*
         *##set($canonicalName=$replacementTypesMap.get($canonicalName))#*
-        *##set($name = $Utils.extractClassName($canonicalName))#*
+        *##set($name = $ClassUtils.extractClassName($canonicalName))#*
     *##end#*
     *##if($type.packageName.length()>0 && $type.packageName != "java.lang" && $type.packageName != $package && !$trackedImports.get($name))#*
         *#import $canonicalName;
@@ -150,7 +146,7 @@ new $typeName(#if($recursionDepth<=$MAX_RECURSION_DEPTH)#renderCtorParams($typeN
 
     @Test
     public void #renderTestMethodName($method.name)() throws Exception {
-        #renderJavaReturnVar($method.returnType)#if($method.static)$testedClassName#{else}#deCapitalize($testedClassName)#end.${method.name}(#renderJavaCallParams($method.methodParams, 0));
+        #renderJavaReturnVar($method.returnType)#if($method.static)$testedClassName#{else}$StringUtils.deCapitalizeFirstLetter($testedClassName)#end.${method.name}(#renderJavaCallParams($method.methodParams, 0));
 #renderJUnitAssert($method.returnType)
     }
 #end
@@ -158,7 +154,7 @@ new $typeName(#if($recursionDepth<=$MAX_RECURSION_DEPTH)#renderCtorParams($typeN
 #end
 ##
 #macro(renderTestMethodName $methodName)
-test#capitalize($methodName)#testMethodSuffix($methodName)
+test$StringUtils.capitalizeFirstLetter($methodName)#testMethodSuffix($methodName)
 #end
 ##
 #macro(testMethodSuffix $methodName)

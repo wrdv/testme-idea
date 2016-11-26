@@ -6,7 +6,12 @@ import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.weirddev.testme.intellij.FileTemplateContext;
-import com.weirddev.testme.intellij.template.*;
+import com.weirddev.testme.intellij.template.Field;
+import com.weirddev.testme.intellij.template.Method;
+import com.weirddev.testme.intellij.template.TestMeTemplateParams;
+import com.weirddev.testme.intellij.template.TypeDictionary;
+import com.weirddev.testme.intellij.template.utils.ClassUtils;
+import com.weirddev.testme.intellij.template.utils.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.SimpleDateFormat;
@@ -39,9 +44,9 @@ public class TestTemplateContextBuilder {
             List<Method> methods = createMethods(context.getSrcClass(),maxRecursionDepth);
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_METHODS, methods);
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_TYPES_IN_DEFAULT_PACKAGE, classElementsLocator.filterTypesInDefaultPackage(methods, fields));
-
         }
-        ctxtParams.put(TestMeTemplateParams.UTILS, new TemplateUtils());
+        ctxtParams.put(TestMeTemplateParams.CLASS_UTILS, new ClassUtils());
+        ctxtParams.put(TestMeTemplateParams.STRING_UTILS, StringUtils.class);
         return ctxtParams;
     }
     @NotNull
