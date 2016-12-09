@@ -186,6 +186,7 @@ public class TestMeGeneratorTest extends LightCodeInsightFixtureTestCase /*JavaC
                 contextMap.put("DAY_NUMERIC", 11);
                 contextMap.put("HOUR_NUMERIC", 22);
                 contextMap.put("MINUTE_NUMERIC", 45);
+                contextMap.put("SECOND_NUMERIC", 55);
                 return contextMap;
             }
         };
