@@ -29,4 +29,8 @@ public interface TestMeTemplateParams {
     String MONTH_NAME_EN = "MONTH_NAME_EN";
     String MAX_RECURSION_DEPTH = "MAX_RECURSION_DEPTH";
     String STRING_UTILS = "StringUtils";
+    String DAY_NUMERIC = "DAY_NUMERIC"; //Current Day of month for numeric calculations. i.e. if today is January the 2nd - DAY_NUMERIC = 2. DAY = 02
+    String HOUR_NUMERIC = "HOUR_NUMERIC"; //Current Hour for numeric calculations. i.e. if the current time is 09:45 - HOUR_NUMERIC = 9. HOUR = 09
+    String MINUTE_NUMERIC = "MINUTE_NUMERIC"; //Current Minute for numeric calculations. i.e. if the current time is 09:05 - MINUTE_NUMERIC = 5. MINUTE = 05
+
 }

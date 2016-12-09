@@ -89,9 +89,6 @@ public class TestMeGeneratorTest extends LightCodeInsightFixtureTestCase /*JavaC
     public void testDate() throws Exception {
         doTest(false, true, true);
     }
-    public void testDateAssertion() throws Exception {
-        doTest(false, true, true);
-    }
     public void testParamsConstructorsNoFqnReplacement() throws Exception {
         doTest(true, true, false);
     }
@@ -184,11 +181,11 @@ public class TestMeGeneratorTest extends LightCodeInsightFixtureTestCase /*JavaC
                 Properties mockedDefaultProperties = new Properties();
                 new GregorianCalendar(2016, java.util.Calendar.JANUARY, 11, 22, 45).getTime();
                 mockedDefaultProperties.put("YEAR", 2016);
-                mockedDefaultProperties.put("DAY", 11);
-                mockedDefaultProperties.put("HOUR", 22);
-                mockedDefaultProperties.put("MINUTE", 45);
                 Map<String, Object> contextMap = super.build(context, mockedDefaultProperties);
                 contextMap.put("MONTH_NAME_EN", "JANUARY");
+                contextMap.put("DAY_NUMERIC", 11);
+                contextMap.put("HOUR_NUMERIC", 22);
+                contextMap.put("MINUTE_NUMERIC", 45);
                 return contextMap;
             }
         };

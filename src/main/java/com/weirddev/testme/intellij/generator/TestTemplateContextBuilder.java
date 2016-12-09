@@ -23,7 +23,7 @@ public class TestTemplateContextBuilder {
 
     public Map<String, Object> build(FileTemplateContext context, Properties defaultProperties) {
         HashMap<String, Object> ctxtParams = initTemplateContext(defaultProperties);
-        ctxtParams.put(TestMeTemplateParams.MONTH_NAME_EN, new SimpleDateFormat("MMMM", Locale.ENGLISH).format(new Date()));
+        populateDateFields(ctxtParams, Calendar.getInstance());
         ctxtParams.put(TestMeTemplateParams.CLASS_NAME, context.getTargetClass());
         ctxtParams.put(TestMeTemplateParams.PACKAGE_NAME, context.getTargetPackage().getQualifiedName());
         final PsiClass targetClass = context.getSrcClass();
@@ -40,6 +40,14 @@ public class TestTemplateContextBuilder {
         ctxtParams.put(TestMeTemplateParams.STRING_UTILS, StringUtils.class);
         return ctxtParams;
     }
+
+    void populateDateFields(Map<String, Object> ctxtParams, Calendar calendar) {
+        ctxtParams.put(TestMeTemplateParams.MONTH_NAME_EN, new SimpleDateFormat("MMMM", Locale.ENGLISH).format(calendar.getTime()));
+        ctxtParams.put(TestMeTemplateParams.DAY_NUMERIC, calendar.get(Calendar.DAY_OF_MONTH));
+        ctxtParams.put(TestMeTemplateParams.HOUR_NUMERIC, calendar.get(Calendar.HOUR_OF_DAY));
+        ctxtParams.put(TestMeTemplateParams.MINUTE_NUMERIC, calendar.get(Calendar.MINUTE));
+    }
+
     @NotNull
     private HashMap<String, Object> initTemplateContext(Properties defaultProperties) {
         HashMap<String, Object> templateCtxtParams = new HashMap<String, Object>();
