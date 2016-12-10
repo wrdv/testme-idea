@@ -1,4 +1,4 @@
-package com.weirddev.testme.intellij;
+package com.weirddev.testme.intellij.icon;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -9,7 +9,5 @@ import java.util.ArrayList;
  * @author Yaron Yamin
  */
 public interface IconTokensReplacer {
-    String stripTokens(String text);
-
-    ArrayList<IconizedLabel> tokenize(String text, Icon icon);
+        ArrayList<IconizedLabel> tokenize(String text, Icon icon);
 }

@@ -11,7 +11,6 @@ import com.intellij.psi.*;
 import com.intellij.testFramework.LightProjectDescriptor;
 import com.intellij.testFramework.fixtures.DefaultLightProjectDescriptor;
 import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
-import com.weirddev.testme.intellij.CreateTestMeAction;
 import com.weirddev.testme.intellij.FileTemplateContext;
 import org.jetbrains.annotations.NotNull;
 
@@ -120,7 +119,7 @@ public class TestMeGeneratorTest extends LightCodeInsightFixtureTestCase /*JavaC
             @Override
             public void run() {
                 myFixture.openFileInEditor(fooClass.getContainingFile().getVirtualFile());
-                PsiElement result = new TestMeGenerator(new TestClassElementsLocator(), testTemplateContextBuilder).generateTest(new FileTemplateContext(new FileTemplateDescriptor(CreateTestMeAction.TESTME_WITH_JUNIT4_MOCKITO_JAVA), getProject(),
+                PsiElement result = new TestMeGenerator(new TestClassElementsLocator(), testTemplateContextBuilder).generateTest(new FileTemplateContext(new FileTemplateDescriptor("TestMe with JUnit4 & Mockito.java"), getProject(),
                         expectedTestClassName,
                         targetPackage,
                         myModule,

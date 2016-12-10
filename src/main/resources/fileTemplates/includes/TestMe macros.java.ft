@@ -97,8 +97,7 @@ $canonicalName##
 #end
 ##
 #macro(renderJUnitAssert $type)
-#if($type && $type.name !="void")        Assert.#renderJunitAssertMethod($type)(#renderJavaCallParams([{"type":$type,"name":"replaceMeWithExpectedResult"}] ,0), result);
-#end
+#renderJunitAssertMethod($type)(#renderJavaCallParams([{"type":$type,"name":"replaceMeWithExpectedResult"}] ,0), result);
 #end
 ##
 #macro(renderJunitAssertMethod $type)
@@ -111,11 +110,15 @@ $canonicalName##
 
     @Test
     public void #renderTestMethodName($method.name)() throws Exception {
-        #renderJavaReturnVar($method.returnType)#if($method.static)$testedClassName#{else}$StringUtils.deCapitalizeFirstLetter($testedClassName)#end.${method.name}(#renderJavaCallParams($method.methodParams, 0));
-#renderJUnitAssert($method.returnType)
+        #renderMethodCall($method,$testedClassName)
+#if($method.returnType && $method.returnType.name !="void")        Assert.#renderJUnitAssert($method.returnType)#end
     }
 #end
 #end
+#end
+##
+#macro(renderMethodCall $method,$testedClassName)
+#renderJavaReturnVar($method.returnType)#if($method.static)$testedClassName#{else}$StringUtils.deCapitalizeFirstLetter($testedClassName)#end.${method.name}(#renderJavaCallParams($method.methodParams, 0));
 #end
 ##
 #macro(renderTestMethodName $methodName)

@@ -3,26 +3,26 @@
 package ${PACKAGE_NAME};
 #end
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 #parse("File Header.java")
-public class ${CLASS_NAME} {
+class ${CLASS_NAME} {
 #renderMockedFields($TESTED_CLASS_FIELDS)
 #if(!$TESTED_CLASS_FIELDS.isEmpty())
     @InjectMocks
-    private $TESTED_CLASS_NAME $StringUtils.deCapitalizeFirstLetter($TESTED_CLASS_NAME);
+    $TESTED_CLASS_NAME $StringUtils.deCapitalizeFirstLetter($TESTED_CLASS_NAME);
 #else
-    private ${TESTED_CLASS_NAME} $StringUtils.deCapitalizeFirstLetter($TESTED_CLASS_NAME)=new ${TESTED_CLASS_NAME}();
+    ${TESTED_CLASS_NAME} $StringUtils.deCapitalizeFirstLetter($TESTED_CLASS_NAME)=new ${TESTED_CLASS_NAME}();
 #end
 
 #if(!$TESTED_CLASS_FIELDS.isEmpty())
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         MockitoAnnotations.initMocks(this);
     }
 #end
@@ -30,9 +30,9 @@ public class ${CLASS_NAME} {
 #if($method.isTestable())
 
     @Test
-    public void #renderTestMethodName($method.name)() throws Exception {
+    void #renderTestMethodName($method.name)(){
         #renderMethodCall($method,$TESTED_CLASS_NAME)
-#if($method.returnType && $method.returnType.name !="void")        Assert.#renderJUnitAssert($method.returnType)#end
+#if($method.returnType && $method.returnType.name !="void")        Assertions.#renderJUnitAssert($method.returnType)#end
     }
 #end
 #end

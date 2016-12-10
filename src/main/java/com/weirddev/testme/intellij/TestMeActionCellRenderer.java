@@ -1,6 +1,9 @@
 package com.weirddev.testme.intellij;
 
 import com.intellij.codeInsight.navigation.GotoTargetHandler;
+import com.weirddev.testme.intellij.icon.IconTokensReplacer;
+import com.weirddev.testme.intellij.icon.IconTokensReplacerImpl;
+import com.weirddev.testme.intellij.icon.IconizedLabel;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;

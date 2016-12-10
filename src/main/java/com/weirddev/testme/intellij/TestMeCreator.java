@@ -1,6 +1,5 @@
 package com.weirddev.testme.intellij;
 
-import com.intellij.codeInsight.intention.IntentionAction;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.psi.PsiElement;
@@ -17,21 +16,12 @@ import com.intellij.util.IncorrectOperationException;
  */
 public class TestMeCreator {
     private static final Logger LOG = Logger.getInstance(TestMeCreator.class.getName());
-    private final IntentionAction action;
 
-    public TestMeCreator() {
-        this(new CreateTestMeAction());
-    }
-
-    TestMeCreator(IntentionAction action) {
-        this.action = action;
-    }
-
-    public void createTest(Editor editor, PsiFile file) {
+    public void createTest(Editor editor, PsiFile file, String templateFilename) {
         try {
             PsiElement element = file.findElementAt(editor.getCaretModel().getOffset());
             if (CreateTestAction.isAvailableForElement(element)) {
-                action.invoke(file.getProject(), editor, file.getContainingFile());
+                new CreateTestMeAction(templateFilename).invoke(file.getProject(), editor, file.getContainingFile());
             }
         }
         catch (IncorrectOperationException e) {

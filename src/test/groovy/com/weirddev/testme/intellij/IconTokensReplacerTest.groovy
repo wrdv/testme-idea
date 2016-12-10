@@ -1,5 +1,9 @@
 package com.weirddev.testme.intellij
 
+import com.weirddev.testme.intellij.icon.IconTokensReplacerImpl
+import com.weirddev.testme.intellij.icon.IconizedLabel
+import com.weirddev.testme.intellij.icon.Icons
+
 /**
  * Date: 10/15/2016
  * @author Yaron Yamin

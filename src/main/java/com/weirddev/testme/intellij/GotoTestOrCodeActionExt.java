@@ -22,7 +22,7 @@ public class GotoTestOrCodeActionExt extends GotoTestOrCodeAction {
         try {
             Field f = getAssignableFieldFor(TestMeActionCellRenderer.class);
             if (f == null) {
-                LOG.warn("Unable to find field. TestMe plugin should get by without it, but some feature might not be available for this IDEA version");
+                LOG.warn("Unable to find field. TestMe plugin should get by without it, but some features might not be available for this IDEA version");
                 return new GotoTestOrCodeHandlerExt(false);
             } else {
                 f.setAccessible(true);

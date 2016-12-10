@@ -1,4 +1,4 @@
-package com.weirddev.testme.intellij;
+package com.weirddev.testme.intellij.icon;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -15,12 +15,12 @@ public class IconTokensReplacerImpl implements IconTokensReplacer {
     private static final String TOKEN_TEMPLATE = "<%s>";
     static {
         token2Icon = new HashMap<String, Icon>();
-        token2Icon.put("JUnit",Icons.JUNIT_DARK);
+        token2Icon.put("JUnit4",Icons.JUNIT4_DARK);
+        token2Icon.put("JUnit5",Icons.JUNIT5);
         token2Icon.put("Mockito", Icons.MOCKITO);
     }
 
-    @Override
-    public String stripTokens(String text) {
+    public static String stripTokens(String text) {
         String regex = "";
         for (String token : token2Icon.keySet()) {
             if(!regex.isEmpty()){
