@@ -27,8 +27,8 @@ public class FooTest {
 
     @Test
     public void testFight() throws Exception {
-        File result = foo.fight(new Fire(), new File(getClass().getResource("/com/please/add/TestFile.txt").getFile()));
-        Assert.assertEquals(new File(getClass().getResource("/com/please/add/TestFile.txt").getFile()), result);
+        File result = foo.fight(new Fire(), new File(getClass().getResource("/com/example/services/impl/PleaseReplaceMeWithTestFile.txt").getFile()));
+        Assert.assertEquals(new File(getClass().getResource("/com/example/services/impl/PleaseReplaceMeWithTestFile.txt").getFile()), result);
     }
 }
 
