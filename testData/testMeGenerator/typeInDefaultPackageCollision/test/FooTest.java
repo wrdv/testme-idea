@@ -14,11 +14,11 @@ import org.mockito.MockitoAnnotations;
  */
 public class FooTest {
     @Mock
-    private FooFighter fooFighter;
+    FooFighter fooFighter;
     @Mock
-    private com.example.foes.Fire fireOfFoe;
+    com.example.foes.Fire fireOfFoe;
     @InjectMocks
-    private Foo foo;
+    Foo foo;
 
     @Before
     public void setUp() {

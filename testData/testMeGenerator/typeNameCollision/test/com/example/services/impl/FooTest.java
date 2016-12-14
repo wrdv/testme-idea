@@ -12,9 +12,9 @@ import org.mockito.MockitoAnnotations;
 /** created by TestMe integration test on MMXVI */
 public class FooTest {
     @Mock
-    private FooFighter fooFighter;
+    FooFighter fooFighter;
     @InjectMocks
-    private Foo foo;
+    Foo foo;
 
     @Before
     public void setUp() {

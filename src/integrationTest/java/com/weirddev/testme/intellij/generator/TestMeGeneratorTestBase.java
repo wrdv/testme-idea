@@ -20,95 +20,33 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
- * Date: 10/20/2016
+ * Date: 13/12/2016
+ *
  * @author Yaron Yamin
  */
-public class TestMeGeneratorTest extends LightCodeInsightFixtureTestCase /*JavaCodeInsightFixtureTestCase */{
-
+public class TestMeGeneratorTestBase extends LightCodeInsightFixtureTestCase /*JavaCodeInsightFixtureTestCase */{
     private static final String FILE_HEADER_TEMPLATE = "File Header.java";
     private static final String HEADER_TEMPLATE_REPLACEMENT_TEXT = "/** created by TestMe integration test on MMXVI */\n";
     private static boolean isHeaderTemplateReplaced=false;
-
+    private final String templateFilename;
+    private final String testDirectory;
     private final TestTemplateContextBuilder testTemplateContextBuilder = mockTestTemplateContextBuilder();
 
-    public void testSimpleClass() throws Exception {
-        doTest();
+    TestMeGeneratorTestBase(String templateFilename, String testDirectory) {
+        this.templateFilename = templateFilename;
+        this.testDirectory = testDirectory;
     }
-    public void testDefaultPackage() throws Exception {
-        doTest("", "Foo", "FooTest", true, false, true);
-    }
-    public void testVariousFieldTypes() throws Exception {
-        doTest();
-    }
-    public void testWithSetters() throws Exception {
-        doTest();
-    }
-    public void testConstructors() throws Exception {
-        doTest(); //TODO template should initialize test subject directly with c'tor in this use case
-    }
-    public void testOverloading() throws Exception {
-        doTest();
-    }
-    public void testNoFormatting() throws Exception {
-        doTest(false, false, false);
-    }
-    public void testTypeNameCollision() throws Exception {
-        doTest(false,false,true);
-    }
-    public void testTypeInDefaultPackageCollision() throws Exception {
-        doTest("", "Foo", "FooTest", true, true, true);
-    }
-    public void testInheritance() throws Exception {
-        doTest();
-    }
-    public void testGenerics() throws Exception {
-        doTest(false, false, true);
-    }
-    public void testPrimitiveCallTypes() throws Exception {
-        doTest(false, false, true);
-    }
-    public void testArrays() throws Exception {
-        doTest(false, false, true);
-    }
-    public void testConstants() throws Exception {
-        doTest();
-    }
-    public void testCollections() throws Exception {
-        doTest(false, false, false);
-    }
-    public void testGenericsTypeCollision() throws Exception {
-        doTest(false,false,true);
-    }
-    public void testEnum() throws Exception {
-        doTest(false, false, true);
-    }
-    public void testStatic() throws Exception {
-        doTest(false, false, true);
-    }
-    public void testDate() throws Exception {
-        doTest(false, true, true);
-    }
-    public void testParamsConstructorsNoFqnReplacement() throws Exception {
-        doTest(true, true, false);
-    }
-    public void testParamsConstructors() throws Exception {
-        doTest(true, true, true);
-    }
-    //todo TC - use static init method when constructor not available. add default replacement for Class - Class.forName('?') (fqn of class under test?)
 
-    // TODO assert caret position with <caret>
 
-    // TODO TC different test target dir
-
-    private void doTest() {
+    protected void doTest() {
         doTest(true, false, false);
     }
 
-    private void doTest(boolean reformatCode, boolean optimizeImports, boolean replaceFqn) {
+    protected void doTest(boolean reformatCode, boolean optimizeImports, boolean replaceFqn) {
         doTest("com.example.services.impl", "Foo", "FooTest", reformatCode, optimizeImports, replaceFqn);
     }
 
-    private void doTest(final String packageName, String testSubjectClassName, final String expectedTestClassName, final boolean reformatCode, final boolean optimizeImports, final boolean replaceFqn) {
+    protected void doTest(final String packageName, String testSubjectClassName, final String expectedTestClassName, final boolean reformatCode, final boolean optimizeImports, final boolean replaceFqn) {
         myFixture.copyDirectoryToProject("src", "");
         myFixture.copyDirectoryToProject("../commonSrc", "");
         final PsiClass fooClass = myFixture.findClass(packageName+(packageName.length()>0?".":"") + testSubjectClassName);
@@ -119,7 +57,7 @@ public class TestMeGeneratorTest extends LightCodeInsightFixtureTestCase /*JavaC
             @Override
             public void run() {
                 myFixture.openFileInEditor(fooClass.getContainingFile().getVirtualFile());
-                PsiElement result = new TestMeGenerator(new TestClassElementsLocator(), testTemplateContextBuilder).generateTest(new FileTemplateContext(new FileTemplateDescriptor("TestMe with JUnit4 & Mockito.java"), getProject(),
+                PsiElement result = new TestMeGenerator(new TestClassElementsLocator(), testTemplateContextBuilder).generateTest(new FileTemplateContext(new FileTemplateDescriptor(templateFilename), getProject(),
                         expectedTestClassName,
                         targetPackage,
                         myModule,
@@ -130,11 +68,12 @@ public class TestMeGeneratorTest extends LightCodeInsightFixtureTestCase /*JavaC
                         5, replaceFqn));
                 System.out.println("result:"+result);
                 String expectedTestClassFilePath = (packageName.length() > 0 ? (packageName.replace(".", "/") + "/") : "") + expectedTestClassName + ".java";
-                myFixture.checkResultByFile(/*"src/"+*/expectedTestClassFilePath,"test/"+expectedTestClassFilePath, false);
+                myFixture.checkResultByFile(/*"src/"+*/expectedTestClassFilePath, testDirectory + "/" +expectedTestClassFilePath, false);
             }
         }, CodeInsightBundle.message("intention.create.test"), this);
 
     }
+
     @Override
     public void setUp() throws Exception {
         super.setUp();
@@ -172,6 +111,7 @@ public class TestMeGeneratorTest extends LightCodeInsightFixtureTestCase /*JavaC
             }
         };
     }
+
     @NotNull
     private TestTemplateContextBuilder mockTestTemplateContextBuilder() {
         return new TestTemplateContextBuilder(){
@@ -190,8 +130,7 @@ public class TestMeGeneratorTest extends LightCodeInsightFixtureTestCase /*JavaC
             }
         };
     }
-
-//    @Override //relevant when JavaCodeInsightFixtureTestCase is used
+    //    @Override //relevant when JavaCodeInsightFixtureTestCase is used
 //    protected void tuneFixture(JavaModuleFixtureBuilder moduleBuilder) throws Exception {
 //        moduleBuilder.addJdk(new File(System.getProperty("java.home")).getParent());
 //    }

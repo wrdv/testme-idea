@@ -1,8 +1,8 @@
 package com.example.services.impl;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -10,7 +10,7 @@ import org.mockito.MockitoAnnotations;
 /**
  * created by TestMe integration test on MMXVI
  */
-public class FooTest {
+class FooTest {
     @Mock
     com.example.warriers.FooFighter fooFighter;
     @Mock
@@ -44,15 +44,15 @@ public class FooTest {
     @InjectMocks
     Foo foo;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         MockitoAnnotations.initMocks(this);
     }
 
     @Test
-    public void testFight() throws Exception {
+    void testFight() {
         String result = foo.fight(new com.example.foes.Fire(), "foeName");
-        Assert.assertEquals("replaceMeWithExpectedResult", result);
+        Assertions.assertEquals("replaceMeWithExpectedResult", result);
     }
 }
 

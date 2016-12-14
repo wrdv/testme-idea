@@ -1,40 +1,40 @@
 package com.example.services.impl;
 
 import com.example.foes.Fire;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 /** created by TestMe integration test on MMXVI */
-public class FooTest {
+class FooTest {
     //Field fooFighter of type FooFighter[] - was not mocked since Mockito doesn't mock arrays
     @InjectMocks
     Foo foo;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         MockitoAnnotations.initMocks(this);
     }
 
     @Test
-    public void testFight() throws Exception {
+    void testFight(){
         String[] result = foo.fight(new Fire[]{new Fire()}, new String[]{"foeName"}, new int[]{0});
-        Assert.assertArrayEquals(new String[]{"replaceMeWithExpectedResult"}, result);
+        Assertions.assertArrayEquals(new String[]{"replaceMeWithExpectedResult"}, result);
     }
 
     @Test
-    public void testFireStarter() throws Exception {
+    void testFireStarter(){
         Fire[] result = foo.fireStarter(new String[]{"foeName"}, new int[]{0});
-        Assert.assertArrayEquals(new Fire[]{new Fire()}, result);
+        Assertions.assertArrayEquals(new Fire[]{new Fire()}, result);
     }
 
     @Test
-    public void testFireCounter() throws Exception {
+    void testFireCounter(){
         int[] result = foo.fireCounter(new Fire[]{new Fire()});
-        Assert.assertArrayEquals(new int[]{0}, result);
+        Assertions.assertArrayEquals(new int[]{0}, result);
     }
 }
 

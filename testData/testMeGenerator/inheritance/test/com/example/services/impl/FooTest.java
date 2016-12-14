@@ -12,11 +12,11 @@ import org.mockito.MockitoAnnotations;
  */
 public class FooTest {
     @Mock
-    private com.example.warriers.FooFighter fooFighter;
+    com.example.warriers.FooFighter fooFighter;
     @Mock
-    private com.example.foes.Pokemon pokey;
+    com.example.foes.Pokemon pokey;
     @InjectMocks
-    private Foo foo;
+    Foo foo;
 
     @Before
     public void setUp() {

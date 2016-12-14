@@ -14,10 +14,10 @@ import org.mockito.MockitoAnnotations;
 /** created by TestMe integration test on MMXVI */
 public class FooTest {
     @Mock
-    private FooFighter fooFighter;
+    FooFighter fooFighter;
     //Field result of type Result - was not mocked since Mockito doesn't mock enums
     @InjectMocks
-    private Foo foo;
+    Foo foo;
 
     @Before
     public void setUp() {

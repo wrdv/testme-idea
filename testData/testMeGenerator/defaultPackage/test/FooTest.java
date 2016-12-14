@@ -11,9 +11,9 @@ import org.mockito.MockitoAnnotations;
  */
 public class FooTest {
     @Mock
-    private Hunter hunter;
+    Hunter hunter;
     @InjectMocks
-    private Foo foo;
+    Foo foo;
 
     @Before
     public void setUp() {

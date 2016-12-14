@@ -19,13 +19,13 @@ import java.util.Set;
 /** created by TestMe integration test on MMXVI */
 public class FooTest {
     @Mock
-    private Set<Ice> escimoRealEstate;
+    Set<Ice> escimoRealEstate;
     @Mock
-    private Map<Pokemon,List<Fire>> hotPokeys;
+    Map<Pokemon,List<Fire>> hotPokeys;
     @Mock
-    private FooFighter fooFighter;
+    FooFighter fooFighter;
     @InjectMocks
-    private Foo foo;
+    Foo foo;
 
     @Before
     public void setUp() {

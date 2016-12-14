@@ -81,7 +81,7 @@ $canonicalName##
 #foreach($field in $testedClassFields)
 #if(!${field.type.primitive} && !${field.finalType} && !${field.overridden} && !$field.type.array && !$field.type.enum)
     @Mock
-    private #resolveTypeName($field.type, {}) $field.name;
+    #resolveTypeName($field.type, {}) $field.name;
 #elseif(!$field.type.primitive && !($field.type.canonicalName == "java.lang.String") && $field.finalType && (!$field.static || !$field.final))
     //Field $field.name of type $field.type.name - was not mocked since Mockito doesn't mock a Final class
 #elseif($field.type.array && (!$field.static || !$field.final))

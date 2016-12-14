@@ -20,9 +20,9 @@ import java.util.GregorianCalendar;
  */
 public class FooTest {
     @Mock
-    private FooFighter fooFighter;
+    FooFighter fooFighter;
     @InjectMocks
-    private Foo foo;
+    Foo foo;
 
     @Before
     public void setUp() {
