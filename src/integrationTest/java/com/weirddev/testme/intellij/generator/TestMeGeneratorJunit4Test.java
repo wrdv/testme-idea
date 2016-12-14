@@ -73,6 +73,9 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
     public void testParamsConstructors() throws Exception {
         doTest(true, true, true);
     }
+    public void testMiscReplacementTypes() throws Exception {
+        doTest(true, true, true);
+    }
     //todo TC - use static init method when constructor not available. add default replacement for Class - Class.forName('?') (fqn of class under test?)
 
     // TODO assert caret position with <caret>
