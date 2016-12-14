@@ -2,7 +2,8 @@ package com.example.services.impl;
 
 import com.example.warriers.FooFighter;
 import com.example.foes.Fire;
-<caret>
+import com.example.warriers.impl.FooFighterImpl;
+
 public class Foo{
 
     private FooFighter fooFighter;
@@ -81,3 +82,4 @@ public class Foo{
     }
 
 }
+<caret>
