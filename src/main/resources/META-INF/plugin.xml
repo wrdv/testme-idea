@@ -35,7 +35,18 @@
   </project-components>
 
   <actions>
-    <!-- Add your actions here -->
+    <action id="testme.action.generators" class="com.weirddev.testme.intellij.action.TestMeGeneratorsAction"
+            text="&amp;TestMe..." description="TestMe Generators" icon="/icons/TestMe.png" >
+      <keyboard-shortcut first-keystroke="control shift M" keymap="$default" />
+      <add-to-group group-id="GenerateGroup" relative-to-action="GenerateCopyright" anchor="after" />
+      <add-to-group group-id="CodeMenu" anchor="first"/>
+    </action>
+    <!--<group id="testme.group.generators"-->
+           <!--class="com.weirddev.testme.intellij.action.TestGeneratorsGroupAction"-->
+           <!--popup="true"-->
+           <!--text="TestMe"-->
+           <!--icon="/icons/TestMe.png" description="TestMe test generators">-->
+      <!--<add-to-group group-id="GenerateGroup" relative-to-action="GenerateCopyright" anchor="after" />-->
+    <!--</group>-->
   </actions>
-
 </idea-plugin>
