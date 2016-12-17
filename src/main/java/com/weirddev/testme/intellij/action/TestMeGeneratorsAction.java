@@ -4,8 +4,8 @@ import com.intellij.codeInsight.generation.actions.BaseGenerateAction;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
-import com.weirddev.testme.intellij.GotoTestOrCodeHandlerExt;
 import com.weirddev.testme.intellij.GotoTestOrCodeHandlerFactory;
+import com.weirddev.testme.intellij.utils.TestSubjectResolverUtils;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -20,6 +20,6 @@ public class TestMeGeneratorsAction extends BaseGenerateAction {
 
     @Override
     protected boolean isValidForFile(@NotNull Project project, @NotNull Editor editor, @NotNull PsiFile file) {
-        return GotoTestOrCodeHandlerExt.isValidForTesting(editor, file);
+        return TestSubjectResolverUtils.isValidForTesting(editor, file);
     }
 }

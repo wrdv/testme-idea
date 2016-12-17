@@ -7,8 +7,8 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.testIntegration.JavaTestCreator;
 import com.intellij.util.IncorrectOperationException;
+import com.weirddev.testme.intellij.utils.TestSubjectResolverUtils;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Date: 10/18/2016
@@ -29,15 +29,10 @@ public class TestMeCreator {
     }
     private void invoke(@NotNull Project project, Editor editor, PsiFile file, String templateFilename) throws IncorrectOperationException {
         if (!file.getManager().isInProject(file)) return;
-        final PsiElement element = getElement(editor, file);
+        final PsiElement element = TestSubjectResolverUtils.getElement(editor, file);
         if (element != null) {
             new CreateTestMeAction(templateFilename).invoke(project, editor, element);
         }
     }
 
-    @Nullable
-    private PsiElement getElement(@NotNull Editor editor, @NotNull PsiFile file) {
-        PsiElement elementAtCaret = file.findElementAt(editor.getCaretModel().getOffset());
-        return elementAtCaret == null ? file.findElementAt(0) : elementAtCaret;
-    }
 }

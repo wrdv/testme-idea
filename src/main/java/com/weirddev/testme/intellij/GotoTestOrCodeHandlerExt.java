@@ -4,11 +4,12 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiNamedElement;
 import com.intellij.testIntegration.GotoTestOrCodeHandler;
 import com.intellij.testIntegration.TestFinderHelper;
-import com.intellij.testIntegration.createTest.CreateTestAction;
 import com.weirddev.testme.TestMeBundle;
 import com.weirddev.testme.intellij.icon.Icons;
+import com.weirddev.testme.intellij.utils.TestSubjectResolverUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,6 +24,7 @@ public class GotoTestOrCodeHandlerExt extends GotoTestOrCodeHandler {
     private final TestMeCreator testMeCreator;
     private TemplateRegistry templateRegistry;
     private boolean testMeOnlyMode;
+    private String altenativeSourceName;
 
     public GotoTestOrCodeHandlerExt(boolean supportIconTokens, boolean testMeOnlyMode) {
         this(new TestMeCreator(), supportIconTokens,new TemplateRegistry());
@@ -40,11 +42,23 @@ public class GotoTestOrCodeHandlerExt extends GotoTestOrCodeHandler {
     protected GotoData getSourceAndTargetElements(final Editor editor, final PsiFile file) {
         GotoData sourceAndTargetElements = super.getSourceAndTargetElements(editor, file);
         if (sourceAndTargetElements == null) return null;
-        if (isValidForTesting(editor, file)) {
+        if (TestSubjectResolverUtils.isValidForTesting(editor, file)) {
             List<TemplateDescriptor> templateDescriptors = templateRegistry.getTemplateDescriptors();
+            altenativeSourceName = null;
             if (testMeOnlyMode) {
                 sourceAndTargetElements.targets = new PsiElement[]{};
                 sourceAndTargetElements.additionalActions.clear();
+                PsiElement element = TestSubjectResolverUtils.getElement(editor, file);
+                if (element != null) {
+                    PsiClass containingClass = CreateTestMeAction.getContainingClass(element);
+                    if (containingClass != null) {
+                        final String name = ((PsiNamedElement)sourceAndTargetElements.source).getName();
+                        if (containingClass.getName()!=null && !containingClass.getName().equals(name)) {
+                            //todo remove refactor and temp WA and don't store this on the instance
+                            altenativeSourceName = containingClass.getName();
+                        }
+                    }
+                }
             }
             int index=0;
             for (final TemplateDescriptor templateDescriptor : templateDescriptors) {//todo pull anonymous class up
@@ -59,19 +73,12 @@ public class GotoTestOrCodeHandlerExt extends GotoTestOrCodeHandler {
         return sourceAndTargetElements;
     }
 
-    public static boolean isValidForTesting(Editor editor, PsiFile file) {
-        PsiElement selectedElement = getSelectedElement(editor, file);
-        return !TestFinderHelper.isTest(selectedElement) && CreateTestAction.isAvailableForElement(selectedElement);
-    }
-
     @NotNull
     @Override
     protected String getChooserTitle(PsiElement sourceElement, String name, int length) {
         if (testMeOnlyMode) {
 //            todo  remove pin
-//            PsiClass containingClass = PsiTreeUtil.getParentOfType(sourceElement, PsiClass.class, false);
-            PsiClass containingClass = CreateTestMeAction.getContainingClass(sourceElement);
-            return TestMeBundle.message("testMe.create.title", containingClass!=null?containingClass.getName():name);
+            return TestMeBundle.message("testMe.create.title", altenativeSourceName!=null?altenativeSourceName:name);
         } else if (!TestFinderHelper.isTest(sourceElement) && length==0) {
             // todo  remove pin or place back default text
             return TestMeBundle.message("goto.test.create.title", name);
