@@ -1,6 +1,9 @@
 package com.weirddev.testme.intellij;
 
 import com.intellij.codeInsight.navigation.GotoTargetHandler;
+import com.intellij.openapi.editor.Editor;
+import com.intellij.psi.PsiFile;
+import com.weirddev.testme.intellij.icon.Icons;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -10,14 +13,20 @@ import javax.swing.*;
  *
  * @author Yaron Yamin
  */
-public abstract class TestMeAdditionalAction implements GotoTargetHandler.AdditionalAction {
+public class TestMeAdditionalAction implements GotoTargetHandler.AdditionalAction {
 
-    private String text;
-    private Icon icon;
+    private final TemplateDescriptor templateDescriptor;
+    private final Editor editor;
+    private final PsiFile file;
+    private final String text;
+    private final TestMeCreator testMeCreator;
 
-    public TestMeAdditionalAction(String text, Icon icon) {
-        this.text = text;
-        this.icon = icon;
+    public TestMeAdditionalAction(boolean supportIconTokens, TemplateDescriptor templateDescriptor, Editor editor, PsiFile file) {
+        this.templateDescriptor = templateDescriptor;
+        this.editor = editor;
+        this.file = file;
+        this.text = supportIconTokens? templateDescriptor.getTokenizedDisplayName():templateDescriptor.getDisplayName();
+        testMeCreator = new TestMeCreator();
     }
 
     @NotNull
@@ -28,6 +37,11 @@ public abstract class TestMeAdditionalAction implements GotoTargetHandler.Additi
 
     @Override
     public Icon getIcon() {
-        return icon;
+        return Icons.TEST_ME;
+    }
+
+    @Override
+    public void execute() {
+        testMeCreator.createTest(editor, file, templateDescriptor.getFilename());
     }
 }
