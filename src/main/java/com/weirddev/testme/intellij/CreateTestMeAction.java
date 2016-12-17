@@ -97,7 +97,7 @@ public class CreateTestMeAction extends CreateTestAction {
      * base method used to be private in IJ 14
      */
     @Nullable
-    protected static PsiClass getContainingClass(PsiElement element) {
+    public static PsiClass getContainingClass(PsiElement element) {
         final PsiClass psiClass = PsiTreeUtil.getParentOfType(element, PsiClass.class, false);
         if (psiClass == null) {
             final PsiFile containingFile = element.getContainingFile();

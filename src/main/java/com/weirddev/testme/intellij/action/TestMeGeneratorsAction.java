@@ -1,10 +1,12 @@
 package com.weirddev.testme.intellij.action;
 
 import com.intellij.codeInsight.generation.actions.BaseGenerateAction;
-import com.intellij.psi.PsiAnonymousClass;
-import com.intellij.psi.PsiClass;
-import com.intellij.testIntegration.TestFinderHelper;
+import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.project.Project;
+import com.intellij.psi.PsiFile;
+import com.weirddev.testme.intellij.GotoTestOrCodeHandlerExt;
 import com.weirddev.testme.intellij.GotoTestOrCodeHandlerFactory;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Date: 16/12/2016
@@ -17,9 +19,7 @@ public class TestMeGeneratorsAction extends BaseGenerateAction {
     }
 
     @Override
-    protected boolean isValidForClass(PsiClass targetClass) {
-        return super.isValidForClass(targetClass) && !(targetClass instanceof PsiAnonymousClass)&& !TestFinderHelper.isTest(targetClass);
-        //todo defect: should work if invoked outside class
-        //todo add more conditions and match conditions on goto test validation
+    protected boolean isValidForFile(@NotNull Project project, @NotNull Editor editor, @NotNull PsiFile file) {
+        return GotoTestOrCodeHandlerExt.isValidForTesting(editor, file);
     }
 }

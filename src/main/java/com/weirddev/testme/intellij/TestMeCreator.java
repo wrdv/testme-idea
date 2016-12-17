@@ -5,9 +5,7 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import com.intellij.testIntegration.GotoTestOrCodeHandler;
 import com.intellij.testIntegration.JavaTestCreator;
-import com.intellij.testIntegration.createTest.CreateTestAction;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -23,10 +21,7 @@ public class TestMeCreator {
 
     public void createTest(Editor editor, PsiFile file, String templateFilename) {
         try {
-            PsiElement element = GotoTestOrCodeHandler.getSelectedElement(editor, file);
-            if (CreateTestAction.isAvailableForElement(element)) {
                 invoke(file.getProject(), editor, file.getContainingFile(),templateFilename);
-            }
         }
         catch (IncorrectOperationException e) {
             LOG.warn(e);
