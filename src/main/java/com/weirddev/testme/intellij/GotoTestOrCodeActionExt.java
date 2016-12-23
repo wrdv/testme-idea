@@ -13,6 +13,6 @@ public class GotoTestOrCodeActionExt extends GotoTestOrCodeAction {
     @NotNull
     @Override
     protected CodeInsightActionHandler getHandler() {
-        return GotoTestOrCodeHandlerFactory.create(false);
+        return new GotoTestOrCodeHandlerExt();
     }
 }

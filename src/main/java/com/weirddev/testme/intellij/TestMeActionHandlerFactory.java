@@ -10,24 +10,24 @@ import java.lang.reflect.Field;
  *
  * @author Yaron Yamin
  */
-public class GotoTestOrCodeHandlerFactory {
-    private static final Logger LOG = Logger.getInstance(GotoTestOrCodeActionExt.class.getName());
-    public static GotoTestOrCodeHandlerExt create(boolean testMeOnlyMode) {
-        GotoTestOrCodeHandlerExt gotoTestOrCodeHandlerExt = new GotoTestOrCodeHandlerExt(true,testMeOnlyMode);
+public class TestMeActionHandlerFactory {
+    private static final Logger LOG = Logger.getInstance(TestMeActionHandlerFactory.class.getName());
+    public static TestMeActionHandler create() {
+        TestMeActionHandler testMeActionHandler = new TestMeActionHandler();
 
         try {
             Field f = getAssignableFieldFor(TestMeActionCellRenderer.class);
             if (f == null) {
                 LOG.warn("Unable to find field. TestMe plugin should get by without it, but some features might not be available for this IDEA version");
-                return new GotoTestOrCodeHandlerExt(false,testMeOnlyMode);
+                return new TestMeActionHandler();
             } else {
                 f.setAccessible(true);
-                f.set(gotoTestOrCodeHandlerExt, new TestMeActionCellRenderer());
-                return gotoTestOrCodeHandlerExt;
+                f.set(testMeActionHandler, new TestMeActionCellRenderer());
+                return testMeActionHandler;
             }
         } catch (IllegalAccessException e) {
             LOG.warn(e);
-            return new GotoTestOrCodeHandlerExt(false,testMeOnlyMode);
+            return new TestMeActionHandler();
         }
     }
     private static Field getAssignableFieldFor(Class cls) {
