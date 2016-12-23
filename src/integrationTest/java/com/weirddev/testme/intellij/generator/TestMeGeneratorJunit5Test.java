@@ -8,7 +8,7 @@ package com.weirddev.testme.intellij.generator;
 public class TestMeGeneratorJunit5Test extends TestMeGeneratorTestBase {
 
     public TestMeGeneratorJunit5Test() {
-        super("TestMe with JUnit5 & Mockito.java", "testJunit5");
+        super(TEST_ME_WITH_JUNIT5_MOCKITO_JAVA, "testJunit5");
     }
 
     public void testSimpleClass() throws Exception {

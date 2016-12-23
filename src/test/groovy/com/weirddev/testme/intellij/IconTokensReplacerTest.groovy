@@ -9,13 +9,13 @@ import com.weirddev.testme.intellij.icon.Icons
  * @author Yaron Yamin
  */
 class IconTokensReplacerTest extends GroovyTestCase {
-    private String text = "TestMe w/ <JUnit>JUnit4 & <Mockito>Mockito"
+    private String text = "TestMe w/ <JUnit4>JUnit4 & <Mockito>Mockito"
 
     void testStripTokens() {
       assert "TestMe w/ JUnit4 & Mockito" == new IconTokensReplacerImpl().stripTokens(text)
     }
 
     void testTokenize() {
-        assert [new IconizedLabel("TestMe w/ ",Icons.TEST_ME), new IconizedLabel("JUnit4 & ",IconTokensReplacerImpl.token2Icon.get("JUnit")), new IconizedLabel("Mockito",IconTokensReplacerImpl.token2Icon.get("Mockito"))] == new IconTokensReplacerImpl().tokenize(text, Icons.TEST_ME)
+        assert [new IconizedLabel("TestMe w/ ",Icons.TEST_ME), new IconizedLabel("JUnit4 & ",IconTokensReplacerImpl.token2Icon.get("JUnit4")), new IconizedLabel("Mockito",IconTokensReplacerImpl.token2Icon.get("Mockito"))] == new IconTokensReplacerImpl().tokenize(text, Icons.TEST_ME)
     }
 }

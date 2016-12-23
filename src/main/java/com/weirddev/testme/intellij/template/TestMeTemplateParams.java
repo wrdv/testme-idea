@@ -18,6 +18,7 @@ public interface TestMeTemplateParams {
     //    String ourEncoding = CharsetToolkit.UTF8;
 
     String TESTED_CLASS_NAME = "TESTED_CLASS_NAME";
+    String TESTED_CLASS_QNAME = "TESTED_CLASS_QNAME"; //tested class qualified name
     String TESTED_CLASS_METHODS = "TESTED_CLASS_METHODS";
     String TESTED_CLASS_FIELDS = "TESTED_CLASS_FIELDS";
 

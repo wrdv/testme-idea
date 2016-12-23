@@ -11,7 +11,7 @@ public class TestClassElementsLocator {
     }
 
     public PsiElement findOptimalCursorLocation(PsiClass targetClass) {
-        PsiElement defaultLocation = targetClass.getLBrace()==null?targetClass.getLBrace():targetClass.getLBrace().getNextSibling();
+        PsiElement defaultLocation = targetClass.getLBrace()==null?null:targetClass.getLBrace().getNextSibling();
         PsiMethod testMethod = findTestMethod(targetClass);
         if (testMethod == null) {
             return defaultLocation;

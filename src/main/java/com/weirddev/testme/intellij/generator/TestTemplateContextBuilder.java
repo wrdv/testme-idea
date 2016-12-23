@@ -29,6 +29,7 @@ public class TestTemplateContextBuilder {
         final PsiClass targetClass = context.getSrcClass();
         if (targetClass != null && targetClass.isValid()) {
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_NAME, targetClass.getName());
+            ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_QNAME, targetClass.getQualifiedName());
             List<Field> fields = createFields(context);
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_FIELDS, fields);
             int maxRecursionDepth = context.getMaxRecursionDepth();
