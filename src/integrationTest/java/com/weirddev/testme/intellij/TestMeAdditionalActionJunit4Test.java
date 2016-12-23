@@ -24,6 +24,12 @@ public class TestMeAdditionalActionJunit4Test extends BaseIJIntegrationTest {
     public void testInnerStaticClass() throws Exception {
         doTest("InnerStaticClassTest", new VisualPosition(13, 44));
     }
+/*
+    todo - implement feature - test subject is a non static nested class
+    public void testInnerClass() throws Exception {
+        doTest("PublicInnerClassTest", new VisualPosition(13, 44));
+    }
+*/
 
     private void doTest(String expectedTestClassName, VisualPosition expectedCaretPosition) {
         doTest("com.example.services.impl", "Foo", expectedTestClassName, expectedCaretPosition);

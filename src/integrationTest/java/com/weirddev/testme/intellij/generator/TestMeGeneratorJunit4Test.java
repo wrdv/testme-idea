@@ -78,8 +78,5 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
     }
     //todo TC - use static init method when constructor not available. add default replacement for Class - Class.forName('?') (fqn of class under test?)
 
-    // TODO assert caret position with <caret>
-
-    // TODO TC different test target dir
-
+     // TODO TC different test target dir
 }
