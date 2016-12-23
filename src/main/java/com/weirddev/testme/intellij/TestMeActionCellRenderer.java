@@ -1,6 +1,5 @@
 package com.weirddev.testme.intellij;
 
-import com.intellij.codeInsight.navigation.GotoTargetHandler;
 import com.weirddev.testme.intellij.icon.IconTokensReplacer;
 import com.weirddev.testme.intellij.icon.IconTokensReplacerImpl;
 import com.weirddev.testme.intellij.icon.IconizedLabel;
@@ -22,8 +21,8 @@ public class TestMeActionCellRenderer extends DefaultListCellRenderer {
     public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
         Component result = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
         if (value != null) {
-            GotoTargetHandler.AdditionalAction action = (GotoTargetHandler.AdditionalAction) value;
-            if (action instanceof TestMeAdditionalAction) {
+            if (value instanceof TestMeAdditionalAction) {
+                TestMeAdditionalAction action = (TestMeAdditionalAction) value;
                 JPanel jPanel = createPanel(list, isSelected);
                 ArrayList<IconizedLabel> iconizedLabels = iconTokensReplacer.tokenize(action.getText(),action.getIcon());
                 for (int i = 0; i < iconizedLabels.size(); i++) {
@@ -37,9 +36,6 @@ public class TestMeActionCellRenderer extends DefaultListCellRenderer {
                     }
                 }
                 return jPanel;
-            } else {
-                setText(action.getText());
-                setIcon(action.getIcon());
             }
         }
         return result;

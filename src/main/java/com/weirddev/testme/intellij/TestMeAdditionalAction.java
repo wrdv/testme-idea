@@ -1,6 +1,5 @@
 package com.weirddev.testme.intellij;
 
-import com.intellij.codeInsight.navigation.GotoTargetHandler;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.psi.PsiFile;
 import com.weirddev.testme.intellij.icon.Icons;
@@ -13,7 +12,7 @@ import javax.swing.*;
  *
  * @author Yaron Yamin
  */
-public class TestMeAdditionalAction implements GotoTargetHandler.AdditionalAction {
+public class TestMeAdditionalAction implements TestMePopUpHandler.AdditionalAction {
 
     private final TemplateDescriptor templateDescriptor;
     private final Editor editor;

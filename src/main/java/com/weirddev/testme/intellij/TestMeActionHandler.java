@@ -1,7 +1,6 @@
 package com.weirddev.testme.intellij;
 
 import com.intellij.codeInsight.CodeInsightBundle;
-import com.intellij.codeInsight.navigation.GotoTargetHandler;
 import com.intellij.codeInsight.navigation.NavigationUtil;
 import com.intellij.execution.executors.DefaultRunExecutor;
 import com.intellij.openapi.actionSystem.Shortcut;
@@ -31,7 +30,7 @@ import java.util.List;
  * @author Yaron Yamin
  * @see GotoTestOrCodeHandler
  */
-public class TestMeActionHandler extends GotoTargetHandler {
+public class TestMeActionHandler extends TestMePopUpHandler {
     private TemplateRegistry templateRegistry;
     private String alternativeSourceName;
 
