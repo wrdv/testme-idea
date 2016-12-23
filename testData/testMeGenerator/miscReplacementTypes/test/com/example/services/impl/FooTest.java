@@ -17,6 +17,7 @@ import java.io.File;
 public class FooTest {
     @Mock
     FooFighter fooFighter;
+    //Field clazz of type Class - was not mocked since Mockito doesn't mock a Final class
     @InjectMocks
     Foo foo;
 
@@ -29,6 +30,12 @@ public class FooTest {
     public void testFight() throws Exception {
         File result = foo.fight(new Fire(), new File(getClass().getResource("/com/example/services/impl/PleaseReplaceMeWithTestFile.txt").getFile()));
         Assert.assertEquals(new File(getClass().getResource("/com/example/services/impl/PleaseReplaceMeWithTestFile.txt").getFile()), result);
+    }
+
+    @Test
+    public void testStudy() throws Exception {
+        Class result = foo.study(Class.forName("com.example.services.impl.Foo"));
+        Assert.assertEquals(Class.forName("com.example.services.impl.Foo"), result);
     }
 }
 
