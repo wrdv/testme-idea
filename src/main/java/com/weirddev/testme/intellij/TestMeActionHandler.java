@@ -32,7 +32,6 @@ import java.util.List;
  */
 public class TestMeActionHandler extends TestMePopUpHandler {
     private TemplateRegistry templateRegistry;
-    private String alternativeSourceName;
 
     public TestMeActionHandler() {
         this(new TemplateRegistry());
@@ -48,18 +47,7 @@ public class TestMeActionHandler extends TestMePopUpHandler {
         PsiElement sourceElement = TestFinderHelper.findSourceElement(getSelectedElement(editor, file));
         if (sourceElement == null) return null;
         List<AdditionalAction> actions = new SmartList<AdditionalAction>();
-        alternativeSourceName = null;
-        PsiElement element = TestSubjectResolverUtils.getElement(editor, file);
-        if (element != null) {
-            PsiClass containingClass = CreateTestMeAction.getContainingClass(element);
-            if (containingClass != null) {
-                final String name = ((PsiNamedElement)sourceElement).getName();
-                if (containingClass.getName()!=null && !containingClass.getName().equals(name)) {
-                    //todo remove refactor and temp WA and don't store this on the instance
-                    alternativeSourceName = containingClass.getName();
-                }
-            }
-        }
+        findNestedClassName(editor, file, (PsiNamedElement) sourceElement);
         List<TemplateDescriptor> templateDescriptors = templateRegistry.getTemplateDescriptors();
         for (final TemplateDescriptor templateDescriptor : templateDescriptors) {
             actions.add(new TestMeAdditionalAction(templateDescriptor, editor, file) );
@@ -69,9 +57,26 @@ public class TestMeActionHandler extends TestMePopUpHandler {
 
     @NotNull
     @Override
-    protected String getChooserTitle(PsiElement sourceElement, String name, int length) {
+    protected String getChooserTitle(Editor editor, PsiFile file, PsiElement sourceElement) {
+        PsiNamedElement namedElement = (PsiNamedElement) sourceElement;
+        final String name = namedElement.getName();
+        String nestedClassName = findNestedClassName(editor, file, namedElement);
+        return TestMeBundle.message("testMe.create.title", nestedClassName !=null? nestedClassName :name);
+    }
 
-        return TestMeBundle.message("testMe.create.title", alternativeSourceName !=null? alternativeSourceName :name);
+    private String findNestedClassName(Editor editor, PsiFile file, PsiNamedElement sourceElement) {
+        String alternativeSourceName = null;
+        PsiElement element = TestSubjectResolverUtils.getElement(editor, file);
+        if (element != null) {
+            PsiClass containingClass = CreateTestMeAction.getContainingClass(element);
+            if (containingClass != null) {
+                final String name = sourceElement.getName();
+                if (containingClass.getName()!=null && !containingClass.getName().equals(name)) {
+                    alternativeSourceName = containingClass.getName();
+                }
+            }
+        }
+        return alternativeSourceName;
     }
 
     @Override
@@ -84,17 +89,6 @@ public class TestMeActionHandler extends TestMePopUpHandler {
         return PsiUtilCore.getElementAtOffset(file, editor.getCaretModel().getOffset());
     }
 
-    @Override
-    protected boolean shouldSortTargets() {
-        return false;
-    }
-
-    @NotNull
-    @Override
-    protected String getFindUsagesTitle(PsiElement sourceElement, String name, int length) {
-        //todo remove after pin feature removed
-        return CodeInsightBundle.message("goto.test.findUsages.test.title", name);
-    }
 
     @NotNull
     @Override

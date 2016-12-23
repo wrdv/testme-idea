@@ -5,7 +5,6 @@ import com.intellij.codeInsight.CodeInsightActionHandler;
 import com.intellij.codeInsight.hint.HintManager;
 import com.intellij.codeInsight.navigation.ListBackgroundUpdaterTask;
 import com.intellij.featureStatistics.FeatureUsageTracker;
-import com.intellij.find.FindUtil;
 import com.intellij.ide.util.EditSourceUtil;
 import com.intellij.ide.util.PsiElementListCellRenderer;
 import com.intellij.navigation.ItemPresentation;
@@ -29,7 +28,6 @@ import com.intellij.ui.popup.AbstractPopup;
 import com.intellij.ui.popup.HintUpdateSupply;
 import com.intellij.usages.UsageView;
 import com.intellij.util.Function;
-import com.intellij.util.Processor;
 import com.intellij.util.containers.HashSet;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -37,8 +35,10 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.*;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public abstract class TestMePopUpHandler implements CodeInsightActionHandler {
   private static final PsiElementListCellRenderer ourDefaultTargetElementRenderer = new DefaultPsiElementListCellRenderer();
@@ -51,16 +51,16 @@ public abstract class TestMePopUpHandler implements CodeInsightActionHandler {
 
   @Override
   public void invoke(@NotNull Project project, @NotNull Editor editor, @NotNull PsiFile file) {
-    FeatureUsageTracker.getInstance().triggerFeatureUsed(getFeatureUsedKey());
+    FeatureUsageTracker.getInstance().triggerFeatureUsed(getFeatureUsedKey()); //todo check if this should functionality be preserved
 
     try {
       GotoData gotoData = getSourceAndTargetElements(editor, file);
-      if (gotoData != null && gotoData.source != null) {
+      if (gotoData != null) {
         show(project, editor, file, gotoData);
       }
     }
     catch (IndexNotReadyException e) {
-      DumbService.getInstance(project).showDumbModeNotification("Navigation is not available here during index update");
+      DumbService.getInstance(project).showDumbModeNotification("Test Generation is not available here during index update");
     }
   }
 
@@ -74,38 +74,29 @@ public abstract class TestMePopUpHandler implements CodeInsightActionHandler {
                     @NotNull Editor editor,
                     @NotNull PsiFile file,
                     @NotNull final GotoData gotoData) {
-    final PsiElement[] targets = gotoData.targets;
+//    final PsiElement[] targets = gotoData.targets;
     final List<AdditionalAction> additionalActions = gotoData.additionalActions;
 
-    if (targets.length == 0 && additionalActions.isEmpty()) {
+    if (additionalActions.isEmpty()) {
       HintManager.getInstance().showErrorHint(editor, getNotFoundMessage(project, editor, file));
-      return;
-    }
-
-    if (targets.length == 1 && additionalActions.isEmpty()) {
-      Navigatable descriptor = targets[0] instanceof Navigatable ? (Navigatable)targets[0] : EditSourceUtil.getDescriptor(targets[0]);
-      if (descriptor != null && descriptor.canNavigate()) {
-        navigateToElement(descriptor);
-      }
       return;
     }
 
 //    for (PsiElement eachTarget : targets) {
 //      gotoData.renderers.put(eachTarget, createRenderer(gotoData, eachTarget));
 //    }
+    final String title = getChooserTitle(editor, file, gotoData.source);
 
-    final String name = ((PsiNamedElement)gotoData.source).getName();
-    final String title = getChooserTitle(gotoData.source, name, targets.length);
+//    if (shouldSortTargets()) {
+//      Arrays.sort(targets, createComparator(gotoData.renderers, gotoData));
+//    }
 
-    if (shouldSortTargets()) {
-      Arrays.sort(targets, createComparator(gotoData.renderers, gotoData));
-    }
+//    List<Object> allElements = new ArrayList<Object>(targets.length + additionalActions.size());
+//    Collections.addAll(allElements, targets);
+//    allElements.addAll(additionalActions);
 
-    List<Object> allElements = new ArrayList<Object>(targets.length + additionalActions.size());
-    Collections.addAll(allElements, targets);
-    allElements.addAll(additionalActions);
-
-    final JBListWithHintProvider list = new JBListWithHintProvider(new CollectionListModel<Object>(allElements)) {
+//    final JBListWithHintProvider list = new JBListWithHintProvider(new CollectionListModel<Object>(allElements)) {
+    final JBListWithHintProvider list = new JBListWithHintProvider(new CollectionListModel<Object>(additionalActions)) {
       @Override
       protected PsiElement getPsiElementForHint(final Object selectedValue) {
         return selectedValue instanceof PsiElement ? (PsiElement) selectedValue : null;
@@ -142,7 +133,7 @@ public abstract class TestMePopUpHandler implements CodeInsightActionHandler {
               }
             }
             catch (IndexNotReadyException e) {
-              DumbService.getInstance(project).showDumbModeNotification("Navigation is not available while indexing");
+              DumbService.getInstance(project).showDumbModeNotification("Test Generation is not available while indexing");
             }
           }
         }
@@ -172,15 +163,15 @@ public abstract class TestMePopUpHandler implements CodeInsightActionHandler {
           return true;
         }
       }).
-      setCouldPin(new Processor<JBPopup>() {
-        @Override
-        public boolean process(JBPopup popup) {
-          usageView.set(FindUtil.showInUsageView(gotoData.source, gotoData.targets, getFindUsagesTitle(gotoData.source, name, gotoData.targets.length), project));
-          popup.cancel();
-          return false;
-        }
-      }).
-      setAdText(getAdText(gotoData.source, targets.length)).
+//      setCouldPin(new Processor<JBPopup>() {
+//        @Override
+//        public boolean process(JBPopup popup) {
+//          usageView.set(FindUtil.showInUsageView(gotoData.source, gotoData.targets, getFindUsagesTitle(gotoData.source), project));
+//          popup.cancel();
+//          return false;
+//        }
+//      }).
+      setAdText(getAdText(gotoData.source, 0/*targets.length*/)).
       createPopup();
     if (gotoData.listUpdaterTask != null) {
       gotoData.listUpdaterTask.init((AbstractPopup)popup, list, usageView);
@@ -204,19 +195,19 @@ public abstract class TestMePopUpHandler implements CodeInsightActionHandler {
     }
   }
 
-  protected static Comparator<PsiElement> createComparator(final Map<Object, PsiElementListCellRenderer> targetsWithRenderers,
-                                                           final GotoData gotoData) {
-    return new Comparator<PsiElement>() {
-      @Override
-      public int compare(PsiElement o1, PsiElement o2) {
-        return getComparingObject(o1).compareTo(getComparingObject(o2));
-      }
-
-      private Comparable getComparingObject(PsiElement o1) {
-        return getRenderer(o1, targetsWithRenderers, gotoData).getComparingObject(o1);
-      }
-    };
-  }
+//  protected static Comparator<PsiElement> createComparator(final Map<Object, PsiElementListCellRenderer> targetsWithRenderers,
+//                                                           final GotoData gotoData) {
+//    return new Comparator<PsiElement>() {
+//      @Override
+//      public int compare(PsiElement o1, PsiElement o2) {
+//        return getComparingObject(o1).compareTo(getComparingObject(o2));
+//      }
+//
+//      private Comparable getComparingObject(PsiElement o1) {
+//        return getRenderer(o1, targetsWithRenderers, gotoData).getComparingObject(o1);
+//      }
+//    };
+//  }
 
 //  protected static PsiElementListCellRenderer createRenderer(GotoData gotoData, PsiElement eachTarget) {
 //    PsiElementListCellRenderer renderer = null;
@@ -235,16 +226,16 @@ public abstract class TestMePopUpHandler implements CodeInsightActionHandler {
     descriptor.navigate(true);
   }
 
-  protected boolean shouldSortTargets() {
-    return true;
-  }
+//  protected boolean shouldSortTargets() {
+//    return true;
+//  }
 
   @NotNull
-  protected abstract String getChooserTitle(PsiElement sourceElement, String name, int length);
-  @NotNull
-  protected String getFindUsagesTitle(PsiElement sourceElement, String name, int length) {
-    return getChooserTitle(sourceElement, name, length);
-  }
+  protected abstract String getChooserTitle(Editor editor, PsiFile file, PsiElement sourceElement);
+//  @NotNull
+//  protected String getFindUsagesTitle(PsiElement sourceElement, String name, int length) {
+//    return getChooserTitle(sourceElement, name, length);
+//  }
 
   @NotNull
   protected abstract String getNotFoundMessage(@NotNull Project project, @NotNull Editor editor, @NotNull PsiFile file);
@@ -275,7 +266,7 @@ public abstract class TestMePopUpHandler implements CodeInsightActionHandler {
 
     public GotoData(@NotNull PsiElement source, @NotNull PsiElement[] targets, @NotNull List<AdditionalAction> additionalActions) {
       this.source = source;
-      this.targets = targets;
+      this.targets = targets;  //todo remove targets
       this.additionalActions = additionalActions;
 
       myNames = new HashSet<String>();
@@ -343,16 +334,16 @@ public abstract class TestMePopUpHandler implements CodeInsightActionHandler {
     }
   }
 
-  private static class ActionCellRenderer extends DefaultListCellRenderer {
-    @Override
-    public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-      Component result = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-      if (value != null) {
-        AdditionalAction action = (AdditionalAction)value;
-        setText(action.getText());
-        setIcon(action.getIcon());
-      }
-      return result;
-    }
-  }
+//  private static class ActionCellRenderer extends DefaultListCellRenderer {
+//    @Override
+//    public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+//      Component result = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+//      if (value != null) {
+//        AdditionalAction action = (AdditionalAction)value;
+//        setText(action.getText());
+//        setIcon(action.getIcon());
+//      }
+//      return result;
+//    }
+//  }
 }
