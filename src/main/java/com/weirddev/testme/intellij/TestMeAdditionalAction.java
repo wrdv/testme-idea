@@ -21,11 +21,11 @@ public class TestMeAdditionalAction implements GotoTargetHandler.AdditionalActio
     private final String text;
     private final TestMeCreator testMeCreator;
 
-    public TestMeAdditionalAction(boolean supportIconTokens, TemplateDescriptor templateDescriptor, Editor editor, PsiFile file) {
+    public TestMeAdditionalAction(TemplateDescriptor templateDescriptor, Editor editor, PsiFile file) {
         this.templateDescriptor = templateDescriptor;
         this.editor = editor;
         this.file = file;
-        this.text = supportIconTokens? templateDescriptor.getTokenizedDisplayName():templateDescriptor.getDisplayName();
+        this.text = templateDescriptor.getTokenizedDisplayName();
         testMeCreator = new TestMeCreator();
     }
 
