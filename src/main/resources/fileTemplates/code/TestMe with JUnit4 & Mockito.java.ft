@@ -17,10 +17,11 @@ public class ${CLASS_NAME} {
     @InjectMocks
     $TESTED_CLASS_QNAME $StringUtils.deCapitalizeFirstLetter($TESTED_CLASS_NAME);
 #else
-    $TESTED_CLASS_QNAME $StringUtils.deCapitalizeFirstLetter($TESTED_CLASS_NAME)=new ${TESTED_CLASS_NAME}();
-#end
 
+    $TESTED_CLASS_QNAME $StringUtils.deCapitalizeFirstLetter($TESTED_CLASS_NAME)=new $TESTED_CLASS_QNAME();
+#end
 #if(!$TESTED_CLASS_FIELDS.isEmpty())
+
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);

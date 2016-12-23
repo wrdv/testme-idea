@@ -38,12 +38,12 @@ public class Foo{
     };
 
     public static class InnerStaticClass{
-        public void methodOfInnerClass(){
+        public void methodOfInnerClass(){ <caret>
 
         }
     }
     public static class InnerStaticClassWithMember{
-        FooFighter innerFooFighter;<caret>
+        FooFighter innerFooFighter;
         public String methodOfInnerClass(Fire fire) {
             return innerFooFighter.fight(fire);
         }

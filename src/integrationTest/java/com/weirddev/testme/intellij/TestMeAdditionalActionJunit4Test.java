@@ -18,8 +18,11 @@ public class TestMeAdditionalActionJunit4Test extends BaseIJIntegrationTest {
         super(TEST_ME_WITH_JUNIT4_MOCKITO_JAVA, "test", "testData/testMeAdditionalAction/");
     }
 
-    public void testInnerStaticClass() throws Exception {
+    public void testInnerStaticClassWithMember() throws Exception {
         doTest("InnerStaticClassWithMemberTest", new VisualPosition(28, 28));
+    }
+    public void testInnerStaticClass() throws Exception {
+        doTest("InnerStaticClassTest", new VisualPosition(13, 44));
     }
 
     private void doTest(String expectedTestClassName, VisualPosition expectedCaretPosition) {
