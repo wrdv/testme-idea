@@ -52,7 +52,7 @@ public class TestMeActionHandler extends TestMePopUpHandler {
         for (final TemplateDescriptor templateDescriptor : templateDescriptors) {
             actions.add(new TestMeAdditionalAction(templateDescriptor, editor, file) );
         }
-        return new GotoData(sourceElement, new PsiElement[]{}, actions);
+        return new GotoData(sourceElement, actions);
     }
 
     @NotNull
@@ -81,7 +81,7 @@ public class TestMeActionHandler extends TestMePopUpHandler {
 
     @Override
     protected String getFeatureUsedKey() {
-        return "testMe.generate.test"; //todo - is this useful? see lazyLoadFromPluginsFeaturesProviders()
+        return "TestMe.generate.test"; //todo - map key.see lazyLoadFromPluginsFeaturesProviders()
     }
 
     @NotNull
@@ -98,7 +98,7 @@ public class TestMeActionHandler extends TestMePopUpHandler {
 
     @Nullable
     @Override
-    protected String getAdText(PsiElement source, int length) {//todo adapt after introducing generate and run functionality? currently will not be called since targets.length == 0
+    protected String getAdText(PsiElement source, int length) {//todo might be useful for generate and run functionality? currently not used
         if (length > 0 && !TestFinderHelper.isTest(source)) {
             final Keymap keymap = KeymapManager.getInstance().getActiveKeymap();
             final Shortcut[] shortcuts = keymap.getShortcuts(DefaultRunExecutor.getRunExecutorInstance().getContextActionId());
