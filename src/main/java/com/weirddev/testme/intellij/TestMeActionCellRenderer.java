@@ -1,5 +1,6 @@
 package com.weirddev.testme.intellij;
 
+import com.intellij.util.ui.UIUtil;
 import com.weirddev.testme.intellij.icon.IconTokensReplacer;
 import com.weirddev.testme.intellij.icon.IconTokensReplacerImpl;
 import com.weirddev.testme.intellij.icon.IconizedLabel;
@@ -59,7 +60,7 @@ public class TestMeActionCellRenderer extends DefaultListCellRenderer {
         DefaultListCellRenderer defaultListCellRenderer = new DefaultListCellRenderer();
         Component listCellRendererComponent = defaultListCellRenderer.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
         defaultListCellRenderer.setText(iconizedLabel.getText());
-        defaultListCellRenderer.setIcon(iconizedLabel.getIcon());
+        defaultListCellRenderer.setIcon(isSelected || UIUtil.isUnderDarcula() ? iconizedLabel.getDarkIcon():iconizedLabel.getIcon());
         defaultListCellRenderer.setBorder(new EmptyBorder(0,0,0,0));
         return listCellRendererComponent;
     }

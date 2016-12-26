@@ -16,6 +16,6 @@ class IconTokensReplacerTest extends GroovyTestCase {
     }
 
     void testTokenize() {
-        assert [new IconizedLabel("TestMe w/ ",Icons.TEST_ME), new IconizedLabel("JUnit4 & ",IconTokensReplacerImpl.token2Icon.get("JUnit4")), new IconizedLabel("Mockito",IconTokensReplacerImpl.token2Icon.get("Mockito"))] == new IconTokensReplacerImpl().tokenize(text, Icons.TEST_ME)
+        assert [new IconizedLabel("TestMe w/ ", Icons.TEST_ME,Icons.TEST_ME), new IconizedLabel("JUnit4 & ", Icons.JUNIT4, Icons.JUNIT4_DARK), new IconizedLabel("Mockito", Icons.MOCKITO, Icons.MOCKITO)] == new IconTokensReplacerImpl().tokenize(text, Icons.TEST_ME)
     }
 }

@@ -10,10 +10,12 @@ import javax.swing.*;
 public class IconizedLabel {
     private String text;
     private Icon icon;
+    private Icon darkIcon;
 
-    public IconizedLabel(String text, Icon icon) {
+    public IconizedLabel(String text, Icon icon, Icon darkIcon) {
         this.text = text;
         this.icon = icon;
+        this.darkIcon = darkIcon;
     }
 
     public String getText() {
@@ -53,5 +55,9 @@ public class IconizedLabel {
                 "text='" + text + '\'' +
                 ", icon=" + icon +
                 '}';
+    }
+
+    public Icon getDarkIcon() {
+        return darkIcon;
     }
 }
