@@ -5,13 +5,13 @@ import org.junit.Test;
 /**
  * created by TestMe integration test on MMXVI
  */
-public class PublicInnerClassTest {
+public class InnerOfInnerClassTest {
 
-    Foo.PublicInnerClass publicInnerClass = new Foo().new PublicInnerClass();
+    Foo.InnerClass.InnerOfInnerClass innerOfInnerClass = new Foo().new InnerClass().new InnerOfInnerClass();
 
     @Test
     public void testMethodOfInnerClass() throws Exception {
-        publicInnerClass.methodOfInnerClass();
+        innerOfInnerClass.methodOfInnerClass();
     }
 }
 

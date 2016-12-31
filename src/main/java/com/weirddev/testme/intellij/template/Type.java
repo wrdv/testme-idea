@@ -35,6 +35,7 @@ public class Type {
         this.composedTypes = composedTypes;
         enumValues = new ArrayList<String>();
         isEnum = false;
+        //todo consider introducing a type in this hierarchy that doesn't have constructors
     }
 
     Type(String canonicalName) {

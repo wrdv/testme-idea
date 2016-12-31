@@ -3,10 +3,7 @@ package com.weirddev.testme.intellij.generator;
 import com.intellij.psi.*;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.weirddev.testme.intellij.FileTemplateContext;
-import com.weirddev.testme.intellij.template.Field;
-import com.weirddev.testme.intellij.template.Method;
-import com.weirddev.testme.intellij.template.TestMeTemplateParams;
-import com.weirddev.testme.intellij.template.TypeDictionary;
+import com.weirddev.testme.intellij.template.*;
 import com.weirddev.testme.intellij.template.utils.ClassUtils;
 import com.weirddev.testme.intellij.template.utils.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -28,8 +25,7 @@ public class TestTemplateContextBuilder {
         ctxtParams.put(TestMeTemplateParams.PACKAGE_NAME, context.getTargetPackage().getQualifiedName());
         final PsiClass targetClass = context.getSrcClass();
         if (targetClass != null && targetClass.isValid()) {
-            ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_NAME, targetClass.getName());
-            ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_QNAME, targetClass.getQualifiedName());
+            ctxtParams.put(TestMeTemplateParams.TESTED_CLASS, new TestedType(targetClass,null));
             List<Field> fields = createFields(context);
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_FIELDS, fields);
             int maxRecursionDepth = context.getMaxRecursionDepth();

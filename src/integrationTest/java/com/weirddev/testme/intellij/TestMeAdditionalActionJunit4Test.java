@@ -24,12 +24,18 @@ public class TestMeAdditionalActionJunit4Test extends BaseIJIntegrationTest {
     public void testInnerStaticClass() throws Exception {
         doTest("InnerStaticClassTest", new VisualPosition(13, 44));
     }
-/*
-    todo - implement feature - test subject is a non static nested class
     public void testInnerClass() throws Exception {
         doTest("PublicInnerClassTest", new VisualPosition(13, 44));
     }
-*/
+    public void testInnerOfInnerClass() throws Exception {
+        doTest("InnerOfInnerClassTest", new VisualPosition(13, 45));
+    }
+    public void testInnerStaticOfInnerStaticClass() throws Exception {
+        doTest("InnerStaticOfInnerStaticClassTest", new VisualPosition(13, 64));
+    }
+    public void testInnerOfInnerStaticClass() throws Exception {
+        doTest("InnerOfInnerStaticClassTest", new VisualPosition(13, 58));
+    }
 
     private void doTest(String expectedTestClassName, VisualPosition expectedCaretPosition) {
         doTest("com.example.services.impl", "Foo", expectedTestClassName, expectedCaretPosition);

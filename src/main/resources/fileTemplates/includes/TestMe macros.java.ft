@@ -37,19 +37,23 @@
     "java.time.LocalDateTime": "java.time.LocalDateTime.of($YEAR, java.time.Month.$MONTH_NAME_EN.toUpperCase(), $DAY_NUMERIC, $HOUR_NUMERIC, $MINUTE_NUMERIC, $SECOND_NUMERIC)",
     "java.time.LocalTime": "java.time.LocalTime.of($HOUR_NUMERIC, $MINUTE_NUMERIC, $SECOND_NUMERIC)",
     "java.io.File": "new File(getClass().getResource(""/$PACKAGE_NAME.replace('.','/')/PleaseReplaceMeWithTestFile.txt"").getFile())",
-    "java.lang.Class": "Class.forName(""$TESTED_CLASS_QNAME"")"
+    "java.lang.Class": "Class.forName(""$TESTED_CLASS.canonicalName"")"
 })
 ##
 ##
 ################## Macros #####################
-#macro( renderTestSubjectInit $name $qname $hasMockedField)
+#macro( renderTestSubjectInit $testedClass $hasMockedField)
 #if(!$hasMockedField)
     @InjectMocks
-    $qname $StringUtils.deCapitalizeFirstLetter($name);
+    $testedClass.canonicalName $StringUtils.deCapitalizeFirstLetter($testedClass.name);
 #else
 
-    $qname $StringUtils.deCapitalizeFirstLetter($name)=new $qname();
+    $testedClass.canonicalName $StringUtils.deCapitalizeFirstLetter($testedClass.name)= #renderInitClass($testedClass);
 #end
+#end
+##
+#macro( renderInitClass $class)
+#if($class.parent)#renderInitClass($class.parent).#end#if(!$class.isStatic())new #end$class.name#if(!$class.isStatic() && $class.parent || !$class.child || !$class.child.isStatic())()#end
 #end
 #macro( renderJavaCallParams $params $recursionDepth)
 #set($recursionDepth=$recursionDepth+1)

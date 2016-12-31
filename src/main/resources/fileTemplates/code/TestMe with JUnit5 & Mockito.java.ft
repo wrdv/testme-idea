@@ -13,7 +13,7 @@ import org.mockito.MockitoAnnotations;
 #parse("File Header.java")
 class ${CLASS_NAME} {
 #renderMockedFields($TESTED_CLASS_FIELDS)
-#renderTestSubjectInit($TESTED_CLASS_NAME, $TESTED_CLASS_QNAME,$TESTED_CLASS_FIELDS.isEmpty())
+#renderTestSubjectInit($TESTED_CLASS,$TESTED_CLASS_FIELDS.isEmpty())
 #if(!$TESTED_CLASS_FIELDS.isEmpty())
 
     @BeforeEach
@@ -26,7 +26,7 @@ class ${CLASS_NAME} {
 
     @Test
     void #renderTestMethodName($method.name)(){
-        #renderMethodCall($method,$TESTED_CLASS_NAME)
+        #renderMethodCall($method,$TESTED_CLASS.name)
 #if($method.returnType && $method.returnType.name !="void")        Assertions.#renderJUnitAssert($method.returnType)#end
     }
 #end
