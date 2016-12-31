@@ -42,6 +42,15 @@
 ##
 ##
 ################## Macros #####################
+#macro( renderTestSubjectInit $name $qname $hasMockedField)
+#if(!$hasMockedField)
+    @InjectMocks
+    $qname $StringUtils.deCapitalizeFirstLetter($name);
+#else
+
+    $qname $StringUtils.deCapitalizeFirstLetter($name)=new $qname();
+#end
+#end
 #macro( renderJavaCallParams $params $recursionDepth)
 #set($recursionDepth=$recursionDepth+1)
 #foreach($param in $params)#*

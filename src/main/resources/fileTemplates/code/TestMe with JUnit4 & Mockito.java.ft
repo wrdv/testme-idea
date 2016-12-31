@@ -13,13 +13,7 @@ import org.mockito.MockitoAnnotations;
 #parse("File Header.java")
 public class ${CLASS_NAME} {
 #renderMockedFields($TESTED_CLASS_FIELDS)
-#if(!$TESTED_CLASS_FIELDS.isEmpty())
-    @InjectMocks
-    $TESTED_CLASS_QNAME $StringUtils.deCapitalizeFirstLetter($TESTED_CLASS_NAME);
-#else
-
-    $TESTED_CLASS_QNAME $StringUtils.deCapitalizeFirstLetter($TESTED_CLASS_NAME)=new $TESTED_CLASS_QNAME();
-#end
+#renderTestSubjectInit($TESTED_CLASS_NAME, $TESTED_CLASS_QNAME,$TESTED_CLASS_FIELDS.isEmpty())
 #if(!$TESTED_CLASS_FIELDS.isEmpty())
 
     @Before
