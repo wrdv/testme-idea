@@ -1,5 +1,7 @@
 package com.weirddev.testme.intellij.generator;
 
+import com.weirddev.testme.intellij.TemplateRegistry;
+
 /**
  * Date: 10/20/2016
  * @author Yaron Yamin
@@ -7,7 +9,7 @@ package com.weirddev.testme.intellij.generator;
 public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
 
     public TestMeGeneratorJunit4Test() {
-        super(TEST_ME_WITH_JUNIT4_MOCKITO_JAVA, "test");
+        super(TemplateRegistry.JUNIT4_MOCKITO_JAVA_TEMPLATE, "test");
     }
 
     public void testSimpleClass() throws Exception {

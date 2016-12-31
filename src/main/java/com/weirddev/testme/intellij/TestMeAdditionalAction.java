@@ -2,7 +2,6 @@ package com.weirddev.testme.intellij;
 
 import com.intellij.openapi.editor.Editor;
 import com.intellij.psi.PsiFile;
-import com.weirddev.testme.intellij.icon.Icons;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -36,7 +35,7 @@ public class TestMeAdditionalAction implements TestMePopUpHandler.AdditionalActi
 
     @Override
     public Icon getIcon() {
-        return Icons.TEST_ME;
+        return null;//Icons.TEST_ME;
     }
 
     @Override

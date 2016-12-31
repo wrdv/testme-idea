@@ -15,7 +15,7 @@ import org.junit.Assert;
 public class TestMeAdditionalActionJunit4Test extends BaseIJIntegrationTest {
 
     public TestMeAdditionalActionJunit4Test(){
-        super(TEST_ME_WITH_JUNIT4_MOCKITO_JAVA, "test", "testData/testMeAdditionalAction/");
+        super(TemplateRegistry.JUNIT4_MOCKITO_JAVA_TEMPLATE, "test", "testData/testMeAdditionalAction/");
     }
 
     public void testInnerStaticClassWithMember() throws Exception {

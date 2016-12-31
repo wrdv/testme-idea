@@ -26,12 +26,20 @@ public class IconTokensReplacerImpl implements IconTokensReplacer {
     public ArrayList<IconizedLabel> tokenize(String text, Icon icon) {
         ArrayList<IconizedLabel> iconizedLabels = new ArrayList<IconizedLabel>();
         iconizedLabels.add(new IconizedLabel(text, icon, icon));
-        for (String token : IconRegistry.getIds()) {
+        for (String id : IconRegistry.getIds()) {
             for (int i = 0; i < iconizedLabels.size(); i++) {
-                String[] subTexts = iconizedLabels.get(i).getText().split(String.format(TOKEN_TEMPLATE, token));
-                if (subTexts.length > 1) {
-                    iconizedLabels.get(i).setText(subTexts[0]);
-                    iconizedLabels.add(i+1,new IconizedLabel(subTexts[1], IconRegistry.get(token).getIcon(), IconRegistry.get(token).getDarkIcon()));
+                final String subText = iconizedLabels.get(i).getText();
+                final String token = String.format(TOKEN_TEMPLATE, id);
+                String[] subTexts = subText.split(token);
+                for(int j=0;j<subTexts.length;j++) {
+                    if (j == 0) {
+                        iconizedLabels.get(i + j).setText(subTexts[j]);
+                    } else {
+                        iconizedLabels.add(i+j,new IconizedLabel(subTexts[j], IconRegistry.get(id).getIcon(), IconRegistry.get(id).getDarkIcon()));
+                    }
+                }
+                if (subText.endsWith(token)) {
+                    iconizedLabels.add(i+subTexts.length,new IconizedLabel("", IconRegistry.get(id).getIcon(), IconRegistry.get(id).getDarkIcon()));
                 }
             }
         }

@@ -19,8 +19,6 @@ import java.io.File;
 abstract public class BaseIJIntegrationTest extends LightCodeInsightFixtureTestCase {
     private static final String FILE_HEADER_TEMPLATE = "File Header.java";
     private static final String HEADER_TEMPLATE_REPLACEMENT_TEXT = "/** created by TestMe integration test on MMXVI */\n";
-    public static final String TEST_ME_WITH_JUNIT4_MOCKITO_JAVA = "TestMe with JUnit4 & Mockito.java";
-    public static final String TEST_ME_WITH_JUNIT5_MOCKITO_JAVA = "TestMe with JUnit5 & Mockito.java";
     private static boolean isHeaderTemplateReplaced=false;
     protected final String templateFilename;
     protected final String testDirectory;

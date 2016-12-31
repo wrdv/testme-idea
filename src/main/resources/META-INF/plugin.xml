@@ -37,7 +37,7 @@
   <actions>
     <action id="testme.action.generators" class="com.weirddev.testme.intellij.action.TestMeGeneratorsAction"
             text="&amp;TestMe..." description="TestMe Generators" icon="/icons/TestMe.png" >
-      <keyboard-shortcut first-keystroke="control shift M" keymap="$default" />
+      <keyboard-shortcut first-keystroke="control shift Q" keymap="$default" />
       <add-to-group group-id="GenerateGroup" relative-to-action="GenerateCopyright" anchor="after" />
       <add-to-group group-id="CodeMenu" anchor="first"/>
     </action>
