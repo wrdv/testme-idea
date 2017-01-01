@@ -42,13 +42,15 @@
 ##
 ##
 ################## Macros #####################
-#macro( renderTestSubjectInit $testedClass $hasMockedField)
-#if(!$hasMockedField)
+#macro( renderTestSubjectInit $testedClass $hasNoMembers)
+#if($hasNoMembers || $testedClass.parent)
+#if(!$hasNoMembers && $testedClass.parent)      @InjectMocks#else
+
+#end
+    $testedClass.canonicalName $StringUtils.deCapitalizeFirstLetter($testedClass.name)= #renderInitClass($testedClass);
+#else
     @InjectMocks
     $testedClass.canonicalName $StringUtils.deCapitalizeFirstLetter($testedClass.name);
-#else
-
-    $testedClass.canonicalName $StringUtils.deCapitalizeFirstLetter($testedClass.name)= #renderInitClass($testedClass);
 #end
 #end
 ##

@@ -16,7 +16,7 @@ public class InnerStaticClassWithMemberTest {
     @Mock
     FooFighter innerFooFighter;
     @InjectMocks
-    Foo.InnerStaticClassWithMember innerStaticClassWithMember;
+    Foo.InnerStaticClassWithMember innerStaticClassWithMember = new Foo.InnerStaticClassWithMember();
 
     @Before
     public void setUp() {
