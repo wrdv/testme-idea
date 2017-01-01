@@ -14,8 +14,11 @@ import org.junit.Assert;
  */
 public class TestMeAdditionalActionJunit4Test extends BaseIJIntegrationTest {
 
+    final String templateFilename = "testData/testMeAdditionalAction/";
+    final String testDirectory = "test";
+
     public TestMeAdditionalActionJunit4Test(){
-        super(TemplateRegistry.JUNIT4_MOCKITO_JAVA_TEMPLATE, "test", "testData/testMeAdditionalAction/");
+        super("testData/testMeAdditionalAction/");
     }
 
     public void testInnerStaticClassWithMember() throws Exception {

@@ -20,13 +20,9 @@ abstract public class BaseIJIntegrationTest extends LightCodeInsightFixtureTestC
     private static final String FILE_HEADER_TEMPLATE = "File Header.java";
     private static final String HEADER_TEMPLATE_REPLACEMENT_TEXT = "/** created by TestMe integration test on MMXVI */\n";
     private static boolean isHeaderTemplateReplaced=false;
-    protected final String templateFilename;
-    protected final String testDirectory;
     private String testDataRoot;
 
-    public BaseIJIntegrationTest(String templateFilename, String testDirectory, String testDataRoot) {
-        this.templateFilename = templateFilename;
-        this.testDirectory = testDirectory;
+    public BaseIJIntegrationTest(String testDataRoot) {
         this.testDataRoot = testDataRoot;
     }
 

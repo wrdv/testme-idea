@@ -18,10 +18,14 @@ import java.util.Properties;
  * @author Yaron Yamin
  */
 abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*JavaCodeInsightFixtureTestCase */{
+    protected final String templateFilename;
+    protected final String testDirectory;
     private final TestTemplateContextBuilder testTemplateContextBuilder = mockTestTemplateContextBuilder();
 
     TestMeGeneratorTestBase(String templateFilename, String testDirectory) {
-        super(templateFilename,testDirectory,"testData/testMeGenerator/");
+        super("testData/testMeGenerator/");
+        this.templateFilename = templateFilename;
+        this.testDirectory = testDirectory;
     }
 
 
