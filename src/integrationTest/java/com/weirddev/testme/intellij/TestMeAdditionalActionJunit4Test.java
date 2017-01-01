@@ -14,7 +14,7 @@ import org.junit.Assert;
  */
 public class TestMeAdditionalActionJunit4Test extends BaseIJIntegrationTest {
 
-    final String templateFilename = "testData/testMeAdditionalAction/";
+    final String templateFilename = TemplateRegistry.JUNIT4_MOCKITO_JAVA_TEMPLATE;
     final String testDirectory = "test";
 
     public TestMeAdditionalActionJunit4Test(){
