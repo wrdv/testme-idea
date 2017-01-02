@@ -78,7 +78,7 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
     public void testMiscReplacementTypes() throws Exception {
         doTest(true, true, true);
     }
-    //todo TC - use static init method when constructor not available. add default replacement for Class - Class.forName('?') (fqn of class under test?)
+    //todo TC - use static init method when constructor not available
 
      // TODO TC different test target dir
 }

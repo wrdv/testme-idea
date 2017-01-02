@@ -40,6 +40,6 @@ public class TestMeAdditionalAction implements TestMePopUpHandler.AdditionalActi
 
     @Override
     public void execute() {
-        testMeCreator.createTest(editor, file, templateDescriptor.getFilename());
+        testMeCreator.createTest(editor, file, templateDescriptor);
     }
 }

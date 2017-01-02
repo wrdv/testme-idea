@@ -19,19 +19,19 @@ import org.jetbrains.annotations.NotNull;
 public class TestMeCreator {
     private static final Logger LOG = Logger.getInstance(TestMeCreator.class.getName());
 
-    public void createTest(Editor editor, PsiFile file, String templateFilename) {
+    public void createTest(Editor editor, PsiFile file, TemplateDescriptor templateDescriptor) {
         try {
-                invoke(file.getProject(), editor, file.getContainingFile(),templateFilename);
+                invoke(file.getProject(), editor, file.getContainingFile(),templateDescriptor);
         }
         catch (IncorrectOperationException e) {
             LOG.warn(e);
         }
     }
-    private void invoke(@NotNull Project project, Editor editor, PsiFile file, String templateFilename) throws IncorrectOperationException {
+    private void invoke(@NotNull Project project, Editor editor, PsiFile file, TemplateDescriptor templateDescriptor) throws IncorrectOperationException {
         if (!file.getManager().isInProject(file)) return;
         final PsiElement element = TestSubjectResolverUtils.getElement(editor, file);
         if (element != null) {
-            new CreateTestMeAction(templateFilename).invoke(project, editor, element);
+            new CreateTestMeAction(templateDescriptor).invoke(project, editor, element);
         }
     }
 

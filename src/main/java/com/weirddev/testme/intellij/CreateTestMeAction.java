@@ -31,17 +31,17 @@ import java.util.Set;
 public class CreateTestMeAction extends CreateTestAction {
     private static final Logger LOG = Logger.getInstance(CreateTestMeAction.class.getName());
     private static final String CREATE_TEST_IN_THE_SAME_ROOT = "create.test.in.the.same.root";
-    private final String templateFilename;
     private final TestMeGenerator testMeGenerator;
+    private TemplateDescriptor templateDescriptor;
 
-    public CreateTestMeAction(String templateFilename) {
+    public CreateTestMeAction(TemplateDescriptor templateDescriptor) {
+        this.templateDescriptor = templateDescriptor;
         testMeGenerator = new TestMeGenerator();
-        this.templateFilename = templateFilename;
     }
 
     @NotNull
     public String getText(){
-        return "Generate test with TestMe"; //TODO fetch from resource bundle
+        return "Generate test with TestMe";
     }
 
     @NotNull
@@ -77,7 +77,7 @@ public class CreateTestMeAction extends CreateTestAction {
             CommandProcessor.getInstance().executeCommand(project, new Runnable() {
                 @Override
                 public void run() {
-                    testMeGenerator.generateTest(new FileTemplateContext(new FileTemplateDescriptor(templateFilename),project, targetClass, srcPackage, srcModule, targetDirectory, srcClass, true, true, 9, true));
+                    testMeGenerator.generateTest(new FileTemplateContext(new FileTemplateDescriptor(templateDescriptor.getFilename()),project, targetClass, srcPackage, srcModule, targetDirectory, srcClass, true, true, 9, true));
                 }
             }, "TestMe Generate Test", this);
         }
@@ -85,7 +85,7 @@ public class CreateTestMeAction extends CreateTestAction {
 
     }
     private String getClassName(PsiClass myTargetClass) {
-        return myTargetClass.getName()+"Test"; //TODO remove - should be added by Template
+        return String.format(templateDescriptor.getTestClassFormat(), myTargetClass.getName());
     }
 
     protected static void checkForTestRoots(Module srcModule, Set<VirtualFile> testFolders) {
