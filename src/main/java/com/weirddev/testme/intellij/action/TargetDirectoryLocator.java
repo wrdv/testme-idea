@@ -1,4 +1,4 @@
-package com.weirddev.testme.intellij;
+package com.weirddev.testme.intellij.action;
 
 import com.intellij.CommonBundle;
 import com.intellij.codeInsight.CodeInsightBundle;
@@ -20,7 +20,6 @@ import com.intellij.refactoring.util.RefactoringMessageUtil;
 import com.intellij.refactoring.util.RefactoringUtil;
 import com.intellij.testIntegration.createTest.CreateTestDialog;
 import com.intellij.util.IncorrectOperationException;
-import com.weirddev.testme.intellij.CreateTestMeAction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.model.java.JavaModuleSourceRootTypes;
@@ -51,7 +50,6 @@ public class TargetDirectoryLocator{
         try {
             myTargetDirectory = selectTargetDirectory(packageQualifiedName, project, targetModule);
             if (myTargetDirectory == null) return null;
-            //TODO skip exists check - offer to merge, new , cancel
             errorMessage = RefactoringMessageUtil.checkCanCreateClass(myTargetDirectory, targetClass);
         } catch (IncorrectOperationException e) {
             errorMessage = e.getMessage();

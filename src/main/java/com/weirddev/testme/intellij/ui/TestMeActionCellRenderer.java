@@ -1,6 +1,7 @@
-package com.weirddev.testme.intellij;
+package com.weirddev.testme.intellij.ui;
 
 import com.intellij.util.ui.UIUtil;
+import com.weirddev.testme.intellij.action.TestMeAdditionalAction;
 import com.weirddev.testme.intellij.icon.IconTokensReplacer;
 import com.weirddev.testme.intellij.icon.IconTokensReplacerImpl;
 import com.weirddev.testme.intellij.icon.IconizedLabel;

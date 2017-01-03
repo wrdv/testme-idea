@@ -19,7 +19,7 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.GlobalSearchScopesCore;
 import com.intellij.testIntegration.createTest.JavaTestGenerator;
 import com.intellij.util.IncorrectOperationException;
-import com.weirddev.testme.intellij.FileTemplateContext;
+import com.weirddev.testme.intellij.template.FileTemplateContext;
 import org.apache.velocity.app.Velocity;
 import org.jetbrains.annotations.Nullable;
 

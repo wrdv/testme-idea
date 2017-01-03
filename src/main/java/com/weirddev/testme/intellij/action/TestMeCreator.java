@@ -1,4 +1,4 @@
-package com.weirddev.testme.intellij;
+package com.weirddev.testme.intellij.action;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
@@ -7,6 +7,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.testIntegration.JavaTestCreator;
 import com.intellij.util.IncorrectOperationException;
+import com.weirddev.testme.intellij.template.TemplateDescriptor;
 import com.weirddev.testme.intellij.utils.TestSubjectResolverUtils;
 import org.jetbrains.annotations.NotNull;
 

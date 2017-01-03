@@ -3,6 +3,7 @@ package com.weirddev.testme.intellij;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.components.ApplicationComponent;
+import com.weirddev.testme.intellij.action.GotoTestOrCodeActionExt;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -23,7 +24,7 @@ public class TestMePluginRegistration implements ApplicationComponent {
     }
 
     @Override
-    public void disposeComponent() {//TODO check if OOB Action should be registered back here. test un-install scenarios
+    public void disposeComponent() {
     }
 
     @NotNull

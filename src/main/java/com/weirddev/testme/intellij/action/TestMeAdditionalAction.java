@@ -1,10 +1,13 @@
-package com.weirddev.testme.intellij;
+package com.weirddev.testme.intellij.action;
 
 import com.intellij.openapi.editor.Editor;
 import com.intellij.psi.PsiFile;
+import com.weirddev.testme.intellij.template.TemplateDescriptor;
+import com.weirddev.testme.intellij.ui.TestMePopUpHandler;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+
 
 /**
  * Date: 10/15/2016

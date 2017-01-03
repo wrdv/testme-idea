@@ -1,4 +1,4 @@
-package com.weirddev.testme;
+package com.weirddev.testme.intellij;
 
 import com.intellij.CommonBundle;
 import org.jetbrains.annotations.NonNls;

@@ -1,5 +1,5 @@
 
-package com.weirddev.testme.intellij;
+package com.weirddev.testme.intellij.ui;
 
 import com.intellij.codeInsight.CodeInsightActionHandler;
 import com.intellij.codeInsight.hint.HintManager;
@@ -197,8 +197,8 @@ public abstract class TestMePopUpHandler implements CodeInsightActionHandler {
     @NotNull public final PsiElement source;
     public final List<AdditionalAction> additionalActions;
 
-    public ListBackgroundUpdaterTask listUpdaterTask; //todo deprecated. check relevancy for new features
-    public Map<Object, PsiElementListCellRenderer> renderers = new HashMap<Object, PsiElementListCellRenderer>();//todo deprecated. consider using these renders instead of ourDefaultTargetElementRenderer = new DefaultPsiElementListCellRenderer()
+    public ListBackgroundUpdaterTask listUpdaterTask; //todo un-used. check relevancy for future features
+    public Map<Object, PsiElementListCellRenderer> renderers = new HashMap<Object, PsiElementListCellRenderer>();//todo un-used. consider using these renders instead of ourDefaultTargetElementRenderer = new DefaultPsiElementListCellRenderer()
 
     public GotoData(@NotNull PsiElement source, @NotNull List<AdditionalAction> additionalActions) {
       this.source = source;

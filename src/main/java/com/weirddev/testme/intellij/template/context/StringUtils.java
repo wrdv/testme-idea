@@ -1,4 +1,4 @@
-package com.weirddev.testme.intellij.template.utils;
+package com.weirddev.testme.intellij.template.context;
 
 /**
  * Date: 26/11/2016

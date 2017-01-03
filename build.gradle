@@ -90,7 +90,7 @@ test {
 
 jacocoTestReport {
     reports {
-        xml.enabled false
+        xml.enabled false //true - if coveralls enabled
         csv.enabled false
         html{
             enabled true
@@ -98,6 +98,12 @@ jacocoTestReport {
         }
     }
     executionData(test, integrationTest)
+    afterEvaluate {
+        classDirectories = files(classDirectories.files.collect {
+            fileTree(dir: it,
+                    exclude: ['com/weirddev/testme/intellij/ui/**'])
+        })
+    }
 }
 
 dependencies {

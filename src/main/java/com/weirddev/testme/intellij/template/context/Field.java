@@ -1,4 +1,4 @@
-package com.weirddev.testme.intellij.template;
+package com.weirddev.testme.intellij.template.context;
 
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiField;

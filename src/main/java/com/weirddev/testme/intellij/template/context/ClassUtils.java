@@ -1,4 +1,4 @@
-package com.weirddev.testme.intellij.template.utils;
+package com.weirddev.testme.intellij.template.context;
 
 import org.jetbrains.annotations.NotNull;
 

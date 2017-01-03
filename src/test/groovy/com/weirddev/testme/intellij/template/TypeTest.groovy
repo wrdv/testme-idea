@@ -1,4 +1,7 @@
 package com.weirddev.testme.intellij.template
+
+import com.weirddev.testme.intellij.template.context.Type
+
 /**
  * Date: 11/7/2016
  * @author Yaron Yamin

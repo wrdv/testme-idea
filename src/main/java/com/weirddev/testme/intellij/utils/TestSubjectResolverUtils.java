@@ -8,7 +8,7 @@ import com.intellij.psi.*;
 import com.intellij.psi.util.PsiUtilCore;
 import com.intellij.testIntegration.TestFinderHelper;
 import com.intellij.testIntegration.TestFramework;
-import com.weirddev.testme.intellij.CreateTestMeAction;
+import com.weirddev.testme.intellij.action.CreateTestMeAction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

@@ -1,4 +1,4 @@
-package com.weirddev.testme.intellij;
+package com.weirddev.testme.intellij.action;
 
 import com.intellij.codeInsight.CodeInsightBundle;
 import com.intellij.codeInsight.navigation.NavigationUtil;
@@ -18,7 +18,10 @@ import com.intellij.psi.util.PsiUtilCore;
 import com.intellij.testIntegration.GotoTestOrCodeHandler;
 import com.intellij.testIntegration.TestFinderHelper;
 import com.intellij.util.SmartList;
-import com.weirddev.testme.TestMeBundle;
+import com.weirddev.testme.intellij.TestMeBundle;
+import com.weirddev.testme.intellij.template.TemplateDescriptor;
+import com.weirddev.testme.intellij.template.TemplateRegistry;
+import com.weirddev.testme.intellij.ui.TestMePopUpHandler;
 import com.weirddev.testme.intellij.utils.TestSubjectResolverUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -81,7 +84,7 @@ public class TestMeActionHandler extends TestMePopUpHandler {
 
     @Override
     protected String getFeatureUsedKey() {
-        return "TestMe.generate.test"; //todo - map key.see lazyLoadFromPluginsFeaturesProviders()
+        return "TestMe.generate.test"; //todo - map key. see lazyLoadFromPluginsFeaturesProviders()
     }
 
     @NotNull
@@ -98,7 +101,7 @@ public class TestMeActionHandler extends TestMePopUpHandler {
 
     @Nullable
     @Override
-    protected String getAdText(PsiElement source, int length) {//todo might be useful for generate and run functionality? currently not used
+    protected String getAdText(PsiElement source, int length) {//todo might be useful for generate and run functionality, currently un-used
         if (length > 0 && !TestFinderHelper.isTest(source)) {
             final Keymap keymap = KeymapManager.getInstance().getActiveKeymap();
             final Shortcut[] shortcuts = keymap.getShortcuts(DefaultRunExecutor.getRunExecutorInstance().getContextActionId());

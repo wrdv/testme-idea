@@ -5,6 +5,9 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.VisualPosition;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.psi.PsiFile;
+import com.weirddev.testme.intellij.action.TestMeAdditionalAction;
+import com.weirddev.testme.intellij.template.TemplateDescriptor;
+import com.weirddev.testme.intellij.template.TemplateRegistry;
 import org.junit.Assert;
 
 /**

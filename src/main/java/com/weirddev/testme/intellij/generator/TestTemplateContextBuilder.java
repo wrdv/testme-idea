@@ -2,10 +2,9 @@ package com.weirddev.testme.intellij.generator;
 
 import com.intellij.psi.*;
 import com.intellij.psi.search.GlobalSearchScope;
-import com.weirddev.testme.intellij.FileTemplateContext;
-import com.weirddev.testme.intellij.template.*;
-import com.weirddev.testme.intellij.template.utils.ClassUtils;
-import com.weirddev.testme.intellij.template.utils.StringUtils;
+import com.weirddev.testme.intellij.template.FileTemplateContext;
+import com.weirddev.testme.intellij.template.TypeDictionary;
+import com.weirddev.testme.intellij.template.context.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.SimpleDateFormat;
@@ -61,8 +60,7 @@ public class TestTemplateContextBuilder {
         JavaPsiFacade javaPsiFacade = JavaPsiFacade.getInstance(context.getProject());
         PsiClass srcClass = context.getSrcClass();
         for (PsiField psiField : srcClass.getAllFields()) {
-            //TODO research how different types should be handled - i.e. PsiClassType ?
-            //TODO handle fields initialized inline/in default constructor
+            //TODO mark fields initialized inline/in default constructor
             fields.add(new Field(psiField, javaPsiFacade.findClass(psiField.getType().getCanonicalText(), GlobalSearchScope.allScope(context.getProject())), srcClass));
         }
         return fields;

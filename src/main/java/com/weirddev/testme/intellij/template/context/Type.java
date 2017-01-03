@@ -1,9 +1,9 @@
-package com.weirddev.testme.intellij.template;
+package com.weirddev.testme.intellij.template.context;
 
 import com.intellij.psi.*;
 import com.intellij.psi.impl.source.PsiClassReferenceType;
 import com.intellij.psi.util.PsiUtil;
-import com.weirddev.testme.intellij.template.utils.ClassUtils;
+import com.weirddev.testme.intellij.template.TypeDictionary;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -35,7 +35,6 @@ public class Type {
         this.composedTypes = composedTypes;
         enumValues = new ArrayList<String>();
         isEnum = false;
-        //todo consider introducing a type in this hierarchy that doesn't have constructors
     }
 
     Type(String canonicalName) {

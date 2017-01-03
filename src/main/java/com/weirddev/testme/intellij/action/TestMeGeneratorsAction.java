@@ -4,7 +4,6 @@ import com.intellij.codeInsight.generation.actions.BaseGenerateAction;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
-import com.weirddev.testme.intellij.TestMeActionHandlerFactory;
 import com.weirddev.testme.intellij.utils.TestSubjectResolverUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -15,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public class TestMeGeneratorsAction extends BaseGenerateAction {
     public TestMeGeneratorsAction() {
-        super(TestMeActionHandlerFactory.create());
+        super(new TestMeActionHandler());
     }
 
     @Override

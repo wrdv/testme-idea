@@ -5,7 +5,7 @@ import com.intellij.ide.fileTemplates.FileTemplateDescriptor;
 import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.psi.*;
 import com.weirddev.testme.intellij.BaseIJIntegrationTest;
-import com.weirddev.testme.intellij.FileTemplateContext;
+import com.weirddev.testme.intellij.template.FileTemplateContext;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.GregorianCalendar;

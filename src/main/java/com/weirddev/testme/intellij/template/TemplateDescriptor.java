@@ -1,4 +1,4 @@
-package com.weirddev.testme.intellij;
+package com.weirddev.testme.intellij.template;
 
 import com.weirddev.testme.intellij.icon.IconTokensReplacerImpl;
 

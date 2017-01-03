@@ -1,6 +1,7 @@
-package com.weirddev.testme.intellij.template;
+package com.weirddev.testme.intellij.template.context;
 
 import com.intellij.psi.PsiParameter;
+import com.weirddev.testme.intellij.template.TypeDictionary;
 
 /**
  * Date: 24/10/2016

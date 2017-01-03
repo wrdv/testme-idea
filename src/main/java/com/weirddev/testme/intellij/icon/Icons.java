@@ -14,5 +14,5 @@ public interface Icons {
     Icon JUNIT4 = IconLoader.getIcon("/icons/junit.png");
     Icon JUNIT5 = IconLoader.getIcon("/icons/junit5.png");
     Icon JUNIT4_DARK = IconLoader.getIcon("/icons/junit_dark.png");
-    Icon TEST_ME = IconLoader.getIcon("/icons/TestMe.png"); //TODO replace with custom made
+    Icon TEST_ME = IconLoader.getIcon("/icons/TestMe.png");
 }

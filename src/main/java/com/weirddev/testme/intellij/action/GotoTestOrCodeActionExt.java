@@ -1,4 +1,4 @@
-package com.weirddev.testme.intellij;
+package com.weirddev.testme.intellij.action;
 
 import com.intellij.codeInsight.CodeInsightActionHandler;
 import com.intellij.testIntegration.GotoTestOrCodeAction;

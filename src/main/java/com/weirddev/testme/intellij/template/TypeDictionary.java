@@ -5,6 +5,7 @@ import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiPackage;
 import com.intellij.psi.PsiType;
 import com.intellij.psi.util.PsiUtil;
+import com.weirddev.testme.intellij.template.context.Type;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;

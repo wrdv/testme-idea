@@ -1,7 +1,8 @@
-package com.weirddev.testme.intellij.template;
+package com.weirddev.testme.intellij.template.context;
 
 import com.intellij.psi.*;
 import com.intellij.psi.util.PropertyUtil;
+import com.weirddev.testme.intellij.template.TypeDictionary;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;

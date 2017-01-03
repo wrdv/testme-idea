@@ -1,6 +1,6 @@
 package com.weirddev.testme.intellij.template
 
-import com.weirddev.testme.intellij.template.utils.ClassUtils
+import com.weirddev.testme.intellij.template.context.ClassUtils
 
 /**
  * Date: 16/11/2016

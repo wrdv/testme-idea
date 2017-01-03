@@ -1,4 +1,4 @@
-package com.weirddev.testme.intellij;
+package com.weirddev.testme.intellij.action;
 
 import com.intellij.ide.fileTemplates.FileTemplateDescriptor;
 import com.intellij.ide.util.PropertiesComponent;
@@ -15,6 +15,8 @@ import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.testIntegration.createTest.CreateTestAction;
 import com.intellij.util.IncorrectOperationException;
 import com.weirddev.testme.intellij.generator.TestMeGenerator;
+import com.weirddev.testme.intellij.template.FileTemplateContext;
+import com.weirddev.testme.intellij.template.TemplateDescriptor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

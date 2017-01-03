@@ -1,4 +1,4 @@
-package com.weirddev.testme.intellij;
+package com.weirddev.testme.intellij.action;
 
 import com.intellij.openapi.editor.Editor;
 import com.intellij.psi.PsiFile;
@@ -15,6 +15,12 @@ import javax.swing.*;
  * @author Yaron Yamin
  */
 public class GotoTestOrCodeHandlerExt extends GotoTestOrCodeHandler {
+
+    private final TestMeActionHandler testMeActionHandler;
+
+    public GotoTestOrCodeHandlerExt() {
+        testMeActionHandler = new TestMeActionHandler();
+    }
 
     @Nullable
     @Override
@@ -36,7 +42,7 @@ public class GotoTestOrCodeHandlerExt extends GotoTestOrCodeHandler {
 
                 @Override
                 public void execute() {
-                    TestMeActionHandlerFactory.create().invoke(file.getProject(),editor,file);
+                    testMeActionHandler.invoke(file.getProject(),editor,file);
                 }
             } );
         }

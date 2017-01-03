@@ -1,6 +1,6 @@
 package com.weirddev.testme.intellij.generator;
 
-import com.weirddev.testme.intellij.TemplateRegistry;
+import com.weirddev.testme.intellij.template.TemplateRegistry;
 
 /**
  * Date: 10/20/2016
