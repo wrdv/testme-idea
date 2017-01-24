@@ -11,6 +11,8 @@ import org.mockito.MockitoAnnotations;
 
 import java.io.File;
 
+import static org.mockito.Mockito.*;
+
 /**
  * created by TestMe integration test on MMXVI
  */

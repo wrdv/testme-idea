@@ -25,22 +25,22 @@ public class TestMeAdditionalActionJunit4Test extends BaseIJIntegrationTest {
     }
 
     public void testInnerStaticClassWithMember() throws Exception {
-        doTest("InnerStaticClassWithMemberTest", new VisualPosition(28, 28));
+        doTest("InnerStaticClassWithMemberTest", new VisualPosition(30, 28));
     }
     public void testInnerStaticClass() throws Exception {
-        doTest("InnerStaticClassTest", new VisualPosition(13, 44));
+        doTest("InnerStaticClassTest", new VisualPosition(15, 44));
     }
     public void testInnerClass() throws Exception {
-        doTest("PublicInnerClassTest", new VisualPosition(13, 44));
+        doTest("PublicInnerClassTest", new VisualPosition(15, 44));
     }
     public void testInnerOfInnerClass() throws Exception {
-        doTest("InnerOfInnerClassTest", new VisualPosition(13, 45));
+        doTest("InnerOfInnerClassTest", new VisualPosition(15, 45));
     }
     public void testInnerStaticOfInnerStaticClass() throws Exception {
-        doTest("InnerStaticOfInnerStaticClassTest", new VisualPosition(13, 64));
+        doTest("InnerStaticOfInnerStaticClassTest", new VisualPosition(15, 64));
     }
     public void testInnerOfInnerStaticClass() throws Exception {
-        doTest("InnerOfInnerStaticClassTest", new VisualPosition(13, 58));
+        doTest("InnerOfInnerStaticClassTest", new VisualPosition(15, 58));
     }
 
     private void doTest(String expectedTestClassName, VisualPosition expectedCaretPosition) {

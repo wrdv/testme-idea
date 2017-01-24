@@ -10,6 +10,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import static org.mockito.Mockito.*;
+
 #parse("File Header.java")
 class ${CLASS_NAME} {
 #renderMockedFields($TESTED_CLASS_FIELDS)

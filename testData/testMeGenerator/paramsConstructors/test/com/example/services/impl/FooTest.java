@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
+import static org.mockito.Mockito.*;
+
 /**
  * created by TestMe integration test on MMXVI
  */

@@ -12,6 +12,8 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
 
+import static org.mockito.Mockito.*;
+
 /** created by TestMe integration test on MMXVI */
 public class FooTest {
     @Mock
