@@ -1,27 +1,34 @@
 <idea-plugin version="2">
-  <id>com.dev.testme</id>
+  <id>com.weirddev.testme</id>
   <name>TestMe</name>
   <version>1.0.0</version>
-  <vendor email="yaronyam@dev.com" url="http://www.dev.com">Dev Inc.</vendor>
+  <vendor email="yaron@weirddev.com" url="http://weirddev.com">WeirdDev</vendor>
 
   <description><![CDATA[
-      Enter short description for your plugin here.<br>
-      <em>most HTML tags may be used</em>
+     <h3>TestMe</h3>
+     <p>Auto Generate Unit Test Class from code.</p>
+     <p>No more boilerplate!</p>
+     <h3>Features:</h3>
+     <ul>
+       <li>Support JUnit 4,5</li>
+       <li>Auto generate Mockito mocks </li>
+       <li>Generate test params and assertion statements</li>
+       <li>Integrate with IDEA menus: Code->TestMe, Code->Generate, Navigate->Test</li>
+     </ul>
+     <p>You're welcome to report issues and raise feature requests at <a href="http://weirddev.com/forum#!/testme">TestMe project forum</a></p>
     ]]></description>
 
-  <change-notes><![CDATA[
+<!--  <change-notes><![CDATA[
       Add change notes here.<br>
       <em>most HTML tags may be used</em>
     ]]>
-  </change-notes>
+  </change-notes>-->
   <!-- please see https://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
-  <!--<idea-version since-build="139"/>       --><!--14 -->
+  <!--<idea-version since-build="139"/> --><!--14 -->
   <idea-version since-build="141"/> <!--14.1-->
-  <!-- please see https://confluence.jetbrains.com/display/IDEADEV/Plugin+Compatibility+with+IntelliJ+Platform+Products   -->
   <depends>com.intellij.modules.java</depends>
   <depends>JUnit</depends>
   <extensions defaultExtensionNs="com.intellij">
-    <!-- Add your extensions here -->
   </extensions>
 
   <application-components>
@@ -29,9 +36,7 @@
       <implementation-class>com.weirddev.testme.intellij.TestMePluginRegistration</implementation-class>
     </component>
   </application-components>
-
   <project-components>
-    <!-- Add your project components here -->
   </project-components>
 
   <actions>
