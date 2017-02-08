@@ -9,7 +9,7 @@ No more boilerplate!
 - Generate test params and assertion statements
 - Integrate with IDEA menus: Code->TestMe, Code->Generate, Navigate->Test
 
-For a more detailed documentation, please refer to http://weirddev.com/testme/quick-start
+For a more detailed documentation, please refer to http://weirddev.com/testme/
 
 ###Installation/Usage
 Installation available from JetBrains plugins repository:
