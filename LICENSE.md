@@ -1,1 +1,2 @@
+Copyright © 2017, [WeirdDev](http://weirddev.com). All rights reserved.
 The TestMe IntelliJ IDEA Plugin project is licensed under AGPLv3 - [Affero General Public License v3](https://www.gnu.org/licenses/agpl-3.0.en.html)
