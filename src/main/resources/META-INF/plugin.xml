@@ -2,7 +2,7 @@
   <id>com.weirddev.testme</id>
   <name>TestMe</name>
   <version>1.0.0</version>
-  <vendor email="yaron@weirddev.com" url="http://weirddev.com">WeirdDev</vendor>
+  <vendor email="testme@weirddev.com" url="http://weirddev.com">WeirdDev</vendor>
 
   <description><![CDATA[
      <h3>TestMe</h3>
