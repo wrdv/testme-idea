@@ -48,7 +48,7 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
             @Override
             public void run() {
                 myFixture.openFileInEditor(fooClass.getContainingFile().getVirtualFile());
-                PsiElement result = new TestMeGenerator(new TestClassElementsLocator(), testTemplateContextBuilder).generateTest(new FileTemplateContext(new FileTemplateDescriptor(templateFilename), getProject(),
+                PsiElement result = new TestMeGenerator(new TestClassElementsLocator(), testTemplateContextBuilder,new CodeRefactorUtil()).generateTest(new FileTemplateContext(new FileTemplateDescriptor(templateFilename), getProject(),
                         expectedTestClassName,
                         targetPackage,
                         myModule,

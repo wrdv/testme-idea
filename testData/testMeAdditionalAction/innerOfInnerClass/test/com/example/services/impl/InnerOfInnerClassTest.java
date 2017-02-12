@@ -2,8 +2,6 @@ package com.example.services.impl;
 
 import org.junit.Test;
 
-import static org.mockito.Mockito.*;
-
 /**
  * created by TestMe integration test on MMXVI
  */

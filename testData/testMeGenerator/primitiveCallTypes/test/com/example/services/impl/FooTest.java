@@ -12,7 +12,6 @@ import org.mockito.MockitoAnnotations;
 import java.math.BigDecimal;
 
 import static org.mockito.Mockito.*;
-
 /** created by TestMe integration test on MMXVI */
 public class FooTest {
     @Mock

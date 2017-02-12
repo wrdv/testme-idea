@@ -18,7 +18,6 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 import static org.mockito.Mockito.*;
-
 /** created by TestMe integration test on MMXVI */
 public class FooTest {
     @Mock
