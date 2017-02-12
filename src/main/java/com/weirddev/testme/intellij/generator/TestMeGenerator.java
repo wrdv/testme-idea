@@ -96,7 +96,7 @@ public class TestMeGenerator {
         FileTemplateManager fileTemplateManager = FileTemplateManager.getInstance(targetDirectory.getProject());
         Map<String, Object> templateCtxtParams = testTemplateContextBuilder.build(context, fileTemplateManager.getDefaultProperties());
         try {
-            FileTemplate codeTemplate = fileTemplateManager.getCodeTemplate(templateName);
+            FileTemplate codeTemplate = fileTemplateManager.getInternalTemplate(templateName);
             codeTemplate.setReformatCode(context.isReformatCode());
             Velocity.setProperty( Velocity.VM_MAX_DEPTH, 200);
             final PsiElement psiElement = FileTemplateUtil.createFromTemplate(codeTemplate, templateName, templateCtxtParams, targetDirectory, null);
