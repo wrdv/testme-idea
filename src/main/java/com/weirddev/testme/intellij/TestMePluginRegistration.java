@@ -3,7 +3,10 @@ package com.weirddev.testme.intellij;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.components.ApplicationComponent;
+import com.intellij.openapi.diagnostic.Logger;
 import com.weirddev.testme.intellij.action.GotoTestOrCodeActionExt;
+import com.weirddev.testme.intellij.utils.ReflectionUtil;
+import org.apache.velocity.runtime.RuntimeSingleton;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -15,12 +18,24 @@ public class TestMePluginRegistration implements ApplicationComponent {
 
     private static final String GOTO_TEST_ACTION_ID = "GotoTest";
 
+    private static final Logger LOG = Logger.getInstance(TestMePluginRegistration.class.getName());
+
     @Override
     public void initComponent() {
+        try {
+            hackVelocity();
+        } catch (Exception e) {
+            LOG.error("couldn't initialize TestMe plugin",e);
+            return;
+        }
         ActionManager am = ActionManager.getInstance();
         AnAction action = new GotoTestOrCodeActionExt();
         am.unregisterAction(GOTO_TEST_ACTION_ID);
         am.registerAction(GOTO_TEST_ACTION_ID, action);
+    }
+
+    private void hackVelocity() throws Exception {
+        ReflectionUtil.replaceFinalStatic(RuntimeSingleton.class.getDeclaredField("ri"), new HackedRuntimeInstance());
     }
 
     @Override

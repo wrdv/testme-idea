@@ -29,7 +29,6 @@
   <depends>com.intellij.modules.java</depends>
   <depends>JUnit</depends>
   <extensions defaultExtensionNs="com.intellij">
-    <projectService serviceInterface="com.intellij.ide.fileTemplates.FileTemplateManager" serviceImplementation="com.weirddev.testme.intellij.template.TestMeFileTemplateManager" overrides="true" />
   </extensions>
 
   <application-components>
