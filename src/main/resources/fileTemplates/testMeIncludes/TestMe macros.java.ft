@@ -1,17 +1,16 @@
 ################## Global vars ###############
 #set($trackedTestMethodsCount={})
 #set($replacementTypes = {
-    "java.util.Collection": "java.util.ArrayList",
-    "java.util.Deque": "java.util.LinkedList",
-    "java.util.Deque": "java.util.LinkedList",
-    "java.util.List": "java.util.ArrayList",
-    "java.util.Map": "java.util.HashMap",
-    "java.util.NavigableMap": "java.util.TreeMap",
-    "java.util.NavigableSet": "java.util.TreeSet",
-    "java.util.Queue": "java.util.LinkedList",
-    "java.util.RandomAccess": "java.util.Vector",
-    "java.util.Set": "java.util.HashSet",
-    "java.util.SortedSet": "java.util.TreeSet"
+    "java.util.Collection": "java.util.Arrays.asList",
+    "java.util.Deque": "java.util.LinkedList%1$s(Arrays.asList())",
+    "java.util.List": "java.util.Arrays.asList",
+    "java.util.Map": "java.util.HashMap%1$s",
+    "java.util.NavigableMap": "java.util.TreeMap%1$s",
+    "java.util.NavigableSet": "java.util.TreeSet%1$s",
+    "java.util.Queue": "java.util.LinkedList%1$s",
+    "java.util.RandomAccess": "java.util.Vector%1$s",
+    "java.util.Set": "java.util.HashSet%1$s",
+    "java.util.SortedSet": "java.util.TreeSet%1$s"
 })
 #set($defaultTypeValues = {
     "byte": "(byte) 0",
@@ -75,7 +74,7 @@
 #elseif($type.enumValues.size()>0)#resolveTypeName($type, {}).${type.enumValues[0]}##
 #else##
 #set($typeName="#resolveTypeName($type $replacementTypes)")##
-new $typeName(#if($recursionDepth<=$MAX_RECURSION_DEPTH)#renderCtorParams($typeName,$type,$recursionDepth)#end)#end
+#if(!$typeName.startsWith("java.util.Arrays."))new #end$typeName(#if($recursionDepth<=$MAX_RECURSION_DEPTH)#renderCtorParams($typeName,$type,$recursionDepth)#end)#end
 #end
 ##
 #macro( renderCtorParams $typeName $type $recursionDepth)
@@ -84,8 +83,8 @@ new $typeName(#if($recursionDepth<=$MAX_RECURSION_DEPTH)#renderCtorParams($typeN
 #end
 #end
 ##
-#macro( resolveTypeName $type $replacementTypesMap)
-#set($canonicalName=$type.canonicalName)##
+#macro( resolveTypeName $type $replacementTypesMap)##todo  - should be migrated to a function
+#set($canonicalName="$type.canonicalName")##
 #set($sanitizedCanonicalName=$ClassUtils.stripGenerics($canonicalName))##
 #if($replacementTypesMap.get( $sanitizedCanonicalName))#*
     *##set($sanitizedCanonicalName=$replacementTypesMap.get($sanitizedCanonicalName))#*

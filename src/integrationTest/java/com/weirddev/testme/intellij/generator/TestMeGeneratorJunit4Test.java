@@ -55,7 +55,7 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
         doTest();
     }
     public void testCollections() throws Exception {
-        doTest(false, false, false);
+        doTest(false, false, true);
     }
     public void testGenericsTypeCollision() throws Exception {
         doTest(false,false,true);

@@ -1,5 +1,14 @@
 package com.example.services.impl;
 
+import java.util.List;
+import com.example.warriers.FooFighter;
+import com.example.foes.Fire;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.HashMap;
+import com.example.foes.Ice;
+import java.util.LinkedList;
+import com.example.foes.Fear;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,7 +20,7 @@ import static org.mockito.Mockito.*;
 /** created by TestMe integration test on MMXVI */
 public class FooTest {
     @Mock
-    java.util.List<com.example.warriers.FooFighter> fooFighter;
+    List<FooFighter> fooFighter;
     @InjectMocks
     Foo foo;
 
@@ -22,8 +31,14 @@ public class FooTest {
 
     @Test
     public void testFight() throws Exception {
-        java.util.List<com.example.foes.Fire> result = foo.fight(new java.util.ArrayList<com.example.foes.Fire>(), new java.util.HashSet<com.example.foes.Fire>(), new java.util.HashMap<String,com.example.foes.Ice>(), new java.util.ArrayList<String>(), new java.util.ArrayList<java.util.List<String>>(), new java.util.LinkedList<java.util.List<com.example.foes.Fear>>());
-        Assert.assertEquals(new java.util.ArrayList<com.example.foes.Fire>(), result);
+        List<Fire> result = foo.fight(Arrays.asList(new Fire()), new HashSet<Fire>(Arrays.asList(new Fire())), new HashMap<String, Ice>() {{put("icebergs",new Ice());}}, Arrays.asList("strings"), Arrays.asList(Arrays.asList("collOfLists")), new LinkedList<List<Fear>>(Arrays.asList(Arrays.asList(new Fear()))), new LinkedList<Fear>(Arrays.asList(new Fear())));
+        Assert.assertEquals(Arrays.asList(new Fire()), result);
+    }
+
+    @Test
+    public void testTypeless() throws Exception {
+        List result = foo.typeless(Arrays.asList(), new HashSet(), new HashMap(), Arrays.asList(), Arrays.asList(Arrays.asList()), new LinkedList<List>(Arrays.asList(Arrays.asList())));
+        Assert.assertEquals(Arrays.asList(), result);
     }
 }
 
