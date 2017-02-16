@@ -75,6 +75,7 @@
 #elseif($type.enumValues.size()>0)${TestBuilder.resolveTypeName($type, {})}.${type.enumValues[0]}##
 #else##
 #set($typeName="${TestBuilder.resolveTypeName($type, $replacementTypes)}")##
+##todo isReplaced = type.canonicalName!=typeName, if(!isReplaced)new; if(!isReplaced)typeName+"(%2$s);String.format(typeName,renderCtorParams(/*todo handle pairs*/extractGenerics($typeName).substring(1,n-1)),$type,$recursionDepth))"
 #if(!$typeName.startsWith("java.util.Arrays."))new #end$typeName(#if($recursionDepth<=$MAX_RECURSION_DEPTH)#renderCtorParams($typeName,$type,$recursionDepth)#end)#end
 #end
 ##
