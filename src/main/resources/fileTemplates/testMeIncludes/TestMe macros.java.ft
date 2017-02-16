@@ -56,34 +56,6 @@
 #macro( renderInitClass $class)
 #if($class.parent)#renderInitClass($class.parent).#end#if(!$class.isStatic())new #end$class.name#if(!$class.isStatic() && $class.parent || !$class.child || !$class.child.isStatic())()#end
 #end
-##        
-#macro( renderJavaCallParams $params $recursionDepth)##todo migrate to class
-#set($recursionDepth=$recursionDepth+1)
-#foreach($param in $params)#*
-    *##if($foreach.count>1), #end#*
-    *##renderJavaCallParam($param.type,$param.name, $recursionDepth)##
-#end
-#end
-##
-#macro( renderJavaCallParam $type $strValue $recursionDepth)##todo migrate to class
-#if($type.array)new ${TestBuilder.resolveTypeName($type, {})}[]{#end#renderJavaParam($type,$strValue $recursionDepth)#if($type.array)}#end
-#end
-##
-#macro( renderJavaParam $type $strValue $recursionDepth)##todo migrate to class
-#if($defaultTypeValues.get($type.canonicalName))$defaultTypeValues.get($type.canonicalName)##
-#elseif($type.canonicalName == "java.lang.String")"${strValue}"##
-#elseif($type.enumValues.size()>0)${TestBuilder.resolveTypeName($type, {})}.${type.enumValues[0]}##
-#else##
-#set($typeName="${TestBuilder.resolveTypeName($type, $replacementTypes)}")##
-##todo isReplaced = type.canonicalName!=typeName, if(!isReplaced)new; if(!isReplaced)typeName+"(%2$s);String.format(typeName,renderCtorParams(/*todo handle pairs*/extractGenerics($typeName).substring(1,n-1)),$type,$recursionDepth))"
-#if(!$typeName.startsWith("java.util.Arrays."))new #end$typeName(#if($recursionDepth<=$MAX_RECURSION_DEPTH)#renderCtorParams($typeName,$type,$recursionDepth)#end)#end
-#end
-##
-#macro( renderCtorParams $typeName $type $recursionDepth)##todo migrate to class
-#if(($typeName==$type.name || $typeName==$type.canonicalName) && $type.constructors.size()>0)##
-#renderJavaCallParams($type.constructors.get(0).methodParams, $recursionDepth)
-#end
-#end
 ##
 #macro(renderMockedFields $testedClassFields)
 #foreach($field in $testedClassFields)
@@ -105,7 +77,7 @@
 #end
 ##
 #macro(renderJUnitAssert $type)
-#renderJunitAssertMethod($type)(#renderJavaCallParams([{"type":$type,"name":"replaceMeWithExpectedResult"}] ,0), result);
+#renderJunitAssertMethod($type)($TestBuilder.renderJavaCallParam($type,"replaceMeWithExpectedResult",$replacementTypes,$defaultTypeValues ,0), result);
 #end
 ##
 #macro(renderJunitAssertMethod $type)
@@ -113,7 +85,7 @@
 #end
 ##
 #macro(renderMethodCall $method,$testedClassName)
-#renderJavaReturnVar($method.returnType)#if($method.static)$testedClassName#{else}$StringUtils.deCapitalizeFirstLetter($testedClassName)#end.${method.name}(#renderJavaCallParams($method.methodParams, 0));
+#renderJavaReturnVar($method.returnType)#if($method.static)$testedClassName#{else}$StringUtils.deCapitalizeFirstLetter($testedClassName)#end.${method.name}($TestBuilder.renderJavaCallParams($method.methodParams,$replacementTypes,$defaultTypeValues , 0));
 #end
 ##
 #macro(renderTestMethodName $methodName)
