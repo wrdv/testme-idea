@@ -57,7 +57,7 @@
 #if($class.parent)#renderInitClass($class.parent).#end#if(!$class.isStatic())new #end$class.name#if(!$class.isStatic() && $class.parent || !$class.child || !$class.child.isStatic())()#end
 #end
 ##        
-#macro( renderJavaCallParams $params $recursionDepth)
+#macro( renderJavaCallParams $params $recursionDepth)##todo migrate to class
 #set($recursionDepth=$recursionDepth+1)
 #foreach($param in $params)#*
     *##if($foreach.count>1), #end#*
@@ -65,40 +65,30 @@
 #end
 #end
 ##
-#macro( renderJavaCallParam $type $strValue $recursionDepth)
-#if($type.array)new #resolveTypeName($type, {})[]{#end#renderJavaParam($type,$strValue $recursionDepth)#if($type.array)}#end
+#macro( renderJavaCallParam $type $strValue $recursionDepth)##todo migrate to class
+#if($type.array)new ${TestBuilder.resolveTypeName($type, {})}[]{#end#renderJavaParam($type,$strValue $recursionDepth)#if($type.array)}#end
 #end
 ##
-#macro( renderJavaParam $type $strValue $recursionDepth)
+#macro( renderJavaParam $type $strValue $recursionDepth)##todo migrate to class
 #if($defaultTypeValues.get($type.canonicalName))$defaultTypeValues.get($type.canonicalName)##
 #elseif($type.canonicalName == "java.lang.String")"${strValue}"##
-#elseif($type.enumValues.size()>0)#resolveTypeName($type, {}).${type.enumValues[0]}##
+#elseif($type.enumValues.size()>0)${TestBuilder.resolveTypeName($type, {})}.${type.enumValues[0]}##
 #else##
-#set($typeName="#resolveTypeName($type $replacementTypes)")##
+#set($typeName="${TestBuilder.resolveTypeName($type, $replacementTypes)}")##
 #if(!$typeName.startsWith("java.util.Arrays."))new #end$typeName(#if($recursionDepth<=$MAX_RECURSION_DEPTH)#renderCtorParams($typeName,$type,$recursionDepth)#end)#end
 #end
 ##
-#macro( renderCtorParams $typeName $type $recursionDepth)
+#macro( renderCtorParams $typeName $type $recursionDepth)##todo migrate to class
 #if(($typeName==$type.name || $typeName==$type.canonicalName) && $type.constructors.size()>0)##
 #renderJavaCallParams($type.constructors.get(0).methodParams, $recursionDepth)
 #end
-#end
-##
-#macro( resolveTypeName $type $replacementTypesMap)##todo  - should be migrated to a function
-#set($canonicalName="$type.canonicalName")##
-#set($sanitizedCanonicalName=$TestBuilder.stripGenerics($canonicalName))##
-#if($replacementTypesMap.get( $sanitizedCanonicalName))#*
-    *##set($sanitizedCanonicalName=$replacementTypesMap.get($sanitizedCanonicalName))#*
-    *##set($canonicalName = $TestBuilder.replaceType($canonicalName,$sanitizedCanonicalName))##
-#end
-$canonicalName##
 #end
 ##
 #macro(renderMockedFields $testedClassFields)
 #foreach($field in $testedClassFields)
 #if(!${field.type.primitive} && !${field.finalType} && !${field.overridden} && !$field.type.array && !$field.type.enum)
     @Mock
-    #resolveTypeName($field.type, {}) $field.name;
+    ${TestBuilder.resolveTypeName($field.type, {})} $field.name;
 #elseif(!$field.type.primitive && !($field.type.canonicalName == "java.lang.String") && $field.finalType && (!$field.static || !$field.final))
     //Field $field.name of type $field.type.name - was not mocked since Mockito doesn't mock a Final class
 #elseif($field.type.array && (!$field.static || !$field.final))
@@ -110,7 +100,7 @@ $canonicalName##
 #end
 ##
 #macro(renderJavaReturnVar $type)
-#if($type && $type.name !="void")#resolveTypeName($type, {})#if($type.array)[]#end result = #end
+#if($type && $type.name !="void")${TestBuilder.resolveTypeName($type, {})}#if($type.array)[]#end result = #end
 #end
 ##
 #macro(renderJUnitAssert $type)

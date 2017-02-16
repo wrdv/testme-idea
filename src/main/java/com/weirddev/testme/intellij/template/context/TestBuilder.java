@@ -1,5 +1,6 @@
 package com.weirddev.testme.intellij.template.context;
 
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,5 +24,15 @@ public class TestBuilder {
     }
     public String replaceType(String type,String replacementType){
         return String.format(replacementType, extractGenerics(type));
+    }
+
+    public String resolveTypeName(Type type,Map<String,String> replacementTypesMap){
+        String canonicalName = type.getCanonicalName();
+        String sanitizedCanonicalName = stripGenerics(canonicalName);
+        if (replacementTypesMap.get(sanitizedCanonicalName)!=null) {
+            String replacedSanitizedCanonicalName = replacementTypesMap.get(sanitizedCanonicalName);
+            canonicalName = replaceType(canonicalName, replacedSanitizedCanonicalName);
+       }
+        return canonicalName;
     }
 }

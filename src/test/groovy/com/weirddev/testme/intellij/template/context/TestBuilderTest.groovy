@@ -24,4 +24,10 @@ class TestBuilderTest extends GroovyTestCase {
     void testExtractGenerics() {
         assert "<List<Fire>>" ==  new TestBuilder().extractGenerics("java.util.Set<List<Fire>>")
     }
+    void testResolveTypeName() {
+        assert "java.util.HashSet" ==  new TestBuilder().resolveTypeName(new Type("java.util.Set<List<Fire>>","Set","java.util",false,false,[]),["java.util.Set":"java.util.HashSet"])
+    }
+    void testResolveTypeNameWithGenerics() {
+        assert "java.util.HashSet<List<Fire>>" ==  new TestBuilder().resolveTypeName(new Type("java.util.Set<List<Fire>>","Set","java.util",false,false,[]),["java.util.Set":"java.util.HashSet%1\$s"])
+    }
 }
