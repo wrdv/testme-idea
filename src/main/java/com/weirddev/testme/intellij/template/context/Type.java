@@ -4,6 +4,7 @@ import com.intellij.psi.*;
 import com.intellij.psi.impl.source.PsiClassReferenceType;
 import com.intellij.psi.util.PsiUtil;
 import com.weirddev.testme.intellij.template.TypeDictionary;
+import com.weirddev.testme.intellij.utils.ClassNameUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -38,15 +39,15 @@ public class Type {
     }
 
     Type(String canonicalName) {
-        this(ClassUtils.extractContainerType(canonicalName), ClassUtils.extractClassName(canonicalName), ClassUtils.extractPackageName(canonicalName),false, ClassUtils.isArray(canonicalName),null);
+        this(ClassNameUtils.extractContainerType(canonicalName), ClassNameUtils.extractClassName(canonicalName), ClassNameUtils.extractPackageName(canonicalName),false, ClassNameUtils.isArray(canonicalName),null);
     }
 
     public Type(PsiType psiType, @Nullable TypeDictionary typeDictionary, int maxRecursionDepth) {
         String canonicalText = psiType.getCanonicalText();
-        array = ClassUtils.isArray(canonicalText);
-        this.canonicalName = ClassUtils.stripArrayDesignator(canonicalText);
-        this.name = ClassUtils.stripArrayDesignator(psiType.getPresentableText());
-        packageName = ClassUtils.extractPackageName(canonicalName);
+        array = ClassNameUtils.isArray(canonicalText);
+        this.canonicalName = ClassNameUtils.stripArrayDesignator(canonicalText);
+        this.name = ClassNameUtils.stripArrayDesignator(psiType.getPresentableText());
+        packageName = ClassNameUtils.extractPackageName(canonicalName);
         this.isPrimitive = psiType instanceof PsiPrimitiveType;
         composedTypes = resolveTypes(psiType);
         PsiClass psiClass = PsiUtil.resolveClassInType(psiType);

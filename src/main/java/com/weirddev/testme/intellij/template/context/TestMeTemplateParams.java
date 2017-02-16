@@ -12,7 +12,7 @@ public interface TestMeTemplateParams {
     String PACKAGE_NAME = "PACKAGE_NAME";
     String CLASS_NAME = "CLASS_NAME";
 
-    String CLASS_UTILS = "ClassUtils";
+    String TEST_BUILDER = "TestBuilder";
     String STRING_UTILS = "StringUtils";
     String MAX_RECURSION_DEPTH = "MAX_RECURSION_DEPTH";
 

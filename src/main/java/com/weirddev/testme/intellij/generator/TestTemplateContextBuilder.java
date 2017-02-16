@@ -32,7 +32,7 @@ public class TestTemplateContextBuilder {
             List<Method> methods = createMethods(context.getSrcClass(),maxRecursionDepth,context.getTargetPackage());
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_METHODS, methods);
         }
-        ctxtParams.put(TestMeTemplateParams.CLASS_UTILS, new ClassUtils());
+        ctxtParams.put(TestMeTemplateParams.TEST_BUILDER, new TestBuilder());
         ctxtParams.put(TestMeTemplateParams.STRING_UTILS, StringUtils.class);
         return ctxtParams;
     }

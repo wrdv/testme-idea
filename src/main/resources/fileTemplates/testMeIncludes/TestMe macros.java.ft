@@ -56,6 +56,7 @@
 #macro( renderInitClass $class)
 #if($class.parent)#renderInitClass($class.parent).#end#if(!$class.isStatic())new #end$class.name#if(!$class.isStatic() && $class.parent || !$class.child || !$class.child.isStatic())()#end
 #end
+##        
 #macro( renderJavaCallParams $params $recursionDepth)
 #set($recursionDepth=$recursionDepth+1)
 #foreach($param in $params)#*
@@ -85,10 +86,10 @@
 ##
 #macro( resolveTypeName $type $replacementTypesMap)##todo  - should be migrated to a function
 #set($canonicalName="$type.canonicalName")##
-#set($sanitizedCanonicalName=$ClassUtils.stripGenerics($canonicalName))##
+#set($sanitizedCanonicalName=$TestBuilder.stripGenerics($canonicalName))##
 #if($replacementTypesMap.get( $sanitizedCanonicalName))#*
     *##set($sanitizedCanonicalName=$replacementTypesMap.get($sanitizedCanonicalName))#*
-    *##set($canonicalName = $ClassUtils.replaceType($canonicalName,$sanitizedCanonicalName))##
+    *##set($canonicalName = $TestBuilder.replaceType($canonicalName,$sanitizedCanonicalName))##
 #end
 $canonicalName##
 #end
@@ -118,19 +119,6 @@ $canonicalName##
 ##
 #macro(renderJunitAssertMethod $type)
 #if($type && $type.array)assertArrayEquals#{else}assertEquals#end
-#end
-##
-#macro(renderTestMethods $testedClassMethods $testedClassName)
-#foreach($method in $testedClassMethods)
-#if($method.isTestable())
-
-    @Test
-    public void #renderTestMethodName($method.name)() throws Exception {
-        #renderMethodCall($method,$testedClassName)
-#if($method.returnType && $method.returnType.name !="void")        Assert.#renderJUnitAssert($method.returnType)#end
-    }
-#end
-#end
 #end
 ##
 #macro(renderMethodCall $method,$testedClassName)
