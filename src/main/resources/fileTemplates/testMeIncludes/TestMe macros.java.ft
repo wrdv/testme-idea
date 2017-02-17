@@ -1,17 +1,18 @@
 ################## Global vars ###############
 #set($trackedTestMethodsCount={})
 #set($replacementTypes = {
-    "java.util.Collection": "java.util.Arrays.asList",
-    "java.util.Deque": "java.util.LinkedList%1$s(Arrays.asList())",
-    "java.util.List": "java.util.Arrays.asList",
-    "java.util.Map": "java.util.HashMap%1$s",
-    "java.util.NavigableMap": "java.util.TreeMap%1$s",
-    "java.util.NavigableSet": "java.util.TreeSet%1$s",
-    "java.util.Queue": "java.util.LinkedList%1$s",
-    "java.util.RandomAccess": "java.util.Vector%1$s",
-    "java.util.Set": "java.util.HashSet%1$s",
-    "java.util.SortedSet": "java.util.TreeSet%1$s"
+    "java.util.Collection": "java.util.Arrays.asList(<VAL>)",
+    "java.util.Deque": "new java.util.LinkedList<TYPES>(Arrays.asList(<VAL>))",
+    "java.util.List": "java.util.Arrays.asList(<VAL>)",
+    "java.util.Map": "new java.util.HashMap<TYPES>(){{put(<VAL>,<VAL>);}}",
+    "java.util.NavigableMap": "new java.util.TreeMap<TYPES>(new java.util.HashMap<TYPES>(){{put(<VAL>,<VAL>);}})",
+    "java.util.NavigableSet": "new java.util.TreeSet<TYPES>(Arrays.asList(<VAL>))",
+    "java.util.Queue": "new java.util.LinkedList<TYPES>(Arrays.asList(<VAL>))",
+    "java.util.RandomAccess": "new java.util.Vector<TYPES>",
+    "java.util.Set": "new java.util.HashSet<TYPES>(Arrays.asList(<VAL>))",
+    "java.util.SortedSet": "new java.util.TreeSet<TYPES>(Arrays.asList(<VAL>))"
 })
+##todo test NavigableMap, NavigableSet, RandomAccess, SortedSet + map concrete collections
 #set($defaultTypeValues = {
     "byte": "(byte) 0",
     "short": "(short) 0",
@@ -61,7 +62,7 @@
 #foreach($field in $testedClassFields)
 #if(!${field.type.primitive} && !${field.finalType} && !${field.overridden} && !$field.type.array && !$field.type.enum)
     @Mock
-    ${TestBuilder.resolveTypeName($field.type, {})} $field.name;
+    $field.type.canonicalName $field.name;
 #elseif(!$field.type.primitive && !($field.type.canonicalName == "java.lang.String") && $field.finalType && (!$field.static || !$field.final))
     //Field $field.name of type $field.type.name - was not mocked since Mockito doesn't mock a Final class
 #elseif($field.type.array && (!$field.static || !$field.final))
@@ -73,7 +74,7 @@
 #end
 ##
 #macro(renderJavaReturnVar $type)
-#if($type && $type.name !="void")${TestBuilder.resolveTypeName($type, {})}#if($type.array)[]#end result = #end
+#if($type && $type.name !="void")$type.canonicalName#if($type.array)[]#end result = #end
 #end
 ##
 #macro(renderJUnitAssert $type)
