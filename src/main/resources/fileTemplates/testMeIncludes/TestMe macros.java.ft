@@ -1,16 +1,16 @@
 ################## Global vars ###############
 #set($trackedTestMethodsCount={})
 #set($replacementTypes = {
-    "java.util.Collection": "java.util.Arrays.asList(<VAL>)",
-    "java.util.Deque": "new java.util.LinkedList<TYPES>(Arrays.asList(<VAL>))",
-    "java.util.List": "java.util.Arrays.asList(<VAL>)",
+    "java.util.Collection": "java.util.Arrays.<TYPES>asList(<VAL>)",
+    "java.util.Deque": "new java.util.LinkedList<TYPES>(java.util.Arrays.asList(<VAL>))",
+    "java.util.List": "java.util.Arrays.<TYPES>asList(<VAL>)",
     "java.util.Map": "new java.util.HashMap<TYPES>(){{put(<VAL>,<VAL>);}}",
     "java.util.NavigableMap": "new java.util.TreeMap<TYPES>(new java.util.HashMap<TYPES>(){{put(<VAL>,<VAL>);}})",
-    "java.util.NavigableSet": "new java.util.TreeSet<TYPES>(Arrays.asList(<VAL>))",
-    "java.util.Queue": "new java.util.LinkedList<TYPES>(Arrays.asList(<VAL>))",
+    "java.util.NavigableSet": "new java.util.TreeSet<TYPES>(java.util.Arrays.asList(<VAL>))",
+    "java.util.Queue": "new java.util.LinkedList<TYPES>(java.util.Arrays.asList(<VAL>))",
     "java.util.RandomAccess": "new java.util.Vector<TYPES>",
-    "java.util.Set": "new java.util.HashSet<TYPES>(Arrays.asList(<VAL>))",
-    "java.util.SortedSet": "new java.util.TreeSet<TYPES>(Arrays.asList(<VAL>))"
+    "java.util.Set": "new java.util.HashSet<TYPES>(java.util.Arrays.asList(<VAL>))",
+    "java.util.SortedSet": "new java.util.TreeSet<TYPES>(java.util.Arrays.asList(<VAL>))"
 })
 ##todo test NavigableMap, NavigableSet, RandomAccess, SortedSet + map concrete collections
 #set($defaultTypeValues = {

@@ -1,20 +1,17 @@
 package com.example.services.impl;
 
-import java.util.List;
-import com.example.warriers.FooFighter;
-import com.example.foes.Fire;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.HashMap;
-import com.example.foes.Ice;
-import java.util.LinkedList;
 import com.example.foes.Fear;
+import com.example.foes.Fire;
+import com.example.foes.Ice;
+import com.example.warriers.FooFighter;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
+import java.util.*;
 
 import static org.mockito.Mockito.*;
 /** created by TestMe integration test on MMXVI */
@@ -31,14 +28,14 @@ public class FooTest {
 
     @Test
     public void testFight() throws Exception {
-        List<Fire> result = foo.fight(Arrays.asList(new Fire()), new HashSet<Fire>(Arrays.asList(new Fire())), new HashMap<String, Ice>() {{put("icebergs",new Ice());}}, Arrays.asList("strings"), Arrays.asList(Arrays.asList("collOfLists")), new LinkedList<List<Fear>>(Arrays.asList(Arrays.asList(new Fear()))), new LinkedList<Fear>(Arrays.asList(new Fear())));
-        Assert.assertEquals(Arrays.asList(new Fire()), result);
+        List<Fire> result = foo.fight(Arrays.<Fire>asList(new Fire()), new HashSet<Fire>(Arrays.asList(new Fire())), new HashMap<String,Ice>(){{put("String",new Ice());}}, Arrays.<String>asList("String"), Arrays.<List<String>>asList(Arrays.<String>asList("String")), new LinkedList<List<Fear>>(Arrays.asList(Arrays.<Fear>asList(new Fear()))), new LinkedList<Fear>(Arrays.asList(new Fear())));
+        Assert.assertEquals(Arrays.<Fire>asList(new Fire()), result);
     }
 
     @Test
     public void testTypeless() throws Exception {
-        List result = foo.typeless(Arrays.asList(), new HashSet(), new HashMap(), Arrays.asList(), Arrays.asList(Arrays.asList()), new LinkedList<List>(Arrays.asList(Arrays.asList())));
-        Assert.assertEquals(Arrays.asList(), result);
+        List result = foo.typeless(Arrays.asList("String"), new HashSet(Arrays.asList("String")), new HashMap(){{put("String","String");}}, Arrays.asList("String"), Arrays.<List>asList(Arrays.asList("String")), new LinkedList<List>(Arrays.asList(Arrays.asList("String"))));
+        Assert.assertEquals(Arrays.asList("String"), result);
     }
 }
 

@@ -10,7 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 
 import static org.mockito.Mockito.*;
 /** created by TestMe integration test on MMXVI */
@@ -27,7 +27,7 @@ public class FooTest {
 
     @Test
     public void testFight() throws Exception {
-        List<Fire> result = foo.fight(new ArrayList<com.example.foes.Fire>());
+        List<Fire> result = foo.fight(Arrays.<com.example.foes.Fire>asList(new com.example.foes.Fire()));
         Assert.assertEquals(new List<Fire>(), result);
     }
 }

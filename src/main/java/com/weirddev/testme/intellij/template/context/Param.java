@@ -12,8 +12,12 @@ public class Param {
     private String name;
 
     public Param(PsiParameter psiParameter, TypeDictionary typeDictionary, int maxRecursionDepth) {
-        this.type = typeDictionary.getType(psiParameter.getType(), maxRecursionDepth);
-        this.name = psiParameter.getName();
+        this(typeDictionary.getType(psiParameter.getType(), maxRecursionDepth), psiParameter.getName());
+    }
+
+    public Param(Type type, String name) {
+        this.type = type;
+        this.name = name;
     }
 
     public Type getType() {

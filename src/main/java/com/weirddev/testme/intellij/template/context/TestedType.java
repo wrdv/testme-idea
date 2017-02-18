@@ -14,7 +14,7 @@ public class TestedType extends Type {
     private final boolean isStatic;
     private final TestedType child;
 
-    public TestedType(PsiClass psiClass,TestedType child) {
+    public TestedType(PsiClass psiClass,TestedType child) {//todo consider refactoring and unifying with Type
         super(psiClass.getQualifiedName());
         isStatic = psiClass.getModifierList() != null && psiClass.getModifierList().hasExplicitModifier(PsiModifier.STATIC);
         this.child = child;

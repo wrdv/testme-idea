@@ -49,7 +49,7 @@ public class Type {
         this.name = ClassNameUtils.stripArrayDesignator(psiType.getPresentableText());
         packageName = ClassNameUtils.extractPackageName(canonicalName);
         this.isPrimitive = psiType instanceof PsiPrimitiveType;
-        composedTypes = resolveTypes(psiType);
+        composedTypes = resolveTypes(psiType,typeDictionary,maxRecursionDepth);
         PsiClass psiClass = PsiUtil.resolveClassInType(psiType);
         isEnum = psiClass != null && psiClass.isEnum();
         enumValues = resolveEnumValues(psiType);
@@ -85,23 +85,18 @@ public class Type {
         return enumValues;
     }
 
-    private List<Type> resolveTypes(PsiType psiType) {
+    private List<Type> resolveTypes(PsiType psiType, TypeDictionary typeDictionary, int maxRecursionDepth) {
         ArrayList<Type> types = new ArrayList<Type>();
-        resolveTypes(psiType, types);
-        return types;
-    }
-
-    private void resolveTypes(PsiType psiType, ArrayList<Type> types) {
-        types.add(new Type(psiType.getCanonicalText()));
         if (psiType instanceof PsiClassReferenceType) {
             PsiClassReferenceType psiClassReferenceType = (PsiClassReferenceType) psiType;
             PsiType[] parameters = psiClassReferenceType.getParameters();
             if (parameters.length > 0) {
                 for (PsiType parameter : parameters) {
-                    resolveTypes(parameter, types);
+                    types.add(new Type(parameter,typeDictionary, maxRecursionDepth));
                 }
             }
         }
+        return types;
     }
 
     public String getCanonicalName() {
@@ -178,6 +173,9 @@ public class Type {
                 ", packageName='" + packageName + '\'' +
                 ", composedTypes=" + composedTypes +
                 ", array=" + array +
+                ", enumValues=" + enumValues +
+                ", isEnum=" + isEnum +
+                ", constructors=" + constructors +
                 '}';
     }
 

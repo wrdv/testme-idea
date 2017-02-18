@@ -7,10 +7,16 @@ import spock.lang.Specification
  * @author Yaron Yamin
  */
 class TestBuilderImplTest extends Specification {
-
+    static Type fearType = new Type("com.example.foes.Fear", "Fear", "com.example.foes", false, false, [])
+    static Type stringType = new Type("java.lang.String", "String", "java.lang", false, false, [])
+    static Type queueWithTypeParams = new Type("java.util.Queue<java.util.List<com.example.foes.Fear>>", "Queue<List<Fear>>", "java.util", false, false, [new Type("java.util.List<com.example.foes.Fear>", "List<Fear>", "java.util", false, false, [fearType])])
+    static Map globalReplacementMap = ["java.util.Queue": "new java.util.LinkedList<TYPES>(java.util.Arrays.asList(<VAL>))",
+                                       "java.util.Set"  : "new java.util.HashSet<TYPES>(java.util.Arrays.asList(<VAL>))",
+                                       "java.util.Map"  : "new java.util.HashMap<TYPES>(){{put(<VAL>,<VAL>);}}",
+                                       "java.util.List" : "java.util.Arrays.<TYPES>asList(<VAL>)"
+    ]
+    def testBuilder = new TestBuilderImpl(5)
     def "stripGenerics"() {
-        given:
-        def testBuilder = new TestBuilderImpl()
 
         expect:
         testBuilder.stripGenerics(canonicalName) == result
@@ -23,8 +29,6 @@ class TestBuilderImplTest extends Specification {
     }
 
     def "extractGenerics"() {
-        given:
-        def testBuilder = new TestBuilderImpl()
 
         expect:
         testBuilder.extractGenerics(canonicalName) == result
@@ -38,7 +42,7 @@ class TestBuilderImplTest extends Specification {
 
     def "resolveType"() {
         expect:
-        result == new TestBuilderImpl().resolveType(new Type(canonicalName, "Set", "java.util", false, false, []), replacementMap as HashMap)
+        result == testBuilder.resolveType(new Type(canonicalName, "Set", "java.util", false, false, []), replacementMap as HashMap)
 
         where:
         result                          | canonicalName               | replacementMap
@@ -49,5 +53,17 @@ class TestBuilderImplTest extends Specification {
         "java.util.HashSet"             | "java.util.Set<List<Fire>>" | ["java.util.Set": "java.util.HashSet"]
         "java.util.Arrays.asList"       | "java.util.Set<Fire>"       | ["java.util.Set": "java.util.Arrays.asList"]
         "HashSet<Fire>"                 | "Set<Fire>"                 | ["Set": "HashSet<TYPES>"]
+    }
+
+    def "renderJavaCallParam - generic collection"() {
+        expect:
+        testBuilder.renderJavaCallParam(type, "paramName", globalReplacementMap, [:], 9) == result
+
+        where:
+        result                                                                                                                                           | type
+        "new java.util.LinkedList<java.util.List<com.example.foes.Fear>>(java.util.Arrays.asList(java.util.Arrays.<com.example.foes.Fear>asList(new com.example.foes.Fear())))" | queueWithTypeParams
+        "new java.util.HashSet(java.util.Arrays.asList(\"String\"))"                                                                                     | new Type("java.util.Set", "Set", "java.util", false, false, [])
+        "new java.util.HashMap<java.lang.String,com.example.foes.Fear>(){{put(\"String\",new com.example.foes.Fear());}}"                                | new Type("java.util.Map<java.lang.String,com.example.foes.Fear>", "Map", "java.util", false, false, [stringType, fearType])
+        "new java.util.HashMap(){{put(\"String\",\"String\");}}"                                                                                         | new Type("java.util.Map", "Map", "java.util", false, false, [])
     }
 }
