@@ -8,11 +8,18 @@
     "java.util.NavigableMap": "new java.util.TreeMap<TYPES>(new java.util.HashMap<TYPES>(){{put(<VAL>,<VAL>);}})",
     "java.util.NavigableSet": "new java.util.TreeSet<TYPES>(java.util.Arrays.asList(<VAL>))",
     "java.util.Queue": "new java.util.LinkedList<TYPES>(java.util.Arrays.asList(<VAL>))",
-    "java.util.RandomAccess": "new java.util.Vector<TYPES>",
+    "java.util.RandomAccess": "new java.util.Vector(java.util.Arrays.asList(<VAL>))",
     "java.util.Set": "new java.util.HashSet<TYPES>(java.util.Arrays.asList(<VAL>))",
-    "java.util.SortedSet": "new java.util.TreeSet<TYPES>(java.util.Arrays.asList(<VAL>))"
+    "java.util.SortedSet": "new java.util.TreeSet<TYPES>(java.util.Arrays.asList(<VAL>))",
+    "java.util.LinkedList": "new java.util.LinkedList<TYPES>(java.util.Arrays.asList(<VAL>))",
+    "java.util.ArrayList": "new java.util.ArrayList<TYPES>(java.util.Arrays.asList(<VAL>))",
+    "java.util.HashMap": "new java.util.HashMap<TYPES>(){{put(<VAL>,<VAL>);}}",
+    "java.util.TreeMap": "new java.util.TreeMap<TYPES>(new java.util.HashMap<TYPES>(){{put(<VAL>,<VAL>);}})",
+    "java.util.LinkedList": "new java.util.LinkedList<TYPES>(java.util.Arrays.asList(<VAL>))",
+    "java.util.Vector": "new java.util.Vector(java.util.Arrays.asList(<VAL>))",
+    "java.util.HashSet": "new java.util.HashSet<TYPES>(java.util.Arrays.asList(<VAL>))",
+    "java.util.TreeSet": "new java.util.TreeSet<TYPES>(java.util.Arrays.asList(<VAL>))"
 })
-##todo test NavigableMap, NavigableSet, RandomAccess, SortedSet + map concrete collections
 #set($defaultTypeValues = {
     "byte": "(byte) 0",
     "short": "(short) 0",

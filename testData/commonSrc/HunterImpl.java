@@ -1,4 +1,4 @@
-package com.example.warriers.impl;
+import com.example.foes.Pokemon;
 
 
 /** Test input class*/

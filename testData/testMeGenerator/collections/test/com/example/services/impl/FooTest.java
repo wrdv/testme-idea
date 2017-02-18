@@ -33,9 +33,21 @@ public class FooTest {
     }
 
     @Test
+    public void testFightConcreteTypes() throws Exception {
+        List<Fire> result = foo.fightConcreteTypes(new ArrayList<Fire>(Arrays.asList(new Fire())), new HashSet<Fire>(Arrays.asList(new Fire())), new HashMap<String,Ice>(){{put("String",new Ice());}}, new Vector(Arrays.asList(Arrays.<String>asList("String"))), new TreeSet<Fear>(Arrays.asList(new Fear())), new Stack<Fear>());
+        Assert.assertEquals(Arrays.<Fire>asList(new Fire()), result);
+    }
+
+    @Test
     public void testTypeless() throws Exception {
         List result = foo.typeless(Arrays.asList("String"), new HashSet(Arrays.asList("String")), new HashMap(){{put("String","String");}}, Arrays.asList("String"), Arrays.<List>asList(Arrays.asList("String")), new LinkedList<List>(Arrays.asList(Arrays.asList("String"))));
         Assert.assertEquals(Arrays.asList("String"), result);
+    }
+
+    @Test
+    public void testMiscColls() throws Exception {
+        NavigableMap<String,Fire> result = foo.miscColls(new TreeMap<String,Fire>(new HashMap<String,Fire>(){{put("String",new Fire());}}), new TreeSet<Fire>(Arrays.asList(new Fire())), new Vector(Arrays.asList("String")), new TreeSet<Fire>(Arrays.asList(new Fire())));
+        Assert.assertEquals(new TreeMap<String,Fire>(new HashMap<String,Fire>(){{put("String",new Fire());}}), result);
     }
 }
 
