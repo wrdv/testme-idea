@@ -1,7 +1,7 @@
 <idea-plugin version="2">
   <id>com.weirddev.testme</id>
   <name>TestMe</name>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
   <vendor email="testme@weirddev.com" url="http://weirddev.com">WeirdDev</vendor>
 
   <description><![CDATA[
@@ -18,11 +18,12 @@
      <p>You're welcome to report issues and raise feature requests at <a href="http://weirddev.com/forum#!/testme">TestMe project forum</a></p>
     ]]></description>
 
-<!--  <change-notes><![CDATA[
-      Add change notes here.<br>
-      <em>most HTML tags may be used</em>
+  <change-notes><![CDATA[
+      <ul>
+          <li>Initialize Objects in generic collections</li>
+      </ul>
     ]]>
-  </change-notes>-->
+  </change-notes>
   <!-- please see https://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
   <!--<idea-version since-build="139"/> --><!--14 -->
   <idea-version since-build="141"/> <!--14.1-->
