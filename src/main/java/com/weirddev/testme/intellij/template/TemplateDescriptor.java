@@ -1,5 +1,7 @@
 package com.weirddev.testme.intellij.template;
 
+import com.intellij.ide.plugins.PluginManager;
+import com.intellij.openapi.extensions.PluginId;
 import com.weirddev.testme.intellij.icon.IconTokensReplacerImpl;
 
 /**
@@ -11,11 +13,13 @@ public class TemplateDescriptor {
     private String tokenizedDisplayName;
     private String displayName;
     private String filename;
+    private String[] dependantPlugins;
 
-    public TemplateDescriptor(String tokenizedDisplayName, String filename) {
+    public TemplateDescriptor(String tokenizedDisplayName, String filename, String[] dependantPlugins) {
         this.tokenizedDisplayName = tokenizedDisplayName;
         this.displayName = IconTokensReplacerImpl.stripTokens(tokenizedDisplayName);
         this.filename = filename;
+        this.dependantPlugins = dependantPlugins;
     }
 
     public String getTokenizedDisplayName() {
@@ -32,5 +36,15 @@ public class TemplateDescriptor {
 
     public String getTestClassFormat() {
         return "%sTest";
+    }
+    public boolean isEnabled(){
+        if (dependantPlugins != null) {
+            for (String pluginId : dependantPlugins) {
+                if (!PluginManager.isPluginInstalled(PluginId.getId(pluginId))|| PluginManager.getDisabledPlugins().contains(pluginId)) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }

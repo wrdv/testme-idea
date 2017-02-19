@@ -53,7 +53,9 @@ public class TestMeActionHandler extends TestMePopUpHandler {
         findNestedClassName(editor, file, (PsiNamedElement) sourceElement);
         List<TemplateDescriptor> templateDescriptors = templateRegistry.getTemplateDescriptors();
         for (final TemplateDescriptor templateDescriptor : templateDescriptors) {
-            actions.add(new TestMeAdditionalAction(templateDescriptor, editor, file) );
+            if (templateDescriptor.isEnabled()) {
+                actions.add(new TestMeAdditionalAction(templateDescriptor, editor, file) );
+            }
         }
         return new GotoData(sourceElement, actions);
     }

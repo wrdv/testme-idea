@@ -1,27 +1,27 @@
 <idea-plugin version="2">
   <id>com.weirddev.testme</id>
   <name>TestMe</name>
-  <version>1.0.1</version>
+  <version>1.1.0</version>
   <vendor email="testme@weirddev.com" url="http://weirddev.com">WeirdDev</vendor>
 
   <description><![CDATA[
-     <h3>TestMe</h3>
-     <p>Auto Generate Unit Test Class from code.</p>
-     <p>No more boilerplate!</p>
-     <h3>Features:</h3>
-     <ul>
-       <li>Support JUnit 4,5</li>
-       <li>Auto generate Mockito mocks </li>
-       <li>Generate test params and assertion statements</li>
-       <li>Integrate with IDEA menus: Code->TestMe, Code->Generate, Navigate->Test</li>
-     </ul>
-     <p>You're welcome to report issues and raise feature requests at <a href="http://weirddev.com/forum#!/testme">TestMe project forum</a></p>
+   <h3>TestMe</h3>
+   <p>Auto Generate Unit Test Class from code.</p>
+   <p>No more boilerplate!</p>
+   <h3>Features:</h3>
+   <ul>
+     <li>Support JUnit 4,5</li>
+     <li>Auto generate Mockito mocks </li>
+     <li>Generate test params and assertion statements</li>
+     <li>Integrate with IDEA menus: Code->TestMe, Code->Generate</li>
+   </ul>
+   <p>You're welcome to report issues and raise feature requests at <a href="http://weirddev.com/forum#!/testme">TestMe project forum</a></p>
     ]]></description>
 
   <change-notes><![CDATA[
-      <ul>
-          <li>Initialize Objects in generic collections</li>
-      </ul>
+    <ul>
+        <li>Initialize Objects in generic collections</li>
+    </ul>
     ]]>
   </change-notes>
   <!-- please see https://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
@@ -29,6 +29,7 @@
   <idea-version since-build="141"/> <!--14.1-->
   <depends>com.intellij.modules.java</depends>
   <depends>JUnit</depends>
+  <depends optional="true">org.intellij.groovy</depends>
   <extensions defaultExtensionNs="com.intellij">
   </extensions>
 

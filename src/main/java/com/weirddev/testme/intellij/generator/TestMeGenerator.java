@@ -18,8 +18,8 @@ import com.intellij.psi.codeStyle.JavaCodeStyleManager;
 import com.intellij.psi.impl.source.PostprocessReformattingAspect;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.GlobalSearchScopesCore;
-import com.intellij.util.IncorrectOperationException;
 import com.intellij.testIntegration.createTest.JavaTestGenerator;
+import com.intellij.util.IncorrectOperationException;
 import com.weirddev.testme.intellij.template.FileTemplateContext;
 import org.apache.velocity.app.Velocity;
 import org.jetbrains.annotations.Nullable;
@@ -102,29 +102,45 @@ public class TestMeGenerator {
             FileTemplate codeTemplate = fileTemplateManager.getInternalTemplate(templateName);
             codeTemplate.setReformatCode(context.isReformatCode());
             Velocity.setProperty( Velocity.VM_MAX_DEPTH, 200);
-            final PsiElement psiElement = FileTemplateUtil.createFromTemplate(codeTemplate, templateName, templateCtxtParams, targetDirectory, null);
-            if (psiElement instanceof PsiClass) {
-                PsiClass psiClass = (PsiClass) psiElement;
+//            GrTypeDefinition e1 = CreateClassActionBase.createClassByType(d.getTargetDirectory(), d.getClassName(), PsiManager.getInstance(project), (PsiElement)null, "GroovyClass.groovy", true);
+            final PsiElement psiElement = FileTemplateUtil.createFromTemplate(codeTemplate, context.getTargetClass(), templateCtxtParams, targetDirectory, null);
+            final PsiElement resolvedPsiElement=resolveEmbeddedClass(psiElement);
+            if (resolvedPsiElement instanceof PsiClass) {
+                PsiClass psiClass = (PsiClass) resolvedPsiElement;
                 JavaCodeStyleManager codeStyleManager = JavaCodeStyleManager.getInstance(targetDirectory.getProject());
                 if (context.isOptimizeImports()) {
                     codeStyleManager.optimizeImports(psiClass.getContainingFile());
                 }
                 codeRefactorUtil.uncommentImports(psiClass, context.getProject());
-                if (context.isReplaceFqn()) {
-                    codeStyleManager.shortenClassReferences(psiClass.getContainingFile());
+//                CodeStyleManager.getInstance(project).reformat(test);
+                if (context.isReplaceFqn() && "JAVA".equals(psiClass.getContainingFile().getFileType().getName())) { //todo fix for groovy
+                    codeStyleManager.shortenClassReferences(psiClass);
                 }
                 final Document document = psiClass.getContainingFile().getViewProvider().getDocument();
                 if (document != null) {
                     PsiDocumentManager.getInstance(context.getProject()).doPostponedOperationsAndUnblockDocument(document);
                 }
                 return psiClass;
+            } else {
+                return null;
             }
-            return null;
 
         } catch (Exception e) {
             LOG.error("error generating test class",e);
             return null;
         }
+    }
+
+    private PsiElement resolveEmbeddedClass(PsiElement psiElement) {
+        if (!(psiElement instanceof PsiClass)){//Important for Groovy support - expecting org.jetbrains.plugins.groovy.lang.psi.GroovyFile. see org.jetbrains.plugins.groovy.annotator.intentions.CreateClassActionBase.createClassByType
+            final PsiElement[] psiElementChildren = psiElement.getChildren();
+            for (PsiElement psiElementChild : psiElementChildren) {
+                if (psiElementChild instanceof PsiClass) {
+                    return psiElementChild;
+                }
+            }
+        }
+        return psiElement;
     }
 
     static void showErrorLater(final Project project, final String targetClassName) {
