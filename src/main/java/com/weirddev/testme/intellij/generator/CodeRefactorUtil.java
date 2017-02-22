@@ -1,6 +1,7 @@
 package com.weirddev.testme.intellij.generator;
 
 import com.intellij.ide.highlighter.JavaFileType;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
@@ -9,22 +10,41 @@ import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.groovy.lang.psi.GroovyPsiElementFactory;
 
 import java.util.Collection;
 
 public class CodeRefactorUtil {
 
+    public static final String COMMENTED_IMPORT_TOKEN = "//import ";
+    private static final Logger LOG = Logger.getInstance(CodeRefactorUtil.class.getName());
+
     public void uncommentImports(PsiClass psiClass, Project project) {
         final Collection<PsiComment> psiComments = PsiTreeUtil.findChildrenOfType(psiClass.getParent(), PsiComment.class);
-        final String commentedImportToken = "//import ";
         for (PsiComment psiComment : psiComments) {
             final String commentText = psiComment.getText();
-            if (commentText != null && commentText.startsWith(commentedImportToken)) {
-                String unCommentedImport = commentText.replace(commentedImportToken, "import ");
-                PsiElement newImport = createImportStatementOnDemand(project, unCommentedImport, unCommentedImport.contains("static"));
-                psiComment.replace(newImport);
+            if (commentText != null && commentText.startsWith(COMMENTED_IMPORT_TOKEN)) {
+                PsiElement newImport = extractImportStatement(psiClass, project, commentText.replace(COMMENTED_IMPORT_TOKEN, "import "));
+                if (newImport != null) {
+                    psiComment.replace(newImport);
+                }
             }
         }
+    }
+
+    private PsiElement extractImportStatement(PsiClass psiClass, Project project, String unCommentedImport) {
+        PsiElement newImport = null;
+        final String fileTypeName = psiClass.getContainingFile().getFileType().getName();
+        if ("JAVA".equalsIgnoreCase(fileTypeName)) {
+            newImport = createImportStatementOnDemand(project, unCommentedImport, unCommentedImport.contains("static"));
+        } else if ("Groovy".equalsIgnoreCase(fileTypeName)) {
+            final GroovyPsiElementFactory factory = GroovyPsiElementFactory.getInstance(project);//todo can use reflection ?
+            newImport = factory.createImportStatementFromText(unCommentedImport);
+        }
+        else {
+            LOG.warn("Unsupported source file type "+fileTypeName);
+        }
+        return newImport;
     }
 
     /**

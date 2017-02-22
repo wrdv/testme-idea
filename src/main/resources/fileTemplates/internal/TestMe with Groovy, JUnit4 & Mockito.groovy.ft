@@ -1,16 +1,14 @@
-#parse("TestMe macros.java")
-//Groovyyyyyyyyyyyy
+#parse("TestMe macros.groovy")
 #if($PACKAGE_NAME)
-package ${PACKAGE_NAME};
+package ${PACKAGE_NAME}
 #end
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-#if(!$TESTED_CLASS_FIELDS.isEmpty())//import static org.mockito.Mockito.*;#end
+import org.junit.Before
+import org.junit.Test
+import org.mockito.InjectMocks
+import org.mockito.Mock
+import org.mockito.MockitoAnnotations
+#if(!$TESTED_CLASS_FIELDS.isEmpty())//import static org.mockito.Mockito.*#end
 
 #parse("File Header.java")
 class ${CLASS_NAME} {
@@ -20,16 +18,16 @@ class ${CLASS_NAME} {
 
     @Before
     void setUp() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.initMocks(this)
     }
 #end
 #foreach($method in $TESTED_CLASS_METHODS)
 #if($method.isTestable())
 
     @Test
-    void #renderTestMethodName($method.name)() throws Exception {
+    void #renderTestMethodName($method.name)() {
         #renderMethodCall($method,$TESTED_CLASS.name)
-#if($method.returnType && $method.returnType.name !="void")        Assert.#renderJUnitAssert($method.returnType)#end
+#if($method.returnType && $method.returnType.name !="void")        #renderGRAssert($method.returnType)#end
     }
 #end
 #end

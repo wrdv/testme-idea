@@ -102,7 +102,6 @@ public class TestMeGenerator {
             FileTemplate codeTemplate = fileTemplateManager.getInternalTemplate(templateName);
             codeTemplate.setReformatCode(context.isReformatCode());
             Velocity.setProperty( Velocity.VM_MAX_DEPTH, 200);
-//            GrTypeDefinition e1 = CreateClassActionBase.createClassByType(d.getTargetDirectory(), d.getClassName(), PsiManager.getInstance(project), (PsiElement)null, "GroovyClass.groovy", true);
             final PsiElement psiElement = FileTemplateUtil.createFromTemplate(codeTemplate, context.getTargetClass(), templateCtxtParams, targetDirectory, null);
             final PsiElement resolvedPsiElement=resolveEmbeddedClass(psiElement);
             if (resolvedPsiElement instanceof PsiClass) {
@@ -112,8 +111,7 @@ public class TestMeGenerator {
                     codeStyleManager.optimizeImports(psiClass.getContainingFile());
                 }
                 codeRefactorUtil.uncommentImports(psiClass, context.getProject());
-//                CodeStyleManager.getInstance(project).reformat(test);
-                if (context.isReplaceFqn() && "JAVA".equals(psiClass.getContainingFile().getFileType().getName())) { //todo fix for groovy
+                if (context.isReplaceFqn()) {
                     codeStyleManager.shortenClassReferences(psiClass);
                 }
                 final Document document = psiClass.getContainingFile().getViewProvider().getDocument();

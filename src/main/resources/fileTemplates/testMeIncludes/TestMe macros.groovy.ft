@@ -1,24 +1,25 @@
 ################## Global vars ###############
 #set($trackedTestMethodsCount={})
 #set($replacementTypes = {
-    "java.util.Collection": "java.util.Arrays.<TYPES>asList(<VAL>)",
-    "java.util.Deque": "new java.util.LinkedList<TYPES>(java.util.Arrays.asList(<VAL>))",
-    "java.util.List": "java.util.Arrays.<TYPES>asList(<VAL>)",
-    "java.util.Map": "new java.util.HashMap<TYPES>(){{put(<VAL>,<VAL>);}}",
-    "java.util.NavigableMap": "new java.util.TreeMap<TYPES>(new java.util.HashMap<TYPES>(){{put(<VAL>,<VAL>);}})",
-    "java.util.NavigableSet": "new java.util.TreeSet<TYPES>(java.util.Arrays.asList(<VAL>))",
-    "java.util.Queue": "new java.util.LinkedList<TYPES>(java.util.Arrays.asList(<VAL>))",
-    "java.util.RandomAccess": "new java.util.Vector(java.util.Arrays.asList(<VAL>))",
-    "java.util.Set": "new java.util.HashSet<TYPES>(java.util.Arrays.asList(<VAL>))",
-    "java.util.SortedSet": "new java.util.TreeSet<TYPES>(java.util.Arrays.asList(<VAL>))",
-    "java.util.LinkedList": "new java.util.LinkedList<TYPES>(java.util.Arrays.asList(<VAL>))",
-    "java.util.ArrayList": "new java.util.ArrayList<TYPES>(java.util.Arrays.asList(<VAL>))",
-    "java.util.HashMap": "new java.util.HashMap<TYPES>(){{put(<VAL>,<VAL>);}}",
-    "java.util.TreeMap": "new java.util.TreeMap<TYPES>(new java.util.HashMap<TYPES>(){{put(<VAL>,<VAL>);}})",
-    "java.util.LinkedList": "new java.util.LinkedList<TYPES>(java.util.Arrays.asList(<VAL>))",
-    "java.util.Vector": "new java.util.Vector(java.util.Arrays.asList(<VAL>))",
-    "java.util.HashSet": "new java.util.HashSet<TYPES>(java.util.Arrays.asList(<VAL>))",
-    "java.util.TreeSet": "new java.util.TreeSet<TYPES>(java.util.Arrays.asList(<VAL>))"
+    "java.util.Collection": "[<VAL>]",
+    "java.util.Deque": "new LinkedList([<VAL>])",
+    "java.util.List": "[<VAL>]",
+    "java.util.Map": "[<VAL>:<VAL>]",
+    "java.util.NavigableMap": "new java.util.TreeMap([<VAL>:<VAL>])",
+    "java.util.NavigableSet": "new java.util.TreeSet([<VAL>])",
+    "java.util.Queue": "new java.util.LinkedList<TYPES>([<VAL>])",
+    "java.util.RandomAccess": "new java.util.Vector([<VAL>])",
+    "java.util.Set": "[<VAL>] as java.util.Set<TYPES>",
+    "java.util.SortedSet": "[<VAL>] as java.util.SortedSet<TYPES>",
+    "java.util.LinkedList": "new java.util.LinkedList<TYPES>([<VAL>])",
+    "java.util.ArrayList": "[<VAL>]",
+    "java.util.HashMap": "[<VAL>:<VAL>]",
+    "java.util.TreeMap": "new java.util.TreeMap<TYPES>([<VAL>:<VAL>])",
+    "java.util.LinkedList": "new java.util.LinkedList<TYPES>([<VAL>])",
+    "java.util.Vector": "new java.util.Vector([<VAL>])",
+    "java.util.HashSet": "[<VAL>] as java.util.HashSet",
+    "java.util.LinkedHashMap": "[<VAL>:<VAL>]",
+    "java.util.TreeSet": "[<VAL>] as java.util.TreeSet"
 })
 #set($defaultTypeValues = {
     "byte": "(byte) 0",
@@ -54,10 +55,10 @@
 #if(!$hasNoMembers && $testedClass.parent)      @InjectMocks#else
 
 #end
-    $testedClass.canonicalName $StringUtils.deCapitalizeFirstLetter($testedClass.name)= #renderInitClass($testedClass);
+    $testedClass.canonicalName $StringUtils.deCapitalizeFirstLetter($testedClass.name)= #renderInitClass($testedClass)
 #else
     @InjectMocks
-    $testedClass.canonicalName $StringUtils.deCapitalizeFirstLetter($testedClass.name);
+    $testedClass.canonicalName $StringUtils.deCapitalizeFirstLetter($testedClass.name)
 #end
 #end
 ##
@@ -69,7 +70,7 @@
 #foreach($field in $testedClassFields)
 #if(!${field.type.primitive} && !${field.finalType} && !${field.overridden} && !$field.type.array && !$field.type.enum)
     @Mock
-    $field.type.canonicalName $field.name;
+    $field.type.canonicalName $field.name
 #elseif(!$field.type.primitive && !($field.type.canonicalName == "java.lang.String") && $field.finalType && (!$field.static || !$field.final))
     //Field $field.name of type $field.type.name - was not mocked since Mockito doesn't mock a Final class
 #elseif($field.type.array && (!$field.static || !$field.final))
@@ -84,16 +85,12 @@
 #if($type && $type.name !="void")$type.canonicalName#if($type.array)[]#end result = #end
 #end
 ##
-#macro(renderJUnitAssert $type)
-#renderJunitAssertMethod($type)($TestBuilder.renderJavaCallParam($type,"replaceMeWithExpectedResult",$replacementTypes,$defaultTypeValues ,0), result);
-#end
-##
-#macro(renderJunitAssertMethod $type)
-#if($type && $type.array)assertArrayEquals#{else}assertEquals#end
+#macro(renderGRAssert $type)
+assert result == $TestBuilder.renderJavaCallParam($type,"replaceMeWithExpectedResult",$replacementTypes,$defaultTypeValues ,0)
 #end
 ##
 #macro(renderMethodCall $method,$testedClassName)
-#renderJavaReturnVar($method.returnType)#if($method.static)$testedClassName#{else}$StringUtils.deCapitalizeFirstLetter($testedClassName)#end.${method.name}($TestBuilder.renderJavaCallParams($method.methodParams,$replacementTypes,$defaultTypeValues , 0));
+#renderJavaReturnVar($method.returnType)#if($method.static)$testedClassName#{else}$StringUtils.deCapitalizeFirstLetter($testedClassName)#end.${method.name}($TestBuilder.renderJavaCallParams($method.methodParams,$replacementTypes,$defaultTypeValues , 0))
 #end
 ##
 #macro(renderTestMethodName $methodName)
