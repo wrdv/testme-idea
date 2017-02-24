@@ -12,6 +12,10 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
         super(TemplateRegistry.JUNIT4_MOCKITO_JAVA_TEMPLATE, "test");
     }
 
+     TestMeGeneratorJunit4Test(String templateFilename, String testDirectory) {
+        super(templateFilename, testDirectory);
+    }
+
     public void testSimpleClass() throws Exception {
         doTest();
     }

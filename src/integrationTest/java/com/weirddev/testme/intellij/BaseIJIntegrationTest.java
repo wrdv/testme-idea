@@ -28,9 +28,9 @@ abstract public class BaseIJIntegrationTest extends LightCodeInsightFixtureTestC
 
     @Override
     public void setUp() throws Exception {
-        super.setUp();
         System.out.println("TestDataPath:"+getTestDataPath());
         assertTrue(new File(getTestDataPath()).exists());
+        super.setUp();
         System.out.println("temp dir path:"+myFixture.getTempDirPath());
         replacePatternTemplateText(FILE_HEADER_TEMPLATE, HEADER_TEMPLATE_REPLACEMENT_TEXT);
     }

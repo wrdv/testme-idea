@@ -1,0 +1,26 @@
+################## Global vars ###############
+#set($trackedTestMethodsCount={})
+##
+################## Macros #####################
+#macro(renderTestMethodName $methodName)
+test$StringUtils.capitalizeFirstLetter($methodName)#testMethodSuffix($methodName)
+#end
+##
+#macro(testMethodSuffix $methodName)
+#if( $trackedTestMethodsCount.get($methodName))
+    #set( $suffix= $trackedTestMethodsCount.get($methodName))
+#else
+    #set( $suffix= 0)
+#end
+#set( $suffix= $suffix + 1)
+#set( $devNull= $trackedTestMethodsCount.put($methodName,$suffix))
+#if($suffix!=1)${suffix}#end
+#end
+#macro(renderInitClass $class)
+#if($class.parent)#renderInitClass($class.parent).#end#if(!$class.isStatic())new #end$class.name#if(!$class.isStatic() && $class.parent || !$class.child || !$class.child.isStatic())()#end
+#end
+##
+#macro(renderJavaReturnVar $type)
+#if($type && $type.name !="void")$type.canonicalName#if($type.array)[]#end result = #end
+#end
+##

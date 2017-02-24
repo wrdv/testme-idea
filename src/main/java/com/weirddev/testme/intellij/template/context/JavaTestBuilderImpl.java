@@ -11,13 +11,13 @@ import java.util.regex.Pattern;
  *
  * @author Yaron Yamin
  */
-public class TestBuilderImpl implements TestBuilder {
-    private static final Logger LOG = Logger.getInstance(TestBuilderImpl.class.getName());
+public class JavaTestBuilderImpl implements TestBuilder {
+    private static final Logger LOG = Logger.getInstance(JavaTestBuilderImpl.class.getName());
     private static final Pattern GENERICS_PATTERN = Pattern.compile("(<.*>)");
     private static Type DEFAULT_TYPE = new Type("java.lang.String", "String", "java.lang", false, false, new ArrayList<Type>());
     private final int maxRecursionDepth;
 
-    public TestBuilderImpl(int maxRecursionDepth) {
+    public JavaTestBuilderImpl(int maxRecursionDepth) {
         this.maxRecursionDepth = maxRecursionDepth;
     }
 
@@ -32,7 +32,7 @@ public class TestBuilderImpl implements TestBuilder {
     @Override
     public String renderJavaCallParam(Type type, String strValue, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, int recursionDepth) {
         final StringBuilder stringBuilder = new StringBuilder();
-        buildJavaCallParam(new Param(type, strValue), replacementTypes, defaultTypeValues, recursionDepth, stringBuilder);
+        buildCallParam(new Param(type, strValue), replacementTypes, defaultTypeValues, recursionDepth, stringBuilder);
         return stringBuilder.toString();
     }
 
@@ -59,7 +59,7 @@ public class TestBuilderImpl implements TestBuilder {
         }
     }
 
-    private void buildJavaCallParam(Param param, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, int recursionDepth, StringBuilder testBuilder) {
+    protected void buildCallParam(Param param, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, int recursionDepth, StringBuilder testBuilder) {
         final Type type = param.getType();
         if (type.isArray()) {
             testBuilder.append("new ").append(type.getCanonicalName()).append("[]{");
@@ -76,12 +76,12 @@ public class TestBuilderImpl implements TestBuilder {
                 if (i != 0) {
                     testBuilder.append(", ");
                 }
-                buildJavaCallParam(params.get(i), replacementTypes, defaultTypeValues, recursionDepth+1, testBuilder);
+                buildCallParam(params.get(i), replacementTypes, defaultTypeValues, recursionDepth+1, testBuilder);
             }
         }
     }
 
-    private void buildJavaParam(Param param, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, int recursionDepth, StringBuilder testBuilder) {
+    protected void buildJavaParam(Param param, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, int recursionDepth, StringBuilder testBuilder) {
         final Type type = param.getType();
         final String canonicalName = type.getCanonicalName();
         if (defaultTypeValues.get(canonicalName) != null) {

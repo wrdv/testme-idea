@@ -21,6 +21,7 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
     protected final String templateFilename;
     protected final String testDirectory;
     private final TestTemplateContextBuilder testTemplateContextBuilder = mockTestTemplateContextBuilder();
+    protected String expectedTestClassExtension = "java";
 
     TestMeGeneratorTestBase(String templateFilename, String testDirectory) {
         super("testData/testMeGenerator/");
@@ -58,7 +59,7 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
                         optimizeImports,
                         3, replaceFqn));
                 System.out.println("result:"+result);
-                String expectedTestClassFilePath = (packageName.length() > 0 ? (packageName.replace(".", "/") + "/") : "") + expectedTestClassName + ".java";
+                String expectedTestClassFilePath = (packageName.length() > 0 ? (packageName.replace(".", "/") + "/") : "") + expectedTestClassName + "."+expectedTestClassExtension;
                 myFixture.checkResultByFile(/*"src/"+*/expectedTestClassFilePath, testDirectory + "/" +expectedTestClassFilePath, false);
             }
         }, CodeInsightBundle.message("intention.create.test"), this);

@@ -65,7 +65,7 @@ intellij {
     downloadSources Boolean.valueOf(ideaDownloadSources)
     sameSinceUntilBuild false
     updateSinceUntilBuild false
-    plugins = ['junit','groovy']
+    plugins = ['junit','groovy','properties']
 
     publish {
         username ideaPublishUsername

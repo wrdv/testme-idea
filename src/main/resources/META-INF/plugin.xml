@@ -10,7 +10,7 @@
    <p>No more boilerplate!</p>
    <h3>Features:</h3>
    <ul>
-     <li>Support JUnit 4,5</li>
+     <li>Auto generate Java or Groovy test class with JUnit 4,5</li>
      <li>Auto generate Mockito mocks </li>
      <li>Generate test params and assertion statements</li>
      <li>Integrate with IDEA menus: Code->TestMe, Code->Generate</li>
@@ -19,9 +19,8 @@
     ]]></description>
 
   <change-notes><![CDATA[
-    <ul>
-        <li>Initialize Objects in generic collections</li>
-    </ul>
+        New in v1.1.0: <i>Generate Groovy tests</i>.
+        <p><a href="http://weirddev.com/testme/release-notes">TestMe Complete Changelog</a></p>
     ]]>
   </change-notes>
   <!-- please see https://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->

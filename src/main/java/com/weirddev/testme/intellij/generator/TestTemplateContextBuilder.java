@@ -31,7 +31,8 @@ public class TestTemplateContextBuilder {
             ctxtParams.put(TestMeTemplateParams.MAX_RECURSION_DEPTH, maxRecursionDepth);
             List<Method> methods = createMethods(context.getSrcClass(),maxRecursionDepth,context.getTargetPackage());
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_METHODS, methods);
-            ctxtParams.put(TestMeTemplateParams.TEST_BUILDER, new TestBuilderImpl(maxRecursionDepth));
+            ctxtParams.put(TestMeTemplateParams.GROOVY_TEST_BUILDER, new GroovyTestBuilderImpl(maxRecursionDepth));
+            ctxtParams.put(TestMeTemplateParams.JAVA_TEST_BUILDER, new JavaTestBuilderImpl(maxRecursionDepth));
         }
         ctxtParams.put(TestMeTemplateParams.STRING_UTILS, StringUtils.class);
         return ctxtParams;

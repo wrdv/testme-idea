@@ -11,10 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.mockito.Mockito.*;
 /** created by TestMe integration test on MMXVI */
@@ -35,7 +32,7 @@ public class FooTest {
 
     @Test
     public void testFight() throws Exception {
-        String result = foo.fight(new ArrayList<Fire>(), "foeName");
+        String result = foo.fight(new ArrayList<Fire>(Arrays.asList(new Fire())), "foeName");
         Assert.assertEquals("replaceMeWithExpectedResult", result);
     }
 
