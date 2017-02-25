@@ -6,4 +6,9 @@ public class Fear implements Comparable{
     public int compareTo(Object o) {
         return 0;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return true;
+    }
 }

@@ -2,6 +2,7 @@ package com.weirddev.testme.intellij.generator;
 
 import com.intellij.psi.*;
 import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.psi.util.PsiUtil;
 import com.weirddev.testme.intellij.template.FileTemplateContext;
 import com.weirddev.testme.intellij.template.TypeDictionary;
 import com.weirddev.testme.intellij.template.context.*;
@@ -26,11 +27,11 @@ public class TestTemplateContextBuilder {
         if (targetClass != null && targetClass.isValid()) {
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS, new TestedType(targetClass,null));
             List<Field> fields = createFields(context);
-            ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_FIELDS, fields);
+            ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_FIELDS, fields);//todo refactor to be part of TESTED_CLASS
             int maxRecursionDepth = context.getMaxRecursionDepth();
             ctxtParams.put(TestMeTemplateParams.MAX_RECURSION_DEPTH, maxRecursionDepth);
             List<Method> methods = createMethods(context.getSrcClass(),maxRecursionDepth,context.getTargetPackage());
-            ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_METHODS, methods);
+            ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_METHODS, methods);//todo refactor to be part of TESTED_CLASS
             ctxtParams.put(TestMeTemplateParams.GROOVY_TEST_BUILDER, new GroovyTestBuilderImpl(maxRecursionDepth));
             ctxtParams.put(TestMeTemplateParams.JAVA_TEST_BUILDER, new JavaTestBuilderImpl(maxRecursionDepth));
         }
@@ -58,11 +59,10 @@ public class TestTemplateContextBuilder {
     @NotNull
     private List<Field> createFields(FileTemplateContext context) {
         ArrayList<Field> fields = new ArrayList<Field>();
-        JavaPsiFacade javaPsiFacade = JavaPsiFacade.getInstance(context.getProject());
         PsiClass srcClass = context.getSrcClass();
         for (PsiField psiField : srcClass.getAllFields()) {
             //TODO mark fields initialized inline/in default constructor
-            fields.add(new Field(psiField, javaPsiFacade.findClass(psiField.getType().getCanonicalText(), GlobalSearchScope.allScope(context.getProject())), srcClass));
+            fields.add(new Field(psiField, PsiUtil.resolveClassInType(psiField.getType()), srcClass));
         }
         return fields;
     }

@@ -26,6 +26,7 @@ public class Type {
     private final List<String> enumValues;
     private final boolean isEnum;
     private final List<Method> constructors=new ArrayList<Method>();
+    private final List<Method> methods=new ArrayList<Method>();
 
     Type(String canonicalName, String name, String packageName, boolean isPrimitive, boolean array, List<Type> composedTypes) {
         this.canonicalName = canonicalName;
@@ -65,6 +66,10 @@ public class Type {
                     return o2.getMethodParams().size()-o1.getMethodParams().size();
                 }
             });
+            final PsiMethod[] methods = psiClass.getMethods();
+            for (PsiMethod method : methods) {
+                this.methods.add(new Method(method,psiClass,maxRecursionDepth-1,typeDictionary));
+            }
         }
     }
 
@@ -176,6 +181,7 @@ public class Type {
                 ", enumValues=" + enumValues +
                 ", isEnum=" + isEnum +
                 ", constructors=" + constructors +
+                ", methods=" + methods +
                 '}';
     }
 
@@ -183,4 +189,7 @@ public class Type {
         return constructors;
     }
 
+    public List<Method> getMethods() {
+        return methods;
+    }
 }

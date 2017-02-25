@@ -12,4 +12,7 @@ public class TestMeGeneratorGroovyJunit4Test extends TestMeGeneratorJunit4Test {
         super(TemplateRegistry.JUNIT4_GROOVY_MOCKITO_JAVA_TEMPLATE, "testGroovy");
         expectedTestClassExtension = "groovy";
     }
+    public void testBean() throws Exception{
+        doTest();
+    }
 }

@@ -6,7 +6,7 @@ import spock.lang.Specification
  * Date: 2/16/2017
  * @author Yaron Yamin
  */
-class TestBuilderImplJavaJavaTest extends Specification {
+class JavaTestBuilderImplTest extends Specification {
     static Type fearType = new Type("com.example.foes.Fear", "Fear", "com.example.foes", false, false, [])
     static Type stringType = new Type("java.lang.String", "String", "java.lang", false, false, [])
     static Type queueWithTypeParams = new Type("java.util.Queue<java.util.List<com.example.foes.Fear>>", "Queue<List<Fear>>", "java.util", false, false, [new Type("java.util.List<com.example.foes.Fear>", "List<Fear>", "java.util", false, false, [fearType])])

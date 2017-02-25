@@ -30,6 +30,7 @@ public class Method {
     private final boolean overridden;
     private final boolean inherited;
     private final boolean isInInterface;
+    private final String propertyName;
 
     public Method(PsiMethod psiMethod, PsiClass srcClass, int maxRecursionDepth,TypeDictionary typeDictionary) {
         isPrivate = psiMethod.hasModifierProperty(PsiModifier.PRIVATE);
@@ -44,6 +45,8 @@ public class Method {
         ownerClassCanonicalType = psiMethod.getContainingClass() == null ? null : psiMethod.getContainingClass().getQualifiedName();
         methodParams = extractMethodParams(psiMethod.getParameterList(), typeDictionary, maxRecursionDepth);
         isSetter = PropertyUtil.isSimpleSetter(psiMethod);
+        final PsiField psiField = PropertyUtil.findPropertyFieldByMember(psiMethod);
+        propertyName = psiField == null ? null : psiField.getName();
         isGetter = PropertyUtil.isSimpleGetter(psiMethod);
         constructor = psiMethod.isConstructor();
         overridden = isOverriddenInChild(psiMethod, srcClass);
@@ -145,5 +148,33 @@ public class Method {
      */
     public boolean isTestable(){
         return !"java.lang.Object".equals(ownerClassCanonicalType) && !isSetter && !isGetter && !constructor &&((isDefault|| isProtected ) && !inherited || isPublic) && !overridden && !isInInterface && !isAbstract;
+    }
+
+    @Override
+    public String toString() {
+        return "Method{" +
+                "returnType=" + returnType +
+                ", name='" + name + '\'' +
+                ", ownerClassCanonicalType='" + ownerClassCanonicalType + '\'' +
+                ", methodParams=" + methodParams +
+                ", isPrivate=" + isPrivate +
+                ", isProtected=" + isProtected +
+                ", isDefault=" + isDefault +
+                ", isPublic=" + isPublic +
+                ", isAbstract=" + isAbstract +
+                ", isNative=" + isNative +
+                ", isStatic=" + isStatic +
+                ", isSetter=" + isSetter +
+                ", isGetter=" + isGetter +
+                ", constructor=" + constructor +
+                ", overridden=" + overridden +
+                ", inherited=" + inherited +
+                ", isInInterface=" + isInInterface +
+                ", propertyName='" + propertyName + '\'' +
+                '}';
+    }
+
+    public String getPropertyName() {
+        return propertyName;
     }
 }
