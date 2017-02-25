@@ -1,6 +1,7 @@
 package com.weirddev.testme.intellij.generator;
 
 import com.intellij.ide.highlighter.JavaFileType;
+import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
@@ -10,8 +11,8 @@ import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.groovy.lang.psi.GroovyPsiElementFactory;
 
+import java.lang.reflect.Method;
 import java.util.Collection;
 
 public class CodeRefactorUtil {
@@ -42,11 +43,33 @@ public class CodeRefactorUtil {
         if ("JAVA".equalsIgnoreCase(fileTypeName)) {
             newImport = createImportStatementOnDemand(project, unCommentedImport, unCommentedImport.contains("static"));
         } else if ("Groovy".equalsIgnoreCase(fileTypeName)) {
-            final GroovyPsiElementFactory factory = GroovyPsiElementFactory.getInstance(project);//todo can use reflection ?
-            newImport = factory.createImportStatementFromText(unCommentedImport);
+            newImport = createGroovyImport(project, unCommentedImport);
         }
         else {
             LOG.warn("Unsupported source file type "+fileTypeName);
+        }
+        return newImport;
+    }
+
+    private PsiElement createGroovyImport(Project project, String unCommentedImport) {
+        //Groovy plugin dependant code - Start
+        //            final GroovyPsiElementFactory factory = GroovyPsiElementFactory.getInstance(project);//Groovy is an optional dependency - no direct code dependency for now
+        //            newImport = factory.createImportStatementFromText(unCommentedImport);
+        //Groovy plugin dependant code - End
+        //The reflective non dependant version:
+        PsiElement newImport = null;
+        try {
+            final Class<?> aClass = Class.forName("org.jetbrains.plugins.groovy.lang.psi.GroovyPsiElementFactory");
+            final Object service = ServiceManager.getService(project, aClass);
+            if (service != null && aClass.isAssignableFrom(service.getClass())) {
+                final Method method = aClass.getMethod("createImportStatementFromText", String.class);
+                final Object psiImport = method.invoke(service, unCommentedImport);
+                if (psiImport instanceof PsiElement) {
+                    newImport=(PsiElement) psiImport;
+                }
+            }
+        } catch (Throwable  e) {
+            LOG.warn("Unable to use groovy plugin to replace commented import. groovy plugin might be disabled or not compatible with this TestMe plugin version",e);
         }
         return newImport;
     }
