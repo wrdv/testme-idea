@@ -20,7 +20,7 @@
 
   <change-notes><![CDATA[
         New in v1.1.0: <i>Generate Groovy tests</i>.
-        <p><a href="http://weirddev.com/testme/release-notes">TestMe Complete Changelog</a></p>
+        <p><a href="http://weirddev.com/testme/release-notes">Complete Changelog</a></p>
     ]]>
   </change-notes>
   <!-- please see https://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->

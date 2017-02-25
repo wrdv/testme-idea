@@ -14,6 +14,7 @@ import java.time.LocalTime
 import java.time.Month
 
 import static org.mockito.Mockito.*
+
 /** created by TestMe integration test on MMXVI */
 class FooTest {
     @Mock

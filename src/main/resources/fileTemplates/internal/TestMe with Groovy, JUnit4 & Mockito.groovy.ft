@@ -8,7 +8,9 @@ import org.junit.Test
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
-#if(!$TESTED_CLASS_FIELDS.isEmpty())//import static org.mockito.Mockito.*#end
+#if(!$TESTED_CLASS_FIELDS.isEmpty())
+//import static org.mockito.Mockito.*
+#end
 
 #parse("File Header.java")
 class ${CLASS_NAME} {

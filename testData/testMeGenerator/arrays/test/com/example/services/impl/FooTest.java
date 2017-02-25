@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import static org.mockito.Mockito.*;
+
 /** created by TestMe integration test on MMXVI */
 public class FooTest {
     //Field fooFighter of type FooFighter[] - was not mocked since Mockito doesn't mock arrays

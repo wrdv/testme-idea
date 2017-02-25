@@ -26,6 +26,10 @@ public class CodeRefactorUtil {
             if (commentText != null && commentText.startsWith(COMMENTED_IMPORT_TOKEN)) {
                 PsiElement newImport = extractImportStatement(psiClass, project, commentText.replace(COMMENTED_IMPORT_TOKEN, "import "));
                 if (newImport != null) {
+                    final String prevSiblingText = psiComment.getPrevSibling()==null?null:psiComment.getPrevSibling().getText();
+                    if(prevSiblingText !=null && (prevSiblingText.equals("\n\n")|| prevSiblingText.equals("\n"))){
+                        psiComment.getPrevSibling().delete();//WA fix - 2 newlines were added in groovy files. 1 newline in java due to styling
+                    }
                     psiComment.replace(newImport);
                 }
             }
