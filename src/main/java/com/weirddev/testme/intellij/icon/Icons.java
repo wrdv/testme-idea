@@ -10,6 +10,7 @@ import javax.swing.*;
  * @author Yaron Yamin
  */
 public interface Icons {
+    Icon GROOVY = IconLoader.getIcon("/icons/groovy.png");
     Icon MOCKITO = IconLoader.getIcon("/icons/mockito.png");
     Icon JUNIT4 = IconLoader.getIcon("/icons/junit.png");
     Icon JUNIT5 = IconLoader.getIcon("/icons/junit5.png");
