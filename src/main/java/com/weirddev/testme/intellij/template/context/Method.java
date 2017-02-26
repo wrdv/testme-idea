@@ -150,30 +150,6 @@ public class Method {
         return !"java.lang.Object".equals(ownerClassCanonicalType) && !isSetter && !isGetter && !constructor &&((isDefault|| isProtected ) && !inherited || isPublic) && !overridden && !isInInterface && !isAbstract;
     }
 
-    @Override
-    public String toString() {
-        return "Method{" +
-                "returnType=" + returnType +
-                ", name='" + name + '\'' +
-                ", ownerClassCanonicalType='" + ownerClassCanonicalType + '\'' +
-                ", methodParams=" + methodParams +
-                ", isPrivate=" + isPrivate +
-                ", isProtected=" + isProtected +
-                ", isDefault=" + isDefault +
-                ", isPublic=" + isPublic +
-                ", isAbstract=" + isAbstract +
-                ", isNative=" + isNative +
-                ", isStatic=" + isStatic +
-                ", isSetter=" + isSetter +
-                ", isGetter=" + isGetter +
-                ", constructor=" + constructor +
-                ", overridden=" + overridden +
-                ", inherited=" + inherited +
-                ", isInInterface=" + isInInterface +
-                ", propertyName='" + propertyName + '\'' +
-                '}';
-    }
-
     public String getPropertyName() {
         return propertyName;
     }

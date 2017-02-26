@@ -2,6 +2,7 @@ package com.weirddev.testme.intellij.template.context;
 
 import com.intellij.psi.*;
 import com.intellij.psi.impl.source.PsiClassReferenceType;
+import com.intellij.psi.util.PropertyUtil;
 import com.intellij.psi.util.PsiUtil;
 import com.weirddev.testme.intellij.template.TypeDictionary;
 import com.weirddev.testme.intellij.utils.ClassNameUtils;
@@ -26,7 +27,7 @@ public class Type {
     private final List<String> enumValues;
     private final boolean isEnum;
     private final List<Method> constructors=new ArrayList<Method>();
-    private final List<Method> methods=new ArrayList<Method>();
+    private final List<Method> methods=new ArrayList<Method>();//resolve Setters/Getters only for now
 
     Type(String canonicalName, String name, String packageName, boolean isPrimitive, boolean array, List<Type> composedTypes) {
         this.canonicalName = canonicalName;
@@ -68,7 +69,9 @@ public class Type {
             });
             final PsiMethod[] methods = psiClass.getMethods();
             for (PsiMethod method : methods) {
-                this.methods.add(new Method(method,psiClass,maxRecursionDepth-1,typeDictionary));
+                if (PropertyUtil.isSimpleGetter(method) || PropertyUtil.isSimpleSetter(method)) {
+                    this.methods.add(new Method(method,psiClass,maxRecursionDepth-1,typeDictionary));
+                }
             }
         }
     }
