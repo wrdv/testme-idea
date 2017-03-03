@@ -107,7 +107,13 @@ public class JavaTestBuilderImpl implements TestBuilder {
                     } else {
                         genericTypeParam = DEFAULT_TYPE;
                     }
+                    if (isLooksLikeObjectKeyInGroovyMap(typeInitExp[i], genericTypeParam.getCanonicalName())) {
+                        testBuilder.append("(");
+                    }
                     buildCtorParams(genericTypeParam, genericTypeParam.getName(), replacementTypes, defaultTypeValues, recursionDepth, true, testBuilder);
+                    if (isLooksLikeObjectKeyInGroovyMap(typeInitExp[i], genericTypeParam.getCanonicalName())) {
+                        testBuilder.append(")");
+                    }
                     testBuilder.append(typeInitExp[i]);
                 }
             } else {
@@ -117,6 +123,10 @@ public class JavaTestBuilderImpl implements TestBuilder {
                 testBuilder.append(")");
             }
         }
+    }
+
+    private boolean isLooksLikeObjectKeyInGroovyMap(String expFragment, String canonicalTypeName) {
+        return ":".equals(expFragment) && !"java.lang.String".equals(canonicalTypeName);
     }
 
     protected void buildCtorParams(Type type, String typeName, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, int recursionDepth, boolean isReplaced, StringBuilder testBuilder) {

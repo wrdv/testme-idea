@@ -46,6 +46,12 @@ class FooTest {
         NavigableMap<String,Fire> result = foo.miscColls(new TreeMap(["String":new Fire()]), new TreeSet([new Fire()]), new Vector(["String"]), [new Fire()] as SortedSet<Fire>)
         assert result == new TreeMap(["String":new Fire()])
     }
+
+    @Test
+    void testObjectMaps() {
+        HashMap<Fire,Fire> result = foo.objectMaps(new TreeMap([(Boolean.TRUE):"String"]), [(0):Boolean.TRUE], [(new Fire()):new Fire()])
+        assert result == [(new Fire()):new Fire()]
+    }
 }
 
 //Generated with love by TestMe :) Please report issues and submit feature requests at: http://weirddev.com/forum#!/testme

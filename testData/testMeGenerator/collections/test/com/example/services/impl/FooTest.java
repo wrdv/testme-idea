@@ -50,6 +50,12 @@ public class FooTest {
         NavigableMap<String,Fire> result = foo.miscColls(new TreeMap<String,Fire>(new HashMap<String,Fire>(){{put("String",new Fire());}}), new TreeSet<Fire>(Arrays.asList(new Fire())), new Vector(Arrays.asList("String")), new TreeSet<Fire>(Arrays.asList(new Fire())));
         Assert.assertEquals(new TreeMap<String,Fire>(new HashMap<String,Fire>(){{put("String",new Fire());}}), result);
     }
+
+    @Test
+    public void testObjectMaps() throws Exception {
+        HashMap<Fire,Fire> result = foo.objectMaps(new TreeMap<Boolean,String>(new HashMap<Boolean,String>(){{put(Boolean.TRUE,"String");}}), new HashMap<Integer,Boolean>(){{put(Integer.valueOf(0),Boolean.TRUE);}}, new HashMap<Fire,Fire>(){{put(new Fire(),new Fire());}});
+        Assert.assertEquals(new HashMap<Fire,Fire>(){{put(new Fire(),new Fire());}}, result);
+    }
 }
 
 //Generated with love by TestMe :) Please report issues and submit feature requests at: http://weirddev.com/forum#!/testme

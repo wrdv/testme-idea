@@ -30,4 +30,9 @@ public class Foo{
         return spitfires;
     }
 
+    public HashMap<Fire, Fire> objectMaps(NavigableMap<Boolean, String> earth, Map<Integer, Boolean> wind, HashMap<Fire, Fire> andFire) {
+        System.out.println("" + earth.toString()+ wind.toString() + andFire.toString());
+        return andFire;
+    }
+
 }
