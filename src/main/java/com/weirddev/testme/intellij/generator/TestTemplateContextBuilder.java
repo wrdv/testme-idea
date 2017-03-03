@@ -62,7 +62,9 @@ public class TestTemplateContextBuilder {
         PsiClass srcClass = context.getSrcClass();
         for (PsiField psiField : srcClass.getAllFields()) {
             //TODO mark fields initialized inline/in default constructor
-            fields.add(new Field(psiField, PsiUtil.resolveClassInType(psiField.getType()), srcClass));
+            if(!"groovy.lang.MetaClass".equals(psiField.getType().getCanonicalText())){
+                fields.add(new Field(psiField, PsiUtil.resolveClassInType(psiField.getType()), srcClass));
+            }
         }
         return fields;
     }
