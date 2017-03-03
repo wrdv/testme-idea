@@ -40,7 +40,7 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
             } else{
                 final boolean hasEmptyConstructor = hasEmptyConstructor(type);
                 for (Method method : type.getConstructors()) {
-                    if (isValidNonEmptyConstructor(type, method,hasEmptyConstructor)) {
+                    if (isValidNonEmptyConstructor(type, method,hasEmptyConstructor, replacementTypes)) {
                         buildJavaCallParams(method.getMethodParams(), replacementTypes, defaultTypeValues, recursionDepth, testBuilder);
                         return;
                     }

@@ -127,7 +127,7 @@ public class JavaTestBuilderImpl implements TestBuilder {
             } else{
                 final boolean hasEmptyConstructor = hasEmptyConstructor(type);
                 for (Method method : type.getConstructors()) {
-                    if (isValidNonEmptyConstructor(type, method,hasEmptyConstructor)) {
+                    if (isValidNonEmptyConstructor(type, method,hasEmptyConstructor,replacementTypes)) {
                         buildJavaCallParams(method.getMethodParams(), replacementTypes, defaultTypeValues, recursionDepth, testBuilder);
                         return;
                     }
@@ -135,19 +135,20 @@ public class JavaTestBuilderImpl implements TestBuilder {
             }
         }
     }
-    protected boolean isValidNonEmptyConstructor(Type type, Method constructor, boolean hasEmptyConstructor) {
+    protected boolean isValidNonEmptyConstructor(Type type, Method constructor, boolean hasEmptyConstructor, Map<String, String> replacementTypes) {
         final List<Param> methodParams = constructor.getMethodParams();
         if(methodParams.size()==0){
             return false;
         }
         for (Param methodParam : methodParams) {
             final Type methodParamType = methodParam.getType();
-            if (methodParamType.equals(type)) {
+            if (methodParamType.equals(type)&& hasEmptyConstructor) {
                 return false;
             }
-            if ((methodParamType.isInterface() || methodParamType.isAbstract()) && hasEmptyConstructor) {
+            if ((methodParamType.isInterface() || methodParamType.isAbstract()) && (replacementTypes == null || replacementTypes.get(stripGenerics(methodParamType.getCanonicalName())) == null) && hasEmptyConstructor) {
                 return false;
             }
+          //todo consider prioritizing inline properties initialization if groovy + hasEmptyConstructor + more setters than ctor params
         }
         return true;
     }

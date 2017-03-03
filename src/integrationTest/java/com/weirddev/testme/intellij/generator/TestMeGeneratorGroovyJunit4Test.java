@@ -18,4 +18,7 @@ public class TestMeGeneratorGroovyJunit4Test extends TestMeGeneratorJunit4Test {
     public void testJavaCallsGroovy() throws Exception{
         doTest(true,true,true);
     }
+    public void testCtorOverProps() throws Exception{
+        doTest(true,true,true);
+    }
 }
