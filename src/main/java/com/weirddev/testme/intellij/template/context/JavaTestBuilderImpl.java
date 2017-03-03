@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 public class JavaTestBuilderImpl implements TestBuilder {
     private static final Logger LOG = Logger.getInstance(JavaTestBuilderImpl.class.getName());
     private static final Pattern GENERICS_PATTERN = Pattern.compile("(<.*>)");
-    private static Type DEFAULT_TYPE = new Type("java.lang.String", "String", "java.lang", false, false, new ArrayList<Type>());
+    private static Type DEFAULT_TYPE = new Type("java.lang.String", "String", "java.lang", false, false, false, false, new ArrayList<Type>());
     protected final int maxRecursionDepth;
 
     public JavaTestBuilderImpl(int maxRecursionDepth) {
@@ -121,8 +121,43 @@ public class JavaTestBuilderImpl implements TestBuilder {
 
     protected void buildCtorParams(Type type, String typeName, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, int recursionDepth, boolean isReplaced, StringBuilder testBuilder) {
         LOG.debug("recursionDepth:"+recursionDepth+". maxRecursionDepth "+maxRecursionDepth);
-        if (recursionDepth <= maxRecursionDepth && (typeName.equals(type.getName()) || typeName.equals(type.getCanonicalName())) && type.getConstructors().size() > 0 || isReplaced) {
-            buildJavaCallParams(isReplaced ? Collections.singletonList(new SyntheticParam(type, typeName,false)) : type.getConstructors().get(0).getMethodParams(), replacementTypes, defaultTypeValues, recursionDepth, testBuilder);
+        if (recursionDepth <= maxRecursionDepth && (typeName.equals(type.getName()) || typeName.equals(type.getCanonicalName()))) {
+            if (isReplaced) {
+                buildJavaCallParams(Collections.singletonList(new SyntheticParam(type, typeName, false)), replacementTypes, defaultTypeValues, recursionDepth, testBuilder);
+            } else{
+                final boolean hasEmptyConstructor = hasEmptyConstructor(type);
+                for (Method method : type.getConstructors()) {
+                    if (isValidNonEmptyConstructor(type, method,hasEmptyConstructor)) {
+                        buildJavaCallParams(method.getMethodParams(), replacementTypes, defaultTypeValues, recursionDepth, testBuilder);
+                        return;
+                    }
+                }
+            }
         }
+    }
+    protected boolean isValidNonEmptyConstructor(Type type, Method constructor, boolean hasEmptyConstructor) {
+        final List<Param> methodParams = constructor.getMethodParams();
+        if(methodParams.size()==0){
+            return false;
+        }
+        for (Param methodParam : methodParams) {
+            final Type methodParamType = methodParam.getType();
+            if (methodParamType.equals(type)) {
+                return false;
+            }
+            if ((methodParamType.isInterface() || methodParamType.isAbstract()) && hasEmptyConstructor) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    protected boolean hasEmptyConstructor(Type type) {
+        for (Method method : type.getConstructors()) {
+            if (method.getMethodParams().size() == 0 && !method.isPrivate() && !method.isProtected()) {
+                return true;
+            }
+        }
+        return false;
     }
 }

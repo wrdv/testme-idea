@@ -9,10 +9,10 @@ import com.weirddev.testme.intellij.template.context.Type
 class TypeTest extends GroovyTestCase {
 
     void testComplexGenericTypeCreation() {
-        assert new Type("java.util.Map", "Map", "java.util", false, false, null)==new Type("java.util.Map<com.example.foes.Pokemon,java.util.List<com.example.foes.Fire>>")
+        assert new Type("java.util.Map", "Map", "java.util", false, false, false, false, null)==new Type("java.util.Map<com.example.foes.Pokemon,java.util.List<com.example.foes.Fire>>")
     }
     void testGenericTypeCreation() {
-        assert new Type("java.util.Set", "Set", "java.util", false, false, null)==new Type("java.util.Set<com.example.foes.Ice>")
+        assert new Type("java.util.Set", "Set", "java.util", false, false,false,false, null)==new Type("java.util.Set<com.example.foes.Ice>")
     }
 
 }

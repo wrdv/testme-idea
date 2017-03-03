@@ -26,14 +26,18 @@ public class Type {
     private final boolean array;
     private final List<String> enumValues;
     private final boolean isEnum;
+    private final boolean isInterface;
+    private final boolean isAbstract;
     private final List<Method> constructors=new ArrayList<Method>();
     private final List<Method> methods=new ArrayList<Method>();//resolve Setters/Getters only for now
 
-    Type(String canonicalName, String name, String packageName, boolean isPrimitive, boolean array, List<Type> composedTypes) {
+    Type(String canonicalName, String name, String packageName, boolean isPrimitive, boolean isInterface, boolean isAbstract,  boolean array, List<Type> composedTypes) {
         this.canonicalName = canonicalName;
         this.name = name;
         this.isPrimitive = isPrimitive;
         this.packageName = packageName;
+        this.isInterface = isInterface;
+        this.isAbstract = isAbstract;
         this.array = array;
         this.composedTypes = composedTypes;
         enumValues = new ArrayList<String>();
@@ -41,7 +45,7 @@ public class Type {
     }
 
     Type(String canonicalName) {
-        this(ClassNameUtils.extractContainerType(canonicalName), ClassNameUtils.extractClassName(canonicalName), ClassNameUtils.extractPackageName(canonicalName),false, ClassNameUtils.isArray(canonicalName),null);
+        this(ClassNameUtils.extractContainerType(canonicalName), ClassNameUtils.extractClassName(canonicalName), ClassNameUtils.extractPackageName(canonicalName),false, false,false,ClassNameUtils.isArray(canonicalName),null);
     }
 
     public Type(PsiType psiType, @Nullable TypeDictionary typeDictionary, int maxRecursionDepth) {
@@ -54,6 +58,8 @@ public class Type {
         composedTypes = resolveTypes(psiType,typeDictionary,maxRecursionDepth);
         PsiClass psiClass = PsiUtil.resolveClassInType(psiType);
         isEnum = psiClass != null && psiClass.isEnum();
+        isInterface = psiClass != null && psiClass.isInterface();
+        isAbstract = psiClass != null && psiClass.getModifierList()!=null &&  psiClass.getModifierList().hasModifierProperty(PsiModifier.ABSTRACT);
         enumValues = resolveEnumValues(psiType);
         if (psiClass != null && maxRecursionDepth>0 && !canonicalText.startsWith("java.") /*todo consider replacing with just java.util.* || java.lang.*  */&& typeDictionary!=null) {
             for (PsiMethod psiMethod : psiClass.getConstructors()) {
@@ -146,30 +152,12 @@ public class Type {
 
         Type type = (Type) o;
 
-        if (isPrimitive != type.isPrimitive) return false;
-        if (array != type.array) return false;
-        if (isEnum != type.isEnum) return false;
-        if (canonicalName != null ? !canonicalName.equals(type.canonicalName) : type.canonicalName != null)
-            return false;
-        if (name != null ? !name.equals(type.name) : type.name != null) return false;
-        if (packageName != null ? !packageName.equals(type.packageName) : type.packageName != null) return false;
-        if (composedTypes != null ? !composedTypes.equals(type.composedTypes) : type.composedTypes != null)
-            return false;
-        return enumValues != null ? enumValues.equals(type.enumValues) : type.enumValues == null;
-
+        return canonicalName.equals(type.canonicalName);
     }
 
     @Override
     public int hashCode() {
-        int result = canonicalName != null ? canonicalName.hashCode() : 0;
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (isPrimitive ? 1 : 0);
-        result = 31 * result + (packageName != null ? packageName.hashCode() : 0);
-        result = 31 * result + (composedTypes != null ? composedTypes.hashCode() : 0);
-        result = 31 * result + (array ? 1 : 0);
-        result = 31 * result + (enumValues != null ? enumValues.hashCode() : 0);
-        result = 31 * result + (isEnum ? 1 : 0);
-        return result;
+        return canonicalName.hashCode();
     }
 
     @Override
@@ -194,5 +182,13 @@ public class Type {
 
     public List<Method> getMethods() {
         return methods;
+    }
+
+    public boolean isInterface() {
+        return isInterface;
+    }
+
+    public boolean isAbstract() {
+        return isAbstract;
     }
 }

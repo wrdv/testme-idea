@@ -1,6 +1,7 @@
 package com.weirddev.testme.intellij.template.context;
 
 import com.intellij.openapi.diagnostic.Logger;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
@@ -36,20 +37,32 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
         if (recursionDepth <= maxRecursionDepth && (typeName.equals(type.getName()) || typeName.equals(type.getCanonicalName()))) {
             if (isReplaced) {
                 buildJavaCallParams(Collections.singletonList(new SyntheticParam(type, typeName, false)), replacementTypes, defaultTypeValues, recursionDepth, testBuilder);
-            } else if (type.getConstructors().size() > 0 && type.getConstructors().get(0).getMethodParams().size()>0) {
-                buildJavaCallParams(type.getConstructors().get(0).getMethodParams(), replacementTypes, defaultTypeValues, recursionDepth, testBuilder);
-            } else {
-                final List<Method> methods = type.getMethods();
-                List<SyntheticParam> syntheticParams=new ArrayList<SyntheticParam>();
-                for (Method method : methods) {
-                    if (method.isSetter()&&  method.getMethodParams().size()>0 &&method.getPropertyName()!=null) {
-                        syntheticParams.add(new SyntheticParam(method.getMethodParams().get(0).getType(), method.getPropertyName(),true));
+            } else{
+                final boolean hasEmptyConstructor = hasEmptyConstructor(type);
+                for (Method method : type.getConstructors()) {
+                    if (isValidNonEmptyConstructor(type, method,hasEmptyConstructor)) {
+                        buildJavaCallParams(method.getMethodParams(), replacementTypes, defaultTypeValues, recursionDepth, testBuilder);
+                        return;
                     }
                 }
+                List<SyntheticParam> syntheticParams = findProperties(type);
                 if (syntheticParams.size() > 0) {
                     buildJavaCallParams(syntheticParams, replacementTypes, defaultTypeValues, recursionDepth, testBuilder);
                 }
             }
         }
     }
+
+    @NotNull
+    private List<SyntheticParam> findProperties(Type type) {
+        final List<Method> methods = type.getMethods();
+        List<SyntheticParam> syntheticParams=new ArrayList<SyntheticParam>();
+        for (Method method : methods) {
+            if (method.isSetter()&&  method.getMethodParams().size()>0 &&method.getPropertyName()!=null) {
+                syntheticParams.add(new SyntheticParam(method.getMethodParams().get(0).getType(), method.getPropertyName(),true));
+            }
+        }
+        return syntheticParams;
+    }
+
 }

@@ -1,11 +1,10 @@
 <idea-plugin version="2">
   <id>com.weirddev.testme</id>
   <name>TestMe</name>
-  <version>1.1.0</version>
+  <version>1.1.1</version>
   <vendor email="testme@weirddev.com" url="http://weirddev.com">WeirdDev</vendor>
 
   <description><![CDATA[
-   <h3>TestMe</h3>
    <p>Auto Generate Unit Test Class from code.</p>
    <p>No more boilerplate!</p>
    <h3>Features:</h3>
@@ -19,7 +18,7 @@
     ]]></description>
 
   <change-notes><![CDATA[
-        New in v1.1.0: <i>Generate Groovy tests</i>.
+        Changed in v1.1.1: Parameter initialization: Ignore constructors accepting interfaces when default constructor exists.
         <p><a href="http://weirddev.com/testme/release-notes">Complete Changelog</a></p>
     ]]>
   </change-notes>
