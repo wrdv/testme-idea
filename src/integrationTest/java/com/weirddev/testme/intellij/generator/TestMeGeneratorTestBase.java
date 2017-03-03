@@ -57,7 +57,7 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
                         fooClass,
                         reformatCode,
                         optimizeImports,
-                        3, replaceFqn));
+                        4, replaceFqn));
                 System.out.println("result:"+result);
                 String expectedTestClassFilePath = (packageName.length() > 0 ? (packageName.replace(".", "/") + "/") : "") + expectedTestClassName + "."+expectedTestClassExtension;
                 myFixture.checkResultByFile(/*"src/"+*/expectedTestClassFilePath, testDirectory + "/" +expectedTestClassFilePath, false);

@@ -15,4 +15,7 @@ public class TestMeGeneratorGroovyJunit4Test extends TestMeGeneratorJunit4Test {
     public void testBean() throws Exception{
         doTest();
     }
+    public void testJavaCallsGroovy() throws Exception{
+        doTest(true,true,true);
+    }
 }

@@ -101,9 +101,9 @@ public class Type {
 
     private List<Type> resolveTypes(PsiType psiType, TypeDictionary typeDictionary, int maxRecursionDepth) {
         ArrayList<Type> types = new ArrayList<Type>();
-        if (psiType instanceof PsiClassReferenceType) {
-            PsiClassReferenceType psiClassReferenceType = (PsiClassReferenceType) psiType;
-            PsiType[] parameters = psiClassReferenceType.getParameters();
+        if (psiType instanceof PsiClassType) {
+            PsiClassType psiClassType = (PsiClassType) psiType;
+            PsiType[] parameters = psiClassType.getParameters();
             if (parameters.length > 0) {
                 for (PsiType parameter : parameters) {
                     types.add(new Type(parameter,typeDictionary, maxRecursionDepth));
