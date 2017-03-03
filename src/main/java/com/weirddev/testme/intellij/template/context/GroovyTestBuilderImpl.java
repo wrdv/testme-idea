@@ -56,13 +56,19 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
     @NotNull
     private List<SyntheticParam> findProperties(Type type) {
         final List<Method> methods = type.getMethods();
-        List<SyntheticParam> syntheticParams=new ArrayList<SyntheticParam>();
+        Map<String,SyntheticParam> syntheticParams=new LinkedHashMap<String,SyntheticParam>();
         for (Method method : methods) {
             if (method.isSetter()&&  method.getMethodParams().size()>0 &&method.getPropertyName()!=null) {
-                syntheticParams.add(new SyntheticParam(method.getMethodParams().get(0).getType(), method.getPropertyName(),true));
+                final SyntheticParam syntheticParam = syntheticParams.get(method.getPropertyName());
+                if (syntheticParam == null) {
+                    syntheticParams.put(method.getPropertyName(),new SyntheticParam(method.getMethodParams().get(0).getType(), method.getPropertyName(),true));
+                } else if (!syntheticParam.getName().equalsIgnoreCase(syntheticParam.getType().getName())) {//todo should be rejected based on actual target type vs param type rather than rely on naming convention (impl of com.intellij.psi.util.PropertyUtil#getFieldOfSetter - that works for groovy)
+                    syntheticParams.remove(method.getPropertyName());
+                    syntheticParams.put(method.getPropertyName(), new SyntheticParam(method.getMethodParams().get(0).getType(), method.getPropertyName(), true));
+                }
+
             }
         }
-        return syntheticParams;
+        return new ArrayList<SyntheticParam>(syntheticParams.values());
     }
-
 }

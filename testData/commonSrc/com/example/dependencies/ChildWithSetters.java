@@ -25,6 +25,10 @@ public class ChildWithSetters extends AbstractParent{
         return "impImplemented in child";
     }
 
+    public void setStrField(int strField) {
+        this.strField = strField+"";
+    }
+
     public void setStrField(String strField) {
         this.strField = strField;
     }
