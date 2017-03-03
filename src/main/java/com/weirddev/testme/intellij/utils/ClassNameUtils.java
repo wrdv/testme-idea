@@ -38,4 +38,25 @@ public class ClassNameUtils {
         className=j==-1?className:className.substring(0, j);
         return stripArrayDesignator(className);
     }
+
+    public static String extractTargetPropertyName(String name, boolean isSetter, boolean isGetter) {
+        if (isGetter) {
+            if (name.startsWith("get")) {
+                return removeFromCamelCaseName(name, "get");
+            } else if (name.startsWith("is")) {
+                return removeFromCamelCaseName(name, "is");
+            } else {
+                return null;
+            }
+        } else if (isSetter && name.startsWith("set")) {
+            return removeFromCamelCaseName(name, "set");
+        }
+        return null;
+    }
+
+    @NotNull
+    public static String removeFromCamelCaseName(String name, String set) {
+        final String removed = name.replaceFirst(set, "");
+        return removed.substring(0, 1).toLowerCase()+removed.substring(1,removed.length());
+    }
 }

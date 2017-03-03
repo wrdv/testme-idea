@@ -6,11 +6,12 @@ package ${PACKAGE_NAME};
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+#if(!$TESTED_CLASS_FIELDS.isEmpty())
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-#if(!$TESTED_CLASS_FIELDS.isEmpty())//import static org.mockito.Mockito.*;#end
-
+//import static org.mockito.Mockito.*;
+#end
 #parse("File Header.java")
 class ${CLASS_NAME} {
 #renderMockedFields($TESTED_CLASS_FIELDS)

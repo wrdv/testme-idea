@@ -75,7 +75,7 @@ public class Type {
             });
             final PsiMethod[] methods = psiClass.getMethods();
             for (PsiMethod method : methods) {
-                if (PropertyUtil.isSimpleGetter(method) || PropertyUtil.isSimpleSetter(method)) {
+                if (PropertyUtil.isSimplePropertyGetter(method) || PropertyUtil.isSimplePropertySetter(method) || PropertyUtil.isSimpleGetter(method) || PropertyUtil.isSimpleSetter(method)) {
                     this.methods.add(new Method(method,psiClass,maxRecursionDepth-1,typeDictionary));
                 }
             }

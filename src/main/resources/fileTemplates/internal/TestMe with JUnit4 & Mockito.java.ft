@@ -6,10 +6,10 @@ package ${PACKAGE_NAME};
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+#if(!$TESTED_CLASS_FIELDS.isEmpty())
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-#if(!$TESTED_CLASS_FIELDS.isEmpty())
 //import static org.mockito.Mockito.*;
 #end
 

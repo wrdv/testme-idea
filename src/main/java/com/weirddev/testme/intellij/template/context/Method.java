@@ -3,6 +3,7 @@ package com.weirddev.testme.intellij.template.context;
 import com.intellij.psi.*;
 import com.intellij.psi.util.PropertyUtil;
 import com.weirddev.testme.intellij.template.TypeDictionary;
+import com.weirddev.testme.intellij.utils.ClassNameUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -44,10 +45,11 @@ public class Method {
         name = psiMethod.getName();
         ownerClassCanonicalType = psiMethod.getContainingClass() == null ? null : psiMethod.getContainingClass().getQualifiedName();
         methodParams = extractMethodParams(psiMethod.getParameterList(), typeDictionary, maxRecursionDepth);
-        isSetter = PropertyUtil.isSimpleSetter(psiMethod);
-        final PsiField psiField = PropertyUtil.findPropertyFieldByMember(psiMethod);
-        propertyName = psiField == null ? null : psiField.getName();
-        isGetter = PropertyUtil.isSimpleGetter(psiMethod);
+        isSetter = PropertyUtil.isSimplePropertySetter(psiMethod)||PropertyUtil.isSimpleSetter(psiMethod);
+        isGetter = PropertyUtil.isSimplePropertyGetter(psiMethod)||PropertyUtil.isSimpleGetter(psiMethod);
+//        final PsiField psiField = PropertyUtil.findPropertyFieldByMember(psiMethod);
+//        propertyName = psiField == null ? null : psiField.getName();
+        propertyName = ClassNameUtils.extractTargetPropertyName(name,isSetter,isGetter);
         constructor = psiMethod.isConstructor();
         overridden = isOverriddenInChild(psiMethod, srcClass);
         inherited = isInherited(psiMethod, srcClass);
