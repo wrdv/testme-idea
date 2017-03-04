@@ -32,23 +32,13 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
     }
 
     @Override
-    protected void buildCtorParams(Type type, String typeName, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, int recursionDepth, boolean isReplaced, StringBuilder testBuilder) {
-        LOG.debug("recursionDepth:"+recursionDepth+". maxRecursionDepth "+maxRecursionDepth);
-        if (recursionDepth <= maxRecursionDepth && (typeName.equals(type.getName()) || typeName.equals(type.getCanonicalName()))) {
-            if (isReplaced) {
-                buildJavaCallParams(Collections.singletonList(new SyntheticParam(type, typeName, false)), replacementTypes, defaultTypeValues, recursionDepth, testBuilder);
-            } else{
-                final boolean hasEmptyConstructor = hasEmptyConstructor(type);
-                for (Method method : type.getConstructors()) {
-                    if (isValidNonEmptyConstructor(type, method,hasEmptyConstructor, replacementTypes)) {
-                        buildJavaCallParams(method.getMethodParams(), replacementTypes, defaultTypeValues, recursionDepth, testBuilder);
-                        return;
-                    }
-                }
-                List<SyntheticParam> syntheticParams = findProperties(type);
-                if (syntheticParams.size() > 0) {
-                    buildJavaCallParams(syntheticParams, replacementTypes, defaultTypeValues, recursionDepth, testBuilder);
-                }
+    protected void buildJavaCallParams(Type ownerType, List<? extends Param> params, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, int recursionDepth, StringBuilder testBuilder) {
+        if (params != null && params.size()>0) {
+            super.buildJavaCallParams(ownerType, params, replacementTypes, defaultTypeValues, recursionDepth, testBuilder);
+        } else if(ownerType!=null){
+            List<SyntheticParam> syntheticParams = findProperties(ownerType);
+            if (syntheticParams.size() > 0) {
+                buildJavaCallParams(ownerType, syntheticParams, replacementTypes, defaultTypeValues, recursionDepth, testBuilder);
             }
         }
     }

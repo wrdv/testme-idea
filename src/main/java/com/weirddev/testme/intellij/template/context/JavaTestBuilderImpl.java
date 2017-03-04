@@ -1,6 +1,7 @@
 package com.weirddev.testme.intellij.template.context;
 
 import com.intellij.openapi.diagnostic.Logger;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -25,7 +26,7 @@ public class JavaTestBuilderImpl implements TestBuilder {
     @Override
     public String renderJavaCallParams(List<Param> params, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, int recursionDepth) {
         final StringBuilder stringBuilder = new StringBuilder();
-        buildJavaCallParams(params, replacementTypes, defaultTypeValues, recursionDepth, stringBuilder);
+        buildJavaCallParams(null, params, replacementTypes, defaultTypeValues, recursionDepth, stringBuilder);
         return stringBuilder.toString();
     }
 
@@ -70,7 +71,7 @@ public class JavaTestBuilderImpl implements TestBuilder {
         }
     }
 
-    protected void buildJavaCallParams(List<? extends Param> params, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, int recursionDepth, StringBuilder testBuilder) {
+    protected void buildJavaCallParams(Type ownerType, List<? extends Param> params, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, int recursionDepth, StringBuilder testBuilder) {
         if (params != null) {
             for (int i = 0; i < params.size(); i++) {
                 if (i != 0) {
@@ -110,17 +111,26 @@ public class JavaTestBuilderImpl implements TestBuilder {
                     if (isLooksLikeObjectKeyInGroovyMap(typeInitExp[i], genericTypeParam.getCanonicalName())) {
                         testBuilder.append("(");
                     }
-                    buildCtorParams(genericTypeParam, genericTypeParam.getName(), replacementTypes, defaultTypeValues, recursionDepth, true, testBuilder);
+                    buildJavaCallParams(type,Collections.singletonList(new SyntheticParam(genericTypeParam, genericTypeParam.getName(), false)), replacementTypes, defaultTypeValues, recursionDepth, testBuilder);
                     if (isLooksLikeObjectKeyInGroovyMap(typeInitExp[i], genericTypeParam.getCanonicalName())) {
                         testBuilder.append(")");
                     }
                     testBuilder.append(typeInitExp[i]);
                 }
+            } else if (shouldContinueRecursion(type, typeName, recursionDepth)) {
+                final boolean hasEmptyConstructor = hasEmptyConstructor(type);
+                Method foundCtor = findValidConstructor(type, replacementTypes, hasEmptyConstructor);
+                if (foundCtor == null && !hasEmptyConstructor) {
+                    testBuilder.append("null");
+                } else {
+                    testBuilder.append("new ");
+                    testBuilder.append(typeName).append("(");
+                    buildJavaCallParams(type,foundCtor==null?new ArrayList<Param>():foundCtor.getMethodParams(), replacementTypes, defaultTypeValues, recursionDepth, testBuilder);
+                    testBuilder.append(")");
+                }
+
             } else {
-                testBuilder.append("new ");
-                testBuilder.append(typeName).append("(");
-                buildCtorParams(type, typeName, replacementTypes, defaultTypeValues, recursionDepth, false, testBuilder);
-                testBuilder.append(")");
+                testBuilder.append("null");
             }
         }
     }
@@ -129,30 +139,31 @@ public class JavaTestBuilderImpl implements TestBuilder {
         return ":".equals(expFragment) && !"java.lang.String".equals(canonicalTypeName);
     }
 
-    protected void buildCtorParams(Type type, String typeName, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, int recursionDepth, boolean isReplaced, StringBuilder testBuilder) {
-        LOG.debug("recursionDepth:"+recursionDepth+". maxRecursionDepth "+maxRecursionDepth);
-        if (recursionDepth <= maxRecursionDepth && (typeName.equals(type.getName()) || typeName.equals(type.getCanonicalName()))) {
-            if (isReplaced) {
-                buildJavaCallParams(Collections.singletonList(new SyntheticParam(type, typeName, false)), replacementTypes, defaultTypeValues, recursionDepth, testBuilder);
-            } else{
-                final boolean hasEmptyConstructor = hasEmptyConstructor(type);
-                for (Method method : type.getConstructors()) {
-                    if (isValidNonEmptyConstructor(type, method,hasEmptyConstructor,replacementTypes)) {
-                        buildJavaCallParams(method.getMethodParams(), replacementTypes, defaultTypeValues, recursionDepth, testBuilder);
-                        return;
-                    }
-                }
+    @Nullable
+    protected Method findValidConstructor(Type type, Map<String, String> replacementTypes, boolean hasEmptyConstructor) {
+        Method foundCtor = null;
+        for (Method method : type.getConstructors()) {
+            if (isValidConstructor(type, method,hasEmptyConstructor,replacementTypes)) {
+                foundCtor = method;
+                break;
             }
         }
+        return foundCtor;
     }
-    protected boolean isValidNonEmptyConstructor(Type type, Method constructor, boolean hasEmptyConstructor, Map<String, String> replacementTypes) {
-        final List<Param> methodParams = constructor.getMethodParams();
-        if(methodParams.size()==0){
+
+    private boolean shouldContinueRecursion(Type type, String typeName, int recursionDepth) {
+        LOG.debug("recursionDepth:"+recursionDepth+". maxRecursionDepth "+maxRecursionDepth);
+        return recursionDepth <= maxRecursionDepth && (typeName.equals(type.getName()) || typeName.equals(type.getCanonicalName()));
+    }
+
+    protected boolean isValidConstructor(Type type, Method constructor, boolean hasEmptyConstructor, Map<String, String> replacementTypes) {
+        if (constructor.isPrivate()) {
             return false;
         }
+        final List<Param> methodParams = constructor.getMethodParams();
         for (Param methodParam : methodParams) {
             final Type methodParamType = methodParam.getType();
-            if (methodParamType.equals(type)&& hasEmptyConstructor) {
+            if (methodParamType.equals(type) && hasEmptyConstructor) {
                 return false;
             }
             if ((methodParamType.isInterface() || methodParamType.isAbstract()) && (replacementTypes == null || replacementTypes.get(stripGenerics(methodParamType.getCanonicalName())) == null) && hasEmptyConstructor) {
@@ -164,6 +175,9 @@ public class JavaTestBuilderImpl implements TestBuilder {
     }
 
     protected boolean hasEmptyConstructor(Type type) {
+        if (type.getConstructors().size() == 0) {
+            return true;
+        }
         for (Method method : type.getConstructors()) {
             if (method.getMethodParams().size() == 0 && !method.isPrivate() && !method.isProtected()) {
                 return true;

@@ -44,7 +44,7 @@ class JavaTestBuilderImplTest extends Specification {
 
     def "resolveType"() {
         expect:
-        result == testBuilder.resolveType(new Type(canonicalName, "Set", "java.util", false,false,false, false, []), replacementMap as HashMap)
+        result == testBuilder.resolveType(new Type(canonicalName, "Set", "java.util", false, false, false, false, []), replacementMap as HashMap)
 
         where:
         result                          | canonicalName               | replacementMap
