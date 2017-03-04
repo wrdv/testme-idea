@@ -81,7 +81,7 @@
 #end
 ##
 #macro(renderJUnitAssert $type)
-#renderJunitAssertMethod($type)($JavaTestBuilder.renderJavaCallParam($type,"replaceMeWithExpectedResult",$replacementTypes,$defaultTypeValues ,0), result);
+#renderJunitAssertMethod($type)($JavaTestBuilder.renderJavaCallParam($type,"replaceMeWithExpectedResult",$replacementTypes,$defaultTypeValues), result);
 #end
 ##
 #macro(renderJunitAssertMethod $type)
@@ -89,5 +89,5 @@
 #end
 ##
 #macro(renderMethodCall $method,$testedClassName)
-#renderJavaReturnVar($method.returnType)#if($method.static)$testedClassName#{else}$StringUtils.deCapitalizeFirstLetter($testedClassName)#end.${method.name}($JavaTestBuilder.renderJavaCallParams($method.methodParams,$replacementTypes,$defaultTypeValues , 0));
+#renderJavaReturnVar($method.returnType)#if($method.static)$testedClassName#{else}$StringUtils.deCapitalizeFirstLetter($testedClassName)#end.${method.name}($JavaTestBuilder.renderJavaCallParams($method.methodParams,$replacementTypes,$defaultTypeValues));
 #end

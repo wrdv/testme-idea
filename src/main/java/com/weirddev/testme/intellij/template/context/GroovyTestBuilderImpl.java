@@ -32,13 +32,13 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
     }
 
     @Override
-    protected void buildJavaCallParams(Type ownerType, List<? extends Param> params, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, int recursionDepth, StringBuilder testBuilder) {
+    protected void buildCallParams(Type ownerType, List<? extends Param> params, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, int recursionDepth, StringBuilder testBuilder) {
         if (params != null && params.size()>0) {
-            super.buildJavaCallParams(ownerType, params, replacementTypes, defaultTypeValues, recursionDepth, testBuilder);
+            super.buildCallParams(ownerType, params, replacementTypes, defaultTypeValues, recursionDepth, testBuilder);
         } else if(ownerType!=null){
             List<SyntheticParam> syntheticParams = findProperties(ownerType);
             if (syntheticParams.size() > 0) {
-                buildJavaCallParams(ownerType, syntheticParams, replacementTypes, defaultTypeValues, recursionDepth, testBuilder);
+                buildCallParams(ownerType, syntheticParams, replacementTypes, defaultTypeValues, recursionDepth, testBuilder);
             }
         }
     }

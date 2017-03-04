@@ -24,16 +24,16 @@ public class JavaTestBuilderImpl implements TestBuilder {
 
     //TODO consider aggregating conf into context object and managing maps outside of template
     @Override
-    public String renderJavaCallParams(List<Param> params, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, int recursionDepth) {
+    public String renderJavaCallParams(List<Param> params, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues) {
         final StringBuilder stringBuilder = new StringBuilder();
-        buildJavaCallParams(null, params, replacementTypes, defaultTypeValues, recursionDepth, stringBuilder);
+        buildCallParams(null, params, replacementTypes, defaultTypeValues, 0, stringBuilder);
         return stringBuilder.toString();
     }
 
     @Override
-    public String renderJavaCallParam(Type type, String strValue, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, int recursionDepth) {
+    public String renderJavaCallParam(Type type, String strValue, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues) {
         final StringBuilder stringBuilder = new StringBuilder();
-        buildCallParam(new SyntheticParam(type, strValue,false), replacementTypes, defaultTypeValues, recursionDepth, stringBuilder);
+        buildCallParam(new SyntheticParam(type, strValue,false), replacementTypes, defaultTypeValues, 0, stringBuilder);
         return stringBuilder.toString();
     }
 
@@ -71,7 +71,7 @@ public class JavaTestBuilderImpl implements TestBuilder {
         }
     }
 
-    protected void buildJavaCallParams(Type ownerType, List<? extends Param> params, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, int recursionDepth, StringBuilder testBuilder) {
+    protected void buildCallParams(Type ownerType, List<? extends Param> params, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, int recursionDepth, StringBuilder testBuilder) {
         if (params != null) {
             for (int i = 0; i < params.size(); i++) {
                 if (i != 0) {
@@ -111,7 +111,7 @@ public class JavaTestBuilderImpl implements TestBuilder {
                     if (isLooksLikeObjectKeyInGroovyMap(typeInitExp[i], genericTypeParam.getCanonicalName())) {
                         testBuilder.append("(");
                     }
-                    buildJavaCallParams(type,Collections.singletonList(new SyntheticParam(genericTypeParam, genericTypeParam.getName(), false)), replacementTypes, defaultTypeValues, recursionDepth, testBuilder);
+                    buildCallParams(type,Collections.singletonList(new SyntheticParam(genericTypeParam, genericTypeParam.getName(), false)), replacementTypes, defaultTypeValues, recursionDepth, testBuilder);
                     if (isLooksLikeObjectKeyInGroovyMap(typeInitExp[i], genericTypeParam.getCanonicalName())) {
                         testBuilder.append(")");
                     }
@@ -120,12 +120,12 @@ public class JavaTestBuilderImpl implements TestBuilder {
             } else if (shouldContinueRecursion(type, typeName, recursionDepth)) {
                 final boolean hasEmptyConstructor = hasEmptyConstructor(type);
                 Method foundCtor = findValidConstructor(type, replacementTypes, hasEmptyConstructor);
-                if (foundCtor == null && !hasEmptyConstructor) {
+                if (foundCtor == null && !hasEmptyConstructor || !type.isDependenciesResolvable()) {
                     testBuilder.append("null");
                 } else {
                     testBuilder.append("new ");
                     testBuilder.append(typeName).append("(");
-                    buildJavaCallParams(type,foundCtor==null?new ArrayList<Param>():foundCtor.getMethodParams(), replacementTypes, defaultTypeValues, recursionDepth, testBuilder);
+                    buildCallParams(type,foundCtor==null?new ArrayList<Param>():foundCtor.getMethodParams(), replacementTypes, defaultTypeValues, recursionDepth, testBuilder);
                     testBuilder.append(")");
                 }
 

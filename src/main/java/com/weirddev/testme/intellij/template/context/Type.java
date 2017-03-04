@@ -1,7 +1,6 @@
 package com.weirddev.testme.intellij.template.context;
 
 import com.intellij.psi.*;
-import com.intellij.psi.impl.source.PsiClassReferenceType;
 import com.intellij.psi.util.PropertyUtil;
 import com.intellij.psi.util.PsiUtil;
 import com.weirddev.testme.intellij.template.TypeDictionary;
@@ -30,6 +29,7 @@ public class Type {
     private final boolean isAbstract;
     private final List<Method> constructors=new ArrayList<Method>();
     private final List<Method> methods=new ArrayList<Method>();//resolve Setters/Getters only for now
+    private boolean dependenciesResolvable =false;
 
     Type(String canonicalName, String name, String packageName, boolean isPrimitive, boolean isInterface, boolean isAbstract,  boolean array, List<Type> composedTypes) {
         this.canonicalName = canonicalName;
@@ -61,6 +61,12 @@ public class Type {
         isInterface = psiClass != null && psiClass.isInterface();
         isAbstract = psiClass != null && psiClass.getModifierList()!=null &&  psiClass.getModifierList().hasModifierProperty(PsiModifier.ABSTRACT);
         enumValues = resolveEnumValues(psiType);
+        dependenciesResolvable = maxRecursionDepth > 0;
+    }
+
+    public void resolveDependencies(@Nullable TypeDictionary typeDictionary, int maxRecursionDepth, PsiType psiType) {
+        String canonicalText = psiType.getCanonicalText();
+        PsiClass psiClass = PsiUtil.resolveClassInType(psiType);
         if (psiClass != null && maxRecursionDepth>0 && !canonicalText.startsWith("java.") /*todo consider replacing with just java.util.* || java.lang.*  */&& typeDictionary!=null) {
             for (PsiMethod psiMethod : psiClass.getConstructors()) {
                 if (typeDictionary.isAccessible(psiMethod)) {
@@ -101,12 +107,12 @@ public class Type {
 
     private List<Type> resolveTypes(PsiType psiType, TypeDictionary typeDictionary, int maxRecursionDepth) {
         ArrayList<Type> types = new ArrayList<Type>();
-        if (psiType instanceof PsiClassType) {
+        if (typeDictionary!=null && psiType instanceof PsiClassType) {
             PsiClassType psiClassType = (PsiClassType) psiType;
             PsiType[] parameters = psiClassType.getParameters();
             if (parameters.length > 0) {
                 for (PsiType parameter : parameters) {
-                    types.add(new Type(parameter,typeDictionary, maxRecursionDepth));
+                    types.add(typeDictionary.getType(parameter,maxRecursionDepth));
                 }
             }
         }
@@ -171,8 +177,11 @@ public class Type {
                 ", array=" + array +
                 ", enumValues=" + enumValues +
                 ", isEnum=" + isEnum +
+                ", isInterface=" + isInterface +
+                ", isAbstract=" + isAbstract +
                 ", constructors=" + constructors +
                 ", methods=" + methods +
+                ", dependenciesResolvable=" + dependenciesResolvable +
                 '}';
     }
 
@@ -190,5 +199,9 @@ public class Type {
 
     public boolean isAbstract() {
         return isAbstract;
+    }
+
+    public boolean isDependenciesResolvable() {
+        return dependenciesResolvable;
     }
 }
