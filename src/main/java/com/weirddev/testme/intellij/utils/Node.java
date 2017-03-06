@@ -28,11 +28,14 @@ public class Node<T> {
         return depth;
     }
 
-    public boolean isAncestor(T data) {
+    public boolean hasSameAncestor() {
+        return hasSameAncestor(data);
+    }
+    public boolean hasSameAncestor(T data) {
         if (parent == null || parent.data==null) {
             return false;
         } else{
-            return parent.data.equals(data) || parent.isAncestor(data);
+            return parent.data.equals(data) || parent.hasSameAncestor(data);
         }
     }
 }

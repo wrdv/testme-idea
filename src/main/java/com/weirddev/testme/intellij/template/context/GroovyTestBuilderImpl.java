@@ -18,7 +18,7 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
     }
 
     @Override
-    protected void buildCallParam(Param param, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Type> typeNode) {
+    protected void buildCallParam(Param param, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Param> typeNode) {
         final Type type = param.getType();
         if (param instanceof SyntheticParam && ((SyntheticParam) param).isProperty) {
             testBuilder.append(param.getName()).append(" : ");
@@ -33,7 +33,7 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
     }
 
     @Override
-    protected void buildCallParams(Type ownerType, List<? extends Param> params, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Type> typeNode) {
+    protected void buildCallParams(Type ownerType, List<? extends Param> params, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Param> typeNode) {
         if (params != null && params.size()>0) {
             super.buildCallParams(ownerType, params, replacementTypes, defaultTypeValues, testBuilder, typeNode);
         } else if(ownerType!=null){

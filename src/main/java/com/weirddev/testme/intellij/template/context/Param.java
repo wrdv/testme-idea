@@ -28,4 +28,18 @@ public class Param {
         return name;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Param)) return false;
+
+        Param param = (Param) o;
+
+        return type != null ? type.equals(param.type) : param.type == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return type != null ? type.hashCode() : 0;
+    }
 }
