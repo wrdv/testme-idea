@@ -1,6 +1,7 @@
 package com.weirddev.testme.intellij.template.context;
 
 import com.intellij.openapi.diagnostic.Logger;
+import com.weirddev.testme.intellij.utils.Node;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -23,17 +24,18 @@ public class JavaTestBuilderImpl implements TestBuilder {
     }
 
     //TODO consider aggregating conf into context object and managing maps outside of template
+    //TODO refactor: replace Node<Type> with Node<Param> throughout. impl equals on param.  remove recursionDepth
     @Override
     public String renderJavaCallParams(List<Param> params, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues) {
         final StringBuilder stringBuilder = new StringBuilder();
-        buildCallParams(null, params, replacementTypes, defaultTypeValues, 0, stringBuilder);
+        buildCallParams(null, params, replacementTypes, defaultTypeValues, 0, stringBuilder,new Node<Type>(null,null,0));
         return stringBuilder.toString();
     }
 
     @Override
     public String renderJavaCallParam(Type type, String strValue, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues) {
         final StringBuilder stringBuilder = new StringBuilder();
-        buildCallParam(new SyntheticParam(type, strValue,false), replacementTypes, defaultTypeValues, 0, stringBuilder);
+        buildCallParam(new SyntheticParam(type, strValue,false), replacementTypes, defaultTypeValues, 0, stringBuilder,new Node<Type>(type,null,0));
         return stringBuilder.toString();
     }
 
@@ -60,29 +62,29 @@ public class JavaTestBuilderImpl implements TestBuilder {
         }
     }
 
-    protected void buildCallParam(Param param, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, int recursionDepth, StringBuilder testBuilder) {
+    protected void buildCallParam(Param param, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, int recursionDepth, StringBuilder testBuilder, Node<Type> typeNode) {
         final Type type = param.getType();
         if (type.isArray()) {
             testBuilder.append("new ").append(type.getCanonicalName()).append("[]{");
         }
-        buildJavaParam(param, replacementTypes, defaultTypeValues, recursionDepth, testBuilder);
+        buildJavaParam(param, replacementTypes, defaultTypeValues, recursionDepth, testBuilder,typeNode);
         if (type.isArray()) {
             testBuilder.append("}");
         }
     }
 
-    protected void buildCallParams(Type ownerType, List<? extends Param> params, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, int recursionDepth, StringBuilder testBuilder) {
+    protected void buildCallParams(Type ownerType, List<? extends Param> params, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, int recursionDepth, StringBuilder testBuilder, Node<Type> typeNode) {
         if (params != null) {
             for (int i = 0; i < params.size(); i++) {
                 if (i != 0) {
                     testBuilder.append(", ");
                 }
-                buildCallParam(params.get(i), replacementTypes, defaultTypeValues, recursionDepth+1, testBuilder);
+                buildCallParam(params.get(i), replacementTypes, defaultTypeValues, recursionDepth+1, testBuilder, new Node<Type>(params.get(i).getType(), typeNode,typeNode.getDepth()+1));
             }
         }
     }
 
-    protected void buildJavaParam(Param param, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, int recursionDepth, StringBuilder testBuilder) {
+    protected void buildJavaParam(Param param, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, int recursionDepth, StringBuilder testBuilder, Node<Type> typeNode) {
         final Type type = param.getType();
         final String canonicalName = type.getCanonicalName();
         if (defaultTypeValues.get(canonicalName) != null) {
@@ -94,11 +96,7 @@ public class JavaTestBuilderImpl implements TestBuilder {
             testBuilder.append(canonicalName).append(".").append(type.getEnumValues().get(0));
         } else {
             String typeName = resolveType(type, replacementTypes);
-            boolean isReplaced = false;
             if (!canonicalName.equals(typeName)) {
-                isReplaced = true;
-            }
-            if (isReplaced) {
                 final String[] typeInitExp = typeName.split("<VAL>");
                 testBuilder.append(typeInitExp[0]);
                 for (int i = 1; i < typeInitExp.length; i++) {
@@ -111,13 +109,14 @@ public class JavaTestBuilderImpl implements TestBuilder {
                     if (isLooksLikeObjectKeyInGroovyMap(typeInitExp[i], genericTypeParam.getCanonicalName())) {
                         testBuilder.append("(");
                     }
-                    buildCallParams(type,Collections.singletonList(new SyntheticParam(genericTypeParam, genericTypeParam.getName(), false)), replacementTypes, defaultTypeValues, recursionDepth, testBuilder);
+                    buildCallParams(type,Collections.singletonList(new SyntheticParam(genericTypeParam, genericTypeParam.getName(), false)), replacementTypes, defaultTypeValues, recursionDepth, testBuilder, typeNode);
                     if (isLooksLikeObjectKeyInGroovyMap(typeInitExp[i], genericTypeParam.getCanonicalName())) {
                         testBuilder.append(")");
                     }
                     testBuilder.append(typeInitExp[i]);
                 }
-            } else if (shouldContinueRecursion(type, typeName, recursionDepth)) {
+            }
+            else if (shouldContinueRecursion(type, recursionDepth,typeNode)) {
                 final boolean hasEmptyConstructor = hasEmptyConstructor(type);
                 Method foundCtor = findValidConstructor(type, replacementTypes, hasEmptyConstructor);
                 if (foundCtor == null && !hasEmptyConstructor || !type.isDependenciesResolvable()) {
@@ -125,7 +124,7 @@ public class JavaTestBuilderImpl implements TestBuilder {
                 } else {
                     testBuilder.append("new ");
                     testBuilder.append(typeName).append("(");
-                    buildCallParams(type,foundCtor==null?new ArrayList<Param>():foundCtor.getMethodParams(), replacementTypes, defaultTypeValues, recursionDepth, testBuilder);
+                    buildCallParams(type,foundCtor==null?new ArrayList<Param>():foundCtor.getMethodParams(), replacementTypes, defaultTypeValues, recursionDepth, testBuilder, new Node<Type>(type, typeNode,typeNode.getDepth()));
                     testBuilder.append(")");
                 }
 
@@ -151,9 +150,9 @@ public class JavaTestBuilderImpl implements TestBuilder {
         return foundCtor;
     }
 
-    private boolean shouldContinueRecursion(Type type, String typeName, int recursionDepth) {
+    private boolean shouldContinueRecursion(Type type, int recursionDepth, Node<Type> typeNode) {
         LOG.debug("recursionDepth:"+recursionDepth+". maxRecursionDepth "+maxRecursionDepth);
-        return recursionDepth <= maxRecursionDepth && (typeName.equals(type.getName()) || typeName.equals(type.getCanonicalName()));
+        return typeNode.getDepth() <= maxRecursionDepth && !typeNode.isAncestor(type);
     }
 
     protected boolean isValidConstructor(Type type, Method constructor, boolean hasEmptyConstructor, Map<String, String> replacementTypes) {
