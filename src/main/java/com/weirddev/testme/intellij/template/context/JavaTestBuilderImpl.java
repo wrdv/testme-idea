@@ -24,18 +24,17 @@ public class JavaTestBuilderImpl implements TestBuilder {
     }
 
     //TODO consider aggregating conf into context object and managing maps outside of template
-    //TODO refactor: replace Node<Param> with Node<Param> throughout. impl equals on param.
     @Override
     public String renderJavaCallParams(List<Param> params, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues) {
         final StringBuilder stringBuilder = new StringBuilder();
-        buildCallParams(null, params, replacementTypes, defaultTypeValues, stringBuilder,new Node<Param>(null,null,0));
+        buildCallParams(params, replacementTypes, defaultTypeValues, stringBuilder,new Node<Param>(null,null,0));
         return stringBuilder.toString();
     }
 
     @Override
     public String renderJavaCallParam(Type type, String strValue, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues) {
         final StringBuilder stringBuilder = new StringBuilder();
-        buildCallParam(new SyntheticParam(type, strValue,false), replacementTypes, defaultTypeValues, stringBuilder,new Node<Param>(new SyntheticParam(type, strValue,false),null,0));
+        buildCallParam(replacementTypes, defaultTypeValues, stringBuilder,new Node<Param>(new SyntheticParam(type, strValue,false),null,0));
         return stringBuilder.toString();
     }
 
@@ -48,7 +47,7 @@ public class JavaTestBuilderImpl implements TestBuilder {
         }
         return canonicalName;
     }
-
+    //todo move to util class
     String stripGenerics(String canonicalName) {
         return canonicalName.replaceFirst("<.*", "");
     }
@@ -62,36 +61,36 @@ public class JavaTestBuilderImpl implements TestBuilder {
         }
     }
 
-    protected void buildCallParam(Param param, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Param> paramNode) {
-        final Type type = param.getType();
+    protected void buildCallParam(Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Param> paramNode) {
+        final Type type = paramNode.getData().getType();
         if (type.isArray()) {
             testBuilder.append("new ").append(type.getCanonicalName()).append("[]{");
         }
-        buildJavaParam(param, replacementTypes, defaultTypeValues, testBuilder,paramNode);
+        buildJavaParam(replacementTypes, defaultTypeValues, testBuilder,paramNode);
         if (type.isArray()) {
             testBuilder.append("}");
         }
     }
 
-    protected void buildCallParams(Type ownerType, List<? extends Param> params, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Param> paramNode) {
+    protected void buildCallParams(List<? extends Param> params, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Param> ownerParamNode) {
         if (params != null) {
             for (int i = 0; i < params.size(); i++) {
                 if (i != 0) {
                     testBuilder.append(", ");
                 }
-                buildCallParam(params.get(i), replacementTypes, defaultTypeValues, testBuilder, new Node<Param>(params.get(i), paramNode,paramNode.getDepth()+1));
+                buildCallParam(replacementTypes, defaultTypeValues, testBuilder, new Node<Param>(params.get(i), ownerParamNode,ownerParamNode.getDepth()+1));
             }
         }
     }
 
-    protected void buildJavaParam(Param param, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Param> paramNode) {
-        final Type type = param.getType();
+    protected void buildJavaParam(Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Param> paramNode) {
+        final Type type = paramNode.getData().getType();
         final String canonicalName = type.getCanonicalName();
         if (defaultTypeValues.get(canonicalName) != null) {
 
             testBuilder.append(defaultTypeValues.get(canonicalName));
         } else if (canonicalName.equals("java.lang.String")) {
-            testBuilder.append("\"").append(param.getName()).append("\"");
+            testBuilder.append("\"").append(paramNode.getData().getName()).append("\"");
         } else if (type.getEnumValues().size() > 0) {
             testBuilder.append(canonicalName).append(".").append(type.getEnumValues().get(0));
         } else {
@@ -109,7 +108,7 @@ public class JavaTestBuilderImpl implements TestBuilder {
                     if (isLooksLikeObjectKeyInGroovyMap(typeInitExp[i], genericTypeParam.getCanonicalName())) {
                         testBuilder.append("(");
                     }
-                    buildCallParam(new SyntheticParam(genericTypeParam, genericTypeParam.getName(), false), replacementTypes, defaultTypeValues, testBuilder, new Node<Param>(new SyntheticParam(genericTypeParam, genericTypeParam.getName(), false),paramNode,paramNode.getDepth()));
+                    buildCallParam(replacementTypes, defaultTypeValues, testBuilder, new Node<Param>(new SyntheticParam(genericTypeParam, genericTypeParam.getName(), false),paramNode,paramNode.getDepth()));
                     if (isLooksLikeObjectKeyInGroovyMap(typeInitExp[i], genericTypeParam.getCanonicalName())) {
                         testBuilder.append(")");
                     }
@@ -124,7 +123,7 @@ public class JavaTestBuilderImpl implements TestBuilder {
                 } else {
                     testBuilder.append("new ");
                     testBuilder.append(typeName).append("(");
-                    buildCallParams(type,foundCtor==null?new ArrayList<Param>():foundCtor.getMethodParams(), replacementTypes, defaultTypeValues, testBuilder, paramNode);
+                    buildCallParams(foundCtor==null?new ArrayList<Param>():foundCtor.getMethodParams(), replacementTypes, defaultTypeValues, testBuilder, paramNode);
                     testBuilder.append(")");
                 }
 

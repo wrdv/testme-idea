@@ -18,28 +18,28 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
     }
 
     @Override
-    protected void buildCallParam(Param param, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Param> typeNode) {
-        final Type type = param.getType();
-        if (param instanceof SyntheticParam && ((SyntheticParam) param).isProperty) {
-            testBuilder.append(param.getName()).append(" : ");
+    protected void buildCallParam(Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Param> paramNode) {
+        final Type type = paramNode.getData().getType();
+        if (paramNode.getData() instanceof SyntheticParam && ((SyntheticParam) paramNode.getData()).isProperty) {
+            testBuilder.append(paramNode.getData().getName()).append(" : ");
         }
         if (type.isArray()) {
             testBuilder.append("[");
         }
-        buildJavaParam(param, replacementTypes, defaultTypeValues, testBuilder, typeNode);
+        buildJavaParam(replacementTypes, defaultTypeValues, testBuilder, paramNode);
         if (type.isArray()) {
             testBuilder.append("] as ").append(type.getCanonicalName()).append("[]");
         }
     }
 
     @Override
-    protected void buildCallParams(Type ownerType, List<? extends Param> params, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Param> typeNode) {
+    protected void buildCallParams(List<? extends Param> params, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Param> ownerParamNode) {
         if (params != null && params.size()>0) {
-            super.buildCallParams(ownerType, params, replacementTypes, defaultTypeValues, testBuilder, typeNode);
-        } else if(ownerType!=null){
-            List<SyntheticParam> syntheticParams = findProperties(ownerType);
+            super.buildCallParams(params, replacementTypes, defaultTypeValues, testBuilder, ownerParamNode);
+        } else if(ownerParamNode.getData()!=null){
+            List<SyntheticParam> syntheticParams = findProperties(ownerParamNode.getData().getType());
             if (syntheticParams.size() > 0) {
-                buildCallParams(ownerType, syntheticParams, replacementTypes, defaultTypeValues, testBuilder, typeNode);
+                buildCallParams(syntheticParams, replacementTypes, defaultTypeValues, testBuilder, ownerParamNode);
             }
         }
     }
