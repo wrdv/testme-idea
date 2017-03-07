@@ -23,6 +23,7 @@ public class Type {
     private final String packageName;
     private final List<Type> composedTypes;
     private final boolean array;
+    private final boolean varargs;
     private final List<String> enumValues;
     private final boolean isEnum;
     private final boolean isInterface;
@@ -31,7 +32,7 @@ public class Type {
     private final List<Method> methods=new ArrayList<Method>();//resolve Setters/Getters only for now
     private boolean dependenciesResolvable =false;
 
-    Type(String canonicalName, String name, String packageName, boolean isPrimitive, boolean isInterface, boolean isAbstract,  boolean array, List<Type> composedTypes) {
+    Type(String canonicalName, String name, String packageName, boolean isPrimitive, boolean isInterface, boolean isAbstract, boolean array, boolean varargs, List<Type> composedTypes) {
         this.canonicalName = canonicalName;
         this.name = name;
         this.isPrimitive = isPrimitive;
@@ -39,20 +40,22 @@ public class Type {
         this.isInterface = isInterface;
         this.isAbstract = isAbstract;
         this.array = array;
+        this.varargs = varargs;
         this.composedTypes = composedTypes;
         enumValues = new ArrayList<String>();
         isEnum = false;
     }
 
     Type(String canonicalName) {
-        this(ClassNameUtils.extractContainerType(canonicalName), ClassNameUtils.extractClassName(canonicalName), ClassNameUtils.extractPackageName(canonicalName),false, false,false,ClassNameUtils.isArray(canonicalName),null);
+        this(ClassNameUtils.extractContainerType(canonicalName), ClassNameUtils.extractClassName(canonicalName), ClassNameUtils.extractPackageName(canonicalName),false, false,false,ClassNameUtils.isArray(canonicalName),ClassNameUtils.isVarargs(canonicalName),null);
     }
 
     public Type(PsiType psiType, @Nullable TypeDictionary typeDictionary, int maxRecursionDepth) {
         String canonicalText = psiType.getCanonicalText();
         array = ClassNameUtils.isArray(canonicalText);
-        this.canonicalName = ClassNameUtils.stripArrayDesignator(canonicalText);
-        this.name = ClassNameUtils.stripArrayDesignator(psiType.getPresentableText());
+        varargs = ClassNameUtils.isVarargs(canonicalText);
+        this.canonicalName = ClassNameUtils.stripArrayVarargsDesignator(canonicalText);
+        this.name = ClassNameUtils.stripArrayVarargsDesignator(psiType.getPresentableText());
         packageName = ClassNameUtils.extractPackageName(canonicalName);
         this.isPrimitive = psiType instanceof PsiPrimitiveType;
         composedTypes = resolveTypes(psiType,typeDictionary,maxRecursionDepth);
@@ -173,6 +176,7 @@ public class Type {
                 ", packageName='" + packageName + '\'' +
                 ", composedTypes=" + composedTypes +
                 ", array=" + array +
+                ", varargs=" + varargs+
                 ", enumValues=" + enumValues +
                 ", isEnum=" + isEnum +
                 ", isInterface=" + isInterface +
@@ -181,6 +185,10 @@ public class Type {
                 ", methods=" + methods +
                 ", dependenciesResolvable=" + dependenciesResolvable +
                 '}';
+    }
+
+    public boolean isVarargs() {
+        return varargs;
     }
 
     public List<Method> getConstructors() {

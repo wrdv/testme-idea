@@ -2,7 +2,9 @@ package com.example.services.impl;
 
 import com.example.beans.BeanThere;
 import com.example.beans.BigBean;
+import com.example.foes.Ace;
 import com.example.foes.Fire;
+import com.example.foes.Ice;
 import com.example.warriers.FooFighter;
 import org.junit.Assert;
 import org.junit.Before;
@@ -35,6 +37,12 @@ public class FooTest {
     public void testFight() throws Exception {
         BigBean result = foo.fight(new Fire(), Arrays.<String>asList("String"), new BigBean(new DoneThat(0, "aDay", new Many("family", "members", "only"), new GregorianCalendar(2016, Calendar.JANUARY, 11, 22, 45).getTime(), null, "ifYourInDaHood"), new Many("family", "members", "only"), new DoneThat(0, "aDay", new Many("family", "members", "only"), new GregorianCalendar(2016, Calendar.JANUARY, 11, 22, 45).getTime(), null, "ifYourInDaHood")), new BeanThere(new DoneThat(0, "aDay", new Many("family", "members", "only"), new GregorianCalendar(2016, Calendar.JANUARY, 11, 22, 45).getTime(), new BigBean(null, new Many("family", "members", "only"), null), "ifYourInDaHood"), new Many("family", "members", "only")));
         Assert.assertEquals(new BigBean(new DoneThat(0, "aDay", new Many("family", "members", "only"), new GregorianCalendar(2016, Calendar.JANUARY, 11, 22, 45).getTime(), null, "ifYourInDaHood"), new Many("family", "members", "only"), new DoneThat(0, "aDay", new Many("family", "members", "only"), new GregorianCalendar(2016, Calendar.JANUARY, 11, 22, 45).getTime(), null, "ifYourInDaHood")), result);
+    }
+
+    @Test
+    public void testVarargs() throws Exception {
+        Ice[] result = foo.varargs(new Fire(), new Ace(new Ice()), new Ice());
+        Assert.assertArrayEquals(new Ice[]{new Ice()}, result);
     }
 }
 

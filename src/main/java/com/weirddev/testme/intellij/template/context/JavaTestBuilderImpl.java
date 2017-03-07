@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
 public class JavaTestBuilderImpl implements TestBuilder {
     private static final Logger LOG = Logger.getInstance(JavaTestBuilderImpl.class.getName());
     private static final Pattern GENERICS_PATTERN = Pattern.compile("(<.*>)");
-    private static Type DEFAULT_TYPE = new Type("java.lang.String", "String", "java.lang", false, false, false, false, new ArrayList<Type>());
+    private static Type DEFAULT_TYPE = new Type("java.lang.String", "String", "java.lang", false, false, false, false, false, new ArrayList<Type>());
     protected final int maxRecursionDepth;
 
     public JavaTestBuilderImpl(int maxRecursionDepth) {

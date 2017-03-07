@@ -16,27 +16,27 @@ public class ClassNameUtils {
     public static String extractClassName(@NotNull String fqName) {
         fqName = extractContainerType(fqName);
         int i = fqName.lastIndexOf('.');
-        return stripArrayDesignator((i == -1 ? fqName : fqName.substring(i + 1)));
+        return stripArrayVarargsDesignator((i == -1 ? fqName : fqName.substring(i + 1)));
     }
 
     public static String extractPackageName(String className) {
         if (className != null) {
             className = extractContainerType(className);
             int i = className.lastIndexOf('.');
-            return stripArrayDesignator(i == -1 ? "" : className.substring(0, i));
+            return stripArrayVarargsDesignator(i == -1 ? "" : className.substring(0, i));
         }
         return null;
     }
 
-    public static String stripArrayDesignator(String typeName) {
-        return typeName.replace("[]", "");
+    public static String stripArrayVarargsDesignator(String typeName) {
+        return typeName.replace("[]", "").replace("...", "");
     }
 
     @NotNull
     public static String extractContainerType(String className) {
         int j = className.indexOf('<');
         className=j==-1?className:className.substring(0, j);
-        return stripArrayDesignator(className);
+        return stripArrayVarargsDesignator(className);
     }
 
     public static String extractTargetPropertyName(String name, boolean isSetter, boolean isGetter) {
@@ -58,5 +58,9 @@ public class ClassNameUtils {
     public static String removeFromCamelCaseName(String name, String set) {
         final String removed = name.replaceFirst(set, "");
         return removed.substring(0, 1).toLowerCase()+removed.substring(1,removed.length());
+    }
+
+    public static boolean isVarargs(String canonicalText) {
+        return canonicalText.endsWith("...");
     }
 }

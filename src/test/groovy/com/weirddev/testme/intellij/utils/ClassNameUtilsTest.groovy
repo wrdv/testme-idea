@@ -13,6 +13,16 @@ class ClassNameUtilsTest {
         boolean result = ClassNameUtils.isArray("canonicalName")
         assert result == false
     }
+    @Test
+    void testVarargsFalse() {
+        boolean result = ClassNameUtils.isVarargs("canonicalName..")
+        assert result == false
+    }
+    @Test
+    void testVarargsTrue() {
+        boolean result = ClassNameUtils.isVarargs("com.median.canonicalName...")
+        assert result == true
+    }
 
     @Test
     void testExtractClassName() {
@@ -26,8 +36,18 @@ class ClassNameUtilsTest {
     }
 
     @Test
-    void testStripArrayDesignator() {
-        String result = ClassNameUtils.stripArrayDesignator("typeName")
+    void testStripArrayVarargsDesignator() {
+        String result = ClassNameUtils.stripArrayVarargsDesignator("typeName")
+        assert result == "typeName"
+    }
+    @Test
+    void testStripArrayVarargsDesignatorRemoveArray() {
+        String result = ClassNameUtils.stripArrayVarargsDesignator("typeName[]")
+        assert result == "typeName"
+    }
+    @Test
+    void testStripArrayVarargsDesignatorRemoveVarargs() {
+        String result = ClassNameUtils.stripArrayVarargsDesignator("typeName...")
         assert result == "typeName"
     }
 
