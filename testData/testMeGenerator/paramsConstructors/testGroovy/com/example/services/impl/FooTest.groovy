@@ -2,6 +2,7 @@ package com.example.services.impl
 
 import com.example.beans.BeanThere
 import com.example.beans.BigBean
+import com.example.dependencies.MasterInterface
 import com.example.foes.Ace
 import com.example.foes.Fire
 import com.example.foes.Ice
@@ -35,6 +36,12 @@ class FooTest {
     void testVarargs() {
         Ice[] result = foo.varargs(new Fire(), new Ace(new Ice()), new Ice())
         assert result == [new Ice()] as Ice[]
+    }
+
+    @Test
+    void testJack() {
+        MasterInterface result = foo.jack(new BeanDependsOnInterface(), null)
+        assert result == null
     }
 }
 

@@ -173,6 +173,9 @@ public class JavaTestBuilderImpl implements TestBuilder {
     }
 
     protected boolean hasEmptyConstructor(Type type) {
+        if (type.isInterface() || type.isAbstract()) {
+            return false;
+        }
         if (type.getConstructors().size() == 0) {
             return true;
         }

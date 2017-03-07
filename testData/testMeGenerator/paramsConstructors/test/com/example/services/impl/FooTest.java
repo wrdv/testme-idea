@@ -2,6 +2,7 @@ package com.example.services.impl;
 
 import com.example.beans.BeanThere;
 import com.example.beans.BigBean;
+import com.example.dependencies.MasterInterface;
 import com.example.foes.Ace;
 import com.example.foes.Fire;
 import com.example.foes.Ice;
@@ -43,6 +44,12 @@ public class FooTest {
     public void testVarargs() throws Exception {
         Ice[] result = foo.varargs(new Fire(), new Ace(new Ice()), new Ice());
         Assert.assertArrayEquals(new Ice[]{new Ice()}, result);
+    }
+
+    @Test
+    public void testJack() throws Exception {
+        MasterInterface result = foo.jack(new BeanDependsOnInterface(), null);
+        Assert.assertEquals(null, result);
     }
 }
 

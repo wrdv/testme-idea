@@ -19,8 +19,8 @@
 
   <change-notes><![CDATA[
         Main changes in v1.2.1:
-
-        Please note default TestMe shortcut has bean changed to Alt+Shift+Q due to collision with Scala plugin shortcut
+        Test params generator improvements/fixes: handle varargs.
+        Default TestMe shortcut has bean changed to Alt+Shift+Q due to collision with Scala plugin shortcut
         <p><a href="http://weirddev.com/testme/release-notes">Complete Changelog</a></p>
     ]]>
   </change-notes>

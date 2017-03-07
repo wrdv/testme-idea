@@ -2,7 +2,9 @@ package com.example.services.impl;
 
 import com.example.beans.BeanThere;
 import com.example.beans.BigBean;
+import com.example.dependencies.MasterInterface;
 import com.example.foes.Ace;
+import com.example.foes.BeanDependsOnInterface;
 import com.example.foes.Ice;
 import com.example.warriers.FooFighter;
 import com.example.foes.Fire;
@@ -21,5 +23,8 @@ public class Foo{
         System.out.println(fire);
         System.out.println(onTheRocks.length);
         return onTheRocks;
+    }
+    public MasterInterface jack(BeanDependsOnInterface andTheBeanstalk,MasterInterface masterInterface) {
+        return masterInterface;
     }
 }
