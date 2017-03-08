@@ -30,6 +30,7 @@ public class Type {
     private final boolean isAbstract;
     private final List<Method> constructors=new ArrayList<Method>();
     private final List<Method> methods=new ArrayList<Method>();//resolve Setters/Getters only for now
+    private boolean dependenciesResolved =false;
     private boolean dependenciesResolvable =false;
 
     Type(String canonicalName, String name, String packageName, boolean isPrimitive, boolean isInterface, boolean isAbstract, boolean array, boolean varargs, List<Type> composedTypes) {
@@ -89,6 +90,7 @@ public class Type {
                 }
             }
         }
+        dependenciesResolved=true;
     }
 
     private static List<String> resolveEnumValues(PsiType psiType) {
@@ -183,7 +185,7 @@ public class Type {
                 ", isAbstract=" + isAbstract +
                 ", constructors=" + constructors +
                 ", methods=" + methods +
-                ", dependenciesResolvable=" + dependenciesResolvable +
+                ", dependenciesResolvable=" + dependenciesResolved +
                 '}';
     }
 
@@ -205,6 +207,10 @@ public class Type {
 
     public boolean isAbstract() {
         return isAbstract;
+    }
+
+    public boolean isDependenciesResolved() {
+        return dependenciesResolved;
     }
 
     public boolean isDependenciesResolvable() {
