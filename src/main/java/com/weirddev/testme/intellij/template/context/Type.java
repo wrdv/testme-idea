@@ -32,6 +32,7 @@ public class Type {
     private final List<Method> methods=new ArrayList<Method>();//resolve Setters/Getters only for now
     private boolean dependenciesResolved =false;
     private boolean dependenciesResolvable =false;
+    private boolean hasDefaultConstructor=false;
 
     Type(String canonicalName, String name, String packageName, boolean isPrimitive, boolean isInterface, boolean isAbstract, boolean array, boolean varargs, List<Type> composedTypes) {
         this.canonicalName = canonicalName;
@@ -72,11 +73,16 @@ public class Type {
         String canonicalText = psiType.getCanonicalText();
         PsiClass psiClass = PsiUtil.resolveClassInType(psiType);
         if (psiClass != null && maxRecursionDepth>0 && !canonicalText.startsWith("java.") /*todo consider replacing with just java.util.* || java.lang.*  */&& typeDictionary!=null) {
-            for (PsiMethod psiMethod : psiClass.getConstructors()) {
-                if (typeDictionary.isAccessible(psiMethod)) {
-                    constructors.add(new Method(psiMethod,psiClass, maxRecursionDepth-1, typeDictionary));
+            if (psiClass.getConstructors().length == 0) {
+                 hasDefaultConstructor=true;
+            } else {
+                for (PsiMethod psiMethod : psiClass.getConstructors()) {
+                    if (typeDictionary.isAccessible(psiMethod)) {
+                        constructors.add(new Method(psiMethod,psiClass, maxRecursionDepth-1, typeDictionary));
+                    }
                 }
             }
+
             Collections.sort(constructors, new Comparator<Method>() {
                 @Override
                 public int compare(Method o1, Method o2) { //sort in reverse order by #no of c'tor params
@@ -89,8 +95,8 @@ public class Type {
                     this.methods.add(new Method(method,psiClass,maxRecursionDepth-1,typeDictionary));
                 }
             }
+            dependenciesResolved=true;
         }
-        dependenciesResolved=true;
     }
 
     private static List<String> resolveEnumValues(PsiType psiType) {
@@ -211,6 +217,10 @@ public class Type {
 
     public boolean isDependenciesResolved() {
         return dependenciesResolved;
+    }
+
+    public boolean isHasDefaultConstructor() {
+        return hasDefaultConstructor;
     }
 
     public boolean isDependenciesResolvable() {

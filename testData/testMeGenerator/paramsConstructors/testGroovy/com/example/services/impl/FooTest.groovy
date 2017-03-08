@@ -4,6 +4,7 @@ import com.example.beans.BeanThere
 import com.example.beans.BigBean
 import com.example.dependencies.MasterInterface
 import com.example.foes.Ace
+import com.example.foes.BeanDependsOnInterface
 import com.example.foes.Fire
 import com.example.foes.Ice
 import com.example.warriers.FooFighter
@@ -40,7 +41,7 @@ class FooTest {
 
     @Test
     void testJack() {
-        MasterInterface result = foo.jack(new BeanDependsOnInterface(), null)
+        MasterInterface result = foo.jack(new BeanDependsOnInterface(null), null)
         assert result == null
     }
 }

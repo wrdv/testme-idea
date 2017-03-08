@@ -18,6 +18,7 @@
     "java.util.LinkedList": "new java.util.LinkedList<TYPES>([<VAL>])",
     "java.util.Vector": "new java.util.Vector([<VAL>])",
     "java.util.HashSet": "[<VAL>] as java.util.HashSet",
+    "java.util.Stack": "new java.util.Stack<TYPES>(){{push(<VAL>)}}",
     "java.util.LinkedHashMap": "[<VAL>:<VAL>]",
     "java.util.TreeSet": "[<VAL>] as java.util.TreeSet"
 })

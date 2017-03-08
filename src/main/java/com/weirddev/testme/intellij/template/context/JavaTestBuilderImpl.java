@@ -157,7 +157,7 @@ public class JavaTestBuilderImpl implements TestBuilder {
     }
 
     protected boolean isValidConstructor(Type type, Method constructor, boolean hasEmptyConstructor, Map<String, String> replacementTypes) {
-        if (constructor.isPrivate()) {
+        if (type.isInterface() || type.isAbstract()) {
             return false;
         }
         final List<Param> methodParams = constructor.getMethodParams();
@@ -178,11 +178,11 @@ public class JavaTestBuilderImpl implements TestBuilder {
         if (type.isInterface() || type.isAbstract()) {
             return false;
         }
-        if (type.getConstructors().size() == 0) {
+        if (type.isHasDefaultConstructor()) {
             return true;
         }
         for (Method method : type.getConstructors()) {
-            if (method.getMethodParams().size() == 0 && !method.isPrivate() && !method.isProtected()) {
+            if (method.getMethodParams().size() == 0) {
                 return true;
             }
         }

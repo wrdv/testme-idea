@@ -35,7 +35,7 @@ public class FooTest {
 
     @Test
     public void testFightConcreteTypes() throws Exception {
-        List<Fire> result = foo.fightConcreteTypes(new ArrayList<Fire>(Arrays.asList(new Fire())), new HashSet<Fire>(Arrays.asList(new Fire())), new HashMap<String,Ice>(){{put("String",new Ice());}}, new Vector(Arrays.asList(Arrays.<String>asList("String"))), new TreeSet<Fear>(Arrays.asList(new Fear())), new Stack<Fear>());
+        List<Fire> result = foo.fightConcreteTypes(new ArrayList<Fire>(Arrays.asList(new Fire())), new HashSet<Fire>(Arrays.asList(new Fire())), new HashMap<String,Ice>(){{put("String",new Ice());}}, new Vector(Arrays.asList(Arrays.<String>asList("String"))), new TreeSet<Fear>(Arrays.asList(new Fear())), new Stack<Fear>(){{push(new Fear());}});
         Assert.assertEquals(Arrays.<Fire>asList(new Fire()), result);
     }
 

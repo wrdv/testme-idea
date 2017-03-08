@@ -31,7 +31,7 @@ class FooTest {
 
     @Test
     void testFightConcreteTypes() {
-        List<Fire> result = foo.fightConcreteTypes([new Fire()], [new Fire()] as HashSet, ["String":new Ice()], new Vector([["String"]]), [new Fear()] as TreeSet, new Stack<Fear>())
+        List<Fire> result = foo.fightConcreteTypes([new Fire()], [new Fire()] as HashSet, ["String":new Ice()], new Vector([["String"]]), [new Fear()] as TreeSet, new Stack<Fear>(){{push(new Fear())}})
         assert result == [new Fire()]
     }
 
