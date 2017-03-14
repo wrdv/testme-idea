@@ -1,5 +1,6 @@
 package com.weirddev.testme.intellij.generator;
 
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiExpressionStatement;
@@ -7,29 +8,35 @@ import com.intellij.psi.PsiMethod;
 import org.jetbrains.annotations.Nullable;
 
 public class TestClassElementsLocator {
+    private static final Logger LOG = Logger.getInstance(TestClassElementsLocator.class.getName());
     public TestClassElementsLocator() {
     }
 
     public PsiElement findOptimalCursorLocation(PsiClass targetClass) {
         PsiElement defaultLocation = targetClass.getLBrace()==null?null:targetClass.getLBrace().getNextSibling();
-        PsiMethod testMethod = findTestMethod(targetClass);
-        if (testMethod == null) {
-            return defaultLocation;
+        try {
+            PsiMethod testMethod = findTestMethod(targetClass);
+            if (testMethod == null) {
+                return defaultLocation;
+            }
+            PsiElement assertExpression = findLastElement(testMethod, PsiExpressionStatement.class);
+            if (assertExpression == null) {
+                return defaultLocation;
+            } else if (assertExpression.getFirstChild() == null) {
+                return defaultLocation;
+            } else if (assertExpression.getFirstChild().getLastChild() == null) {
+                return defaultLocation;
+            } else if (assertExpression.getFirstChild().getLastChild().getFirstChild() == null) {
+                return defaultLocation;
+            } else if (assertExpression.getFirstChild().getLastChild().getFirstChild().getNextSibling() == null) {
+                return defaultLocation;
+            } else {
+                return assertExpression.getFirstChild().getLastChild().getFirstChild().getNextSibling();
+            }
+        } catch (Throwable e) {
+            LOG.debug("can't locate optimal cursor location",e);
         }
-        PsiElement assertExpression = findLastElement(testMethod, PsiExpressionStatement.class);
-        if (assertExpression == null) {
-            return defaultLocation;
-        } else if (assertExpression.getFirstChild() == null) {
-            return defaultLocation;
-        } else if (assertExpression.getFirstChild().getLastChild() == null) {
-            return defaultLocation;
-        } else if (assertExpression.getFirstChild().getLastChild().getFirstChild() == null) {
-            return defaultLocation;
-        } else if (assertExpression.getFirstChild().getLastChild().getFirstChild().getNextSibling() == null) {
-            return defaultLocation;
-        } else {
-            return assertExpression.getFirstChild().getLastChild().getFirstChild().getNextSibling();
-        }
+        return defaultLocation;
     }
 
     @Nullable

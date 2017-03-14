@@ -13,7 +13,9 @@ import com.intellij.openapi.fileEditor.ex.IdeDocumentHistory;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.Computable;
+import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.*;
+import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.psi.codeStyle.JavaCodeStyleManager;
 import com.intellij.psi.impl.source.PostprocessReformattingAspect;
 import com.intellij.psi.search.GlobalSearchScope;
@@ -61,7 +63,12 @@ public class TestMeGenerator {
                             if (targetClass == null) {
                                 return null;
                             }
-                            CodeInsightUtil.positionCursor(project, targetClass.getContainingFile(), testClassElementsLocator.findOptimalCursorLocation(targetClass));
+                            try {
+                                CodeInsightUtil.positionCursor(project, targetClass.getContainingFile(), testClassElementsLocator.findOptimalCursorLocation(targetClass));
+                            } catch (PsiInvalidElementAccessException e) {
+                                LOG.warn("unable to locate optimal cursor location post test generation",e);
+//                                new OpenFileDescriptor(project, targetClass.getContainingFile().getVirtualFile()).navigate(true);
+                            }
                             return targetClass;
                         } catch (IncorrectOperationException e) {
                             showErrorLater(project, context.getTargetClass());
@@ -100,7 +107,7 @@ public class TestMeGenerator {
         Map<String, Object> templateCtxtParams = testTemplateContextBuilder.build(context, fileTemplateManager.getDefaultProperties());
         try {
             FileTemplate codeTemplate = fileTemplateManager.getInternalTemplate(templateName);
-            codeTemplate.setReformatCode(context.isReformatCode());
+            codeTemplate.setReformatCode(false);
             Velocity.setProperty( Velocity.VM_MAX_DEPTH, 200);
             final PsiElement psiElement = FileTemplateUtil.createFromTemplate(codeTemplate, context.getTargetClass(), templateCtxtParams, targetDirectory, null);
             final PsiElement resolvedPsiElement=resolveEmbeddedClass(psiElement);
@@ -114,11 +121,18 @@ public class TestMeGenerator {
                 if (context.isReplaceFqn()) {
                     codeStyleManager.shortenClassReferences(psiClass);
                 }
-                final Document document = psiClass.getContainingFile().getViewProvider().getDocument();
-                if (document != null) {
-                    PsiDocumentManager.getInstance(context.getProject()).doPostponedOperationsAndUnblockDocument(document);
+                if (context.isReformatCode()) {
+                    final PsiFile containingFile = psiClass.getContainingFile();
+                    final TextRange textRange = containingFile.getTextRange();
+                    CodeStyleManager.getInstance(context.getProject()).reformatText(containingFile, textRange.getStartOffset(), textRange.getEndOffset());
                 }
-                return psiClass;
+                final PsiElement formattedPsiElement=resolveEmbeddedClass(psiElement);
+                if (formattedPsiElement instanceof PsiClass) {
+                    return (PsiClass) formattedPsiElement;
+                } else {
+//                    flushOperations(context, psiClass);
+                    return psiClass;
+                }
             } else {
                 return null;
             }
@@ -126,6 +140,13 @@ public class TestMeGenerator {
         } catch (Exception e) {
             LOG.error("error generating test class",e);
             return null;
+        }
+    }
+
+    private void flushOperations(FileTemplateContext context, PsiClass psiClass) {
+        final Document document = psiClass.getContainingFile().getViewProvider().getDocument();
+        if (document != null) {
+            PsiDocumentManager.getInstance(context.getProject()).doPostponedOperationsAndUnblockDocument(document);
         }
     }
 
