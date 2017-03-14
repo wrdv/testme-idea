@@ -27,7 +27,7 @@ public class FooTest {
 
     @Test
     public void testFight() throws Exception {
-        String result = foo.fight(new Fire(), "foeName", (byte) 0, (short) 0, 0, 0L, 0f, 0d, 'a', true, Byte.valueOf("00110"), Short.valueOf((short)0), Integer.valueOf(0), Long.valueOf(1), Float.valueOf(1.1f), Double.valueOf(0), Character.valueOf('a'), Boolean.TRUE, new BigDecimal(0));
+        String result = foo.fight(new Fire(), "foeName", (byte) 0, (short) 0, 0, 0L, 0f, 0d, 'a', true, Byte.valueOf("00110"), (short)0, 0, 1L, 1.1f, 0d, Character.valueOf('a'), Boolean.TRUE, new BigDecimal(0));
         Assert.assertEquals("replaceMeWithExpectedResult", result);
     }
 }

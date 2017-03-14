@@ -53,7 +53,7 @@ public class FooTest {
 
     @Test
     public void testObjectMaps() throws Exception {
-        HashMap<Fire,Fire> result = foo.objectMaps(new TreeMap<Boolean,String>(new HashMap<Boolean,String>(){{put(Boolean.TRUE,"String");}}), new HashMap<Integer,Boolean>(){{put(Integer.valueOf(0),Boolean.TRUE);}}, new HashMap<Fire,Fire>(){{put(new Fire(),new Fire());}});
+        HashMap<Fire,Fire> result = foo.objectMaps(new TreeMap<Boolean,String>(new HashMap<Boolean,String>(){{put(Boolean.TRUE,"String");}}), new HashMap<Integer,Boolean>(){{put(0,Boolean.TRUE);}}, new HashMap<Fire,Fire>(){{put(new Fire(),new Fire());}});
         Assert.assertEquals(new HashMap<Fire,Fire>(){{put(new Fire(),new Fire());}}, result);
     }
 }
