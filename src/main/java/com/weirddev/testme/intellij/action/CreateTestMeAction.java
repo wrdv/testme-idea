@@ -1,5 +1,6 @@
 package com.weirddev.testme.intellij.action;
 
+import com.intellij.CommonBundle;
 import com.intellij.ide.fileTemplates.FileTemplateDescriptor;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.command.CommandProcessor;
@@ -9,9 +10,11 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.refactoring.util.RefactoringMessageUtil;
 import com.intellij.testIntegration.createTest.CreateTestAction;
 import com.intellij.util.IncorrectOperationException;
 import com.weirddev.testme.intellij.generator.TestMeGenerator;
@@ -74,9 +77,20 @@ public class CreateTestMeAction extends CreateTestAction {
         final String targetClass = getClassName(srcClass);
         final TargetDirectoryLocator targetDirectoryLocator = new TargetDirectoryLocator();
         final PsiDirectory targetDirectory = targetDirectoryLocator.getOrCreateDirectory(project, srcPackage, srcModule, targetClass);
-        //TODO show merge , new , cancel prompt. alt. to com.intellij.refactoring.util.RefactoringMessageUtil.checkCanCreateClass()
         if (targetDirectory != null) {
+            //TODO show merge , new , cancel prompt. alt. to com.intellij.refactoring.util.RefactoringMessageUtil.checkCanCreateClass()
             LOG.debug("targetDirectory:"+targetDirectory.getVirtualFile().getUrl());
+            System.out.println(FileUtilRt.getExtension(templateDescriptor.getFilename()));
+            String fileCreateErrorMessage = RefactoringMessageUtil.checkCanCreateFile(targetDirectory, targetClass+"."+ FileUtilRt.getExtension(templateDescriptor.getFilename()));
+            if (fileCreateErrorMessage != null) {
+                Messages.showMessageDialog(project, fileCreateErrorMessage, CommonBundle.getErrorTitle(), Messages.getErrorIcon());
+            } else {
+                String classCreationErrorMessage = RefactoringMessageUtil.checkCanCreateClass(targetDirectory, targetClass);
+                if (classCreationErrorMessage != null) {
+                    Messages.showMessageDialog(project, classCreationErrorMessage, CommonBundle.getErrorTitle(), Messages.getErrorIcon());
+                }
+            }
+
             CommandProcessor.getInstance().executeCommand(project, new Runnable() {
                 @Override
                 public void run() {

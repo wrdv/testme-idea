@@ -44,18 +44,15 @@ public class TargetDirectoryLocator{
         String packageQualifiedName = targetPackage.getQualifiedName();
 //        RecentsManager.getInstance(project).registerRecentEntry(RECENTS_KEY, packageQualifiedName);
 //        RecentsManager.getInstance(project).registerRecentEntry(RECENT_SUPERS_KEY, "" /*mySuperClassField.getText()*/ );
-
-        String errorMessage;
         PsiDirectory myTargetDirectory = null;
         try {
             myTargetDirectory = selectTargetDirectory(packageQualifiedName, project, targetModule);
             if (myTargetDirectory == null) return null;
-            errorMessage = RefactoringMessageUtil.checkCanCreateClass(myTargetDirectory, targetClass);
         } catch (IncorrectOperationException e) {
-            errorMessage = e.getMessage();
-        }
-        if (errorMessage != null) {
-            Messages.showMessageDialog(project, errorMessage, CommonBundle.getErrorTitle(), Messages.getErrorIcon());
+            String errorMessage = e.getMessage();
+            if (errorMessage != null) {
+                Messages.showMessageDialog(project, errorMessage, CommonBundle.getErrorTitle(), Messages.getErrorIcon());
+            }
         }
         return myTargetDirectory;
     }
