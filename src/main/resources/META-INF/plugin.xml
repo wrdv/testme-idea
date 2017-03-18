@@ -1,7 +1,7 @@
 <idea-plugin version="2">
   <id>com.weirddev.testme</id>
   <name>TestMe</name>
-  <version>1.2.1</version>
+  <version>1.3.0</version>
   <vendor email="testme@weirddev.com" url="http://weirddev.com">WeirdDev</vendor>
 
   <description><![CDATA[
@@ -18,10 +18,13 @@
     ]]></description>
 
   <change-notes><![CDATA[
-        Main changes in v1.2.1:
-        Test params generator improvements/fixes: handle varargs.
-        Default TestMe shortcut has bean changed to Alt+Shift+Q due to collision with Scala plugin shortcut
-        <p><a href="http://weirddev.com/testme/release-notes">Complete Changelog</a></p>
+        <i>Main changes in v1.3.0:</i>
+          <ul>
+            <li>On test class name collision - popup dialog for renaming generated class name</li>
+            <li>Default TestMe shortcut key changed to Alt+Shift+Q due to collision with Scala plugin</li>
+            <li>Test params generator improvements/fixes</li>
+          </ul>
+        <a href="http://weirddev.com/testme/release-notes">Complete Changelog</a>
     ]]>
   </change-notes>
   <!-- please see https://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->

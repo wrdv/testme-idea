@@ -33,10 +33,10 @@ public class GeneratedClassNameResolver {
     @NotNull
     private ClassNameSelection getUserDecision(@NotNull Project project, final String className, String fileCreateErrorMessage, String dialogTitle) {
         ClassNameSelection classNameSelection;
-        final int selection = Messages.showDialog(project, fileCreateErrorMessage + "\nWhat would you like to do?", dialogTitle, new String[]{"Go to existing test", "&Pick a different name...", "&Cancel"}, 0, Messages.getQuestionIcon());
+        final int selection = Messages.showDialog(project, fileCreateErrorMessage + "\nWhat would you like to do?", dialogTitle, new String[]{ "Pick a different name...", "&Go to existing test","&Cancel"}, 0, Messages.getQuestionIcon());
         if (selection == 2 || selection == -1) {
             classNameSelection = new ClassNameSelection(null, ClassNameSelection.UserDecision.Abort);
-        } else if (selection == 1) {
+        } else if (selection == 0) {
             String resolvedClassName = Messages.showInputDialog(project, "Please rename target test class:", "Rename Test Class", Messages.getQuestionIcon(), className, new InputValidatorEx() {
                 @Nullable
                 @Override
