@@ -70,7 +70,6 @@ intellij {
     publish {
         username ideaPublishUsername
         password ideaPublishPassword
-        pluginId ideaPublishPluginId
         channel ideaPublishChannel
     }
 }
