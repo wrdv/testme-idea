@@ -1,6 +1,5 @@
 package com.weirddev.testme.intellij.action;
 
-import com.intellij.CommonBundle;
 import com.intellij.ide.fileTemplates.FileTemplateDescriptor;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.command.CommandProcessor;
@@ -10,13 +9,14 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.psi.util.PsiTreeUtil;
-import com.intellij.refactoring.util.RefactoringMessageUtil;
 import com.intellij.testIntegration.createTest.CreateTestAction;
 import com.intellij.util.IncorrectOperationException;
+import com.weirddev.testme.intellij.action.helpers.ClassNameSelection;
+import com.weirddev.testme.intellij.action.helpers.GeneratedClassNameResolver;
+import com.weirddev.testme.intellij.action.helpers.TargetDirectoryLocator;
 import com.weirddev.testme.intellij.generator.TestMeGenerator;
 import com.weirddev.testme.intellij.template.FileTemplateContext;
 import com.weirddev.testme.intellij.template.TemplateDescriptor;
@@ -38,12 +38,21 @@ public class CreateTestMeAction extends CreateTestAction {
     private static final String CREATE_TEST_IN_THE_SAME_ROOT = "create.test.in.the.same.root";
     public static final int MAX_RECURSION_DEPTH = 9;
     private final TestMeGenerator testMeGenerator;
+    private final GeneratedClassNameResolver generatedClassNameResolver;
     private TemplateDescriptor templateDescriptor;
+    private final TargetDirectoryLocator targetDirectoryLocator;
 
     public CreateTestMeAction(TemplateDescriptor templateDescriptor) {
-        this.templateDescriptor = templateDescriptor;
-        testMeGenerator = new TestMeGenerator();
+        this(templateDescriptor, new TestMeGenerator(), new TargetDirectoryLocator(), new GeneratedClassNameResolver());
     }
+
+    CreateTestMeAction(TemplateDescriptor templateDescriptor, TestMeGenerator testMeGenerator, TargetDirectoryLocator targetDirectoryLocator, GeneratedClassNameResolver generatedClassNameResolver) {
+        this.testMeGenerator = testMeGenerator;
+        this.generatedClassNameResolver = generatedClassNameResolver;
+        this.templateDescriptor = templateDescriptor;
+        this.targetDirectoryLocator = targetDirectoryLocator;
+    }
+
 
     @NotNull
     public String getText(){
@@ -74,38 +83,23 @@ public class CreateTestMeAction extends CreateTestAction {
             }
             propertiesComponent.setValue(CREATE_TEST_IN_THE_SAME_ROOT, String.valueOf(true));
         }
-        final String targetClass = getClassName(srcClass);
-        final TargetDirectoryLocator targetDirectoryLocator = new TargetDirectoryLocator();
-        final PsiDirectory targetDirectory = targetDirectoryLocator.getOrCreateDirectory(project, srcPackage, srcModule, targetClass);
-        if (targetDirectory != null) {
-            //TODO show merge , new , cancel prompt. alt. to com.intellij.refactoring.util.RefactoringMessageUtil.checkCanCreateClass()
-            LOG.debug("targetDirectory:"+targetDirectory.getVirtualFile().getUrl());
-            System.out.println(FileUtilRt.getExtension(templateDescriptor.getFilename()));
-            String fileCreateErrorMessage = RefactoringMessageUtil.checkCanCreateFile(targetDirectory, targetClass+"."+ FileUtilRt.getExtension(templateDescriptor.getFilename()));
-            if (fileCreateErrorMessage != null) {
-                Messages.showMessageDialog(project, fileCreateErrorMessage, CommonBundle.getErrorTitle(), Messages.getErrorIcon());
-            } else {
-                String classCreationErrorMessage = RefactoringMessageUtil.checkCanCreateClass(targetDirectory, targetClass);
-                if (classCreationErrorMessage != null) {
-                    Messages.showMessageDialog(project, classCreationErrorMessage, CommonBundle.getErrorTitle(), Messages.getErrorIcon());
-                }
-            }
 
+        final PsiDirectory targetDirectory = targetDirectoryLocator.getOrCreateDirectory(project, srcPackage, srcModule);
+        if (targetDirectory == null) {
+            return;
+        }
+        LOG.debug("targetDirectory:"+targetDirectory.getVirtualFile().getUrl());
+        final ClassNameSelection classNameSelection = generatedClassNameResolver.resolveClassName(project, targetDirectory, srcClass.getName(), templateDescriptor);
+        if (classNameSelection.getUserDecision() != ClassNameSelection.UserDecision.Abort) {
             CommandProcessor.getInstance().executeCommand(project, new Runnable() {
                 @Override
                 public void run() {
-                    testMeGenerator.generateTest(new FileTemplateContext(new FileTemplateDescriptor(templateDescriptor.getFilename()),project, targetClass, srcPackage, srcModule, targetDirectory, srcClass, true, true, MAX_RECURSION_DEPTH, true));
+                    testMeGenerator.generateTest(new FileTemplateContext(new FileTemplateDescriptor(templateDescriptor.getFilename()),project, classNameSelection.getClassName(), srcPackage, srcModule, targetDirectory, srcClass, true, true, MAX_RECURSION_DEPTH, true));
                 }
             }, "TestMe Generate Test", this);
         }
-
-
     }
-    private String getClassName(PsiClass myTargetClass) {
-        return String.format(templateDescriptor.getTestClassFormat(), myTargetClass.getName());
-    }
-
-    protected static void checkForTestRoots(Module srcModule, Set<VirtualFile> testFolders) {
+    public static void checkForTestRoots(Module srcModule, Set<VirtualFile> testFolders) {
         CreateTestAction.checkForTestRoots(srcModule, testFolders);
     }
 

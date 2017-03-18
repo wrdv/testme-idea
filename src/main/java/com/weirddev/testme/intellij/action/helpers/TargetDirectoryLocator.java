@@ -1,4 +1,4 @@
-package com.weirddev.testme.intellij.action;
+package com.weirddev.testme.intellij.action.helpers;
 
 import com.intellij.CommonBundle;
 import com.intellij.codeInsight.CodeInsightBundle;
@@ -20,6 +20,7 @@ import com.intellij.refactoring.util.RefactoringMessageUtil;
 import com.intellij.refactoring.util.RefactoringUtil;
 import com.intellij.testIntegration.createTest.CreateTestDialog;
 import com.intellij.util.IncorrectOperationException;
+import com.weirddev.testme.intellij.action.CreateTestMeAction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.model.java.JavaModuleSourceRootTypes;
@@ -40,7 +41,7 @@ public class TargetDirectoryLocator{
 //    private static final String RECENTS_KEY = "TargetDirectoryLocator.RecentsKey";
 //    private static final String RECENT_SUPERS_KEY = "TargetDirectoryLocator.Recents.Supers";
 
-    public PsiDirectory getOrCreateDirectory(@NotNull Project project, PsiPackage targetPackage, Module targetModule, String targetClass) {
+    public PsiDirectory getOrCreateDirectory(@NotNull Project project, PsiPackage targetPackage, Module targetModule) {
         String packageQualifiedName = targetPackage.getQualifiedName();
 //        RecentsManager.getInstance(project).registerRecentEntry(RECENTS_KEY, packageQualifiedName);
 //        RecentsManager.getInstance(project).registerRecentEntry(RECENT_SUPERS_KEY, "" /*mySuperClassField.getText()*/ );
