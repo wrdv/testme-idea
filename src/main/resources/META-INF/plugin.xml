@@ -21,6 +21,7 @@
         <i>Main changes in v1.3.0:</i>
           <ul>
             <li>On test class name collision - popup dialog for renaming generated class name</li>
+            <li>Format generated test according to relevant - Java or Groovy - <i>Code Style Settings</i></li>
             <li>Default TestMe shortcut key changed to Alt+Shift+Q due to collision with Scala plugin</li>
             <li>Test params generator improvements/fixes</li>
           </ul>
