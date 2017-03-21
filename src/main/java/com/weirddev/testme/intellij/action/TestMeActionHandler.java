@@ -71,7 +71,7 @@ public class TestMeActionHandler extends TestMePopUpHandler {
 
     private String findNestedClassName(Editor editor, PsiFile file, PsiNamedElement sourceElement) {
         String alternativeSourceName = null;
-        PsiElement element = TestSubjectResolverUtils.getElement(editor, file);
+        PsiElement element = TestSubjectResolverUtils.getTestableElement(editor, file);
         if (element != null) {
             PsiClass containingClass = CreateTestMeAction.getContainingClass(element);
             if (containingClass != null) {

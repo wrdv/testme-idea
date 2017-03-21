@@ -30,7 +30,7 @@ public class TestMeCreator {
     }
     private void invoke(@NotNull Project project, Editor editor, PsiFile file, TemplateDescriptor templateDescriptor) throws IncorrectOperationException {
         if (!file.getManager().isInProject(file)) return;
-        final PsiElement element = TestSubjectResolverUtils.getElement(editor, file);
+        final PsiElement element = TestSubjectResolverUtils.getTestableElement(editor, file);
         if (element != null) {
             new CreateTestMeAction(templateDescriptor).invoke(project, editor, element);
         }

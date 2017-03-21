@@ -1,8 +1,11 @@
 package com.weirddev.testme.intellij.utils;
 
 import com.intellij.openapi.editor.VisualPosition;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.weirddev.testme.intellij.BaseIJIntegrationTest;
+import com.weirddev.testme.intellij.action.CreateTestMeAction;
 import org.junit.Assert;
 
 /**
@@ -19,21 +22,23 @@ public class TestSubjectResolverUtilsTest extends BaseIJIntegrationTest {
     public void testIsValidForTesting() throws Exception {
         myFixture.copyDirectoryToProject("../../commonSrc", "");
         final PsiFile psiFile = myFixture.configureByFile(formatTestSourcePath("com.example.services.impl", "Foo"));
-//        final PsiClass element = myFixture.findElementByText("", PsiClass.class);
-        doTest(true, new VisualPosition(1,1), psiFile);
-        doTest(true,new VisualPosition(9,35), psiFile);//PublicInnerClass
-        doTest(true,new VisualPosition(11,46), psiFile);//methodOfInnerClass
-        doTest(true,new VisualPosition(17,22), psiFile);//InnerClass
-        doTest(true,new VisualPosition(19,1), psiFile);//InnerOfInnerClass
-        doTest(false,new VisualPosition(27,1), psiFile);//anonymousPublicInnerClass
-        doTest(true,new VisualPosition(30,42), psiFile);//InnerStaticClass
-        doTest(false,new VisualPosition(36,1), psiFile);//PrivateInnerStaticClass
+        doTest("com.example.services.impl.Foo", new VisualPosition(1,1), psiFile);
+        doTest("com.example.services.impl.Foo.PublicInnerClass.InnerOfPublicInnerClass",new VisualPosition(9,35), psiFile);//PublicInnerClass
+        doTest("com.example.services.impl.Foo.PublicInnerClass.InnerOfPublicInnerClass",new VisualPosition(11,46), psiFile);//methodOfInnerClass
+        doTest("com.example.services.impl.Foo.InnerClass.InnerOfInnerClass",new VisualPosition(19,1), psiFile);//InnerOfInnerClass
+        doTest("com.example.services.impl.Foo.InnerClass",new VisualPosition(22,42), psiFile);//InnerClass
+        doTest("com.example.services.impl.Foo",new VisualPosition(27,1), psiFile);//anonymousPublicInnerClass - parent containing class should be selected
+        doTest("com.example.services.impl.Foo.InnerStaticClass",new VisualPosition(30,42), psiFile);//InnerStaticClass
+        doTest("com.example.services.impl.Foo",new VisualPosition(36,1), psiFile);//PrivateInnerStaticClass
     }
 
-    private void doTest(boolean expectedResult, VisualPosition visualPosition, PsiFile psiFile) {
+    private void doTest(String expectedResult, VisualPosition visualPosition, PsiFile psiFile) {
         getEditor().getCaretModel().moveToVisualPosition(visualPosition);
-        final boolean result = TestSubjectResolverUtils.isValidForTesting(getEditor(), psiFile);
-        Assert.assertEquals(expectedResult, result);
+        final PsiElement testableElement = TestSubjectResolverUtils.getTestableElement(getEditor(), psiFile);
+        Assert.assertNotNull(testableElement);
+        final PsiClass containingClass = CreateTestMeAction.getContainingClass(testableElement);
+        Assert.assertNotNull(containingClass);
+        Assert.assertEquals(expectedResult, containingClass.getQualifiedName());
     }
 
     private String formatTestSourcePath(String packageName, String className) {
