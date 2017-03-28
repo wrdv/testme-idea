@@ -24,9 +24,12 @@ class ${CLASS_NAME}  extends Specification {
 #if($method.isTestable())
 
     def "#renderTestMethodNameAsWords($method.name)"() {
-        expect:
+        when:
         #grRenderMethodCall($method,$TESTED_CLASS.name)
-#if($method.returnType && $method.returnType.name !="void")        #grRenderAssert($method.returnType)#end
+
+        then:
+#if($method.returnType && $method.returnType.name !="void")        #grRenderAssert($method.returnType)#{else}false//todo - validate something
+#end
     }
 #end
 #end

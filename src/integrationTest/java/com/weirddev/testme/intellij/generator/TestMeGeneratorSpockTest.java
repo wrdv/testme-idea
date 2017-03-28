@@ -18,4 +18,8 @@ public class TestMeGeneratorSpockTest extends TestMeGeneratorTestBase {
     public void testCtorOverProps() throws Exception{
         doTest(true,true,true);
     }
+
+    public void testGenerics() throws Exception{
+        doTest(true,true,true);
+    }
 }
