@@ -52,8 +52,8 @@
 ##
 ################## Macros #####################
 #macro(grRenderTestSubjectInit $testedClass $hasNoMembers)
-#if($hasNoMembers || $testedClass.parent)
-#if(!$hasNoMembers && $testedClass.parent)      @InjectMocks#else
+#if($hasNoMembers || $testedClass.parentContainerClass)
+#if(!$hasNoMembers && $testedClass.parentContainerClass)      @InjectMocks#else
 
 #end
     $testedClass.canonicalName $StringUtils.deCapitalizeFirstLetter($testedClass.name)= #renderInitClass($testedClass)

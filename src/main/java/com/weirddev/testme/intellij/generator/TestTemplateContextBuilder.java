@@ -1,7 +1,6 @@
 package com.weirddev.testme.intellij.generator;
 
 import com.intellij.psi.*;
-import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiUtil;
 import com.weirddev.testme.intellij.template.FileTemplateContext;
 import com.weirddev.testme.intellij.template.TypeDictionary;
@@ -23,19 +22,21 @@ public class TestTemplateContextBuilder {
         populateDateFields(ctxtParams, Calendar.getInstance());
         ctxtParams.put(TestMeTemplateParams.CLASS_NAME, context.getTargetClass());
         ctxtParams.put(TestMeTemplateParams.PACKAGE_NAME, context.getTargetPackage().getQualifiedName());
+        int maxRecursionDepth = context.getMaxRecursionDepth();
+        ctxtParams.put(TestMeTemplateParams.MAX_RECURSION_DEPTH, maxRecursionDepth);
+        ctxtParams.put(TestMeTemplateParams.GROOVY_TEST_BUILDER, new GroovyTestBuilderImpl(maxRecursionDepth));
+        ctxtParams.put(TestMeTemplateParams.JAVA_TEST_BUILDER, new JavaTestBuilderImpl(maxRecursionDepth));
+        ctxtParams.put(TestMeTemplateParams.STRING_UTILS, StringUtils.class);
+        ctxtParams.put(TestMeTemplateParams.MOCKITO_UTILS, MockitoUtils.class);
+        ctxtParams.put(TestMeTemplateParams.TEST_SUBJECT_UTILS, TestSubjectUtils.class);
         final PsiClass targetClass = context.getSrcClass();
         if (targetClass != null && targetClass.isValid()) {
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS, new TestedType(targetClass,null));
             List<Field> fields = createFields(context);
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_FIELDS, fields);//todo refactor to be part of TESTED_CLASS
-            int maxRecursionDepth = context.getMaxRecursionDepth();
-            ctxtParams.put(TestMeTemplateParams.MAX_RECURSION_DEPTH, maxRecursionDepth);
             List<Method> methods = createMethods(context.getSrcClass(),maxRecursionDepth,context.getTargetPackage());
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_METHODS, methods);//todo refactor to be part of TESTED_CLASS
-            ctxtParams.put(TestMeTemplateParams.GROOVY_TEST_BUILDER, new GroovyTestBuilderImpl(maxRecursionDepth));
-            ctxtParams.put(TestMeTemplateParams.JAVA_TEST_BUILDER, new JavaTestBuilderImpl(maxRecursionDepth));
         }
-        ctxtParams.put(TestMeTemplateParams.STRING_UTILS, StringUtils.class);
         return ctxtParams;
     }
 

@@ -82,6 +82,9 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
     public void testMiscReplacementTypes() throws Exception {
         doTest(true, true, true);
     }
+    public void testStaticFieldless() throws Exception {
+        doTest(true, true, true);
+    }
     public void testGroovy() throws Exception {
         doTest("com.example.services.impl", "Foovy", "FoovyTest", true, true, true);
     }

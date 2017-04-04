@@ -10,30 +10,33 @@ import com.intellij.psi.PsiModifier;
  * @author Yaron Yamin
  */
 public class TestedType extends Type {
-    private final TestedType parent;
+    private final TestedType parentContainerClass;
     private final boolean isStatic;
-    private final TestedType child;
+    /**
+     * A nested class on the tested nested class/s path
+     */
+    private final TestedType childNestedClass;
 
-    public TestedType(PsiClass psiClass,TestedType child) {//todo consider refactoring and unifying with Type
+    public TestedType(PsiClass psiClass,TestedType childNestedClass) {//todo consider refactoring and unifying with Type
         super(psiClass.getQualifiedName());
         isStatic = psiClass.getModifierList() != null && psiClass.getModifierList().hasExplicitModifier(PsiModifier.STATIC);
-        this.child = child;
+        this.childNestedClass = childNestedClass;
         final PsiElement parent = psiClass.getParent();
         if (parent instanceof PsiClass) {
-            this.parent = new TestedType((PsiClass) parent, this);
+            this.parentContainerClass = new TestedType((PsiClass) parent, this);
         } else {
-            this.parent = null;
+            this.parentContainerClass = null;
         }
     }
-    public TestedType getParent() {
-        return parent;
+    public TestedType getParentContainerClass() {
+        return parentContainerClass;
     }
 
     public boolean isStatic() {
         return isStatic;
     }
 
-    public TestedType getChild() {
-        return child;
+    public TestedType getChildNestedClass() {
+        return childNestedClass;
     }
 }

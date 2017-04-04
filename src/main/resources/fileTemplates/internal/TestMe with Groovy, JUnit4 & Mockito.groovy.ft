@@ -1,11 +1,12 @@
 #parse("TestMe macros.groovy")
+#set($hasMocks=$MockitoUtils.hasMockable($TESTED_CLASS_FIELDS))
 #if($PACKAGE_NAME)
 package ${PACKAGE_NAME}
 #end
 
-import org.junit.Before
 import org.junit.Test
-#if(!$TESTED_CLASS_FIELDS.isEmpty())
+#if($hasMocks)
+import org.junit.Before
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
@@ -16,7 +17,7 @@ import org.mockito.MockitoAnnotations
 class ${CLASS_NAME} {
 #grRenderMockedFields($TESTED_CLASS_FIELDS)
 #grRenderTestSubjectInit($TESTED_CLASS,$TESTED_CLASS_FIELDS.isEmpty())
-#if(!$TESTED_CLASS_FIELDS.isEmpty())
+#if($hasMocks)
 
     @Before
     void setUp() {

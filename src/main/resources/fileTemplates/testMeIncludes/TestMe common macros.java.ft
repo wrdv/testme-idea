@@ -21,7 +21,7 @@ test $StringUtils.camelCaseToWords($methodName)#testMethodSuffix($methodName," "
 #if($suffix!=1)${prefix}${suffix}#end
 #end
 #macro(renderInitClass $class)
-#if($class.parent)#renderInitClass($class.parent).#end#if(!$class.isStatic())new #end$class.name#if(!$class.isStatic() && $class.parent || !$class.child || !$class.child.isStatic())()#end
+#if($class.parentContainerClass)#renderInitClass($class.parentContainerClass).#end#if(!$class.isStatic())new #end$class.name#if(!$class.isStatic() && $class.parentContainerClass || !$class.childNestedClass || !$class.childNestedClass.isStatic())()#end
 #end
 ##
 #macro(renderJavaReturnVar $type)
