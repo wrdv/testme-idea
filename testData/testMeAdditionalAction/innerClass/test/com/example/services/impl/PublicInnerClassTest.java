@@ -6,7 +6,6 @@ import org.junit.Test;
  * created by TestMe integration test on MMXVI
  */
 public class PublicInnerClassTest {
-
     Foo.PublicInnerClass publicInnerClass = new Foo().new PublicInnerClass();
 
     @Test

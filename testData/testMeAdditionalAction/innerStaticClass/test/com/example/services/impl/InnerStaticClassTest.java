@@ -6,7 +6,6 @@ import org.junit.Test;
  * created by TestMe integration test on MMXVI
  */
 public class InnerStaticClassTest {
-
     Foo.InnerStaticClass innerStaticClass = new Foo.InnerStaticClass();
 
     @Test

@@ -3,8 +3,8 @@ package com.example.services.impl;
 import com.example.foes.Fire;
 import com.example.warriers.FooFighter;
 import org.junit.Assert;
-import org.junit.Test;
 import org.junit.Before;
+import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -18,7 +18,7 @@ public class InnerStaticClassWithMemberTest {
     @Mock
     FooFighter innerFooFighter;
     @InjectMocks
-    Foo.InnerStaticClassWithMember innerStaticClassWithMember = new Foo.InnerStaticClassWithMember();
+    Foo.InnerStaticClassWithMember innerStaticClassWithMember;
 
     @Before
     public void setUp() {

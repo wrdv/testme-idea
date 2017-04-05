@@ -6,7 +6,6 @@ import org.junit.Test;
  * created by TestMe integration test on MMXVI
  */
 public class InnerOfInnerClassTest {
-
     Foo.InnerClass.InnerOfInnerClass innerOfInnerClass = new Foo().new InnerClass().new InnerOfInnerClass();
 
     @Test
