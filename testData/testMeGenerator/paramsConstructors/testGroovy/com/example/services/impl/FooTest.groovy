@@ -8,8 +8,8 @@ import com.example.foes.BeanDependsOnInterface
 import com.example.foes.Fire
 import com.example.foes.Ice
 import com.example.warriers.FooFighter
-import org.junit.Before
 import org.junit.Test
+import org.junit.Before
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations

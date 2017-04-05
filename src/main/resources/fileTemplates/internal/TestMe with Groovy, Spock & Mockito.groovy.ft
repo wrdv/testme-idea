@@ -1,9 +1,10 @@
 #parse("TestMe macros.groovy")
+#set($hasMocks=$MockitoUtils.hasMockable($TESTED_CLASS_FIELDS))
 #if($PACKAGE_NAME)
 package ${PACKAGE_NAME}
 #end
 import spock.lang.*
-#if(!$TESTED_CLASS_FIELDS.isEmpty())
+#if($hasMocks)
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
@@ -13,8 +14,8 @@ import org.mockito.MockitoAnnotations
 #parse("File Header.java")
 class ${CLASS_NAME}  extends Specification {
 #grRenderMockedFields($TESTED_CLASS_FIELDS)
-#grRenderTestSubjectInit($TESTED_CLASS,$TESTED_CLASS_FIELDS.isEmpty())
-#if(!$TESTED_CLASS_FIELDS.isEmpty())
+#grRenderTestSubjectInit($TESTED_CLASS,$TestSubjectUtils.hasTestableInstanceMethod($TESTED_CLASS_METHODS),$hasMocks)
+#if($hasMocks)
 
     def setup() {
         MockitoAnnotations.initMocks(this)

@@ -3,8 +3,8 @@ package com.example.services.impl
 import com.example.hole.Fire
 import com.example.util.List
 import com.example.warriers.FooFighter
-import org.junit.Before
 import org.junit.Test
+import org.junit.Before
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations

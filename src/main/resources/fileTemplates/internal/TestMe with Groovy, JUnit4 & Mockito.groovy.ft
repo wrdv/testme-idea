@@ -16,7 +16,7 @@ import org.mockito.MockitoAnnotations
 #parse("File Header.java")
 class ${CLASS_NAME} {
 #grRenderMockedFields($TESTED_CLASS_FIELDS)
-#grRenderTestSubjectInit($TESTED_CLASS,$TESTED_CLASS_FIELDS.isEmpty())
+#grRenderTestSubjectInit($TESTED_CLASS,$TestSubjectUtils.hasTestableInstanceMethod($TESTED_CLASS_METHODS),$hasMocks)
 #if($hasMocks)
 
     @Before
