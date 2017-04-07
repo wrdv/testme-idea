@@ -28,8 +28,9 @@ public class Type {
     private final boolean isEnum;
     private final boolean isInterface;
     private final boolean isAbstract;
-    private final List<Method> constructors=new ArrayList<Method>();
-    private final List<Method> methods=new ArrayList<Method>();//resolve Setters/Getters only for now
+    private final boolean isStatic;
+    private final List<Method> constructors;
+    private final List<Method> methods;//resolve Setters/Getters only for now
     private boolean dependenciesResolved =false;
     private boolean dependenciesResolvable =false;
     private boolean hasDefaultConstructor=false;
@@ -46,10 +47,13 @@ public class Type {
         this.composedTypes = composedTypes;
         enumValues = new ArrayList<String>();
         isEnum = false;
+        constructors = new ArrayList<Method>();
+        methods=new ArrayList<Method>();
+        this.isStatic = false;
     }
 
     Type(String canonicalName) {
-        this(ClassNameUtils.extractContainerType(canonicalName), ClassNameUtils.extractClassName(canonicalName), ClassNameUtils.extractPackageName(canonicalName),false, false,false,ClassNameUtils.isArray(canonicalName),ClassNameUtils.isVarargs(canonicalName),null);
+        this(ClassNameUtils.extractContainerType(canonicalName), ClassNameUtils.extractClassName(canonicalName), ClassNameUtils.extractPackageName(canonicalName),false, false,false, ClassNameUtils.isArray(canonicalName),ClassNameUtils.isVarargs(canonicalName),null);
     }
 
     public Type(PsiType psiType, @Nullable TypeDictionary typeDictionary, int maxRecursionDepth) {
@@ -65,8 +69,31 @@ public class Type {
         isEnum = psiClass != null && psiClass.isEnum();
         isInterface = psiClass != null && psiClass.isInterface();
         isAbstract = psiClass != null && psiClass.getModifierList()!=null &&  psiClass.getModifierList().hasModifierProperty(PsiModifier.ABSTRACT);
+        isStatic = psiClass != null && psiClass.getModifierList() != null && psiClass.getModifierList().hasExplicitModifier(PsiModifier.STATIC);
         enumValues = resolveEnumValues(psiType);
         dependenciesResolvable = maxRecursionDepth > 0;
+        constructors = new ArrayList<Method>();
+        methods=new ArrayList<Method>();
+    }
+
+    public Type(Type type) {
+        canonicalName = type.canonicalName;
+        name = type.name;
+        isPrimitive = type.isPrimitive;
+        packageName = type.packageName;
+        composedTypes = type.composedTypes;
+        array = type.array;
+        varargs = type.varargs;
+        enumValues = type.enumValues;
+        isEnum = type.isEnum;
+        isInterface = type.isInterface;
+        isAbstract = type.isAbstract;
+        isStatic = type.isStatic;
+        constructors = type.constructors;
+        methods = type.methods;
+        dependenciesResolved = type.dependenciesResolved;
+        dependenciesResolvable = type.dependenciesResolvable;
+        hasDefaultConstructor = type.hasDefaultConstructor;
     }
 
     public void resolveDependencies(@Nullable TypeDictionary typeDictionary, int maxRecursionDepth, PsiType psiType) {
@@ -184,14 +211,17 @@ public class Type {
                 ", packageName='" + packageName + '\'' +
                 ", composedTypes=" + composedTypes +
                 ", array=" + array +
-                ", varargs=" + varargs+
+                ", varargs=" + varargs +
                 ", enumValues=" + enumValues +
                 ", isEnum=" + isEnum +
                 ", isInterface=" + isInterface +
                 ", isAbstract=" + isAbstract +
+                ", isStatic=" + isStatic +
                 ", constructors=" + constructors +
                 ", methods=" + methods +
-                ", dependenciesResolvable=" + dependenciesResolved +
+                ", dependenciesResolved=" + dependenciesResolved +
+                ", dependenciesResolvable=" + dependenciesResolvable +
+                ", hasDefaultConstructor=" + hasDefaultConstructor +
                 '}';
     }
 
@@ -225,5 +255,9 @@ public class Type {
 
     public boolean isDependenciesResolvable() {
         return dependenciesResolvable;
+    }
+
+    public boolean isStatic() {
+        return isStatic;
     }
 }

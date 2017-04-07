@@ -20,9 +20,6 @@ test $StringUtils.camelCaseToWords($methodName)#testMethodSuffix($methodName," "
 #set( $devNull= $trackedTestMethodsCount.put($methodName,$suffix))
 #if($suffix!=1)${prefix}${suffix}#end
 #end
-#macro(renderInitClass $class)
-#if($class.parentContainerClass)#renderInitClass($class.parentContainerClass).#end#if(!$class.isStatic())new #end$class.name#if(!$class.isStatic() && $class.parentContainerClass || !$class.childNestedClass || !$class.childNestedClass.isStatic())()#end
-#end
 ##
 #macro(renderJavaReturnVar $type)
 #if($type && $type.name !="void")$type.canonicalName#if($type.array)[]#end result = #end

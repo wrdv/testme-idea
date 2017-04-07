@@ -31,10 +31,11 @@ public class TestTemplateContextBuilder {
         ctxtParams.put(TestMeTemplateParams.TEST_SUBJECT_UTILS, TestSubjectUtils.class);
         final PsiClass targetClass = context.getSrcClass();
         if (targetClass != null && targetClass.isValid()) {
-            ctxtParams.put(TestMeTemplateParams.TESTED_CLASS, new TestedType(targetClass,null));
+            final TypeDictionary typeDictionary = new TypeDictionary(context.getSrcClass(), context.getTargetPackage());
+            ctxtParams.put(TestMeTemplateParams.TESTED_CLASS, new TestedType(targetClass,typeDictionary,maxRecursionDepth, null));
             List<Field> fields = createFields(context);
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_FIELDS, fields);//todo refactor to be part of TESTED_CLASS
-            List<Method> methods = createMethods(context.getSrcClass(),maxRecursionDepth,context.getTargetPackage());
+            List<Method> methods = createMethods(context.getSrcClass(),maxRecursionDepth, typeDictionary);
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_METHODS, methods);//todo refactor to be part of TESTED_CLASS
         }
         return ctxtParams;
@@ -70,8 +71,7 @@ public class TestTemplateContextBuilder {
         return fields;
     }
 
-    private List<Method> createMethods(PsiClass srcClass, int maxRecursionDepth, PsiPackage targetPackage) {
-        TypeDictionary typeDictionary = new TypeDictionary(srcClass,targetPackage);
+    private List<Method> createMethods(PsiClass srcClass, int maxRecursionDepth, TypeDictionary typeDictionary) {
         ArrayList<Method> methods = new ArrayList<Method>();
         for (PsiMethod psiMethod : srcClass.getAllMethods()) {
             methods.add(new Method(psiMethod, srcClass, maxRecursionDepth, typeDictionary));

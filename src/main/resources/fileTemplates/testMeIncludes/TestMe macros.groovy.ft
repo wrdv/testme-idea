@@ -79,3 +79,7 @@ result == $GroovyTestBuilder.renderJavaCallParam($type,"replaceMeWithExpectedRes
 #renderJavaReturnVar($method.returnType)#if($method.static)$testedClassName#{else}$StringUtils.deCapitalizeFirstLetter($testedClassName)#end.${method.name}($GroovyTestBuilder.renderJavaCallParams($method.methodParams,$grReplacementTypes,$grDefaultTypeValues))
 #end
 ##
+#macro(renderInitClass $class)
+##if($class.parentContainerClass)#renderInitClass($class.parentContainerClass).#end#if(!$class.isStatic())new #end$class.name#if(!$class.isStatic() && $class.parentContainerClass || !$class.childNestedClass || !$class.childNestedClass.isStatic())()#end
+#if($class.parentContainerClass)#renderInitClass($class.parentContainerClass).#end#if(!$class.isStatic())new #end$class.name#if(!$class.isStatic() && $class.parentContainerClass || !$class.childNestedClass || !$class.childNestedClass.isStatic())(#if($class.constructors[0])$GroovyTestBuilder.renderJavaCallParams($class.constructors[0].methodParams ,$grReplacementTypes,$grDefaultTypeValues)#end)#end
+#end

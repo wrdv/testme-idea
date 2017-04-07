@@ -85,6 +85,9 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
     public void testStaticFieldless() throws Exception {
         doTest(true, true, true);
     }
+    public void testCtorWhenNoMocks() throws Exception {
+        doTest(true, true, true);
+    }
     public void testGroovy() throws Exception {
         doTest("com.example.services.impl", "Foovy", "FoovyTest", true, true, true);
     }
