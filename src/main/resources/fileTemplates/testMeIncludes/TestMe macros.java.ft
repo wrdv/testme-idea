@@ -87,5 +87,5 @@
 ## todo - migrate renderInitClass to testBuilder , add TC where tested method param is a nested class. add TC where parent of class under test is non static and has non default ctor
 #macro(renderInitClass $class)
 ##if($class.parentContainerClass)#renderInitClass($class.parentContainerClass).#end#if(!$class.isStatic())new #end$class.name#if(!$class.isStatic() && $class.parentContainerClass || !$class.childNestedClass || !$class.childNestedClass.isStatic())()#end
-#if($class.parentContainerClass)#renderInitClass($class.parentContainerClass).#end#if(!$class.isStatic())new #end$class.name#if(!$class.isStatic() && $class.parentContainerClass || !$class.childNestedClass || !$class.childNestedClass.isStatic())(#if($class.constructors[0])$JavaTestBuilder.renderJavaCallParams($class.constructors[0].methodParams ,$replacementTypes,$defaultTypeValues)#end)#end
+#if($class.parentContainerClass)#renderInitClass($class.parentContainerClass).#end#if(!$class.isStatic())new #end$class.name#if(!$class.isStatic() && $class.parentContainerClass || !$class.childNestedClass || !$class.childNestedClass.isStatic())(#if($class.constructors.size()>0)$JavaTestBuilder.renderJavaCallParams($class.constructors[0].methodParams ,$replacementTypes,$defaultTypeValues)#end)#end
 #end

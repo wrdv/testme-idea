@@ -61,7 +61,7 @@ public class Type {
         array = ClassNameUtils.isArray(canonicalText);
         varargs = ClassNameUtils.isVarargs(canonicalText);
         this.canonicalName = ClassNameUtils.stripArrayVarargsDesignator(canonicalText);
-        this.name = ClassNameUtils.stripArrayVarargsDesignator(psiType.getPresentableText());
+        this.name = ClassNameUtils.extractClassName(ClassNameUtils.stripArrayVarargsDesignator(psiType.getPresentableText()));
         packageName = ClassNameUtils.extractPackageName(canonicalName);
         this.isPrimitive = psiType instanceof PsiPrimitiveType;
         composedTypes = resolveTypes(psiType,typeDictionary,maxRecursionDepth);
