@@ -65,7 +65,8 @@ public class TestMeGenerator {
                             }
                             try {
                                 CodeInsightUtil.positionCursor(project, targetClass.getContainingFile(), testClassElementsLocator.findOptimalCursorLocation(targetClass));
-                            } catch (PsiInvalidElementAccessException e) {
+//                            } catch (PsiInvalidElementAccessException e) {
+                            } catch (Throwable e) {
                                 LOG.warn("unable to locate optimal cursor location post test generation",e);
 //                                new OpenFileDescriptor(project, targetClass.getContainingFile().getVirtualFile()).navigate(true);
                             }

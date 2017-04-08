@@ -5,6 +5,7 @@ import com.intellij.psi.util.PropertyUtil;
 import com.intellij.psi.util.PsiUtil;
 import com.weirddev.testme.intellij.template.TypeDictionary;
 import com.weirddev.testme.intellij.utils.ClassNameUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -31,6 +32,7 @@ public class Type {
     private final boolean isStatic;
     private final List<Method> constructors;
     private final List<Method> methods;//resolve Setters/Getters only for now
+    private final Type parentContainerClass;
     private boolean dependenciesResolved =false;
     private boolean dependenciesResolvable =false;
     private boolean hasDefaultConstructor=false;
@@ -49,7 +51,8 @@ public class Type {
         isEnum = false;
         constructors = new ArrayList<Method>();
         methods=new ArrayList<Method>();
-        this.isStatic = false;
+        isStatic = false;
+        parentContainerClass = null;
     }
 
     Type(String canonicalName) {
@@ -60,40 +63,26 @@ public class Type {
         String canonicalText = psiType.getCanonicalText();
         array = ClassNameUtils.isArray(canonicalText);
         varargs = ClassNameUtils.isVarargs(canonicalText);
-        this.canonicalName = ClassNameUtils.stripArrayVarargsDesignator(canonicalText);
-        this.name = ClassNameUtils.extractClassName(ClassNameUtils.stripArrayVarargsDesignator(psiType.getPresentableText()));
+        canonicalName = ClassNameUtils.stripArrayVarargsDesignator(canonicalText);
+        name = ClassNameUtils.extractClassName(ClassNameUtils.stripArrayVarargsDesignator(psiType.getPresentableText()));
         packageName = ClassNameUtils.extractPackageName(canonicalName);
-        this.isPrimitive = psiType instanceof PsiPrimitiveType;
+        isPrimitive = psiType instanceof PsiPrimitiveType;
         composedTypes = resolveTypes(psiType,typeDictionary,maxRecursionDepth);
         PsiClass psiClass = PsiUtil.resolveClassInType(psiType);
         isEnum = psiClass != null && psiClass.isEnum();
         isInterface = psiClass != null && psiClass.isInterface();
         isAbstract = psiClass != null && psiClass.getModifierList()!=null &&  psiClass.getModifierList().hasModifierProperty(PsiModifier.ABSTRACT);
         isStatic = psiClass != null && psiClass.getModifierList() != null && psiClass.getModifierList().hasExplicitModifier(PsiModifier.STATIC);
+        parentContainerClass = psiClass != null && psiClass.getParent()!=null && psiClass.getParent() instanceof PsiClass && typeDictionary!=null ? typeDictionary.getType(resolveType((PsiClass) psiClass.getParent()), maxRecursionDepth):null;
         enumValues = resolveEnumValues(psiType);
         dependenciesResolvable = maxRecursionDepth > 0;
         constructors = new ArrayList<Method>();
         methods=new ArrayList<Method>();
     }
 
-    public Type(Type type) {
-        canonicalName = type.canonicalName;
-        name = type.name;
-        isPrimitive = type.isPrimitive;
-        packageName = type.packageName;
-        composedTypes = type.composedTypes;
-        array = type.array;
-        varargs = type.varargs;
-        enumValues = type.enumValues;
-        isEnum = type.isEnum;
-        isInterface = type.isInterface;
-        isAbstract = type.isAbstract;
-        isStatic = type.isStatic;
-        constructors = type.constructors;
-        methods = type.methods;
-        dependenciesResolved = type.dependenciesResolved;
-        dependenciesResolvable = type.dependenciesResolvable;
-        hasDefaultConstructor = type.hasDefaultConstructor;
+    @NotNull
+    public static PsiClassType resolveType(PsiClass psiClass) {
+        return JavaPsiFacade.getInstance(psiClass.getProject()).getElementFactory().createType(psiClass);
     }
 
     public void resolveDependencies(@Nullable TypeDictionary typeDictionary, int maxRecursionDepth, PsiType psiType) {
@@ -259,5 +248,9 @@ public class Type {
 
     public boolean isStatic() {
         return isStatic;
+    }
+
+    public Type getParentContainerClass() {
+        return parentContainerClass;
     }
 }

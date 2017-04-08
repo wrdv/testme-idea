@@ -32,7 +32,7 @@ public class TestTemplateContextBuilder {
         final PsiClass targetClass = context.getSrcClass();
         if (targetClass != null && targetClass.isValid()) {
             final TypeDictionary typeDictionary = new TypeDictionary(context.getSrcClass(), context.getTargetPackage());
-            ctxtParams.put(TestMeTemplateParams.TESTED_CLASS, new TestedType(targetClass,typeDictionary,maxRecursionDepth, null));
+            ctxtParams.put(TestMeTemplateParams.TESTED_CLASS, typeDictionary.getType(Type.resolveType(targetClass), maxRecursionDepth));
             List<Field> fields = createFields(context);
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_FIELDS, fields);//todo refactor to be part of TESTED_CLASS
             List<Method> methods = createMethods(context.getSrcClass(),maxRecursionDepth, typeDictionary);

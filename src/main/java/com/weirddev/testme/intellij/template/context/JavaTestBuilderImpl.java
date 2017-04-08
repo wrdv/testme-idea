@@ -1,6 +1,7 @@
 package com.weirddev.testme.intellij.template.context;
 
 import com.intellij.openapi.diagnostic.Logger;
+import com.weirddev.testme.intellij.utils.ClassNameUtils;
 import com.weirddev.testme.intellij.utils.Node;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,9 +21,15 @@ public class JavaTestBuilderImpl implements TestBuilder {
     private static final Pattern GENERICS_PATTERN = Pattern.compile("(<.*>)");
     private static Type DEFAULT_TYPE = new Type("java.lang.String", "String", "java.lang", false, false, false, false, false, new ArrayList<Type>());
     protected final int maxRecursionDepth;
+    protected final String parentContainerInstanceSeparator;
 
     public JavaTestBuilderImpl(int maxRecursionDepth) {
+        this(maxRecursionDepth, ".");
+    }
+
+    protected JavaTestBuilderImpl(int maxRecursionDepth, String parentContainerInstanceSeparator) {
         this.maxRecursionDepth = maxRecursionDepth;
+        this.parentContainerInstanceSeparator = parentContainerInstanceSeparator;
     }
 
     //TODO consider aggregating conf into context object and managing maps outside of template
@@ -68,6 +75,14 @@ public class JavaTestBuilderImpl implements TestBuilder {
         if (type.isArray()) {
             testBuilder.append("new ").append(type.getCanonicalName()).append("[]{");
         }
+        final Type parentContainerClass = type.getParentContainerClass();
+        if (parentContainerClass != null && !type.isStatic()) {
+            final Node<Param> parentContainerNode = new Node<Param>(new SyntheticParam(parentContainerClass, parentContainerClass.getName(), false), null, paramNode.getDepth());
+            buildParentContainerClassCall(type.isStatic(),replacementTypes, defaultTypeValues, testBuilder, parentContainerNode);
+
+//            buildJavaParam(replacementTypes, defaultTypeValues, testBuilder,parentContainerNode);
+//            testBuilder.append(parentContainerInstanceSeparator);
+        }
         buildJavaParam(replacementTypes, defaultTypeValues, testBuilder,paramNode);
         if (type.isArray()) {
             testBuilder.append("}");
@@ -83,6 +98,19 @@ public class JavaTestBuilderImpl implements TestBuilder {
                 buildCallParam(replacementTypes, defaultTypeValues, testBuilder, new Node<Param>(params.get(i), ownerParamNode,ownerParamNode.getDepth()+1));
             }
         }
+    }
+    //todo check if function can be merged
+    protected void buildParentContainerClassCall(boolean hasStaticNestedChild, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Param> paramNode) {
+        final Type type = paramNode.getData().getType();
+        final Type parentContainerClass = type.getParentContainerClass();
+        if (parentContainerClass != null && !type.isStatic()) {
+            buildParentContainerClassCall(type.isStatic(),replacementTypes, defaultTypeValues, testBuilder, new Node<Param>(new SyntheticParam( parentContainerClass,parentContainerClass.getName(),false), paramNode,paramNode.getDepth()));
+        }
+//        if (!hasStaticNestedChild) {
+            buildJavaParam(replacementTypes, defaultTypeValues, testBuilder,paramNode);
+//            buildCallParam(replacementTypes, defaultTypeValues, testBuilder, new Node<Param>(new SyntheticParam( type,type.getName(),false), paramNode,paramNode.getDepth()));
+            testBuilder.append(parentContainerInstanceSeparator);
+//        }
     }
 
     protected void buildJavaParam(Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Param> paramNode) {
@@ -124,6 +152,9 @@ public class JavaTestBuilderImpl implements TestBuilder {
                     testBuilder.append("null");
                 } else {
                     testBuilder.append("new ");
+                    if (type.getParentContainerClass() != null && !type.isStatic()) {
+                        typeName = resolveNestedClassTypeName(typeName);
+                    }
                     testBuilder.append(typeName).append("(");
                     buildCallParams(foundCtor==null?new ArrayList<Param>():foundCtor.getMethodParams(), replacementTypes, defaultTypeValues, testBuilder, paramNode);
                     testBuilder.append(")");
@@ -133,6 +164,10 @@ public class JavaTestBuilderImpl implements TestBuilder {
                 testBuilder.append("null");
             }
         }
+    }
+
+    protected String resolveNestedClassTypeName(String typeName) {
+        return ClassNameUtils.extractClassName(typeName);
     }
 
     private boolean isLooksLikeObjectKeyInGroovyMap(String expFragment, String canonicalTypeName) {
