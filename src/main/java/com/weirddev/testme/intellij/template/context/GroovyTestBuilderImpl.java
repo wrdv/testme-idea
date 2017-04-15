@@ -37,12 +37,14 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
 
     @Override
     protected void buildCallParams(List<? extends Param> params, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Param> ownerParamNode) {
-        final Type parentContainerClass = ownerParamNode.getData()!=null ?ownerParamNode.getData().getType().getParentContainerClass():null;
-        if (parentContainerClass != null && !ownerParamNode.getData().getType().isStatic()) {
-            buildParentContainerClassCall(ownerParamNode.getData().getType().isStatic(),replacementTypes, defaultTypeValues, testBuilder, new Node<Param>(new SyntheticParam( parentContainerClass,parentContainerClass.getName(),false), null,ownerParamNode.getDepth()));
-            super.buildCallParams(params, replacementTypes, defaultTypeValues, testBuilder, ownerParamNode);
-        }
-        else if (params != null && params.size()>0) {
+        final Type parentContainerClass = ownerParamNode.getData()!=null?ownerParamNode.getData().getType().getParentContainerClass():null;
+        final boolean isNonStaticNestedClass = parentContainerClass != null && !ownerParamNode.getData().getType().isStatic();
+        if (params != null && params.size()>0 || isNonStaticNestedClass) {
+            if (isNonStaticNestedClass) {
+                final Node<Param> parentContainerNode = new Node<Param>(new SyntheticParam(parentContainerClass, parentContainerClass.getName(), false), null, ownerParamNode.getDepth());
+                buildCallParam(replacementTypes, defaultTypeValues, testBuilder,parentContainerNode);
+                testBuilder.append(parentContainerInstanceSeparator);
+            }
             super.buildCallParams(params, replacementTypes, defaultTypeValues, testBuilder, ownerParamNode);
         } else if(ownerParamNode.getData()!=null){
             List<SyntheticParam> syntheticParams = findProperties(ownerParamNode.getData().getType());

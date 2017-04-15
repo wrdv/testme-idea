@@ -78,10 +78,8 @@ public class JavaTestBuilderImpl implements TestBuilder {
         final Type parentContainerClass = type.getParentContainerClass();
         if (parentContainerClass != null && !type.isStatic()) {
             final Node<Param> parentContainerNode = new Node<Param>(new SyntheticParam(parentContainerClass, parentContainerClass.getName(), false), null, paramNode.getDepth());
-            buildParentContainerClassCall(type.isStatic(),replacementTypes, defaultTypeValues, testBuilder, parentContainerNode);
-
-//            buildJavaParam(replacementTypes, defaultTypeValues, testBuilder,parentContainerNode);
-//            testBuilder.append(parentContainerInstanceSeparator);
+            buildCallParam(replacementTypes, defaultTypeValues, testBuilder,parentContainerNode);
+            testBuilder.append(parentContainerInstanceSeparator);
         }
         buildJavaParam(replacementTypes, defaultTypeValues, testBuilder,paramNode);
         if (type.isArray()) {
@@ -99,20 +97,6 @@ public class JavaTestBuilderImpl implements TestBuilder {
             }
         }
     }
-    //todo check if function can be merged
-    protected void buildParentContainerClassCall(boolean hasStaticNestedChild, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Param> paramNode) {
-        final Type type = paramNode.getData().getType();
-        final Type parentContainerClass = type.getParentContainerClass();
-        if (parentContainerClass != null && !type.isStatic()) {
-            buildParentContainerClassCall(type.isStatic(),replacementTypes, defaultTypeValues, testBuilder, new Node<Param>(new SyntheticParam( parentContainerClass,parentContainerClass.getName(),false), paramNode,paramNode.getDepth()));
-        }
-//        if (!hasStaticNestedChild) {
-            buildJavaParam(replacementTypes, defaultTypeValues, testBuilder,paramNode);
-//            buildCallParam(replacementTypes, defaultTypeValues, testBuilder, new Node<Param>(new SyntheticParam( type,type.getName(),false), paramNode,paramNode.getDepth()));
-            testBuilder.append(parentContainerInstanceSeparator);
-//        }
-    }
-
     protected void buildJavaParam(Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Param> paramNode) {
         final Type type = paramNode.getData().getType();
         final String canonicalName = type.getCanonicalName();
