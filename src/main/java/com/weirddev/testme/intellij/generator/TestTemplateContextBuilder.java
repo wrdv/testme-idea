@@ -1,5 +1,6 @@
 package com.weirddev.testme.intellij.generator;
 
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.psi.*;
 import com.intellij.psi.util.PsiUtil;
 import com.weirddev.testme.intellij.template.FileTemplateContext;
@@ -16,8 +17,10 @@ import java.util.*;
  * @author Yaron Yamin
  */
 public class TestTemplateContextBuilder {
+    private static final Logger logger = Logger.getInstance(TestTemplateContextBuilder.class.getName());
 
     public Map<String, Object> build(FileTemplateContext context, Properties defaultProperties) {
+        final long start = new Date().getTime();
         HashMap<String, Object> ctxtParams = initTemplateContext(defaultProperties);
         populateDateFields(ctxtParams, Calendar.getInstance());
         ctxtParams.put(TestMeTemplateParams.CLASS_NAME, context.getTargetClass());
@@ -38,6 +41,7 @@ public class TestTemplateContextBuilder {
             List<Method> methods = createMethods(context.getSrcClass(),maxRecursionDepth, typeDictionary);
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_METHODS, methods);//todo refactor to be part of TESTED_CLASS
         }
+        logger.debug("Done building Test Template context in "+(new Date().getTime()-start)+" millis");
         return ctxtParams;
     }
 

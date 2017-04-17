@@ -67,6 +67,7 @@ public class CreateTestMeAction extends CreateTestAction {
 
     @Override
     public void invoke(@NotNull final Project project, Editor editor, @NotNull PsiElement element) throws IncorrectOperationException {
+        LOG.debug("Start CreateTestMeAction.invoke");
         final Module srcModule = ModuleUtilCore.findModuleForPsiElement(element);
         final PsiClass srcClass = getContainingClass(element);
         if (srcClass == null) return;
@@ -98,6 +99,7 @@ public class CreateTestMeAction extends CreateTestAction {
                 }
             }, "TestMe Generate Test", this);
         }
+        LOG.debug("End CreateTestMeAction.invoke");
     }
     public static void checkForTestRoots(Module srcModule, Set<VirtualFile> testFolders) {
         CreateTestAction.checkForTestRoots(srcModule, testFolders);
