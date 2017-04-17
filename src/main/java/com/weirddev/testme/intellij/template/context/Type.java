@@ -107,12 +107,21 @@ public class Type {
             });
             final PsiMethod[] methods = psiClass.getMethods();
             for (PsiMethod method : methods) {
-                if (/*PropertyUtil.isSimplePropertyGetter(method) || */PropertyUtil.isSimplePropertySetter(method) /*|| PropertyUtil.isSimpleGetter(method) */|| PropertyUtil.isSimpleSetter(method)) {
+                if (/*PropertyUtil.isSimplePropertyGetter(method) || PropertyUtil.isSimpleGetter(method) ||*/ (PropertyUtil.isSimplePropertySetter(method) || PropertyUtil.isSimpleSetter(method))&& !isGroovyLangProperty(method)) {
                     this.methods.add(new Method(method,psiClass,maxRecursionDepth-1,typeDictionary));
                 }
             }
             dependenciesResolved=true;
         }
+    }
+
+    private boolean isGroovyLangProperty(PsiMethod method) {
+        final PsiParameter[] parameters = method.getParameterList().getParameters();
+        if (parameters.length == 0) {
+            return false;
+        }
+        final PsiParameter psiParameter = parameters[0];
+        return "groovy.lang.MetaClass".equals(psiParameter.getType().getCanonicalText()) && "metaClass".equals(psiParameter.getName());
     }
 
     private static List<String> resolveEnumValues(PsiType psiType) {
