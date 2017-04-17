@@ -112,9 +112,10 @@ public class TestMeGenerator {
             FileTemplate codeTemplate = fileTemplateManager.getInternalTemplate(templateName);
             codeTemplate.setReformatCode(false);
             Velocity.setProperty( Velocity.VM_MAX_DEPTH, 200);
-            final long start = new Date().getTime();
+            final long startGeneration = new Date().getTime();
             final PsiElement psiElement = FileTemplateUtil.createFromTemplate(codeTemplate, context.getTargetClass(), templateCtxtParams, targetDirectory, null);
-            LOG.debug("Done generating PsiElement from template "+codeTemplate.getName()+" in "+(new Date().getTime()-start)+" millis");
+            LOG.debug("Done generating PsiElement from template "+codeTemplate.getName()+" in "+(new Date().getTime()-startGeneration)+" millis");
+            final long startReformating = new Date().getTime();
             final PsiElement resolvedPsiElement=resolveEmbeddedClass(psiElement);
             if (resolvedPsiElement instanceof PsiClass) {
                 PsiClass psiClass = (PsiClass) resolvedPsiElement;
@@ -131,6 +132,7 @@ public class TestMeGenerator {
                     final TextRange textRange = containingFile.getTextRange();
                     CodeStyleManager.getInstance(context.getProject()).reformatText(containingFile, textRange.getStartOffset(), textRange.getEndOffset());
                 }
+                LOG.debug("Done reformatting generated PsiClass in "+(new Date().getTime()-startReformating)+" millis");
                 final PsiElement formattedPsiElement=resolveEmbeddedClass(psiElement);
                 if (formattedPsiElement instanceof PsiClass) {
                     return (PsiClass) formattedPsiElement;

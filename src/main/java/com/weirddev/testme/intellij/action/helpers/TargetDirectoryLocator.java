@@ -8,7 +8,10 @@ import com.intellij.openapi.application.Result;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ContentEntry;
+import com.intellij.openapi.roots.JavaProjectRootsUtil;
 import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.roots.SourceFolder;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
@@ -16,14 +19,16 @@ import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiPackage;
 import com.intellij.refactoring.PackageWrapper;
 import com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesUtil;
-import com.intellij.refactoring.util.RefactoringMessageUtil;
 import com.intellij.refactoring.util.RefactoringUtil;
 import com.intellij.testIntegration.createTest.CreateTestDialog;
 import com.intellij.util.IncorrectOperationException;
+import com.intellij.util.containers.ContainerUtil;
 import com.weirddev.testme.intellij.action.CreateTestMeAction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.model.java.JavaModuleSourceRootTypes;
+import org.jetbrains.jps.model.java.JavaResourceRootProperties;
+import org.jetbrains.jps.model.java.JavaSourceRootProperties;
 import org.jetbrains.jps.model.java.JavaSourceRootType;
 
 import java.util.ArrayList;
@@ -85,9 +90,20 @@ private PsiDirectory chooseDefaultDirectory(String packageName, Module myTargetM
             protected void run(Result<VirtualFile> result) throws Throwable {
                 final HashSet<VirtualFile> testFolders = new HashSet<VirtualFile>();
                 CreateTestMeAction.checkForTestRoots(myTargetModule, testFolders);
+//                final List<VirtualFile> testFolders = CreateTestAction.computeTestRoots(myTargetModule); // tbd- replaces above from v14
                 List<VirtualFile> roots;
                 if (testFolders.isEmpty()) {
-                    roots = ModuleRootManager.getInstance(myTargetModule).getSourceRoots(JavaModuleSourceRootTypes.SOURCES);
+                    roots = new ArrayList<VirtualFile>();
+/* // tbd- added post v14 - another attempt to find Test source dirs
+                    List<String> urls = CreateTestAction.computeSuitableTestRootUrls(myTargetModule);
+                    for (String url : urls) {
+                        ContainerUtil.addIfNotNull(roots, VfsUtil.createDirectories(VfsUtilCore.urlToPath(url)));
+                    }
+*/
+                    //  roots = ModuleRootManager.getInstance(myTargetModule).getSourceRoots(JavaModuleSourceRootTypes.SOURCES); // from v14
+//                    if (roots.isEmpty()) { //...replaced by
+                        collectSuitableDestinationSourceRoots(myTargetModule, roots);
+//                    }
                     if (roots.isEmpty()) return;
                 } else {
                     roots = new ArrayList<VirtualFile>(testFolders);
@@ -110,6 +126,28 @@ private PsiDirectory chooseDefaultDirectory(String packageName, Module myTargetM
                 result.setResult(RefactoringUtil.createPackageDirectoryInSourceRoot(targetPackage, selectedRoot));
             }
         }.execute().getResultObject();
+    }
+
+    /**
+     * @see JavaProjectRootsUtil#collectSuitableDestinationSourceRoots (*added post v14)
+     */
+
+    public static void collectSuitableDestinationSourceRoots(@NotNull Module module, @NotNull List<VirtualFile> result) {
+        for (ContentEntry entry : ModuleRootManager.getInstance(module).getContentEntries()) {
+            for (SourceFolder sourceFolder : entry.getSourceFolders(JavaModuleSourceRootTypes.SOURCES)) {
+                if (!isForGeneratedSources(sourceFolder)) {
+                    ContainerUtil.addIfNotNull(result, sourceFolder.getFile());
+                }
+            }
+        }
+    }
+    /**
+     * @see JavaProjectRootsUtil#isForGeneratedSources
+     */
+    public static boolean isForGeneratedSources(SourceFolder sourceFolder) {
+        JavaSourceRootProperties properties = sourceFolder.getJpsElement().getProperties(JavaModuleSourceRootTypes.SOURCES);
+        JavaResourceRootProperties resourceProperties = sourceFolder.getJpsElement().getProperties(JavaModuleSourceRootTypes.RESOURCES);
+        return properties != null && properties.isForGeneratedSources() || resourceProperties != null && resourceProperties.isForGeneratedSources();
     }
 
 }
