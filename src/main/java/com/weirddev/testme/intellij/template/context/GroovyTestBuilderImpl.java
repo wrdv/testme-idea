@@ -17,7 +17,7 @@ import java.util.Map;
 public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
     private static final Logger LOG = Logger.getInstance(GroovyTestBuilderImpl.class.getName());
     public GroovyTestBuilderImpl(int maxRecursionDepth) {
-        super(maxRecursionDepth,",");
+        super(maxRecursionDepth);
     }
 
     @Override
@@ -43,7 +43,7 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
             if (isNonStaticNestedClass) {
                 final Node<Param> parentContainerNode = new Node<Param>(new SyntheticParam(parentContainerClass, parentContainerClass.getName(), false), null, ownerParamNode.getDepth());
                 buildCallParam(replacementTypes, defaultTypeValues, testBuilder,parentContainerNode);
-                testBuilder.append(parentContainerInstanceSeparator);
+                testBuilder.append(",");
             }
             super.buildCallParams(params, replacementTypes, defaultTypeValues, testBuilder, ownerParamNode);
         } else if(ownerParamNode.getData()!=null){

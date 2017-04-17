@@ -21,15 +21,9 @@ public class JavaTestBuilderImpl implements TestBuilder {
     private static final Pattern GENERICS_PATTERN = Pattern.compile("(<.*>)");
     private static Type DEFAULT_TYPE = new Type("java.lang.String", "String", "java.lang", false, false, false, false, false, new ArrayList<Type>());
     protected final int maxRecursionDepth;
-    protected final String parentContainerInstanceSeparator;
 
     public JavaTestBuilderImpl(int maxRecursionDepth) {
-        this(maxRecursionDepth, ".");
-    }
-
-    protected JavaTestBuilderImpl(int maxRecursionDepth, String parentContainerInstanceSeparator) {
         this.maxRecursionDepth = maxRecursionDepth;
-        this.parentContainerInstanceSeparator = parentContainerInstanceSeparator;
     }
 
     //TODO consider aggregating conf into context object and managing maps outside of template
@@ -79,7 +73,7 @@ public class JavaTestBuilderImpl implements TestBuilder {
         if (parentContainerClass != null && !type.isStatic()) {
             final Node<Param> parentContainerNode = new Node<Param>(new SyntheticParam(parentContainerClass, parentContainerClass.getName(), false), null, paramNode.getDepth());
             buildCallParam(replacementTypes, defaultTypeValues, testBuilder,parentContainerNode);
-            testBuilder.append(parentContainerInstanceSeparator);
+            testBuilder.append(".");
         }
         buildJavaParam(replacementTypes, defaultTypeValues, testBuilder,paramNode);
         if (type.isArray()) {
