@@ -23,7 +23,10 @@ import com.weirddev.testme.intellij.template.TemplateDescriptor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -75,17 +78,21 @@ public class CreateTestMeAction extends CreateTestAction {
         final PsiPackage srcPackage = JavaDirectoryService.getInstance().getPackage(srcDir);
 
         final PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
-        final HashSet<VirtualFile> testFolders = new HashSet<VirtualFile>();
-        checkForTestRoots(srcModule, testFolders);
-        if (testFolders.isEmpty() && !propertiesComponent.getBoolean(CREATE_TEST_IN_THE_SAME_ROOT, false)) {
-            if (Messages.showOkCancelDialog(project, "Create test in the same source root?", "No Test Roots Found", Messages.getQuestionIcon()) !=
-                    Messages.OK) {
-                return;
+        Module testModule = suggestModuleForTests(project, srcModule);
+        final List<VirtualFile> testRootUrls = computeTestRoots(testModule);
+//            final HashSet<VirtualFile> testFolders = new HashSet<VirtualFile>(); //from v14
+//        checkForTestRoots(srcModule, testFolders); //from v14
+        if (testRootUrls.isEmpty() /*&& computeSuitableTestRootUrls(testModule).isEmpty() Added post v14 */) {
+            testModule = srcModule;
+            if (!propertiesComponent.getBoolean(CREATE_TEST_IN_THE_SAME_ROOT, false)) {
+                if (Messages.showOkCancelDialog(project, "Create test in the same source root?", "No Test Roots Found", Messages.getQuestionIcon()) !=
+                        Messages.OK) {
+                    return;
+                }
+                propertiesComponent.setValue(CREATE_TEST_IN_THE_SAME_ROOT, String.valueOf(true));
             }
-            propertiesComponent.setValue(CREATE_TEST_IN_THE_SAME_ROOT, String.valueOf(true));
         }
-
-        final PsiDirectory targetDirectory = targetDirectoryLocator.getOrCreateDirectory(project, srcPackage, srcModule);
+        final PsiDirectory targetDirectory = targetDirectoryLocator.getOrCreateDirectory(project, srcPackage, testModule);
         if (targetDirectory == null) {
             return;
         }
@@ -103,6 +110,49 @@ public class CreateTestMeAction extends CreateTestAction {
     }
     public static void checkForTestRoots(Module srcModule, Set<VirtualFile> testFolders) {
         CreateTestAction.checkForTestRoots(srcModule, testFolders);
+    }
+
+    @NotNull
+    private static Module suggestModuleForTests(@NotNull Project project, @NotNull Module productionModule) {
+        try {
+        final Method suggestModuleForTests = CreateTestAction.class.getDeclaredMethod("suggestModuleForTests", Project.class,Module.class);
+        suggestModuleForTests.setAccessible(true);
+            try {
+                final Object module = suggestModuleForTests.invoke(null, project,productionModule);
+                if (module == null) {
+                    return null;
+                } else {
+                    return (Module) module;
+                }
+            } catch (Exception e) {
+                LOG.debug("error invoking suggestModuleForTests through reflection. falling back to older implementation",e);
+            }
+        } catch (Exception e) {
+        LOG.debug("suggestModuleForTests Method mot found . this is probably not idea 2016. falling back to older implementation");
+        }
+        return productionModule;
+    }
+
+    public static List<VirtualFile> computeTestRoots(Module srcModule) {
+        try {
+            final Method computeTestRootsMethod = CreateTestAction.class.getDeclaredMethod("computeTestRoots", Module.class);
+            computeTestRootsMethod.setAccessible(true);
+            try {
+                final Object roots = computeTestRootsMethod.invoke(null, srcModule);
+                if (roots == null) {
+                    return null;
+                } else if (roots instanceof List && !((List)roots).isEmpty() &&((List)roots).get(0) instanceof VirtualFile) {
+                    return (List<VirtualFile>) roots;
+                }
+            } catch (Exception e) {
+                LOG.debug("error invoking computeTestRootsMethod through reflection. falling back to older implementation",e);
+            }
+        } catch (Exception e) {
+            LOG.debug("computeTestRoots Method mot found. this is probably not idea 2016. falling back to older implementation");
+        }
+        final HashSet<VirtualFile> testFolders = new HashSet<VirtualFile>();
+        CreateTestAction.checkForTestRoots(srcModule, testFolders);
+        return new ArrayList<VirtualFile>(testFolders);
     }
 
     /**

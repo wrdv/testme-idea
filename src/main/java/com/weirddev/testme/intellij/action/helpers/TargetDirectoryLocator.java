@@ -32,7 +32,6 @@ import org.jetbrains.jps.model.java.JavaSourceRootProperties;
 import org.jetbrains.jps.model.java.JavaSourceRootType;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -88,9 +87,10 @@ private PsiDirectory chooseDefaultDirectory(String packageName, Module myTargetM
         final PackageWrapper targetPackage = new PackageWrapper(PsiManager.getInstance(myProject), packageName);
         final VirtualFile selectedRoot = new ReadAction<VirtualFile>() {
             protected void run(Result<VirtualFile> result) throws Throwable {
-                final HashSet<VirtualFile> testFolders = new HashSet<VirtualFile>();
-                CreateTestMeAction.checkForTestRoots(myTargetModule, testFolders);
+//                final HashSet<VirtualFile> testFolders = new HashSet<VirtualFile>();
+//                CreateTestMeAction.checkForTestRoots(myTargetModule, testFolders);
 //                final List<VirtualFile> testFolders = CreateTestAction.computeTestRoots(myTargetModule); // tbd- replaces above from v14
+                final List<VirtualFile> testFolders = CreateTestMeAction.computeTestRoots(myTargetModule); // tbd- replaces above from v14
                 List<VirtualFile> roots;
                 if (testFolders.isEmpty()) {
                     roots = new ArrayList<VirtualFile>();
