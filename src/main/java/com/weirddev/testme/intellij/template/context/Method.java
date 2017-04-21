@@ -2,12 +2,12 @@ package com.weirddev.testme.intellij.template.context;
 
 import com.intellij.psi.*;
 import com.intellij.psi.util.PropertyUtil;
+import com.intellij.psi.util.PsiTreeUtil;
 import com.weirddev.testme.intellij.template.TypeDictionary;
 import com.weirddev.testme.intellij.utils.ClassNameUtils;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Date: 24/10/2016
@@ -32,6 +32,7 @@ public class Method {
     private final boolean inherited;
     private final boolean isInInterface;
     private final String propertyName;
+    private final Map<String, List<Method>> calledMethodsGroupedByOwner = new HashMap<String, List<Method>>();
 
     public Method(PsiMethod psiMethod, PsiClass srcClass, int maxRecursionDepth,TypeDictionary typeDictionary) {
         isPrivate = psiMethod.hasModifierProperty(PsiModifier.PRIVATE);
@@ -51,9 +52,31 @@ public class Method {
 //        propertyName = psiField == null ? null : psiField.getName();
         propertyName = ClassNameUtils.extractTargetPropertyName(name,isSetter,isGetter);
         constructor = psiMethod.isConstructor();
-        overridden = isOverriddenInChild(psiMethod, srcClass);
-        inherited = isInherited(psiMethod, srcClass);
+        if (srcClass != null) {
+            overridden = isOverriddenInChild(psiMethod, srcClass);
+            inherited = isInherited(psiMethod, srcClass);
+        } else {
+            overridden = false;
+            inherited = false;
+        }
         isInInterface = psiMethod.getContainingClass() != null && psiMethod.getContainingClass().isInterface();
+        if (!isInheritedFromObject()) {
+            final Collection<PsiMethodCallExpression> psiMethodCallExpressions = PsiTreeUtil.findChildrenOfType(psiMethod, PsiMethodCallExpression.class);
+            for (PsiMethodCallExpression psiMethodCallExpression : psiMethodCallExpressions) {
+                final PsiMethod psiMethodResolved = psiMethodCallExpression.resolveMethod();
+                if (psiMethodResolved != null) {
+                    final Method methodRef = new Method(psiMethodResolved,null,1,typeDictionary);
+                    final String ownerClassCanonicalType = methodRef.getOwnerClassCanonicalType();
+                    List<Method> methods = calledMethodsGroupedByOwner.get(ownerClassCanonicalType);
+                    if (methods == null) {
+                        methods = new ArrayList<Method>();
+                        calledMethodsGroupedByOwner.put(ownerClassCanonicalType, methods);
+                    }
+                    methods.add(methodRef);
+                }
+            }
+            
+        }
     }
 
 
@@ -145,10 +168,18 @@ public class Method {
     }
 
     public boolean isTestable(){
-        return !"java.lang.Object".equals(ownerClassCanonicalType) && !"groovy.lang.GroovyObjectSupport".equals(ownerClassCanonicalType) && !isSetter && !isGetter && !constructor &&((isDefault|| isProtected ) && !inherited || isPublic) && !overridden && !isInInterface && !isAbstract;
+        return !isInheritedFromObject() && !isSetter && !isGetter && !constructor && ((isDefault || isProtected) && !inherited || isPublic) && !overridden && !isInInterface && !isAbstract;
+    }
+
+    public boolean isInheritedFromObject() {
+        return "java.lang.Object".equals(ownerClassCanonicalType) || "groovy.lang.GroovyObjectSupport".equals(ownerClassCanonicalType);
     }
 
     public String getPropertyName() {
         return propertyName;
+    }
+
+    public List<Method> findCalledMethodsByOwnerType(String typeCanonicalName) {
+        return calledMethodsGroupedByOwner.get(typeCanonicalName);
     }
 }

@@ -33,6 +33,7 @@ public class Type {
     private final List<Method> constructors;
     private final List<Method> methods;//resolve Setters/Getters only for now
     private final Type parentContainerClass;
+    private final List<Field> fields;
     private boolean dependenciesResolved =false;
     private boolean dependenciesResolvable =false;
     private boolean hasDefaultConstructor=false;
@@ -51,8 +52,9 @@ public class Type {
         isEnum = false;
         constructors = new ArrayList<Method>();
         methods=new ArrayList<Method>();
-        isStatic = false;
+        fields=new ArrayList<Field>();
         parentContainerClass = null;
+        isStatic = false;
     }
 
     Type(String canonicalName) {
@@ -74,10 +76,24 @@ public class Type {
         isAbstract = psiClass != null && psiClass.getModifierList()!=null &&  psiClass.getModifierList().hasModifierProperty(PsiModifier.ABSTRACT);
         isStatic = psiClass != null && psiClass.getModifierList() != null && psiClass.getModifierList().hasExplicitModifier(PsiModifier.STATIC);
         parentContainerClass = psiClass != null && psiClass.getParent()!=null && psiClass.getParent() instanceof PsiClass && typeDictionary!=null ? typeDictionary.getType(resolveType((PsiClass) psiClass.getParent()), maxRecursionDepth):null;
+        fields = createFields(psiClass);//todo check nesesity to migrate
         enumValues = resolveEnumValues(psiType);
         dependenciesResolvable = maxRecursionDepth > 0;
         constructors = new ArrayList<Method>();
         methods=new ArrayList<Method>();
+    }
+
+    @NotNull
+    private List<Field> createFields(PsiClass psiClass) {
+        ArrayList<Field> fields = new ArrayList<Field>();
+//        if (psiClass != null) {
+//            for (PsiField psiField : psiClass.getAllFields()) {
+//                if(!"groovy.lang.MetaClass".equals(psiField.getType().getCanonicalText())){
+//                    fields.add(new Field(psiField, PsiUtil.resolveClassInType(psiField.getType()), psiClass));
+//                }
+//            }
+//        }
+        return fields;
     }
 
     @NotNull
@@ -105,7 +121,7 @@ public class Type {
                     return o2.getMethodParams().size()-o1.getMethodParams().size();
                 }
             });
-            final PsiMethod[] methods = psiClass.getMethods();
+            final PsiMethod[] methods = psiClass.getMethods();//todo getAllMethods + filter out from Object and not accessible
             for (PsiMethod method : methods) {
                 if (/*PropertyUtil.isSimplePropertyGetter(method) || PropertyUtil.isSimpleGetter(method) ||*/ (PropertyUtil.isSimplePropertySetter(method) || PropertyUtil.isSimpleSetter(method))&& !isGroovyLangProperty(method)) {
                     this.methods.add(new Method(method,psiClass,maxRecursionDepth-1,typeDictionary));
@@ -261,5 +277,9 @@ public class Type {
 
     public Type getParentContainerClass() {
         return parentContainerClass;
+    }
+
+    public List<Field> getFields() {
+        return fields;
     }
 }

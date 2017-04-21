@@ -1,7 +1,11 @@
 package com.weirddev.testme.intellij.generator;
 
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.psi.*;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiField;
+import com.intellij.psi.PsiMethod;
+import com.intellij.psi.PsiMethodCallExpression;
+import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.util.PsiUtil;
 import com.weirddev.testme.intellij.template.FileTemplateContext;
 import com.weirddev.testme.intellij.template.TypeDictionary;
@@ -36,7 +40,7 @@ public class TestTemplateContextBuilder {
         if (targetClass != null && targetClass.isValid()) {
             final TypeDictionary typeDictionary = new TypeDictionary(context.getSrcClass(), context.getTargetPackage());
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS, typeDictionary.getType(Type.resolveType(targetClass), maxRecursionDepth));
-            List<Field> fields = createFields(context);
+            List<Field> fields = createFields(context.getSrcClass());
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_FIELDS, fields);//todo refactor to be part of TESTED_CLASS
             List<Method> methods = createMethods(context.getSrcClass(),maxRecursionDepth, typeDictionary);
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_METHODS, methods);//todo refactor to be part of TESTED_CLASS
@@ -63,13 +67,14 @@ public class TestTemplateContextBuilder {
     }
 
     @NotNull
-    private List<Field> createFields(FileTemplateContext context) {
+    private List<Field> createFields(PsiClass psiClass) {
         ArrayList<Field> fields = new ArrayList<Field>();
-        PsiClass srcClass = context.getSrcClass();
-        for (PsiField psiField : srcClass.getAllFields()) {
-            //TODO mark fields initialized inline/in default constructor
-            if(!"groovy.lang.MetaClass".equals(psiField.getType().getCanonicalText())){
-                fields.add(new Field(psiField, PsiUtil.resolveClassInType(psiField.getType()), srcClass));
+        if (psiClass != null) {
+            for (PsiField psiField : psiClass.getAllFields()) {
+                //TODO mark fields initialized inline (so no need to mock them)
+                if(!"groovy.lang.MetaClass".equals(psiField.getType().getCanonicalText())){
+                    fields.add(new Field(psiField, PsiUtil.resolveClassInType(psiField.getType()), psiClass));
+                }
             }
         }
         return fields;
@@ -78,8 +83,32 @@ public class TestTemplateContextBuilder {
     private List<Method> createMethods(PsiClass srcClass, int maxRecursionDepth, TypeDictionary typeDictionary) {
         ArrayList<Method> methods = new ArrayList<Method>();
         for (PsiMethod psiMethod : srcClass.getAllMethods()) {
-            methods.add(new Method(psiMethod, srcClass, maxRecursionDepth, typeDictionary));
+            final Method method = new Method(psiMethod, srcClass, maxRecursionDepth, typeDictionary);
+            methods.add(method);
+            /*
+            for each  method call (PsiMethodCallExpression) in tested class and parent classes:
+              - if getter ( or read property in groovy source) [or setter  - in a later stage will be used to init expected return type] - add it to dictionary
+              -store constructor calls - help deduct if return type was initialized by default ctor - only the used setters should be init in expected return type
+              -in future release - support groovy property read + traverse methods recursively to relate all getter calls to specific method
+              -test generic methods and type params.use actual type params to pass when generating
+            */
         }
         return methods;
     }
+
+//    @NotNull
+//    private String formatMethodSignature(Method method) {
+//        return method.getOwnerClassCanonicalType()+"."+method.getName()+"("+formatParams(method.getMethodParams())+")";
+//    }
+//
+//    private String formatParams(List<Param> methodParams) {
+//        final StringBuilder stringBuilder = new StringBuilder();
+//        for (int i = 0; i < methodParams.size(); i++) {
+//            stringBuilder.append(methodParams.get(i).getType().getCanonicalName());
+//            if (i < methodParams.size() - 1) {
+//                stringBuilder.append(",");
+//            }
+//        }
+//        return stringBuilder.toString();
+//    }
 }
