@@ -1,6 +1,6 @@
 package com.example.dependencies;
 
-import com.example.foes.Fire;
+import com.example.foes.FireBall;
 
 /**
  * Created by Admin on 02/03/2017.
@@ -9,7 +9,7 @@ public class ChildWithSetters extends AbstractParent{
 
     String strField;
     int someNumber;
-    Fire fire;
+    FireBall fire;
 
     public ChildWithSetters() {
     }
@@ -22,22 +22,34 @@ public class ChildWithSetters extends AbstractParent{
 
     @Override
     public String imAbstract() {
-        return "impImplemented in child";
-    }
-
-    public void setStrField(int strField) {
-        this.strField = strField+"";
+        return "implemented in child";
     }
 
     public void setStrField(String strField) {
         this.strField = strField;
     }
 
+    public void setStrField(int strField) {
+        this.strField = strField+"";
+    }
+
     public void setSomeNumber(int someNumber) {
         this.someNumber = someNumber;
     }
 
-    public void setFire(Fire fire) {
+    public void setFire(FireBall fire) {
         this.fire = fire;
+    }
+
+    public String getStrField() {
+        return strField;
+    }
+
+    public int getSomeNumber() {
+        return someNumber;
+    }
+
+    public FireBall getFire() {
+        return fire;
     }
 }

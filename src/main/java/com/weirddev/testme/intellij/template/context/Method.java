@@ -32,7 +32,7 @@ public class Method {
     private final boolean inherited;
     private final boolean isInInterface;
     private final String propertyName;
-    private final Map<String, List<Method>> calledMethodsGroupedByOwner = new HashMap<String, List<Method>>();
+    private Map<String, List<Method>> calledMethodsGroupedByOwner = new HashMap<String, List<Method>>();
 
     public Method(PsiMethod psiMethod, PsiClass srcClass, int maxRecursionDepth,TypeDictionary typeDictionary) {
         isPrivate = psiMethod.hasModifierProperty(PsiModifier.PRIVATE);
@@ -60,12 +60,15 @@ public class Method {
             inherited = false;
         }
         isInInterface = psiMethod.getContainingClass() != null && psiMethod.getContainingClass().isInterface();
+    }
+
+    public void resolveCalledMethods(PsiMethod psiMethod, TypeDictionary typeDictionary) {
         if (!isInheritedFromObject()) {
             final Collection<PsiMethodCallExpression> psiMethodCallExpressions = PsiTreeUtil.findChildrenOfType(psiMethod, PsiMethodCallExpression.class);
             for (PsiMethodCallExpression psiMethodCallExpression : psiMethodCallExpressions) {
                 final PsiMethod psiMethodResolved = psiMethodCallExpression.resolveMethod();
                 if (psiMethodResolved != null) {
-                    final Method methodRef = new Method(psiMethodResolved,null,1,typeDictionary);
+                    final Method methodRef = new Method(psiMethodResolved,null, 1,typeDictionary);
                     final String ownerClassCanonicalType = methodRef.getOwnerClassCanonicalType();
                     List<Method> methods = calledMethodsGroupedByOwner.get(ownerClassCanonicalType);
                     if (methods == null) {
@@ -75,7 +78,6 @@ public class Method {
                     methods.add(methodRef);
                 }
             }
-            
         }
     }
 

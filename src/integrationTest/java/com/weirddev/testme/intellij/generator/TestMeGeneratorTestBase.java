@@ -34,11 +34,15 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
         doTest(true, false, false);
     }
 
-    protected void doTest(boolean reformatCode, boolean optimizeImports, boolean replaceFqn) {
-        doTest("com.example.services.impl", "Foo", "FooTest", reformatCode, optimizeImports, replaceFqn);
+    protected void doTest(final boolean ignoreUnusedProperties) {
+        doTest("com.example.services.impl", "Foo", "FooTest", true, true, true, ignoreUnusedProperties);
     }
 
-    protected void doTest(final String packageName, String testSubjectClassName, final String expectedTestClassName, final boolean reformatCode, final boolean optimizeImports, final boolean replaceFqn) {
+    protected void doTest(boolean reformatCode, boolean optimizeImports, boolean replaceFqn) {
+        doTest("com.example.services.impl", "Foo", "FooTest", reformatCode, optimizeImports, replaceFqn, false);
+    }
+
+    protected void doTest(final String packageName, String testSubjectClassName, final String expectedTestClassName, final boolean reformatCode, final boolean optimizeImports, final boolean replaceFqn, final boolean ignoreUnusedProperties) {
         myFixture.copyDirectoryToProject("src", "");
         myFixture.copyDirectoryToProject("../../commonSrc", "");
         final PsiClass fooClass = myFixture.findClass(packageName+(packageName.length()>0?".":"") + testSubjectClassName);
@@ -57,7 +61,7 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
                         fooClass,
                         reformatCode,
                         optimizeImports,
-                        4, replaceFqn));
+                        4, replaceFqn, ignoreUnusedProperties));
                 System.out.println("result:"+result);
                 String expectedTestClassFilePath = (packageName.length() > 0 ? (packageName.replace(".", "/") + "/") : "") + expectedTestClassName + "."+expectedTestClassExtension;
                 myFixture.checkResultByFile(/*"src/"+*/expectedTestClassFilePath, testDirectory + "/" +expectedTestClassFilePath, false);

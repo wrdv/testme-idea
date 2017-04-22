@@ -76,24 +76,19 @@ public class Type {
         isAbstract = psiClass != null && psiClass.getModifierList()!=null &&  psiClass.getModifierList().hasModifierProperty(PsiModifier.ABSTRACT);
         isStatic = psiClass != null && psiClass.getModifierList() != null && psiClass.getModifierList().hasExplicitModifier(PsiModifier.STATIC);
         parentContainerClass = psiClass != null && psiClass.getParent()!=null && psiClass.getParent() instanceof PsiClass && typeDictionary!=null ? typeDictionary.getType(resolveType((PsiClass) psiClass.getParent()), maxRecursionDepth):null;
-        fields = createFields(psiClass);//todo check nesesity to migrate
+        fields = new ArrayList<Field>();
         enumValues = resolveEnumValues(psiType);
         dependenciesResolvable = maxRecursionDepth > 0;
         constructors = new ArrayList<Method>();
         methods=new ArrayList<Method>();
     }
 
-    @NotNull
-    private List<Field> createFields(PsiClass psiClass) {
-        ArrayList<Field> fields = new ArrayList<Field>();
-//        if (psiClass != null) {
-//            for (PsiField psiField : psiClass.getAllFields()) {
-//                if(!"groovy.lang.MetaClass".equals(psiField.getType().getCanonicalText())){
-//                    fields.add(new Field(psiField, PsiUtil.resolveClassInType(psiField.getType()), psiClass));
-//                }
-//            }
-//        }
-        return fields;
+    private void resolveFields(@NotNull PsiClass psiClass) {
+        for (PsiField psiField : psiClass.getAllFields()) {
+            if(!"groovy.lang.MetaClass".equals(psiField.getType().getCanonicalText())){
+                fields.add(new Field(psiField, PsiUtil.resolveClassInType(psiField.getType()), psiClass));
+            }
+        }
     }
 
     @NotNull
@@ -127,6 +122,7 @@ public class Type {
                     this.methods.add(new Method(method,psiClass,maxRecursionDepth-1,typeDictionary));
                 }
             }
+            resolveFields(psiClass);
             dependenciesResolved=true;
         }
     }

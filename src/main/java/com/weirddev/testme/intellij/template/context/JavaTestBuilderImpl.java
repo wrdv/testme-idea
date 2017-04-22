@@ -16,14 +16,21 @@ import java.util.regex.Pattern;
  *
  * @author Yaron Yamin
  */
-public class JavaTestBuilderImpl implements TestBuilder {
+public class JavaTestBuilderImpl implements LangTestBuilder {
     private static final Logger LOG = Logger.getInstance(JavaTestBuilderImpl.class.getName());
     private static final Pattern GENERICS_PATTERN = Pattern.compile("(<.*>)");
     private static Type DEFAULT_TYPE = new Type("java.lang.String", "String", "java.lang", false, false, false, false, false, new ArrayList<Type>());
     protected final int maxRecursionDepth;
+    protected final Method testedMethod;
 
     public JavaTestBuilderImpl(int maxRecursionDepth) {
         this.maxRecursionDepth = maxRecursionDepth;
+        testedMethod = null;
+    }
+
+    public JavaTestBuilderImpl(int maxRecursionDepth, Method testedMethod) {
+        this.maxRecursionDepth = maxRecursionDepth;
+        this.testedMethod = testedMethod;
     }
 
     //TODO consider aggregating conf into context object and managing maps outside of template

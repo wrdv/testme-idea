@@ -4,8 +4,6 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiMethod;
-import com.intellij.psi.PsiMethodCallExpression;
-import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.util.PsiUtil;
 import com.weirddev.testme.intellij.template.FileTemplateContext;
 import com.weirddev.testme.intellij.template.TypeDictionary;
@@ -31,7 +29,8 @@ public class TestTemplateContextBuilder {
         ctxtParams.put(TestMeTemplateParams.PACKAGE_NAME, context.getTargetPackage().getQualifiedName());
         int maxRecursionDepth = context.getMaxRecursionDepth();
         ctxtParams.put(TestMeTemplateParams.MAX_RECURSION_DEPTH, maxRecursionDepth);
-        ctxtParams.put(TestMeTemplateParams.GROOVY_TEST_BUILDER, new GroovyTestBuilderImpl(maxRecursionDepth));
+        ctxtParams.put(TestMeTemplateParams.TEST_BUILDER, new TestBuilderImpl(maxRecursionDepth, context.isIgnoreUnusedProperties()));
+        ctxtParams.put(TestMeTemplateParams.GROOVY_TEST_BUILDER, new GroovyTestBuilderImpl(maxRecursionDepth, context.isIgnoreUnusedProperties()));
         ctxtParams.put(TestMeTemplateParams.JAVA_TEST_BUILDER, new JavaTestBuilderImpl(maxRecursionDepth));
         ctxtParams.put(TestMeTemplateParams.STRING_UTILS, StringUtils.class);
         ctxtParams.put(TestMeTemplateParams.MOCKITO_UTILS, MockitoUtils.class);
@@ -84,12 +83,13 @@ public class TestTemplateContextBuilder {
         ArrayList<Method> methods = new ArrayList<Method>();
         for (PsiMethod psiMethod : srcClass.getAllMethods()) {
             final Method method = new Method(psiMethod, srcClass, maxRecursionDepth, typeDictionary);
+            method.resolveCalledMethods(psiMethod, typeDictionary);
             methods.add(method);
             /*
             for each  method call (PsiMethodCallExpression) in tested class and parent classes:
               - if getter ( or read property in groovy source) [or setter  - in a later stage will be used to init expected return type] - add it to dictionary
               -store constructor calls - help deduct if return type was initialized by default ctor - only the used setters should be init in expected return type
-              -in future release - support groovy property read + traverse methods recursively to relate all getter calls to specific method
+              -in future release - support groovy property read (implicitly) & direct field access + traverse methods recursively to relate all getter calls to specific method
               -test generic methods and type params.use actual type params to pass when generating
             */
         }

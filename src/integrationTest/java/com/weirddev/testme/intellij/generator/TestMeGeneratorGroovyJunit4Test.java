@@ -21,4 +21,7 @@ public class TestMeGeneratorGroovyJunit4Test extends TestMeGeneratorJunit4Test {
     public void testCtorOverProps() throws Exception{
         doTest(true,true,true);
     }
+//    public void testIgnoreUnusedProperties() throws Exception{
+//        doTest(true);
+//    }
 }

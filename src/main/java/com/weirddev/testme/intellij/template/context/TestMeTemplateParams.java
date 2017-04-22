@@ -12,6 +12,7 @@ public interface TestMeTemplateParams {
     String PACKAGE_NAME = "PACKAGE_NAME";
     String CLASS_NAME = "CLASS_NAME";
 
+    String TEST_BUILDER = "TestBuilder";
     String JAVA_TEST_BUILDER = "JavaTestBuilder";
     String GROOVY_TEST_BUILDER = "GroovyTestBuilder";
     String STRING_UTILS = "StringUtils";
