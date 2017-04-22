@@ -32,7 +32,9 @@ public class Method {
     private final boolean inherited;
     private final boolean isInInterface;
     private final String propertyName;
-    private Map<String, List<Method>> calledMethodsGroupedByOwner = new HashMap<String, List<Method>>();
+    private Set<Method> directlyCalledMethods = new HashSet<Method>();
+    private Set<Method> calledMethods = new HashSet<Method>();
+    private final String methodId;
 
     public Method(PsiMethod psiMethod, PsiClass srcClass, int maxRecursionDepth,TypeDictionary typeDictionary) {
         isPrivate = psiMethod.hasModifierProperty(PsiModifier.PRIVATE);
@@ -60,24 +62,35 @@ public class Method {
             inherited = false;
         }
         isInInterface = psiMethod.getContainingClass() != null && psiMethod.getContainingClass().isInterface();
+        methodId = formatMethodId();
+    }
+
+    private String formatMethodId() {
+        return ownerClassCanonicalType + "." + name + "(" +formatMathodParams(methodParams) +")";
+
+    }
+
+    private String formatMathodParams(List<Param> methodParams) {
+        final StringBuilder sb = new StringBuilder();
+        for (Param methodParam : methodParams) {
+            sb.append(methodParam.getType().getCanonicalName()).append(",");
+        }
+        if (sb.length() > 0) {
+            sb.deleteCharAt(sb.length() - 1);
+        }
+        return sb.toString();
     }
 
     public void resolveCalledMethods(PsiMethod psiMethod, TypeDictionary typeDictionary) {
-        if (!isInheritedFromObject()) {
+        if (!isInheritedFromObject(ownerClassCanonicalType)) {
             final Collection<PsiMethodCallExpression> psiMethodCallExpressions = PsiTreeUtil.findChildrenOfType(psiMethod, PsiMethodCallExpression.class);
             for (PsiMethodCallExpression psiMethodCallExpression : psiMethodCallExpressions) {
                 final PsiMethod psiMethodResolved = psiMethodCallExpression.resolveMethod();
                 if (psiMethodResolved != null) {
-                    final Method methodRef = new Method(psiMethodResolved,null, 1,typeDictionary);
-                    final String ownerClassCanonicalType = methodRef.getOwnerClassCanonicalType();
-                    List<Method> methods = calledMethodsGroupedByOwner.get(ownerClassCanonicalType);
-                    if (methods == null) {
-                        methods = new ArrayList<Method>();
-                        calledMethodsGroupedByOwner.put(ownerClassCanonicalType, methods);
-                    }
-                    methods.add(methodRef);
+                    directlyCalledMethods.add(new Method(psiMethodResolved,null, 1,typeDictionary));
                 }
             }
+            calledMethods = directlyCalledMethods;
         }
     }
 
@@ -170,10 +183,10 @@ public class Method {
     }
 
     public boolean isTestable(){
-        return !isInheritedFromObject() && !isSetter && !isGetter && !constructor && ((isDefault || isProtected) && !inherited || isPublic) && !overridden && !isInInterface && !isAbstract;
+        return !isInheritedFromObject(ownerClassCanonicalType) && !isSetter && !isGetter && !constructor && ((isDefault || isProtected) && !inherited || isPublic) && !overridden && !isInInterface && !isAbstract;
     }
 
-    public boolean isInheritedFromObject() {
+    public static boolean isInheritedFromObject(String ownerClassCanonicalType) {
         return "java.lang.Object".equals(ownerClassCanonicalType) || "groovy.lang.GroovyObjectSupport".equals(ownerClassCanonicalType);
     }
 
@@ -181,7 +194,30 @@ public class Method {
         return propertyName;
     }
 
-    public List<Method> findCalledMethodsByOwnerType(String typeCanonicalName) {
-        return calledMethodsGroupedByOwner.get(typeCanonicalName);
+    public Set<Method> getCalledMethods() {
+        return calledMethods;
+    }
+
+    public Set<Method> getDirectlyCalledMethods() {
+        return directlyCalledMethods;
+    }
+
+    public String getMethodId() {
+        return methodId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Method)) return false;
+
+        Method method = (Method) o;
+
+        return methodId.equals(method.methodId);
+    }
+
+    @Override
+    public int hashCode() {
+        return methodId.hashCode();
     }
 }

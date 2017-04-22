@@ -5,10 +5,7 @@ import com.weirddev.testme.intellij.utils.Node;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Date: 24/02/2017
@@ -84,12 +81,9 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
     }
 
     private boolean isPropertyRead(@NotNull Method testedMethod, Type paramOwnerType, Param propertyParam) {
-        final List<Method> calledMethods = testedMethod.findCalledMethodsByOwnerType(paramOwnerType.getCanonicalName());
-        if (calledMethods == null) {
-            return false;
-        }
+        final Set<Method> calledMethods = testedMethod.getCalledMethods();
         for (Method calledMethod : calledMethods) {
-            if (calledMethod.isGetter() && propertyParam.getName().equals(calledMethod.getPropertyName()) && calledMethod.getReturnType().getCanonicalName().equals(propertyParam.getType().getCanonicalName())) {
+            if (paramOwnerType.getCanonicalName().equals(calledMethod.getOwnerClassCanonicalType()) && calledMethod.isGetter() && propertyParam.getName().equals(calledMethod.getPropertyName()) && calledMethod.getReturnType().getCanonicalName().equals(propertyParam.getType().getCanonicalName())) {
                 return true;
             }
         }

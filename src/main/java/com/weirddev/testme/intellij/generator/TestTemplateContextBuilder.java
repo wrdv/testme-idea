@@ -82,9 +82,12 @@ public class TestTemplateContextBuilder {
     private List<Method> createMethods(PsiClass srcClass, int maxRecursionDepth, TypeDictionary typeDictionary) {
         ArrayList<Method> methods = new ArrayList<Method>();
         for (PsiMethod psiMethod : srcClass.getAllMethods()) {
-            final Method method = new Method(psiMethod, srcClass, maxRecursionDepth, typeDictionary);
-            method.resolveCalledMethods(psiMethod, typeDictionary);
-            methods.add(method);
+            String ownerClassCanonicalType = psiMethod.getContainingClass() == null ? null : psiMethod.getContainingClass().getQualifiedName();
+            if (!Method.isInheritedFromObject(ownerClassCanonicalType)) {
+                final Method method = new Method(psiMethod, srcClass, maxRecursionDepth, typeDictionary);
+                method.resolveCalledMethods(psiMethod, typeDictionary);
+                methods.add(method);
+            }
             /*
             for each  method call (PsiMethodCallExpression) in tested class and parent classes:
               - if getter ( or read property in groovy source) [or setter  - in a later stage will be used to init expected return type] - add it to dictionary
@@ -93,22 +96,33 @@ public class TestTemplateContextBuilder {
               -test generic methods and type params.use actual type params to pass when generating
             */
         }
+        for (int i = 0; i < maxRecursionDepth; i++) {
+            for (Method methodInTestedHierarchy : methods) {
+                final Set<Method> calledMethods = methodInTestedHierarchy.getCalledMethods();
+                final Set<Method> calledMethodsByCalledMethods = new HashSet<Method>();
+                for (Method calledMethod : calledMethods) {
+                    if (methods.contains(calledMethod)) {
+                        final Method method = find(methods, calledMethod.getMethodId());
+                        if (method != null) {
+                            calledMethodsByCalledMethods.addAll(method.getCalledMethods());
+                        }
+                    }
+                }
+                if (calledMethodsByCalledMethods.size() > 0) {
+                    calledMethods.addAll(calledMethodsByCalledMethods);
+                }
+            }
+        }
         return methods;
     }
 
-//    @NotNull
-//    private String formatMethodSignature(Method method) {
-//        return method.getOwnerClassCanonicalType()+"."+method.getName()+"("+formatParams(method.getMethodParams())+")";
-//    }
-//
-//    private String formatParams(List<Param> methodParams) {
-//        final StringBuilder stringBuilder = new StringBuilder();
-//        for (int i = 0; i < methodParams.size(); i++) {
-//            stringBuilder.append(methodParams.get(i).getType().getCanonicalName());
-//            if (i < methodParams.size() - 1) {
-//                stringBuilder.append(",");
-//            }
-//        }
-//        return stringBuilder.toString();
-//    }
+    private Method find(ArrayList<Method> methods, String methodId) {
+        for (Method method : methods) {
+            if (method.getMethodId().equals(methodId)) {
+                return method;
+            }
+        }
+        return null;
+    }
+
 }
