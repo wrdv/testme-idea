@@ -15,6 +15,8 @@ public interface TestMeTemplateParams {
     String JAVA_TEST_BUILDER = "JavaTestBuilder";
     String GROOVY_TEST_BUILDER = "GroovyTestBuilder";
     String STRING_UTILS = "StringUtils";
+    String MOCKITO_UTILS = "MockitoUtils";
+    String TEST_SUBJECT_UTILS = "TestSubjectUtils";
     String MAX_RECURSION_DEPTH = "MAX_RECURSION_DEPTH";
 
     String MONTH_NAME_EN = "MONTH_NAME_EN";
@@ -22,5 +24,4 @@ public interface TestMeTemplateParams {
     String HOUR_NUMERIC = "HOUR_NUMERIC"; //Current Hour for numeric calculations. i.e. if the current time is 09:45 - HOUR_NUMERIC = 9. HOUR = 09
     String MINUTE_NUMERIC = "MINUTE_NUMERIC"; //Current Minute for numeric calculations. i.e. if the current time is 09:05 - MINUTE_NUMERIC = 5. MINUTE = 05
     String SECOND_NUMERIC = "SECOND_NUMERIC"; //Current Second for numeric calculations. i.e. if the current time is 09:15:05 - SECOND_NUMERIC = 5
-
 }

@@ -4,7 +4,10 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.weirddev.testme.intellij.utils.Node;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Date: 24/02/2017
@@ -34,7 +37,14 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
 
     @Override
     protected void buildCallParams(List<? extends Param> params, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Param> ownerParamNode) {
-        if (params != null && params.size()>0) {
+        final Type parentContainerClass = ownerParamNode.getData()!=null?ownerParamNode.getData().getType().getParentContainerClass():null;
+        final boolean isNonStaticNestedClass = parentContainerClass != null && !ownerParamNode.getData().getType().isStatic();
+        if (params != null && params.size()>0 || isNonStaticNestedClass) {
+            if (isNonStaticNestedClass) {
+                final Node<Param> parentContainerNode = new Node<Param>(new SyntheticParam(parentContainerClass, parentContainerClass.getName(), false), null, ownerParamNode.getDepth());
+                buildCallParam(replacementTypes, defaultTypeValues, testBuilder,parentContainerNode);
+                testBuilder.append(",");
+            }
             super.buildCallParams(params, replacementTypes, defaultTypeValues, testBuilder, ownerParamNode);
         } else if(ownerParamNode.getData()!=null){
             List<SyntheticParam> syntheticParams = findProperties(ownerParamNode.getData().getType());
@@ -61,5 +71,10 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
             }
         }
         return new ArrayList<SyntheticParam>(syntheticParams.values());
+    }
+
+    @Override
+    protected String resolveNestedClassTypeName(String typeName) {
+        return typeName;
     }
 }

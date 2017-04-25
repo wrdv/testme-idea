@@ -86,6 +86,6 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
     }
     //    @Override //relevant when JavaCodeInsightFixtureTestCase is used
 //    protected void tuneFixture(JavaModuleFixtureBuilder moduleBuilder) throws Exception {
-//        moduleBuilder.addJdk(new File(System.getProperty("java.home")).getParent());
+//        moduleBuilder.addJdk(new File(System.getProperty("java.home")).getParentContainerClass());
 //    }
 }

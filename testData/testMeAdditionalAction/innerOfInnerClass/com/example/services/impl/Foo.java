@@ -25,7 +25,18 @@ public class Foo{
         }
     }
     class InnerClass{
+        String propOfInner;
+
+        public InnerClass(String propOfInner) {
+            this.propOfInner = propOfInner;
+        }
         class InnerOfInnerClass {
+            String propOfInnerOfInner;
+
+            public InnerOfInnerClass(String propOfInnerOfInner) {
+                this.propOfInnerOfInner = propOfInnerOfInner;
+            }
+
             public void methodOfInnerClass() {<caret>
             }
         }

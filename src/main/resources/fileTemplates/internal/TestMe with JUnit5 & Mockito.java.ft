@@ -1,12 +1,13 @@
 #parse("TestMe macros.java")
+#set($hasMocks=$MockitoUtils.hasMockable($TESTED_CLASS_FIELDS))
 #if($PACKAGE_NAME)
 package ${PACKAGE_NAME};
 #end
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-#if(!$TESTED_CLASS_FIELDS.isEmpty())
+#if($hasMocks)
+import org.junit.jupiter.api.BeforeEach;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -15,8 +16,8 @@ import org.mockito.MockitoAnnotations;
 #parse("File Header.java")
 class ${CLASS_NAME} {
 #renderMockedFields($TESTED_CLASS_FIELDS)
-#renderTestSubjectInit($TESTED_CLASS,$TESTED_CLASS_FIELDS.isEmpty())
-#if(!$TESTED_CLASS_FIELDS.isEmpty())
+#renderTestSubjectInit($TESTED_CLASS,$TestSubjectUtils.hasTestableInstanceMethod($TESTED_CLASS_METHODS),$hasMocks)
+#if($hasMocks)
 
     @BeforeEach
     void setUp() {

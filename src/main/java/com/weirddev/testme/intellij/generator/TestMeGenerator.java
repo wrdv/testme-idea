@@ -26,6 +26,7 @@ import com.weirddev.testme.intellij.template.FileTemplateContext;
 import org.apache.velocity.app.Velocity;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -57,18 +58,20 @@ public class TestMeGenerator {
                 return ApplicationManager.getApplication().runWriteAction(new Computable<PsiElement>() {
                     public PsiElement compute() {
                         try {
+                            final long start = new Date().getTime();
                             IdeDocumentHistory.getInstance(project).includeCurrentPlaceAsChangePlace();
-
                             PsiClass targetClass = createTestClass(context);
                             if (targetClass == null) {
                                 return null;
                             }
                             try {
                                 CodeInsightUtil.positionCursor(project, targetClass.getContainingFile(), testClassElementsLocator.findOptimalCursorLocation(targetClass));
-                            } catch (PsiInvalidElementAccessException e) {
+//                            } catch (PsiInvalidElementAccessException e) {
+                            } catch (Throwable e) {
                                 LOG.warn("unable to locate optimal cursor location post test generation",e);
 //                                new OpenFileDescriptor(project, targetClass.getContainingFile().getVirtualFile()).navigate(true);
                             }
+                            LOG.debug("Done generating class "+context.getTargetClass()+" in "+(new Date().getTime()-start)+" millis");
                             return targetClass;
                         } catch (IncorrectOperationException e) {
                             showErrorLater(project, context.getTargetClass());
@@ -109,7 +112,10 @@ public class TestMeGenerator {
             FileTemplate codeTemplate = fileTemplateManager.getInternalTemplate(templateName);
             codeTemplate.setReformatCode(false);
             Velocity.setProperty( Velocity.VM_MAX_DEPTH, 200);
+            final long startGeneration = new Date().getTime();
             final PsiElement psiElement = FileTemplateUtil.createFromTemplate(codeTemplate, context.getTargetClass(), templateCtxtParams, targetDirectory, null);
+            LOG.debug("Done generating PsiElement from template "+codeTemplate.getName()+" in "+(new Date().getTime()-startGeneration)+" millis");
+            final long startReformating = new Date().getTime();
             final PsiElement resolvedPsiElement=resolveEmbeddedClass(psiElement);
             if (resolvedPsiElement instanceof PsiClass) {
                 PsiClass psiClass = (PsiClass) resolvedPsiElement;
@@ -126,6 +132,7 @@ public class TestMeGenerator {
                     final TextRange textRange = containingFile.getTextRange();
                     CodeStyleManager.getInstance(context.getProject()).reformatText(containingFile, textRange.getStartOffset(), textRange.getEndOffset());
                 }
+                LOG.debug("Done reformatting generated PsiClass in "+(new Date().getTime()-startReformating)+" millis");
                 final PsiElement formattedPsiElement=resolveEmbeddedClass(psiElement);
                 if (formattedPsiElement instanceof PsiClass) {
                     return (PsiClass) formattedPsiElement;

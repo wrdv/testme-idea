@@ -51,35 +51,28 @@
 ##
 ##
 ################## Macros #####################
-#macro(grRenderTestSubjectInit $testedClass $hasNoMembers)
-#if($hasNoMembers || $testedClass.parent)
-#if(!$hasNoMembers && $testedClass.parent)      @InjectMocks#else
-
-#end
-    $testedClass.canonicalName $StringUtils.deCapitalizeFirstLetter($testedClass.name)= #renderInitClass($testedClass)
-#else
+#macro(grRenderTestSubjectInit $testedClass $hasTestableInstanceMethod $hasMocks)
+#if($hasMocks)
     @InjectMocks
     $testedClass.canonicalName $StringUtils.deCapitalizeFirstLetter($testedClass.name)
+#elseif($hasTestableInstanceMethod)
+    $testedClass.canonicalName $StringUtils.deCapitalizeFirstLetter($testedClass.name)= $GroovyTestBuilder.renderJavaCallParam($testedClass,"$testedClass.name",$grReplacementTypes,$grDefaultTypeValues)
 #end
 #end
 ##
 #macro(grRenderMockedFields $testedClassFields)
 #foreach($field in $testedClassFields)
-#if(!${field.type.primitive} && !${field.finalType} && !${field.overridden} && !$field.type.array && !$field.type.enum)
+#if($MockitoUtils.isMockable($field))
     @Mock
     $field.type.canonicalName $field.name
-#elseif(!$field.type.primitive && !($field.type.canonicalName == "java.lang.String") && $field.finalType && (!$field.static || !$field.final))
-    //Field $field.name of type $field.type.name - was not mocked since Mockito doesn't mock a Final class
-#elseif($field.type.array && (!$field.static || !$field.final))
-    //Field $field.name of type ${field.type.name}[] - was not mocked since Mockito doesn't mock arrays
-#elseif($field.type.enum)
-    //Field $field.name of type ${field.type.name} - was not mocked since Mockito doesn't mock enums
+#elseif($MockitoUtils.isMockExpected($field))
+    $MockitoUtils.getImmockabiliyReason("//",$field)
 #end
 #end
 #end
 ##
 #macro(grRenderAssert $type)
-assert result == $GroovyTestBuilder.renderJavaCallParam($type,"replaceMeWithExpectedResult",$grReplacementTypes,$grDefaultTypeValues)
+result == $GroovyTestBuilder.renderJavaCallParam($type,"replaceMeWithExpectedResult",$grReplacementTypes,$grDefaultTypeValues)
 #end
 ##
 #macro(grRenderMethodCall $method,$testedClassName)

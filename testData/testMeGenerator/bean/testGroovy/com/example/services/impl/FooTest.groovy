@@ -1,7 +1,7 @@
 package com.example.services.impl
 
-import org.junit.Before
 import org.junit.Test
+import org.junit.Before
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations

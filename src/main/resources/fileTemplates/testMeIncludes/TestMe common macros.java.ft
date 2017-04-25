@@ -3,10 +3,14 @@
 ##
 ################## Macros #####################
 #macro(renderTestMethodName $methodName)
-test$StringUtils.capitalizeFirstLetter($methodName)#testMethodSuffix($methodName)
+test$StringUtils.capitalizeFirstLetter($methodName)#testMethodSuffix($methodName,"")
 #end
 ##
-#macro(testMethodSuffix $methodName)
+#macro(renderTestMethodNameAsWords $methodName)
+test $StringUtils.camelCaseToWords($methodName)#testMethodSuffix($methodName," ")
+#end
+##
+#macro(testMethodSuffix $methodName, $prefix)
 #if( $trackedTestMethodsCount.get($methodName))
     #set( $suffix= $trackedTestMethodsCount.get($methodName))
 #else
@@ -14,10 +18,7 @@ test$StringUtils.capitalizeFirstLetter($methodName)#testMethodSuffix($methodName
 #end
 #set( $suffix= $suffix + 1)
 #set( $devNull= $trackedTestMethodsCount.put($methodName,$suffix))
-#if($suffix!=1)${suffix}#end
-#end
-#macro(renderInitClass $class)
-#if($class.parent)#renderInitClass($class.parent).#end#if(!$class.isStatic())new #end$class.name#if(!$class.isStatic() && $class.parent || !$class.child || !$class.child.isStatic())()#end
+#if($suffix!=1)${prefix}${suffix}#end
 #end
 ##
 #macro(renderJavaReturnVar $type)

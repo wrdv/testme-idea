@@ -1,6 +1,7 @@
 package com.weirddev.testme.intellij.template.context;
 
 import com.intellij.openapi.diagnostic.Logger;
+import com.weirddev.testme.intellij.utils.ClassNameUtils;
 import com.weirddev.testme.intellij.utils.Node;
 import org.jetbrains.annotations.Nullable;
 
@@ -68,6 +69,12 @@ public class JavaTestBuilderImpl implements TestBuilder {
         if (type.isArray()) {
             testBuilder.append("new ").append(type.getCanonicalName()).append("[]{");
         }
+        final Type parentContainerClass = type.getParentContainerClass();
+        if (parentContainerClass != null && !type.isStatic()) {
+            final Node<Param> parentContainerNode = new Node<Param>(new SyntheticParam(parentContainerClass, parentContainerClass.getName(), false), null, paramNode.getDepth());
+            buildCallParam(replacementTypes, defaultTypeValues, testBuilder,parentContainerNode);
+            testBuilder.append(".");
+        }
         buildJavaParam(replacementTypes, defaultTypeValues, testBuilder,paramNode);
         if (type.isArray()) {
             testBuilder.append("}");
@@ -84,7 +91,6 @@ public class JavaTestBuilderImpl implements TestBuilder {
             }
         }
     }
-
     protected void buildJavaParam(Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Param> paramNode) {
         final Type type = paramNode.getData().getType();
         final String canonicalName = type.getCanonicalName();
@@ -124,6 +130,9 @@ public class JavaTestBuilderImpl implements TestBuilder {
                     testBuilder.append("null");
                 } else {
                     testBuilder.append("new ");
+                    if (type.getParentContainerClass() != null && !type.isStatic()) {
+                        typeName = resolveNestedClassTypeName(typeName);
+                    }
                     testBuilder.append(typeName).append("(");
                     buildCallParams(foundCtor==null?new ArrayList<Param>():foundCtor.getMethodParams(), replacementTypes, defaultTypeValues, testBuilder, paramNode);
                     testBuilder.append(")");
@@ -133,6 +142,10 @@ public class JavaTestBuilderImpl implements TestBuilder {
                 testBuilder.append("null");
             }
         }
+    }
+
+    protected String resolveNestedClassTypeName(String typeName) {
+        return ClassNameUtils.extractClassName(typeName);
     }
 
     private boolean isLooksLikeObjectKeyInGroovyMap(String expFragment, String canonicalTypeName) {

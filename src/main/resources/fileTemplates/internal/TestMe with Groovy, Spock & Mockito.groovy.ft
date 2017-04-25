@@ -1,0 +1,39 @@
+#parse("TestMe macros.groovy")
+#set($hasMocks=$MockitoUtils.hasMockable($TESTED_CLASS_FIELDS))
+#if($PACKAGE_NAME)
+package ${PACKAGE_NAME}
+#end
+import spock.lang.*
+#if($hasMocks)
+import org.mockito.InjectMocks
+import org.mockito.Mock
+import org.mockito.MockitoAnnotations
+//import static org.mockito.Mockito.*
+#end
+
+#parse("File Header.java")
+class ${CLASS_NAME}  extends Specification {
+#grRenderMockedFields($TESTED_CLASS_FIELDS)
+#grRenderTestSubjectInit($TESTED_CLASS,$TestSubjectUtils.hasTestableInstanceMethod($TESTED_CLASS_METHODS),$hasMocks)
+#if($hasMocks)
+
+    def setup() {
+        MockitoAnnotations.initMocks(this)
+    }
+#end
+#foreach($method in $TESTED_CLASS_METHODS)
+#if($method.isTestable())
+
+    def "#renderTestMethodNameAsWords($method.name)"() {
+        when:
+        #grRenderMethodCall($method,$TESTED_CLASS.name)
+
+        then:
+#if($method.returnType && $method.returnType.name !="void")        #grRenderAssert($method.returnType)#{else}false//todo - validate something
+#end
+    }
+#end
+#end
+}
+
+#parse("TestMe Footer.java")

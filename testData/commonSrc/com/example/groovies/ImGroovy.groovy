@@ -10,9 +10,13 @@ class ImGroovy {
     String myName
     Ice ice
     Collection<JavaBean> myBeans
-
+    Groove groove
     ImGroovy() {
         myName="Slim Shady"
+    }
+
+    void setGroove(Groove groove) {
+        this.groove = groove
     }
 
     String getMyName() {
