@@ -41,6 +41,9 @@ test {
     afterTest { desc, result ->
         println "Executing test [${desc.className}].${desc.name} with result: ${result.resultType}"
     }
+    testLogging {
+        exceptionFormat = 'full'
+    }
 }
 integrationTest {
     afterTest { desc, result ->
@@ -57,7 +60,7 @@ tasks.withType(JavaCompile) {
     }
     options.bootClasspath = "$javaHome/jre/lib/rt.jar"
 }
-
+def mandatoryPlugins = ['junit','properties']
 intellij {
     version ideaVersion
     type ideaType
@@ -65,7 +68,7 @@ intellij {
     downloadSources Boolean.valueOf(ideaDownloadSources)
     sameSinceUntilBuild false
     updateSinceUntilBuild false
-    plugins = ['junit','groovy','properties']
+    plugins = Boolean.valueOf(System.getProperty('enableIdeaGroovyPlugin')) ? mandatoryPlugins + 'groovy' : mandatoryPlugins
 
     publish {
         username ideaPublishUsername
@@ -81,11 +84,20 @@ idea {
     }
 }
 
-test {
-    testLogging {
-        exceptionFormat = 'full'
-    }
-}
+//test {
+//    testLogging {
+//        exceptionFormat = 'full'
+//    }
+//    systemProperties = [
+//            enableIdeaGroovyPlugin: System.getProperty("enableIdeaGroovyPlugin","true")
+//    ]
+//}
+//check{
+//    systemProperties = [
+//            enableIdeaGroovyPlugin: System.getProperty("enableIdeaGroovyPlugin","true")
+//    ]
+//}
+tasks.withType(Test) { systemProperty 'enableIdeaGroovyPlugin', System.getProperty("enableIdeaGroovyPlugin","true") }
 
 jacocoTestReport {
     reports {

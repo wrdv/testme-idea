@@ -22,13 +22,16 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
     protected final String testDirectory;
     private final TestTemplateContextBuilder testTemplateContextBuilder = mockTestTemplateContextBuilder();
     protected String expectedTestClassExtension = "java";
+    protected boolean testEnabled = true;
 
     TestMeGeneratorTestBase(String templateFilename, String testDirectory) {
         super("testData/testMeGenerator/");
         this.templateFilename = templateFilename;
         this.testDirectory = testDirectory;
     }
-
+    protected void skipTestIfGroovyPluginDisabled() {
+        testEnabled = Boolean.valueOf(System.getProperty("enableIdeaGroovyPlugin","true"));
+    }
 
     protected void doTest() {
         doTest(true, false, false);
@@ -39,6 +42,10 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
     }
 
     protected void doTest(final String packageName, String testSubjectClassName, final String expectedTestClassName, final boolean reformatCode, final boolean optimizeImports, final boolean replaceFqn) {
+        if (!testEnabled) {
+            System.out.println("Groovy idea plugin disabled. Skipping test");
+            return;
+        }
         myFixture.copyDirectoryToProject("src", "");
         myFixture.copyDirectoryToProject("../../commonSrc", "");
         final PsiClass fooClass = myFixture.findClass(packageName+(packageName.length()>0?".":"") + testSubjectClassName);
