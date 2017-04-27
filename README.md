@@ -1,6 +1,7 @@
 # TestMe IJ IDEA Plugin
 -------------------------
 [![Build Status](https://travis-ci.org/wrdv/testme-idea.svg?branch=master)](https://travis-ci.org/wrdv/testme-idea)
+
 Auto Generates Unit Test Class from code.
 
 No more boilerplate!

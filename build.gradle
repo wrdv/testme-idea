@@ -43,6 +43,7 @@ test {
     }
     testLogging {
         exceptionFormat = 'full'
+        events "failed"
     }
 }
 integrationTest {
