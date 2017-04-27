@@ -5,7 +5,7 @@ buildscript {
 }
 
 plugins {
-    id "org.jetbrains.intellij" version "0.1.10"
+    id "org.jetbrains.intellij" version "0.2.7"
     id 'jacoco'
     id 'org.unbroken-dome.test-sets' version '1.2.0'
 //    id 'com.github.kt3k.coveralls' version '2.6.3'
@@ -68,7 +68,7 @@ intellij {
     downloadSources Boolean.valueOf(ideaDownloadSources)
     sameSinceUntilBuild false
     updateSinceUntilBuild false
-    plugins = Boolean.valueOf(System.getProperty('enableIdeaGroovyPlugin','true')) ? mandatoryPlugins + 'groovy' : mandatoryPlugins
+    plugins = Boolean.valueOf(System.getProperty('enableIdeaGroovyPlugin','true')) ? (mandatoryPlugins + 'Groovy') : mandatoryPlugins
 
     publish {
         username ideaPublishUsername
