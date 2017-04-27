@@ -68,7 +68,7 @@ intellij {
     downloadSources Boolean.valueOf(ideaDownloadSources)
     sameSinceUntilBuild false
     updateSinceUntilBuild false
-    plugins = Boolean.valueOf(System.getProperty('enableIdeaGroovyPlugin')) ? mandatoryPlugins + 'groovy' : mandatoryPlugins
+    plugins = Boolean.valueOf(System.getProperty('enableIdeaGroovyPlugin','true')) ? mandatoryPlugins + 'groovy' : mandatoryPlugins
 
     publish {
         username ideaPublishUsername
