@@ -74,7 +74,6 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
         doTest(false, true, true);
     }
     public void testParamsConstructorsNoFqnReplacement() throws Exception {
-        ignoreTrailingWhitespaces = true;
         doTest(true, true, false);
     }
     public void testParamsConstructors() throws Exception {
