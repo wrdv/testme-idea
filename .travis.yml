@@ -2,7 +2,7 @@ language: java
 jdk:
   - oraclejdk8
 install: echo "skiping install phase"
-script: ./gradlew check -PisRunInCI=true; ./gradlew check -PisRunInCI=true -PideaVersion=2016.2; ./gradlew check -PisRunInCI=true -PideaVersion=2017.1.1
+script: ./gradlew check -PisRunInCI=true;./gradlew check -PisRunInCI=true -PenableIdeaGroovyPlugin=false; ./gradlew check -PisRunInCI=true -PideaVersion=2016.2; ./gradlew check -PisRunInCI=true -PideaVersion=2017.1.1
 after_failure: ./print_surefire_reports.sh
 before_cache:
   - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
