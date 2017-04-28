@@ -17,6 +17,9 @@ apply plugin: 'application'
 apply plugin: 'idea'
 apply plugin: 'org.jetbrains.intellij'
 
+def isRunInCI=Boolean.valueOf(System.getProperty('isRunInCI','false'))
+def enableIdeaGroovyPlugin=Boolean.valueOf(System.getProperty('enableIdeaGroovyPlugin','true'))
+
 jacoco {
     toolVersion = "0.7.6.201602180812"
 }
@@ -46,11 +49,13 @@ test {
         events "failed"
         showStandardStreams = true
     }
+    reports.html.enabled = !isRunInCI
 }
 integrationTest {
     afterTest { desc, result ->
         println "Executing test [${desc.className}].${desc.name} with result: ${result.resultType}"
     }
+    reports.html.enabled = !isRunInCI
 }
 
 tasks.build.dependsOn(jacocoTestReport)
@@ -63,14 +68,15 @@ tasks.withType(JavaCompile) {
     options.bootClasspath = "$javaHome/jre/lib/rt.jar"
 }
 def mandatoryPlugins = ['junit','properties']
+
 intellij {
     version ideaVersion
     type ideaType
     pluginName 'TestMe'
-    downloadSources Boolean.valueOf(ideaDownloadSources)
+    downloadSources !isRunInCI
     sameSinceUntilBuild false
     updateSinceUntilBuild false
-    plugins = Boolean.valueOf(System.getProperty('enableIdeaGroovyPlugin','true')) ? (mandatoryPlugins + 'Groovy') : mandatoryPlugins
+    plugins = enableIdeaGroovyPlugin ? (mandatoryPlugins + 'Groovy') : mandatoryPlugins
 
     publish {
         username ideaPublishUsername
@@ -86,27 +92,14 @@ idea {
     }
 }
 
-//test {
-//    testLogging {
-//        exceptionFormat = 'full'
-//    }
-//    systemProperties = [
-//            enableIdeaGroovyPlugin: System.getProperty("enableIdeaGroovyPlugin","true")
-//    ]
-//}
-//check{
-//    systemProperties = [
-//            enableIdeaGroovyPlugin: System.getProperty("enableIdeaGroovyPlugin","true")
-//    ]
-//}
-tasks.withType(Test) { systemProperty 'enableIdeaGroovyPlugin', System.getProperty("enableIdeaGroovyPlugin","true") }
+tasks.withType(Test) { systemProperty 'enableIdeaGroovyPlugin', enableIdeaGroovyPlugin }
 
 jacocoTestReport {
     reports {
         xml.enabled false //true - if coveralls enabled
         csv.enabled false
         html{
-            enabled true
+            enabled !isRunInCI
             destination "${buildDir}/reports/jacoco"
         }
     }
