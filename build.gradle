@@ -1,3 +1,4 @@
+println "***************Running build for ideaVersion: $ideaVersion *****************************"
 buildscript {
   repositories {
     maven { url 'http://dl.bintray.com/jetbrains/intellij-plugin-service' }
