@@ -23,6 +23,7 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
     private final TestTemplateContextBuilder testTemplateContextBuilder = mockTestTemplateContextBuilder();
     protected String expectedTestClassExtension = "java";
     protected boolean testEnabled = true;
+    protected boolean ignoreTrailingWhitespaces;
 
     TestMeGeneratorTestBase(String templateFilename, String testDirectory) {
         super("testData/testMeGenerator/");
@@ -67,7 +68,7 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
                         4, replaceFqn));
                 System.out.println("result:"+result);
                 String expectedTestClassFilePath = (packageName.length() > 0 ? (packageName.replace(".", "/") + "/") : "") + expectedTestClassName + "."+expectedTestClassExtension;
-                myFixture.checkResultByFile(/*"src/"+*/expectedTestClassFilePath, testDirectory + "/" +expectedTestClassFilePath, false);
+                myFixture.checkResultByFile(/*"src/"+*/expectedTestClassFilePath, testDirectory + "/" +expectedTestClassFilePath, ignoreTrailingWhitespaces);
             }
         }, CodeInsightBundle.message("intention.create.test"), this);
 
@@ -90,6 +91,11 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
                 return contextMap;
             }
         };
+    }
+
+    public void setUp() throws Exception {
+        super.setUp();
+        ignoreTrailingWhitespaces = false;
     }
     //    @Override //relevant when JavaCodeInsightFixtureTestCase is used
 //    protected void tuneFixture(JavaModuleFixtureBuilder moduleBuilder) throws Exception {
