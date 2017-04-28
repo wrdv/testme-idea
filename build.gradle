@@ -1,4 +1,3 @@
-println "***************Running build for ideaVersion: $ideaVersion *****************************"
 buildscript {
   repositories {
     maven { url 'http://dl.bintray.com/jetbrains/intellij-plugin-service' }
@@ -11,7 +10,7 @@ plugins {
     id 'org.unbroken-dome.test-sets' version '1.2.0'
 //    id 'com.github.kt3k.coveralls' version '2.6.3'
 }
-
+println "***************Running build for ideaVersion: $ideaVersion *****************************"
 apply plugin: 'java'
 apply plugin: 'groovy'
 apply plugin: 'application'
