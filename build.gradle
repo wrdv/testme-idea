@@ -10,7 +10,7 @@ plugins {
     id 'org.unbroken-dome.test-sets' version '1.2.0'
 //    id 'com.github.kt3k.coveralls' version '2.6.3'
 }
-println "***************Running build for ideaVersion: $ideaVersion *****************************"
+println "*************** Running tests for ideaVersion: $ideaVersion *****************************"
 apply plugin: 'java'
 apply plugin: 'groovy'
 apply plugin: 'application'
@@ -19,6 +19,7 @@ apply plugin: 'org.jetbrains.intellij'
 
 def isRunInCI=Boolean.valueOf(isRunInCI)
 def enableIdeaGroovyPlugin=Boolean.valueOf(System.getProperty('enableIdeaGroovyPlugin','true'))
+def spockVersion = ideaVersion.startsWith("14.")? "1.0-groovy-2.3" : "1.0-groovy-2.4"
 
 jacoco {
     toolVersion = "0.7.6.201602180812"
