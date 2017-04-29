@@ -3,10 +3,10 @@ jdk:
   - oraclejdk8
 install: echo "skiping install phase"
 script:
- - ./gradlew check -PisRunInCI=true jacocoTestReport
- - ./gradlew check -PisRunInCI=true -PenableIdeaGroovyPlugin=false
- - ./gradlew check -PisRunInCI=true -PideaVersion=2016.2
- - ./gradlew check -PisRunInCI=true -PideaVersion=2017.1.1
+ - ./gradlew check jacocoTestReport
+ - ./gradlew check -PenableIdeaGroovyPlugin=false
+ - ./gradlew check -PideaVersion=2016.2
+ - ./gradlew check -PideaVersion=2017.1.1
 after_failure: ./print_surefire_reports.sh
 after_success:
   - ./gradlew coveralls

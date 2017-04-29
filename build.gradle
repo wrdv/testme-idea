@@ -10,7 +10,7 @@ plugins {
     id 'org.unbroken-dome.test-sets' version '1.2.0'
     id 'com.github.kt3k.coveralls' version '2.6.3'
 }
-def isRunInCI=Boolean.valueOf(isRunInCI)
+def isRunInCI=Boolean.valueOf(System.getenv('CI'))
 def enableIdeaGroovyPlugin=Boolean.valueOf(enableIdeaGroovyPlugin)
 
 println "*************** Running tests for ideaVersion: $ideaVersion with Groovy idea plugin ${enableIdeaGroovyPlugin? 'enabled':'disabled'} *****************************"
@@ -83,7 +83,7 @@ intellij {
     publishPlugin {
         username ideaPublishUsername
         password ideaPublishPassword
-        channel ideaPublishChannel
+        channels ideaPublishChannels
     }
 }
 idea {
