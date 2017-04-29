@@ -8,7 +8,7 @@ plugins {
     id "org.jetbrains.intellij" version "0.2.7"
     id 'jacoco'
     id 'org.unbroken-dome.test-sets' version '1.2.0'
-//    id 'com.github.kt3k.coveralls' version '2.6.3'
+    id 'com.github.kt3k.coveralls' version '2.6.3'
 }
 def isRunInCI=Boolean.valueOf(isRunInCI)
 def enableIdeaGroovyPlugin=Boolean.valueOf(enableIdeaGroovyPlugin)
@@ -17,7 +17,6 @@ println "*************** Running tests for ideaVersion: $ideaVersion with Groovy
 
 apply plugin: 'java'
 apply plugin: 'groovy'
-apply plugin: 'application'
 apply plugin: 'idea'
 apply plugin: 'org.jetbrains.intellij'
 
@@ -81,7 +80,7 @@ intellij {
     updateSinceUntilBuild false
     plugins = enableIdeaGroovyPlugin ? (mandatoryPlugins + 'Groovy') : mandatoryPlugins
 
-    publish {
+    publishPlugin {
         username ideaPublishUsername
         password ideaPublishPassword
         channel ideaPublishChannel
@@ -99,8 +98,8 @@ tasks.withType(Test) { systemProperty 'enableIdeaGroovyPlugin', enableIdeaGroovy
 
 jacocoTestReport {
     reports {
-        xml.enabled false //true - if coveralls enabled
-        csv.enabled false
+        xml.enabled isRunInCI
+        csv.enabled isRunInCI
         html{
             enabled !isRunInCI
             destination "${buildDir}/reports/jacoco"
