@@ -4,9 +4,9 @@ jdk:
 install: echo "skiping install phase"
 script:
  - ./gradlew check jacocoTestReport
- - ./gradlew check -PenableIdeaGroovyPlugin=false
- - ./gradlew check -PideaVersion=2016.2
- - ./gradlew check -PideaVersion=2017.1.1
+# - ./gradlew check -PenableIdeaGroovyPlugin=false
+# - ./gradlew check -PideaVersion=2016.2
+# - ./gradlew check -PideaVersion=2017.1.1
 after_failure: ./print_surefire_reports.sh
 after_success:
   - ./gradlew coveralls

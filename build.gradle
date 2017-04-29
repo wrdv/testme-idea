@@ -7,13 +7,15 @@ buildscript {
 plugins {
     id "org.jetbrains.intellij" version "0.2.7"
     id 'jacoco'
-    id 'org.unbroken-dome.test-sets' version '1.2.0'
+    id 'org.unbroken-dome.test-sets' version '1.3.2'
     id 'com.github.kt3k.coveralls' version '2.6.3'
 }
 def isRunInCI=Boolean.valueOf(System.getenv('CI'))
 def enableIdeaGroovyPlugin=Boolean.valueOf(enableIdeaGroovyPlugin)
-
-println "*************** Running tests for ideaVersion: $ideaVersion with Groovy idea plugin ${enableIdeaGroovyPlugin? 'enabled':'disabled'} *****************************"
+def groovyOn = enableIdeaGroovyPlugin ? 'enabled':'disabled'
+println "*****************************************************************************************************************************"
+println "*************** Running build for ideaVersion: $ideaVersion with Groovy idea plugin ${groovyOn} *****************************"
+println "*****************************************************************************************************************************"
 
 apply plugin: 'java'
 apply plugin: 'groovy'
@@ -36,12 +38,6 @@ targetCompatibility = jvmTargetVersion
 testSets {
     integrationTest
 }
-check.dependsOn integrationTest
-integrationTest.mustRunAfter test
-
-tasks.withType(Test) {
-    reports.html.destination = file("${reporting.baseDir}/${name}")
-}
 test {
     afterTest { desc, result ->
         println "Executing test [${desc.className}].${desc.name} with result: ${result.resultType}"
@@ -60,21 +56,12 @@ integrationTest {
     reports.html.enabled = !isRunInCI
 }
 
-tasks.build.dependsOn(jacocoTestReport)
-
-tasks.withType(JavaCompile) {
-    options.encoding = 'UTF-8'
-    if (!javaHome) {
-        javaHome =  System.env.JAVA_HOME
-    }
-    options.bootClasspath = "$javaHome/jre/lib/rt.jar"
-}
 def mandatoryPlugins = ['junit','properties']
-
 intellij {
+    pluginName 'TestMe'
+    instrumentCode = !isRunInCI
     version ideaVersion
     type ideaType
-    pluginName 'TestMe'
     downloadSources !isRunInCI
     sameSinceUntilBuild false
     updateSinceUntilBuild false
@@ -93,8 +80,6 @@ idea {
         vcs = 'Git'
     }
 }
-
-tasks.withType(Test) { systemProperty 'enableIdeaGroovyPlugin', enableIdeaGroovyPlugin }
 
 jacocoTestReport {
     reports {
@@ -120,3 +105,18 @@ dependencies {
         exclude group: 'org.codehaus.groovy'
     }
 }
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+    if (!javaHome) {
+        javaHome =  System.env.JAVA_HOME
+    }
+    options.bootClasspath = "$javaHome/jre/lib/rt.jar"
+}
+
+tasks.withType(Test) {
+    systemProperty 'enableIdeaGroovyPlugin', enableIdeaGroovyPlugin
+    reports.html.destination = file("${reporting.baseDir}/${name}")
+}
+check.dependsOn integrationTest
+integrationTest.mustRunAfter test
+tasks.build.dependsOn(jacocoTestReport)
