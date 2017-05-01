@@ -2,11 +2,14 @@ language: java
 jdk:
   - oraclejdk8
 install: echo "skiping install phase"
+env:
+  - IDEA_VERSION=14.1.2
+  - IDEA_VERSION=2016.2
+  - IDEA_VERSION=2017.1.1
+  - ENABLE_IDEA_GROOVY_PLUGIN=true
+  - ENABLE_IDEA_GROOVY_PLUGIN=false
 script:
- - ./gradlew check jacocoTestReport
-# - ./gradlew check -PenableIdeaGroovyPlugin=false
-# - ./gradlew check -PideaVersion=2016.2
-# - ./gradlew check -PideaVersion=2017.1.1
+ - ./gradlew check -PideaVersion=$IDEA_VERSION -PenableIdeaGroovyPlugin=$ENABLE_IDEA_GROOVY_PLUGIN jacocoTestReport
 after_failure: ./print_surefire_reports.sh
 after_success:
   - ./gradlew coveralls

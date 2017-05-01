@@ -11,6 +11,7 @@ public class TestMeGeneratorSpockTest extends TestMeGeneratorTestBase {
     public TestMeGeneratorSpockTest() {
         super(TemplateRegistry.SPOCK_GROOVY_MOCKITO_JAVA_TEMPLATE, "testSpock");
         expectedTestClassExtension = "groovy";
+//        skipTestIfGroovyPluginDisabled();
     }
     public void testBean() throws Exception{
         doTest();
