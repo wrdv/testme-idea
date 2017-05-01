@@ -1,7 +1,7 @@
 <idea-plugin version="2">
   <id>com.weirddev.testme</id>
   <name>TestMe</name>
-  <version>1.3.0</version>
+  <version>1.4.0</version>
   <vendor email="testme@weirddev.com" url="http://weirddev.com">WeirdDev</vendor>
 
   <description><![CDATA[
@@ -9,7 +9,7 @@
    <p>No more boilerplate!</p>
    <h3>Features:</h3>
    <ul>
-     <li>Auto generate Java or Groovy test class with JUnit 4,5</li>
+     <li>Auto generate Java or Groovy test class with JUnit 4,5 & Spock</li>
      <li>Auto generate Mockito mocks </li>
      <li>Generate test params and assertion statements</li>
      <li>Integrate with IDEA menus: Code->TestMe, Code->Generate</li>
@@ -18,12 +18,14 @@
     ]]></description>
 
   <change-notes><![CDATA[
-        <i>Main changes in v1.3.0:</i>
+        <i>Main changes in v1.4.0:</i>
           <ul>
-            <li>On test class name collision - popup dialog for renaming generated class name</li>
-            <li>Format generated test according to relevant - Java or Groovy - <i>Code Style Settings</i></li>
-            <li>Default TestMe shortcut key changed to Alt+Shift+Q due to collision with Scala plugin</li>
-            <li>Test params generator improvements/fixes</li>
+            <li>Spock framework support - added a new option on TestMe popup UI to generate Spock test</li>
+            <li>Better auto identification of matching test root directory in a multi module project without prompting the user></li>
+            <li>Initialize tested subject class directly when no mocks generated</li>
+            <li>Skip generation of mock supporting statements (imports, @Before..) when no mocks generated</li>
+            <li>Skip generation of test subject initialization statement when only static methods being tested</li>
+            <li>Improve constructor selection and initialization of non static nested classes</li>
           </ul>
         <a href="http://weirddev.com/testme/release-notes">Complete Changelog</a>
     ]]>
