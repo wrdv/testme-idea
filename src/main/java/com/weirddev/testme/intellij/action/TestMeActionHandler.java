@@ -90,7 +90,7 @@ public class TestMeActionHandler extends TestMePopUpHandler {
     }
 
     @NotNull
-    public static PsiElement getSelectedElement(Editor editor, PsiFile file) {
+    private static PsiElement getSelectedElement(Editor editor, PsiFile file) {
         return PsiUtilCore.getElementAtOffset(file, editor.getCaretModel().getOffset());
     }
 
