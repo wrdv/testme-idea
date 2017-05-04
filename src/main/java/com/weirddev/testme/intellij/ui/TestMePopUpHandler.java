@@ -151,7 +151,12 @@ public abstract class TestMePopUpHandler implements CodeInsightActionHandler {
       gotoData.listUpdaterTask.init((AbstractPopup)popup, list, usageView);
       ProgressManager.getInstance().run(gotoData.listUpdaterTask);
     }
-    popup.showInBestPositionFor(editor);
+    if(System.getProperty("testme.popoup.center", "false").equals("true")){
+       //WA for UT - swing error when popup set relative to fake test editor
+      popup.showCenteredInCurrentWindow(project);
+    }else{
+      popup.showInBestPositionFor(editor);
+    }
   }
 
   private static PsiElementListCellRenderer getRenderer(Object value,

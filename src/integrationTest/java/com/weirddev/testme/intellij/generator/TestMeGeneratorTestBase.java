@@ -25,7 +25,7 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
     protected boolean testEnabled = true;
     protected boolean ignoreTrailingWhitespaces;
 
-    TestMeGeneratorTestBase(String templateFilename, String testDirectory) {
+    protected TestMeGeneratorTestBase(String templateFilename, String testDirectory) {
         super("testData/testMeGenerator/");
         this.templateFilename = templateFilename;
         this.testDirectory = testDirectory;
@@ -47,9 +47,7 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
             System.out.println("Groovy idea plugin disabled. Skipping test");
             return;
         }
-        myFixture.copyDirectoryToProject("src", "");
-        myFixture.copyDirectoryToProject("../../commonSrc", "");
-        final PsiClass fooClass = myFixture.findClass(packageName+(packageName.length()>0?".":"") + testSubjectClassName);
+        final PsiClass fooClass = setupSourceFiles(packageName, testSubjectClassName);
         final PsiDirectory srcDir = fooClass.getContainingFile().getContainingDirectory();
         final PsiPackage targetPackage = JavaDirectoryService.getInstance().getPackage(srcDir);
 
@@ -67,11 +65,20 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
                         optimizeImports,
                         4, replaceFqn));
                 System.out.println("result:"+result);
-                String expectedTestClassFilePath = (packageName.length() > 0 ? (packageName.replace(".", "/") + "/") : "") + expectedTestClassName + "."+expectedTestClassExtension;
-                myFixture.checkResultByFile(/*"src/"+*/expectedTestClassFilePath, testDirectory + "/" +expectedTestClassFilePath, ignoreTrailingWhitespaces);
+                verifyGeneratedTest(packageName, expectedTestClassName);
             }
         }, CodeInsightBundle.message("intention.create.test"), this);
 
+    }
+    protected void verifyGeneratedTest(String packageName, String expectedTestClassName) {
+        String expectedTestClassFilePath = (packageName.length() > 0 ? (packageName.replace(".", "/") + "/") : "") + expectedTestClassName + "."+expectedTestClassExtension;
+        myFixture.checkResultByFile(/*"src/"+*/expectedTestClassFilePath, testDirectory + "/" +expectedTestClassFilePath, ignoreTrailingWhitespaces);
+    }
+    @NotNull
+    protected PsiClass setupSourceFiles(String packageName, String testSubjectClassName) {
+        myFixture.copyDirectoryToProject("src", "");
+        myFixture.copyDirectoryToProject("../../commonSrc", "");
+        return myFixture.findClass(packageName+(packageName.length()>0?".":"") + testSubjectClassName);
     }
 
     @NotNull

@@ -55,11 +55,11 @@ integrationTest {
     }
     reports.html.enabled = !isRunInCI
 }
-
+def shouldInstrumentCode = !isRunInCI && !Boolean.valueOf(System.getProperty('skipCodeInstrumentation','false'))
 def mandatoryPlugins = ['junit','properties']
 intellij {
     pluginName 'TestMe'
-    instrumentCode = !isRunInCI
+    instrumentCode = shouldInstrumentCode
     version ideaVersion
     type ideaType
     downloadSources !isRunInCI
@@ -70,7 +70,7 @@ intellij {
     publishPlugin {
         username ideaPublishUsername
         password ideaPublishPassword
-        channels ideaPublishChannels
+//        channels ideaPublishChannels
     }
 }
 idea {
@@ -94,7 +94,8 @@ jacocoTestReport {
     afterEvaluate {
         classDirectories = files(classDirectories.files.collect {
             fileTree(dir: it,
-                    exclude: ['com/weirddev/testme/intellij/ui/**'])
+//                    exclude: ['com/weirddev/testme/intellij/ui/**']
+            )
         })
     }
 }

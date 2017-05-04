@@ -1,5 +1,6 @@
 package com.weirddev.testme.intellij.action;
 
+import com.intellij.codeInsight.CodeInsightActionHandler;
 import com.intellij.codeInsight.generation.actions.BaseGenerateAction;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
@@ -12,8 +13,8 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author Yaron Yamin
  */
-public class TestMeGeneratorsAction extends BaseGenerateAction {
-    public TestMeGeneratorsAction() {
+public class TestMeAction extends BaseGenerateAction {
+    public TestMeAction() {
         super(new TestMeActionHandler());
     }
 
@@ -21,4 +22,12 @@ public class TestMeGeneratorsAction extends BaseGenerateAction {
     protected boolean isValidForFile(@NotNull Project project, @NotNull Editor editor, @NotNull PsiFile file) {
         return TestSubjectResolverUtils.isValidForTesting(editor, file);
     }
+
+    /**
+     * expose the underlying handler for UT
+     */
+    CodeInsightActionHandler getActionHandler(){
+        return getHandler();
+    }
+
 }
