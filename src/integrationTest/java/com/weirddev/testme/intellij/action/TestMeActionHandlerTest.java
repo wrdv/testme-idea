@@ -19,10 +19,8 @@ import java.util.List;
  */
 public class TestMeActionHandlerTest extends TestMeGeneratorTestBase {
 
-    public static final int TOTAL_TEMPLATES = 4;
-
     public TestMeActionHandlerTest() {
-        super(TemplateRegistry.JUNIT4_MOCKITO_JAVA_TEMPLATE, "test");
+        super(null, "test");
     }
 
     public void testNestedClassParams() throws Exception {
@@ -59,5 +57,4 @@ public class TestMeActionHandlerTest extends TestMeGeneratorTestBase {
         }
         return nEnabledTemplates;
     }
-
 }
