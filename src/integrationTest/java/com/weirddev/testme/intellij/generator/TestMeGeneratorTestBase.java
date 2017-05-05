@@ -31,7 +31,11 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
         this.testDirectory = testDirectory;
     }
     protected void skipTestIfGroovyPluginDisabled() {
-        testEnabled = Boolean.valueOf(System.getProperty("enableIdeaGroovyPlugin","true"));
+        testEnabled = isGroovyPluginEnabled();
+    }
+
+    protected Boolean isGroovyPluginEnabled() {
+        return Boolean.valueOf(System.getProperty("enableIdeaGroovyPlugin","true"));
     }
 
     protected void doTest() {
