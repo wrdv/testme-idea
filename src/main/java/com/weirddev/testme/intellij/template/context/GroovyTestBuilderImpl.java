@@ -23,7 +23,7 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
     @Override
     protected void buildCallParam(Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Param> paramNode) {
         final Type type = paramNode.getData().getType();
-        if (paramNode.getData() instanceof SyntheticParam && ((SyntheticParam) paramNode.getData()).isProperty) {
+        if (paramNode.getData() instanceof SyntheticParam && ((SyntheticParam) paramNode.getData()).isProperty()) {
             testBuilder.append(paramNode.getData().getName()).append(" : ");
         }
         if (type.isArray()) {

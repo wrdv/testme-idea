@@ -170,9 +170,7 @@ public class JavaTestBuilderImpl implements TestBuilder {
     }
 
     protected boolean isValidConstructor(Type type, Method constructor, boolean hasEmptyConstructor, Map<String, String> replacementTypes) {
-        if (type.isInterface() || type.isAbstract()) {
-            return false;
-        }
+        if (type.isInterface() || type.isAbstract()) return false;
         final List<Param> methodParams = constructor.getMethodParams();
         for (Param methodParam : methodParams) {
             final Type methodParamType = methodParam.getType();

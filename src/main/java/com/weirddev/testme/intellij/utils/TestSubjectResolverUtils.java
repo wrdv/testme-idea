@@ -31,9 +31,7 @@ public class TestSubjectResolverUtils {
     }
 
     private static PsiElement findTestableElement(PsiElement selectedElement) {
-        if (selectedElement == null) {
-            return null;
-        }
+        if (selectedElement == null) return null;
         else if (canBeTested(selectedElement)) {
             return selectedElement;
         } else {

@@ -26,8 +26,9 @@ public class TestMeActionTest extends TestMeGeneratorTestBase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        System.setProperty("testme.popoup.center", "true");//WA swing error when popup set relative to fake test editor
+        setTestModePropsForUI();
     }
+
     public void testSimpleClass() throws Exception {
         doTest();
     }

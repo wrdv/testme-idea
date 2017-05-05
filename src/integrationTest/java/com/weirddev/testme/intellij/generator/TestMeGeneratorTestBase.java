@@ -46,6 +46,10 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
         doTest("com.example.services.impl", "Foo", "FooTest", reformatCode, optimizeImports, replaceFqn);
     }
 
+    protected void setTestModePropsForUI() {
+        System.setProperty("testme.popoup.center", "true");//WA swing error when popup set relative to fake test editor
+    }
+
     protected void doTest(final String packageName, String testSubjectClassName, final String expectedTestClassName, final boolean reformatCode, final boolean optimizeImports, final boolean replaceFqn) {
         if (!testEnabled) {
             System.out.println("Groovy idea plugin disabled. Skipping test");

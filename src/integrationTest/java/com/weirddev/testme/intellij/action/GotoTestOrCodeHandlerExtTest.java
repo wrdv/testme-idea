@@ -23,6 +23,12 @@ public class GotoTestOrCodeHandlerExtTest extends TestMeGeneratorTestBase {
     }
 
     @Override
+    public void setUp() throws Exception {
+        super.setUp();
+        setTestModePropsForUI();
+    }
+
+    @Override
     protected void doTest(final String packageName, final String testSubjectClassName, final String expectedTestClassName, final boolean reformatCode, final boolean optimizeImports, final boolean replaceFqn) {
         final PsiClass fooClass = setupSourceFiles(packageName, testSubjectClassName);
         CommandProcessor.getInstance().executeCommand(getProject(), new Runnable() {
@@ -42,5 +48,6 @@ public class GotoTestOrCodeHandlerExtTest extends TestMeGeneratorTestBase {
         final GotoTargetHandler.AdditionalAction firstAction = sourceAndTargetElements.additionalActions.get(0);
         Assert.assertEquals("TestMe...", firstAction.getText());
         Assert.assertEquals(Icons.TEST_ME, firstAction.getIcon());
+        firstAction.execute();
     }
 }

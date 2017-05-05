@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public class ClassNameUtils {
 
-    public static  boolean isArray(String canonicalName) {
+    public static boolean isArray(String canonicalName) {
         return canonicalName.endsWith("[]");
     }
 
@@ -20,12 +20,13 @@ public class ClassNameUtils {
     }
 
     public static String extractPackageName(String className) {
-        if (className != null) {
+        if (className == null) {
+            return null;
+        } else {
             className = extractContainerType(className);
             int i = className.lastIndexOf('.');
             return stripArrayVarargsDesignator(i == -1 ? "" : className.substring(0, i));
         }
-        return null;
     }
 
     public static String stripArrayVarargsDesignator(String typeName) {
@@ -35,29 +36,24 @@ public class ClassNameUtils {
     @NotNull
     public static String extractContainerType(String className) {
         int j = className.indexOf('<');
-        className=j==-1?className:className.substring(0, j);
+        className = j == -1 ? className : className.substring(0, j);
         return stripArrayVarargsDesignator(className);
     }
 
     public static String extractTargetPropertyName(String name, boolean isSetter, boolean isGetter) {
-        if (isGetter) {
-            if (name.startsWith("get")) {
-                return removeFromCamelCaseName(name, "get");
-            } else if (name.startsWith("is")) {
-                return removeFromCamelCaseName(name, "is");
-            } else {
-                return null;
-            }
+        if (isGetter && name.startsWith("get")) {
+            return removeFromCamelCaseName(name, "get");
+        } else if (isGetter && name.startsWith("is")) {
+            return removeFromCamelCaseName(name, "is");
         } else if (isSetter && name.startsWith("set")) {
             return removeFromCamelCaseName(name, "set");
-        }
-        return null;
+        } else return null;
     }
 
     @NotNull
     public static String removeFromCamelCaseName(String name, String set) {
         final String removed = name.replaceFirst(set, "");
-        return removed.substring(0, 1).toLowerCase()+removed.substring(1,removed.length());
+        return removed.substring(0, 1).toLowerCase() + removed.substring(1, removed.length());
     }
 
     public static boolean isVarargs(String canonicalText) {

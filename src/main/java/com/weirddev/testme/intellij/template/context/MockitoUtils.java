@@ -6,11 +6,12 @@ import java.util.List;
  * Date: 31/03/2017
  * @author Yaron Yamin
  */
-@SuppressWarnings("unused")
+
 public class  MockitoUtils {
     public static boolean isMockable(Field field) {
         return !field.getType().isPrimitive() && !field.isFinalType() && !field.isOverridden() && !field.getType().isArray() && !field.getType().isEnum();
     }
+    @SuppressWarnings("unused")
     public static boolean hasMockable(List<Field> fields) {
         for (Field field : fields) {
             if (isMockable(field)) {
@@ -19,7 +20,7 @@ public class  MockitoUtils {
         }
         return false;
     }
-
+    @SuppressWarnings("unused")
     public static String getImmockabiliyReason(String prefix,Field field) {
         final String reasonMsgPrefix = prefix+"Field " + field.getName() + " of type " + field.getType().getName();
         if (field.isFinalType() && isMockExpected(field)) {

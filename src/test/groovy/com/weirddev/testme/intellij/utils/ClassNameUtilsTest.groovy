@@ -31,8 +31,11 @@ class ClassNameUtilsTest {
 
     @Test
     void testExtractPackageName() {
-        String result = ClassNameUtils.extractPackageName("java.util.Set")
-        assert result == "java.util"
+        assert ClassNameUtils.extractPackageName("java.util.Set") == "java.util"
+    }
+    @Test
+    void testExtractPackageNameWhenNull() {
+        assert ClassNameUtils.extractPackageName(null) == null
     }
 
     @Test

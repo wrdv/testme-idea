@@ -29,9 +29,9 @@ public class TestTemplateContextBuilder {
         ctxtParams.put(TestMeTemplateParams.MAX_RECURSION_DEPTH, maxRecursionDepth);
         ctxtParams.put(TestMeTemplateParams.GROOVY_TEST_BUILDER, new GroovyTestBuilderImpl(maxRecursionDepth));
         ctxtParams.put(TestMeTemplateParams.JAVA_TEST_BUILDER, new JavaTestBuilderImpl(maxRecursionDepth));
-        ctxtParams.put(TestMeTemplateParams.STRING_UTILS, StringUtils.class);
-        ctxtParams.put(TestMeTemplateParams.MOCKITO_UTILS, MockitoUtils.class);
-        ctxtParams.put(TestMeTemplateParams.TEST_SUBJECT_UTILS, TestSubjectUtils.class);
+        ctxtParams.put(TestMeTemplateParams.STRING_UTILS, new StringUtils());
+        ctxtParams.put(TestMeTemplateParams.MOCKITO_UTILS, new MockitoUtils());
+        ctxtParams.put(TestMeTemplateParams.TEST_SUBJECT_UTILS,new TestSubjectUtils());
         final PsiClass targetClass = context.getSrcClass();
         if (targetClass != null && targetClass.isValid()) {
             final TypeDictionary typeDictionary = new TypeDictionary(context.getSrcClass(), context.getTargetPackage());

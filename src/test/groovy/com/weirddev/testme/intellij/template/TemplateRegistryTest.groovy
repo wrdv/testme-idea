@@ -14,6 +14,7 @@ class TemplateRegistryTest {
         assert descriptors.find({it.tokenizedDisplayName.contains('JUnit4')&& it.tokenizedDisplayName.contains('Groovy')}).filename == TemplateRegistry.JUNIT4_GROOVY_MOCKITO_JAVA_TEMPLATE
         assert descriptors.find({it.tokenizedDisplayName.contains('Spock')&& it.tokenizedDisplayName.contains('Groovy')}).filename == TemplateRegistry.SPOCK_GROOVY_MOCKITO_JAVA_TEMPLATE
         assert descriptors.find({it.tokenizedDisplayName.contains('JUnit5')&& it.tokenizedDisplayName.contains('Mockito')}).filename == TemplateRegistry.JUNIT5_MOCKITO_JAVA_TEMPLATE
+        assert descriptors.find({it.tokenizedDisplayName.contains('JUnit5')&& it.tokenizedDisplayName.contains('Mockito')}).displayName.find("JUnit5.*Mockito")!=null
     }
 }
 

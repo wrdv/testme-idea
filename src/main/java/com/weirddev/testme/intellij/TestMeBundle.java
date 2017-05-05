@@ -23,9 +23,6 @@ public class TestMeBundle {
     @NonNls
     private static final String BUNDLE = "messages.TestMeBundle";
 
-    private TestMeBundle() {
-    }
-
     private static ResourceBundle getBundle() {
         ResourceBundle bundle = com.intellij.reference.SoftReference.dereference(TestMeBundle.bundle);
         if (bundle == null) {
