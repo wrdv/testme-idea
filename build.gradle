@@ -11,18 +11,10 @@ plugins {
     id 'com.github.kt3k.coveralls' version '2.6.3'
 }
 def isRunInCI=Boolean.valueOf(System.getenv('CI'))
-def buildTrigger = System.getenv('TRAVIS_EVENT_TYPE')
+//def buildTrigger = System.getenv('TRAVIS_EVENT_TYPE')
 def enableIdeaGroovyPlugin=Boolean.valueOf(enableIdeaGroovyPlugin)
 def groovyOn = enableIdeaGroovyPlugin ? 'enabled':'disabled'
 
-if (isRunInCI && buildTrigger == "cron" && ideaVersion != "LATEST-EAP-SNAPSHOT") {
-    println "Exiting build - cron job builds are intended to test against IDEA  LATEST-EAP-SNAPSHOT versions only"
-    System.exit(0)
-}
-else if (isRunInCI && buildTrigger != "cron" && ideaVersion == "LATEST-EAP-SNAPSHOT") {
-    println "Exiting build - testing against IDEA  LATEST-EAP-SNAPSHOT versions should be done as part of cron job builds only"
-    System.exit(0)
-}
 println "*****************************************************************************************************************************"
 println "*************** Running build for ideaVersion: $ideaVersion with Groovy idea plugin ${groovyOn} *****************************"
 println "*****************************************************************************************************************************"

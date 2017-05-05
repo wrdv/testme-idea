@@ -10,6 +10,11 @@ env:
   - IDEA_VERSION=2017.1.2 ENABLE_IDEA_GROOVY_PLUGIN=false
   - IDEA_VERSION=LATEST-EAP-SNAPSHOT ENABLE_IDEA_GROOVY_PLUGIN=true
   - IDEA_VERSION=LATEST-EAP-SNAPSHOT ENABLE_IDEA_GROOVY_PLUGIN=false
+matrix:
+  allow_failures:
+    - env: IDEA_VERSION=LATEST-EAP-SNAPSHOT ENABLE_IDEA_GROOVY_PLUGIN=true
+    - env: IDEA_VERSION=LATEST-EAP-SNAPSHOT ENABLE_IDEA_GROOVY_PLUGIN=false
+  fast_finish: true
 script:
  - ./gradlew check -PideaVersion=$IDEA_VERSION -PenableIdeaGroovyPlugin=$ENABLE_IDEA_GROOVY_PLUGIN jacocoTestReport
 after_failure: ./print_surefire_reports.sh

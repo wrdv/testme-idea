@@ -150,12 +150,12 @@ public class TestMeGenerator {
         }
     }
 
-    private void flushOperations(FileTemplateContext context, PsiClass psiClass) {
-        final Document document = psiClass.getContainingFile().getViewProvider().getDocument();
-        if (document != null) {
-            PsiDocumentManager.getInstance(context.getProject()).doPostponedOperationsAndUnblockDocument(document);
-        }
-    }
+//    private void flushOperations(FileTemplateContext context, PsiClass psiClass) {
+//        final Document document = psiClass.getContainingFile().getViewProvider().getDocument();
+//        if (document != null) {
+//            PsiDocumentManager.getInstance(context.getProject()).doPostponedOperationsAndUnblockDocument(document);
+//        }
+//    }
 
     private PsiElement resolveEmbeddedClass(PsiElement psiElement) {
         if (!(psiElement instanceof PsiClass)){//Important for Groovy support - expecting org.jetbrains.plugins.groovy.lang.psi.GroovyFile. see org.jetbrains.plugins.groovy.annotator.intentions.CreateClassActionBase.createClassByType
