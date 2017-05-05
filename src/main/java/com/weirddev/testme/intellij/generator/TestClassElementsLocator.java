@@ -22,13 +22,8 @@ public class TestClassElementsLocator {
             PsiElement assertExpression = findLastElement(testMethod, PsiExpressionStatement.class);
             if (assertExpression == null) {
                 return defaultLocation;
-            } else if (assertExpression.getFirstChild() == null) {
-                return defaultLocation;
-            } else if (assertExpression.getFirstChild().getLastChild() == null) {
-                return defaultLocation;
-            } else if (assertExpression.getFirstChild().getLastChild().getFirstChild() == null) {
-                return defaultLocation;
-            } else if (assertExpression.getFirstChild().getLastChild().getFirstChild().getNextSibling() == null) {
+            } else if (assertExpression.getFirstChild() == null || assertExpression.getFirstChild().getLastChild() == null || assertExpression.getFirstChild().getLastChild().getFirstChild() == null || assertExpression.getFirstChild()
+                    .getLastChild().getFirstChild().getNextSibling() == null) {
                 return defaultLocation;
             } else {
                 return assertExpression.getFirstChild().getLastChild().getFirstChild().getNextSibling();

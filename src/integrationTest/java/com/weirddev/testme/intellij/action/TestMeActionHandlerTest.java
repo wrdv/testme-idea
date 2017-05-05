@@ -35,8 +35,8 @@ public class TestMeActionHandlerTest extends TestMeGeneratorTestBase {
             public void run() {
                 myFixture.openFileInEditor(fooClass.getContainingFile().getVirtualFile());
                 final TestMeActionHandler actionHandler = new TestMeActionHandler();
-                final String chooserTitle = actionHandler.getChooserTitle(getEditor(), getFile(), fooClass);
-                Assert.assertEquals("<html><body>Test Class <b>Foo</b></body></html>",chooserTitle);
+                Assert.assertEquals("<html><body>Test Class <b>Foo</b></body></html>", actionHandler.getChooserTitle(getEditor(), getFile(), fooClass));
+                Assert.assertEquals("No test subjects found", actionHandler.getNotFoundMessage(getProject(), getEditor(), getFile()));
                 final TestMePopUpHandler.GotoData sourceAndTargetElements = actionHandler.getSourceAndTargetElements(getEditor(), getFile());
                 Assert.assertNotNull(sourceAndTargetElements);
                 final List<TemplateDescriptor> templateDescriptors = new TemplateRegistry().getTemplateDescriptors();

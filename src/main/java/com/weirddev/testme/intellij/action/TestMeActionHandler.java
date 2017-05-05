@@ -104,13 +104,13 @@ public class TestMeActionHandler extends TestMePopUpHandler {
     @Nullable
     @Override
     protected String getAdText(PsiElement source, int length) {//todo might be useful for generate and run functionality, currently un-used
-        if (length > 0 && !TestFinderHelper.isTest(source)) {
-            final Keymap keymap = KeymapManager.getInstance().getActiveKeymap();
-            final Shortcut[] shortcuts = keymap.getShortcuts(DefaultRunExecutor.getRunExecutorInstance().getContextActionId());
-            if (shortcuts.length > 0) {
-                return ("Press " + KeymapUtil.getShortcutText(shortcuts[0]) + " to run selected tests");
-            }
-        }
+//        if (length > 0 && !TestFinderHelper.isTest(source)) {
+//            final Keymap keymap = KeymapManager.getInstance().getActiveKeymap();
+//            final Shortcut[] shortcuts = keymap.getShortcuts(DefaultRunExecutor.getRunExecutorInstance().getContextActionId());
+//            if (shortcuts.length > 0) {
+//                return ("Press " + KeymapUtil.getShortcutText(shortcuts[0]) + " to run selected tests");
+//            }
+//        }
         return null;
     }
 

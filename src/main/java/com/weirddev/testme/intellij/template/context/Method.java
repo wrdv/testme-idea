@@ -145,7 +145,7 @@ public class Method {
     }
 
     public boolean isTestable(){
-        return !"java.lang.Object".equals(ownerClassCanonicalType) && !"groovy.lang.GroovyObjectSupport".equals(ownerClassCanonicalType) && !isSetter && !isGetter && !constructor &&((isDefault|| isProtected ) && !inherited || isPublic) && !overridden && !isInInterface && !isAbstract;
+        return !"java.lang.Object".equals(getOwnerClassCanonicalType()) && !"groovy.lang.GroovyObjectSupport".equals(getOwnerClassCanonicalType()) && !isSetter() && !isGetter() && !isConstructor() &&((isDefault()|| isProtected() ) && !isInherited() || isPublic()) && !isOverridden() && !isInInterface() && !isAbstract();
     }
 
     public String getPropertyName() {
