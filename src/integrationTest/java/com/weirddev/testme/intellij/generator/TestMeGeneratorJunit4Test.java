@@ -92,6 +92,7 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
         doTest(true, true, true);
     }
     public void testGroovy() throws Exception {
+        skipTestIfGroovyPluginDisabled();
         doTest("com.example.services.impl", "Foovy", "FoovyTest", true, true, true, false);
     }
 
