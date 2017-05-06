@@ -43,7 +43,7 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
     }
 
     protected void doTest(boolean reformatCode, boolean optimizeImports, boolean replaceFqn) {
-        doTest("com.example.services.impl", "Foo", "FooTest", reformatCode, optimizeImports, replaceFqn);
+        doTest("com.example.services.impl", "Foo", "FooTest", reformatCode, optimizeImports, replaceFqn, false);
     }
 
     protected void setTestModePropsForUI() {
@@ -71,7 +71,7 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
                         fooClass,
                         reformatCode,
                         optimizeImports,
-                        4, replaceFqn));
+                        4, replaceFqn, ignoreUnusedProperties));
                 System.out.println("result:"+result);
                 verifyGeneratedTest(packageName, expectedTestClassName);
             }

@@ -76,6 +76,6 @@ result == $GroovyTestBuilder.renderJavaCallParam($type,"replaceMeWithExpectedRes
 #end
 ##
 #macro(grRenderMethodCall $method,$testedClassName)
-#renderJavaReturnVar($method.returnType)#if($method.static)$testedClassName#{else}$StringUtils.deCapitalizeFirstLetter($testedClassName)#end.${method.name}($GroovyTestBuilder.renderJavaCallParams($method.methodParams,$grReplacementTypes,$grDefaultTypeValues))
+#renderJavaReturnVar($method.returnType)#if($method.static)$testedClassName#{else}$StringUtils.deCapitalizeFirstLetter($testedClassName)#end.${method.name}($TestBuilder.renderMethodParams("Groovy",$method,$grReplacementTypes,$grDefaultTypeValues))
 #end
 ##

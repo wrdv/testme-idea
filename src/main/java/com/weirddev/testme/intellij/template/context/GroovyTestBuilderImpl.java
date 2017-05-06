@@ -3,11 +3,9 @@ package com.weirddev.testme.intellij.template.context;
 import com.intellij.openapi.diagnostic.Logger;
 import com.weirddev.testme.intellij.utils.Node;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Date: 24/02/2017
@@ -16,14 +14,22 @@ import java.util.Map;
  */
 public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
     private static final Logger LOG = Logger.getInstance(GroovyTestBuilderImpl.class.getName());
-    public GroovyTestBuilderImpl(int maxRecursionDepth) {
+    public static final String PARAMS_SEPERATOR = ", ";
+    private boolean shouldIgnoreUnusedProperties;
+    public GroovyTestBuilderImpl(int maxRecursionDepth, boolean shouldIgnoreUnusedProperties) {
         super(maxRecursionDepth);
+        this.shouldIgnoreUnusedProperties = shouldIgnoreUnusedProperties;
+    }
+
+    public GroovyTestBuilderImpl(int maxRecursionDepth, Method method, boolean shouldIgnoreUnusedProperties) {
+        super(maxRecursionDepth, method);
+        this.shouldIgnoreUnusedProperties = shouldIgnoreUnusedProperties;
     }
 
     @Override
     protected void buildCallParam(Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Param> paramNode) {
         final Type type = paramNode.getData().getType();
-        if (paramNode.getData() instanceof SyntheticParam && ((SyntheticParam) paramNode.getData()).isProperty()) {
+        if (isPropertyParam(paramNode)) {
             testBuilder.append(paramNode.getData().getName()).append(" : ");
         }
         if (type.isArray()) {
@@ -33,6 +39,10 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
         if (type.isArray()) {
             testBuilder.append("] as ").append(type.getCanonicalName()).append("[]");
         }
+    }
+
+    private boolean isPropertyParam(Node<Param> paramNode) {
+        return paramNode.getData() instanceof SyntheticParam && ((SyntheticParam) paramNode.getData()).isProperty;
     }
 
     @Override
@@ -45,13 +55,40 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
                 buildCallParam(replacementTypes, defaultTypeValues, testBuilder,parentContainerNode);
                 testBuilder.append(",");
             }
-            super.buildCallParams(params, replacementTypes, defaultTypeValues, testBuilder, ownerParamNode);
+            buildGroovyCallParams(params, replacementTypes, defaultTypeValues, testBuilder, ownerParamNode);
         } else if(ownerParamNode.getData()!=null){
             List<SyntheticParam> syntheticParams = findProperties(ownerParamNode.getData().getType());
             if (syntheticParams.size() > 0) {
                 buildCallParams(syntheticParams, replacementTypes, defaultTypeValues, testBuilder, ownerParamNode);
             }
         }
+    }
+    protected void buildGroovyCallParams(List<? extends Param> params, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Param> ownerParamNode) {
+        final int origLength = testBuilder.length();
+        if (params != null) {
+            for (int i = 0; i < params.size(); i++) {
+                final Node<Param> paramNode = new Node<Param>(params.get(i), ownerParamNode, ownerParamNode.getDepth() + 1);
+                if (isPropertyParam(paramNode) && shouldIgnoreUnusedProperties && testedMethod!=null && !isPropertyRead(testedMethod, ownerParamNode.getData().getType(), paramNode.getData())) {
+                    continue;
+                }
+                buildCallParam(replacementTypes, defaultTypeValues, testBuilder, paramNode);
+                testBuilder.append(PARAMS_SEPERATOR);
+            }
+            if (origLength < testBuilder.length()) {
+                testBuilder.delete(testBuilder.length() - PARAMS_SEPERATOR.length(),testBuilder.length());
+            }
+        }
+    }
+
+    private boolean isPropertyRead(@NotNull Method testedMethod, Type paramOwnerType, Param propertyParam) {
+        final Set<Method> calledMethods = testedMethod.getCalledMethods();
+        for (Method calledMethod : calledMethods) {
+            if (paramOwnerType.getCanonicalName().equals(calledMethod.getOwnerClassCanonicalType()) && calledMethod.isGetter() && propertyParam.getName().equals(calledMethod.getPropertyName()) && calledMethod.getReturnType().getCanonicalName().equals(propertyParam.getType().getCanonicalName())) {
+                return true;
+            }
+        }
+        //todo handle cases where property is read implicitly in groovy and directly in java/groovy
+        return false;
     }
 
     @NotNull
@@ -61,16 +98,27 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
         for (Method method : methods) {
             if (method.isSetter()&&  method.getMethodParams().size()>0 &&method.getPropertyName()!=null) {
                 final SyntheticParam syntheticParam = syntheticParams.get(method.getPropertyName());
-                if (syntheticParam == null) {
+                if (syntheticParam == null || !propertyMatchesField(type,syntheticParam)) {
                     syntheticParams.put(method.getPropertyName(),new SyntheticParam(method.getMethodParams().get(0).getType(), method.getPropertyName(),true));
-                } else if (!syntheticParam.getName().equalsIgnoreCase(syntheticParam.getType().getName())) {//todo should be rejected based on actual target type vs param type rather than rely on naming convention (impl of com.intellij.psi.util.PropertyUtil#getFieldOfSetter - that works for groovy)
-                    syntheticParams.remove(method.getPropertyName());
-                    syntheticParams.put(method.getPropertyName(), new SyntheticParam(method.getMethodParams().get(0).getType(), method.getPropertyName(), true));
                 }
-
             }
         }
         return new ArrayList<SyntheticParam>(syntheticParams.values());
+    }
+
+    private boolean propertyMatchesField(Type type, SyntheticParam syntheticParam) {
+        Field field = findFieldByName(type, syntheticParam.getName());
+        return field != null && field.getType().getCanonicalName().equals(syntheticParam.getType().getCanonicalName());
+    }
+
+    @Nullable
+    private Field findFieldByName(Type type, String propertyName) {
+        for (Field field : type.getFields()) {
+            if (propertyName.equals(field.getName())) {
+                return field;
+            }
+        }
+        return null;
     }
 
     @Override

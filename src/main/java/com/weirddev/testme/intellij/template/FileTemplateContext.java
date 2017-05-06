@@ -24,8 +24,9 @@ public class FileTemplateContext {
     private final boolean optimizeImports;
     private final int maxRecursionDepth;
     private final boolean replaceFqn;
+    private final boolean ignoreUnusedProperties;
 
-    public FileTemplateContext(FileTemplateDescriptor fileTemplateDescriptor, Project project, String targetClass, PsiPackage targetPackage, Module targetModule, PsiDirectory targetDirectory, PsiClass srcClass, boolean reformatCode, boolean optimizeImports, int maxRecursionDepth, boolean replaceFqn) {
+    public FileTemplateContext(FileTemplateDescriptor fileTemplateDescriptor, Project project, String targetClass, PsiPackage targetPackage, Module targetModule, PsiDirectory targetDirectory, PsiClass srcClass, boolean reformatCode, boolean optimizeImports, int maxRecursionDepth, boolean replaceFqn, boolean ignoreUnusedProperties) {
         this.fileTemplateDescriptor = fileTemplateDescriptor;
         this.project = project;
         this.targetClass = targetClass;
@@ -37,6 +38,7 @@ public class FileTemplateContext {
         this.optimizeImports = optimizeImports;
         this.maxRecursionDepth = maxRecursionDepth;
         this.replaceFqn = replaceFqn;
+        this.ignoreUnusedProperties = ignoreUnusedProperties;
     }
 
     public Project getProject() {
@@ -81,5 +83,9 @@ public class FileTemplateContext {
 
     public boolean isReplaceFqn() {
         return replaceFqn;
+    }
+
+    public boolean isIgnoreUnusedProperties() {
+        return ignoreUnusedProperties;
     }
 }

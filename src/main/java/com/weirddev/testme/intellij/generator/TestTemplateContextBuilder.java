@@ -1,7 +1,9 @@
 package com.weirddev.testme.intellij.generator;
 
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.psi.*;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiField;
+import com.intellij.psi.PsiMethod;
 import com.intellij.psi.util.PsiUtil;
 import com.weirddev.testme.intellij.template.FileTemplateContext;
 import com.weirddev.testme.intellij.template.TypeDictionary;
@@ -27,7 +29,8 @@ public class TestTemplateContextBuilder {
         ctxtParams.put(TestMeTemplateParams.PACKAGE_NAME, context.getTargetPackage().getQualifiedName());
         int maxRecursionDepth = context.getMaxRecursionDepth();
         ctxtParams.put(TestMeTemplateParams.MAX_RECURSION_DEPTH, maxRecursionDepth);
-        ctxtParams.put(TestMeTemplateParams.GROOVY_TEST_BUILDER, new GroovyTestBuilderImpl(maxRecursionDepth));
+        ctxtParams.put(TestMeTemplateParams.TEST_BUILDER, new TestBuilderImpl(maxRecursionDepth, context.isIgnoreUnusedProperties()));
+        ctxtParams.put(TestMeTemplateParams.GROOVY_TEST_BUILDER, new GroovyTestBuilderImpl(maxRecursionDepth, context.isIgnoreUnusedProperties()));
         ctxtParams.put(TestMeTemplateParams.JAVA_TEST_BUILDER, new JavaTestBuilderImpl(maxRecursionDepth));
         ctxtParams.put(TestMeTemplateParams.STRING_UTILS, new StringUtils());
         ctxtParams.put(TestMeTemplateParams.MOCKITO_UTILS, new MockitoUtils());
@@ -36,7 +39,7 @@ public class TestTemplateContextBuilder {
         if (targetClass != null && targetClass.isValid()) {
             final TypeDictionary typeDictionary = new TypeDictionary(context.getSrcClass(), context.getTargetPackage());
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS, typeDictionary.getType(Type.resolveType(targetClass), maxRecursionDepth));
-            List<Field> fields = createFields(context);
+            List<Field> fields = createFields(context.getSrcClass());
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_FIELDS, fields);//todo refactor to be part of TESTED_CLASS
             List<Method> methods = createMethods(context.getSrcClass(),maxRecursionDepth, typeDictionary);
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_METHODS, methods);//todo refactor to be part of TESTED_CLASS
@@ -63,13 +66,14 @@ public class TestTemplateContextBuilder {
     }
 
     @NotNull
-    private List<Field> createFields(FileTemplateContext context) {
+    private List<Field> createFields(PsiClass psiClass) {
         ArrayList<Field> fields = new ArrayList<Field>();
-        PsiClass srcClass = context.getSrcClass();
-        for (PsiField psiField : srcClass.getAllFields()) {
-            //TODO mark fields initialized inline/in default constructor
-            if(!"groovy.lang.MetaClass".equals(psiField.getType().getCanonicalText())){
-                fields.add(new Field(psiField, PsiUtil.resolveClassInType(psiField.getType()), srcClass));
+        if (psiClass != null) {
+            for (PsiField psiField : psiClass.getAllFields()) {
+                //TODO mark fields initialized inline (so no need to mock them)
+                if(!"groovy.lang.MetaClass".equals(psiField.getType().getCanonicalText())){
+                    fields.add(new Field(psiField, PsiUtil.resolveClassInType(psiField.getType()), psiClass));
+                }
             }
         }
         return fields;
@@ -78,8 +82,47 @@ public class TestTemplateContextBuilder {
     private List<Method> createMethods(PsiClass srcClass, int maxRecursionDepth, TypeDictionary typeDictionary) {
         ArrayList<Method> methods = new ArrayList<Method>();
         for (PsiMethod psiMethod : srcClass.getAllMethods()) {
-            methods.add(new Method(psiMethod, srcClass, maxRecursionDepth, typeDictionary));
+            String ownerClassCanonicalType = psiMethod.getContainingClass() == null ? null : psiMethod.getContainingClass().getQualifiedName();
+            if (!Method.isInheritedFromObject(ownerClassCanonicalType)) {
+                final Method method = new Method(psiMethod, srcClass, maxRecursionDepth, typeDictionary);
+                method.resolveCalledMethods(psiMethod, typeDictionary);
+                methods.add(method);
+            }
+            /*
+            for each  method call (PsiMethodCallExpression) in tested class and parent classes:
+              - if getter ( or read property in groovy source) [or setter  - in a later stage will be used to init expected return type] - add it to dictionary
+              -store constructor calls - help deduct if return type was initialized by default ctor - only the used setters should be init in expected return type
+              -in future release - support groovy property read (implicitly) & direct field access + traverse methods recursively to relate all getter calls to specific method
+              -test generic methods and type params.use actual type params to pass when generating
+            */
+        }
+        for (int i = 0; i < maxRecursionDepth; i++) {
+            for (Method methodInTestedHierarchy : methods) {
+                final Set<Method> calledMethods = methodInTestedHierarchy.getCalledMethods();
+                final Set<Method> calledMethodsByCalledMethods = new HashSet<Method>();
+                for (Method calledMethod : calledMethods) {
+                    if (methods.contains(calledMethod)) {
+                        final Method method = find(methods, calledMethod.getMethodId());
+                        if (method != null) {
+                            calledMethodsByCalledMethods.addAll(method.getCalledMethods());
+                        }
+                    }
+                }
+                if (calledMethodsByCalledMethods.size() > 0) {
+                    calledMethods.addAll(calledMethodsByCalledMethods);
+                }
+            }
         }
         return methods;
     }
+
+    private Method find(ArrayList<Method> methods, String methodId) {
+        for (Method method : methods) {
+            if (method.getMethodId().equals(methodId)) {
+                return method;
+            }
+        }
+        return null;
+    }
+
 }
