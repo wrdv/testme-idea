@@ -33,7 +33,7 @@ public class Method {
     private final boolean isInInterface;
     private final String propertyName;
     private Set<Method> directlyCalledMethods = new HashSet<Method>();
-    private Set<Method> calledMethods = new HashSet<Method>();
+    private Set<Method> calledMethods = new HashSet<Method>();//methods called directly from this method or on the call stack from this method via other methods belonging to the same type hierarchy
     private final String methodId;
 
     public Method(PsiMethod psiMethod, PsiClass srcClass, int maxRecursionDepth,TypeDictionary typeDictionary) {
