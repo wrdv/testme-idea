@@ -85,7 +85,9 @@ public class TestTemplateContextBuilder {
             String ownerClassCanonicalType = psiMethod.getContainingClass() == null ? null : psiMethod.getContainingClass().getQualifiedName();
             if (!Method.isInheritedFromObject(ownerClassCanonicalType)) {
                 final Method method = new Method(psiMethod, srcClass, maxRecursionDepth, typeDictionary);
-                method.resolveCalledMethods(psiMethod, typeDictionary);
+                method.resolveInternalReferences(psiMethod, typeDictionary);
+                logger.debug("resolved internal references for "+method.getMethodId());
+                logger.debug(method.getInternalReferences().toString());
                 methods.add(method);
             }
             /*
@@ -99,17 +101,23 @@ public class TestTemplateContextBuilder {
         for (int i = 0; i < maxRecursionDepth; i++) {
             for (Method methodInTestedHierarchy : methods) {
                 final Set<Method> calledMethods = methodInTestedHierarchy.getCalledMethods();
+                final Set<Method> calledFamilyMembers = methodInTestedHierarchy.getCalledFamilyMembers();
                 final Set<Method> calledMethodsByCalledMethods = new HashSet<Method>();
+                final Set<Method> calledMethodsInMyTypeHierarchy = new HashSet<Method>();
                 for (Method calledMethod : calledMethods) {
                     if (methods.contains(calledMethod)) {
                         final Method method = find(methods, calledMethod.getMethodId());
                         if (method != null) {
+                            calledMethodsInMyTypeHierarchy.add(method);
                             calledMethodsByCalledMethods.addAll(method.getCalledMethods());
                         }
                     }
                 }
                 if (calledMethodsByCalledMethods.size() > 0) {
                     calledMethods.addAll(calledMethodsByCalledMethods);
+                }
+                if (calledMethodsInMyTypeHierarchy.size() > 0) {
+                    calledFamilyMembers.addAll(calledMethodsInMyTypeHierarchy);
                 }
             }
         }

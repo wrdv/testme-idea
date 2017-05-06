@@ -214,25 +214,7 @@ public class Type {
 
     @Override
     public String toString() {
-        return "Type{" +
-                "canonicalName='" + canonicalName + '\'' +
-                ", name='" + name + '\'' +
-                ", isPrimitive=" + isPrimitive +
-                ", packageName='" + packageName + '\'' +
-                ", composedTypes=" + composedTypes +
-                ", array=" + array +
-                ", varargs=" + varargs +
-                ", enumValues=" + enumValues +
-                ", isEnum=" + isEnum +
-                ", isInterface=" + isInterface +
-                ", isAbstract=" + isAbstract +
-                ", isStatic=" + isStatic +
-                ", constructors=" + constructors +
-                ", methods=" + methods +
-                ", dependenciesResolved=" + dependenciesResolved +
-                ", dependenciesResolvable=" + dependenciesResolvable +
-                ", hasDefaultConstructor=" + hasDefaultConstructor +
-                '}';
+        return canonicalName;
     }
 
     public boolean isVarargs() {

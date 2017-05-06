@@ -26,4 +26,7 @@ public class TestMeGeneratorGroovyJunit4Test extends TestMeGeneratorJunit4Test {
     public void testIgnoreUnusedProperties() throws Exception{
         doTest(true); //todo nested class getter call not identified - property someLongerNum
     }
+    public void testDirectlyReferencedPropertiesNotIgnored() throws Exception{
+        doTest("com.example.beans", "Foo", "FooTest", true, true, true, true);
+    }
 }

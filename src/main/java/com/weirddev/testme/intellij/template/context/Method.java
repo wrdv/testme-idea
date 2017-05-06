@@ -34,6 +34,8 @@ public class Method {
     private final String propertyName;
     private Set<Method> directlyCalledMethods = new HashSet<Method>();
     private Set<Method> calledMethods = new HashSet<Method>();//methods called directly from this method or on the call stack from this method via other methods belonging to the same type hierarchy
+    private final Set<Method> calledFamilyMembers=new HashSet<Method>();//called other methods of this method owner's class type or one of it's ancestor type. Method objects of the class under test have more data resolved such as internalReferences
+    private Set<Reference> internalReferences = new HashSet<Reference>();
     private final String methodId;
 
     public Method(PsiMethod psiMethod, PsiClass srcClass, int maxRecursionDepth,TypeDictionary typeDictionary) {
@@ -81,17 +83,48 @@ public class Method {
         return sb.toString();
     }
 
-    public void resolveCalledMethods(PsiMethod psiMethod, TypeDictionary typeDictionary) {
-        if (!isInheritedFromObject(ownerClassCanonicalType)) {
-            final Collection<PsiMethodCallExpression> psiMethodCallExpressions = PsiTreeUtil.findChildrenOfType(psiMethod, PsiMethodCallExpression.class);
-            for (PsiMethodCallExpression psiMethodCallExpression : psiMethodCallExpressions) {
-                final PsiMethod psiMethodResolved = psiMethodCallExpression.resolveMethod();
-                if (psiMethodResolved != null) {
-                    directlyCalledMethods.add(new Method(psiMethodResolved,null, 1,typeDictionary));
+    public void resolveInternalReferences(PsiMethod psiMethod, TypeDictionary typeDictionary) {
+        if (!isInheritedFromObject(getOwnerClassCanonicalType())) {
+            resolveCalledMethods(psiMethod, typeDictionary);
+            resolveReferences(psiMethod,typeDictionary);
+        }
+    }
+
+    private void resolveReferences(PsiMethod psiMethod, TypeDictionary typeDictionary) {
+        final Collection<PsiReferenceExpression> psiReferenceExpressions = PsiTreeUtil.findChildrenOfType(psiMethod, PsiReferenceExpression.class);
+        for (PsiReferenceExpression psiReferenceExpression : psiReferenceExpressions) {
+            final PsiType refType = psiReferenceExpression.getType();
+            if (refType != null) {
+                final PsiType psiOwnerType = psiReferenceExpression.getLastChild()==null?null:resolveOwnerType(psiReferenceExpression.getLastChild());
+                if (psiOwnerType != null) {
+                    internalReferences.add(new Reference(psiReferenceExpression.getReferenceName() , refType, psiOwnerType, typeDictionary));
                 }
             }
-            calledMethods = directlyCalledMethods;
         }
+    }
+
+    private void resolveCalledMethods(PsiMethod psiMethod, TypeDictionary typeDictionary) {
+        final Collection<PsiMethodCallExpression> psiMethodCallExpressions = PsiTreeUtil.findChildrenOfType(psiMethod, PsiMethodCallExpression.class);
+        for (PsiMethodCallExpression psiMethodCallExpression : psiMethodCallExpressions) {
+            final PsiMethod psiMethodResolved = psiMethodCallExpression.resolveMethod();
+            if (psiMethodResolved != null) {
+                getDirectlyCalledMethods().add(new Method(psiMethodResolved,null, 1,typeDictionary));
+            }
+        }
+        calledMethods = getDirectlyCalledMethods();
+    }
+
+    private PsiType resolveOwnerType(PsiElement psiElement) {
+        boolean dotAppeared = false;
+        for(PsiElement prevSibling  = psiElement.getPrevSibling();prevSibling!=null;prevSibling=prevSibling.getPrevSibling()) {
+            if(prevSibling instanceof  PsiJavaToken && ((PsiJavaToken) prevSibling).getTokenType()==JavaTokenType.DOT) {
+                dotAppeared = true;
+            }
+            else if(dotAppeared && prevSibling instanceof  PsiExpression) {
+                return ((PsiExpression) prevSibling).getType();
+            }
+        }
+        return null;
     }
 
 
@@ -206,6 +239,10 @@ public class Method {
         return methodId;
     }
 
+    public Set<Reference> getInternalReferences() {
+        return internalReferences;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -219,5 +256,9 @@ public class Method {
     @Override
     public int hashCode() {
         return methodId.hashCode();
+    }
+
+    public Set<Method> getCalledFamilyMembers() {
+        return calledFamilyMembers;
     }
 }

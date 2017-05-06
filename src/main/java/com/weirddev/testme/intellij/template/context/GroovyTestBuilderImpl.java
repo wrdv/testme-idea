@@ -81,13 +81,26 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
     }
 
     private boolean isPropertyRead(@NotNull Method testedMethod, Type paramOwnerType, Param propertyParam) {
-        final Set<Method> calledMethods = testedMethod.getCalledMethods();
-        for (Method calledMethod : calledMethods) {
-            if (paramOwnerType.getCanonicalName().equals(calledMethod.getOwnerClassCanonicalType()) && calledMethod.isGetter() && propertyParam.getName().equals(calledMethod.getPropertyName()) && calledMethod.getReturnType().getCanonicalName().equals(propertyParam.getType().getCanonicalName())) {
+        if (isReferencedInMethod(testedMethod, paramOwnerType, propertyParam)) return true;
+        for (Method calledMethod : testedMethod.getCalledMethods()) {
+            if (paramOwnerType.getCanonicalName().equals(calledMethod.getOwnerClassCanonicalType()) && calledMethod.isGetter() && propertyParam.getName().equals(calledMethod.getPropertyName()) && calledMethod.getReturnType().equals(propertyParam.getType())) {
                 return true;
             }
         }
-        //todo handle cases where property is read implicitly in groovy and directly in java/groovy
+        for (Method method : testedMethod.getCalledFamilyMembers()) {
+            if (isReferencedInMethod(method, paramOwnerType, propertyParam)) return true;
+        }
+
+        //todo handle cases where property is read implicitly or directly in groovy
+        return false;
+    }
+
+    private boolean isReferencedInMethod(@NotNull Method testedMethod, Type paramOwnerType, Param propertyParam) {
+        for (Reference internalReference : testedMethod.getInternalReferences()) {
+            if (paramOwnerType.equals(internalReference.getOwnerType()) && propertyParam.getType().equals(internalReference.getReferenceType()) && propertyParam.getName().equals(internalReference.getReferenceName())) {
+                return true;
+            }
+        }
         return false;
     }
 
