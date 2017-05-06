@@ -29,7 +29,7 @@ public class GotoTestOrCodeHandlerExtTest extends TestMeGeneratorTestBase {
     }
 
     @Override
-    protected void doTest(final String packageName, final String testSubjectClassName, final String expectedTestClassName, final boolean reformatCode, final boolean optimizeImports, final boolean replaceFqn) {
+    protected void doTest(final String packageName, final String testSubjectClassName, final String expectedTestClassName, final boolean reformatCode, final boolean optimizeImports, final boolean replaceFqn, final boolean ignoreUnusedProperties) {
         final PsiClass fooClass = setupSourceFiles(packageName, testSubjectClassName);
         CommandProcessor.getInstance().executeCommand(getProject(), new Runnable() {
             @Override

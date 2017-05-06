@@ -183,7 +183,7 @@ public class Method {
     }
 
     public boolean isTestable(){
-        return !isInheritedFromObject(ownerClassCanonicalType) &&  && !isSetter() && !isGetter() && !isConstructor() &&((isDefault()|| isProtected() ) && !isInherited() || isPublic()) && !isOverridden() && !isInInterface() && !isAbstract();
+        return !isInheritedFromObject(ownerClassCanonicalType) && !isSetter() && !isGetter() && !isConstructor() &&((isDefault()|| isProtected() ) && !isInherited() || isPublic()) && !isOverridden() && !isInInterface() && !isAbstract();
     }
 
     public static boolean isInheritedFromObject(String ownerClassCanonicalType) {

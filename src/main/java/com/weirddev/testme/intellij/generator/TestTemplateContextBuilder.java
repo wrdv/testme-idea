@@ -30,8 +30,8 @@ public class TestTemplateContextBuilder {
         int maxRecursionDepth = context.getMaxRecursionDepth();
         ctxtParams.put(TestMeTemplateParams.MAX_RECURSION_DEPTH, maxRecursionDepth);
         ctxtParams.put(TestMeTemplateParams.TEST_BUILDER, new TestBuilderImpl(maxRecursionDepth, context.isIgnoreUnusedProperties()));
-        ctxtParams.put(TestMeTemplateParams.GROOVY_TEST_BUILDER, new GroovyTestBuilderImpl(maxRecursionDepth, context.isIgnoreUnusedProperties()));
-        ctxtParams.put(TestMeTemplateParams.JAVA_TEST_BUILDER, new JavaTestBuilderImpl(maxRecursionDepth));
+        ctxtParams.put(TestMeTemplateParams.GROOVY_TEST_BUILDER, new GroovyTestBuilderImpl(maxRecursionDepth, context.isIgnoreUnusedProperties()));//todo should be deprecated in favor of TestBuilder
+        ctxtParams.put(TestMeTemplateParams.JAVA_TEST_BUILDER, new JavaTestBuilderImpl(maxRecursionDepth));//todo should be deprecated in favor of TestBuilder
         ctxtParams.put(TestMeTemplateParams.STRING_UTILS, new StringUtils());
         ctxtParams.put(TestMeTemplateParams.MOCKITO_UTILS, new MockitoUtils());
         ctxtParams.put(TestMeTemplateParams.TEST_SUBJECT_UTILS,new TestSubjectUtils());

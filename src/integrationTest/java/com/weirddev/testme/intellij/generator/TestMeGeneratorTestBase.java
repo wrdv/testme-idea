@@ -41,6 +41,9 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
     protected void doTest() {
         doTest(true, false, false);
     }
+    protected void doTest(final boolean ignoreUnusedProperties) {
+        doTest("com.example.services.impl", "Foo", "FooTest", true, true, true, ignoreUnusedProperties);
+    }
 
     protected void doTest(boolean reformatCode, boolean optimizeImports, boolean replaceFqn) {
         doTest("com.example.services.impl", "Foo", "FooTest", reformatCode, optimizeImports, replaceFqn, false);
@@ -50,7 +53,7 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
         System.setProperty("testme.popoup.center", "true");//WA swing error when popup set relative to fake test editor
     }
 
-    protected void doTest(final String packageName, String testSubjectClassName, final String expectedTestClassName, final boolean reformatCode, final boolean optimizeImports, final boolean replaceFqn) {
+    protected void doTest(final String packageName, String testSubjectClassName, final String expectedTestClassName, final boolean reformatCode, final boolean optimizeImports, final boolean replaceFqn, final boolean ignoreUnusedProperties) {
         if (!testEnabled) {
             System.out.println("Groovy idea plugin disabled. Skipping test");
             return;
