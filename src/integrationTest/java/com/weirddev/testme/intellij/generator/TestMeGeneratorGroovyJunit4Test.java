@@ -29,4 +29,7 @@ public class TestMeGeneratorGroovyJunit4Test extends TestMeGeneratorJunit4Test {
     public void testDirectlyReferencedPropertiesNotIgnored() throws Exception{
         doTest("com.example.beans", "Foo", "FooTest", true, true, true, true);
     }
+    public void testIgnoreUnusedPropertiesInGroovy() throws Exception {
+        doTest(true);
+    }
 }

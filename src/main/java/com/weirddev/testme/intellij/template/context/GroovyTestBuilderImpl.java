@@ -81,6 +81,7 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
     }
 
     private boolean isPropertyRead(@NotNull Method testedMethod, Type paramOwnerType, Param propertyParam) {
+        //todo migrate the logic of identifying setters/getters calls to JavaTestBuilder ( direct references)
         if (isReferencedInMethod(testedMethod, paramOwnerType, propertyParam)) return true;
         for (Method calledMethod : testedMethod.getCalledMethods()) {
             if (paramOwnerType.getCanonicalName().equals(calledMethod.getOwnerClassCanonicalType()) && calledMethod.isGetter() && propertyParam.getName().equals(calledMethod.getPropertyName()) && calledMethod.getReturnType().equals(propertyParam.getType())) {
@@ -90,8 +91,7 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
         for (Method method : testedMethod.getCalledFamilyMembers()) {
             if (isReferencedInMethod(method, paramOwnerType, propertyParam)) return true;
         }
-
-        //todo handle cases where property is read implicitly or directly in groovy
+        //todo handle cases where property is read implicitly in groovy
         return false;
     }
 

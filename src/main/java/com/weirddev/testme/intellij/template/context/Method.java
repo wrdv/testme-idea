@@ -6,6 +6,8 @@ import com.intellij.psi.util.PsiTreeUtil;
 import com.weirddev.testme.intellij.template.TypeDictionary;
 import com.weirddev.testme.intellij.utils.ClassNameUtils;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.groovy.lang.psi.api.statements.expressions.GrReferenceExpression;
+import org.jetbrains.plugins.groovy.lang.psi.api.statements.expressions.path.GrMethodCallExpression;
 
 import java.util.*;
 
@@ -101,6 +103,18 @@ public class Method {
                 }
             }
         }
+        //todo remove Groovy api
+        final Collection<GrReferenceExpression> grReferenceExpressions = PsiTreeUtil.findChildrenOfType(psiMethod, GrReferenceExpression.class);
+        for (GrReferenceExpression grReferenceExpression : grReferenceExpressions) {
+            final PsiType refType = grReferenceExpression.getType();
+            if (refType != null) {
+                final PsiType psiOwnerType = grReferenceExpression.getLastChild()==null?null:resolveGrOwnerType(grReferenceExpression.getLastChild());
+                if (psiOwnerType != null) {
+                    internalReferences.add(new Reference(grReferenceExpression.getReferenceName() , refType, psiOwnerType, typeDictionary));
+                }
+            }
+        }
+
     }
 
     private void resolveCalledMethods(PsiMethod psiMethod, TypeDictionary typeDictionary) {
@@ -111,6 +125,20 @@ public class Method {
                 getDirectlyCalledMethods().add(new Method(psiMethodResolved,null, 1,typeDictionary));
             }
         }
+
+        //todo remove Groovy api
+        final Collection<GrMethodCallExpression> grMethodCallExpressions = PsiTreeUtil.findChildrenOfType(psiMethod, GrMethodCallExpression.class);
+        for (GrMethodCallExpression grMethodCallExpression : grMethodCallExpressions) {
+            final PsiMethod psiMethodResolved  = grMethodCallExpression.resolveMethod();
+            if (psiMethodResolved != null) {
+//                final PsiType psiOwnerType = grMethodCallExpression.getLastChild()==null?null:resolveGrOwnerType(grMethodCallExpression.getLastChild());
+//                if (psiOwnerType != null) {
+                    getDirectlyCalledMethods().add(new Method(psiMethodResolved,null, 1,typeDictionary));
+//                    internalReferences.add(new Reference(grReferenceExpression.getReferenceName() , refType, psiOwnerType, typeDictionary));
+//                }
+            }
+        }
+
         calledMethods = getDirectlyCalledMethods();
     }
 
@@ -122,6 +150,20 @@ public class Method {
             }
             else if(dotAppeared && prevSibling instanceof  PsiExpression) {
                 return ((PsiExpression) prevSibling).getType();
+            }
+        }
+        return null;
+    }
+
+
+    private PsiType resolveGrOwnerType(PsiElement psiElement) {//todo unify with resolveOwnerType
+        boolean dotAppeared = false;
+        for(PsiElement prevSibling  = psiElement.getPrevSibling();prevSibling!=null;prevSibling=prevSibling.getPrevSibling()) {
+            if(".".equals(prevSibling.getText())) {
+                dotAppeared = true;
+            }
+            else if(dotAppeared && prevSibling instanceof  GrReferenceExpression) {
+                return ((GrReferenceExpression) prevSibling).getType();
             }
         }
         return null;
