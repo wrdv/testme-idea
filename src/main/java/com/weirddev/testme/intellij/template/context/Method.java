@@ -2,11 +2,11 @@ package com.weirddev.testme.intellij.template.context;
 
 import com.intellij.psi.*;
 import com.intellij.psi.util.PropertyUtil;
-import com.intellij.psi.util.PsiTreeUtil;
+import com.weirddev.testme.intellij.groovy.GroovyPsiTreeUtils;
 import com.weirddev.testme.intellij.groovy.ResolvedReference;
-import com.weirddev.testme.intellij.groovy.GroovyPsiUtils;
 import com.weirddev.testme.intellij.template.TypeDictionary;
 import com.weirddev.testme.intellij.utils.ClassNameUtils;
+import com.weirddev.testme.intellij.utils.JavaPsiTreeUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -93,98 +93,31 @@ public class Method {
     }
 
     private void resolveReferences(PsiMethod psiMethod, TypeDictionary typeDictionary) {
-        final Collection<PsiReferenceExpression> psiReferenceExpressions = PsiTreeUtil.findChildrenOfType(psiMethod, PsiReferenceExpression.class);
-
-        if (GroovyPsiUtils.isGroovy(psiMethod.getLanguage())) {
-            for (ResolvedReference resolvedReference : GroovyPsiUtils.findReferences(psiMethod)) {//GroovyPsiUtils.isGroovy(prevSibling.getLanguage())
+        if (GroovyPsiTreeUtils.isGroovy(psiMethod.getLanguage())) {
+            for (ResolvedReference resolvedReference : GroovyPsiTreeUtils.findReferences(psiMethod)) {
                 internalReferences.add(new Reference(resolvedReference.getReferenceName(), resolvedReference.getRefType(), resolvedReference.getPsiOwnerType(), typeDictionary));
             }
-        } else {
-            for (PsiReferenceExpression psiReferenceExpression : psiReferenceExpressions) {
-                final PsiType refType = psiReferenceExpression.getType();
-                if (refType != null) {
-                    final PsiType psiOwnerType = psiReferenceExpression.getLastChild()==null?null:resolveOwnerType(psiReferenceExpression.getLastChild());
-                    if (psiOwnerType != null) {
-                        internalReferences.add(new Reference(psiReferenceExpression.getReferenceName() , refType, psiOwnerType, typeDictionary));
-                    }
-                }
+        }
+        else {
+            for (ResolvedReference resolvedReference : JavaPsiTreeUtils.findReferences(psiMethod)) {
+                internalReferences.add(new Reference(resolvedReference.getReferenceName(), resolvedReference.getRefType(), resolvedReference.getPsiOwnerType(), typeDictionary));
             }
         }
-
-//        final Collection<GrReferenceExpression> grReferenceExpressions = PsiTreeUtil.findChildrenOfType(psiMethod, GrReferenceExpression.class);
-//        for (GrReferenceExpression grReferenceExpression : grReferenceExpressions) {
-//            final PsiType refType = grReferenceExpression.getType();
-//            if (refType != null) {
-//                final PsiType psiOwnerType = grReferenceExpression.getLastChild()==null?null:resolveOwnerType(grReferenceExpression.getLastChild());
-//                if (psiOwnerType != null) {
-//                    internalReferences.add(new Reference(grReferenceExpression.getReferenceName() , refType, psiOwnerType, typeDictionary));
-//                }
-//            }
-//        }
-
     }
-    private static PsiType resolveOwnerType(PsiElement psiElement) {
-        boolean dotAppeared = false;
-        for(PsiElement prevSibling  = psiElement.getPrevSibling();prevSibling!=null;prevSibling=prevSibling.getPrevSibling()) {
-            if(".".equals(prevSibling.getText())) {
-                dotAppeared = true;
-            }
-//            else if(dotAppeared && GroovyPsiUtils.isGroovy(prevSibling.getLanguage())) {
-//                return GroovyPsiUtils.resolveType(prevSibling);
-//            }
-            else if(dotAppeared && prevSibling instanceof PsiExpression) {
-                return ((PsiExpression) prevSibling).getType();
-            }
-        }
-        return null;
-    }
-
     private void resolveCalledMethods(PsiMethod psiMethod, TypeDictionary typeDictionary) {
-        final Collection<PsiMethodCallExpression> psiMethodCallExpressions = PsiTreeUtil.findChildrenOfType(psiMethod, PsiMethodCallExpression.class);
-
-        if (GroovyPsiUtils.isGroovy(psiMethod.getLanguage())) {
-            for (PsiMethod methodCall : GroovyPsiUtils.findMethodCalls(psiMethod)) {
-                getDirectlyCalledMethods().add(new Method(methodCall, null, 1, typeDictionary));
+        if (GroovyPsiTreeUtils.isGroovy(psiMethod.getLanguage())) {
+            for (PsiMethod methodCall : GroovyPsiTreeUtils.findMethodCalls(psiMethod)) {
+                this.directlyCalledMethods.add(new Method(methodCall, null, 1, typeDictionary));
             }
         } else {
-            for (PsiMethodCallExpression psiMethodCallExpression : psiMethodCallExpressions) {
-                final PsiMethod psiMethodResolved = psiMethodCallExpression.resolveMethod();
-                if (psiMethodResolved != null) {
-                    getDirectlyCalledMethods().add(new Method(psiMethodResolved,null, 1,typeDictionary));
-                }
+            List<PsiMethod> psiMethods = JavaPsiTreeUtils.findMethodCalls(psiMethod);
+            for (PsiMethod method : psiMethods) {
+                this.directlyCalledMethods.add(new Method(method, null, 1, typeDictionary));
             }
+
         }
-
-//
-//        //todo remove Groovy api
-//        final Collection<GrMethodCallExpression> grMethodCallExpressions = PsiTreeUtil.findChildrenOfType(psiMethod, GrMethodCallExpression.class);
-//        for (GrMethodCallExpression grMethodCallExpression : grMethodCallExpressions) {
-//            final PsiMethod psiMethodResolved  = grMethodCallExpression.resolveMethod();
-//            if (psiMethodResolved != null) {
-////                final PsiType psiOwnerType = grMethodCallExpression.getLastChild()==null?null:resolveGrOwnerType(grMethodCallExpression.getLastChild());
-////                if (psiOwnerType != null) {
-//                    getDirectlyCalledMethods().add(new Method(psiMethodResolved,null, 1,typeDictionary));
-////                    internalReferences.add(new Reference(grReferenceExpression.getReferenceName() , refType, psiOwnerType, typeDictionary));
-////                }
-//            }
-//        }
-
-        calledMethods = getDirectlyCalledMethods();
+        calledMethods = this.directlyCalledMethods;
     }
-
-//    private PsiType resolveOwnerType(PsiElement psiElement) {
-//        boolean dotAppeared = false;
-//        for(PsiElement prevSibling  = psiElement.getPrevSibling();prevSibling!=null;prevSibling=prevSibling.getPrevSibling()) {
-//            if(prevSibling instanceof  PsiJavaToken && ((PsiJavaToken) prevSibling).getTokenType()==JavaTokenType.DOT) {
-//                dotAppeared = true;
-//            }
-//            else if(dotAppeared && prevSibling instanceof  PsiExpression) {
-//                return ((PsiExpression) prevSibling).getType();
-//            }
-//        }
-//        return null;
-//    }
-
 
     private boolean isOverriddenInChild(PsiMethod method, PsiClass srcClass) {
         String srcQualifiedName = srcClass.getQualifiedName();
@@ -287,10 +220,6 @@ public class Method {
 
     public Set<Method> getCalledMethods() {
         return calledMethods;
-    }
-
-    public Set<Method> getDirectlyCalledMethods() {
-        return directlyCalledMethods;
     }
 
     public String getMethodId() {

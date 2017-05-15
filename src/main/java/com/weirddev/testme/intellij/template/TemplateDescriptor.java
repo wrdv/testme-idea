@@ -1,7 +1,6 @@
 package com.weirddev.testme.intellij.template;
 
-import com.intellij.ide.plugins.PluginManager;
-import com.intellij.openapi.extensions.PluginId;
+import com.weirddev.testme.intellij.groovy.LanguageUtils;
 import com.weirddev.testme.intellij.icon.IconTokensReplacerImpl;
 
 /**
@@ -40,7 +39,7 @@ public class TemplateDescriptor {
     public boolean isEnabled(){
         if (dependantPlugins != null) {
             for (String pluginId : dependantPlugins) {
-                if (!PluginManager.isPluginInstalled(PluginId.getId(pluginId))|| PluginManager.getDisabledPlugins().contains(pluginId)) {
+                if (!LanguageUtils.isPluginEnabled(pluginId)) {
                     return false;
                 }
             }

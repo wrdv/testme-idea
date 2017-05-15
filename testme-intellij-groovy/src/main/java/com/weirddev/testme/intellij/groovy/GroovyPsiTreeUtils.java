@@ -1,7 +1,6 @@
 package com.weirddev.testme.intellij.groovy;
 import com.intellij.lang.Language;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiExpression;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiType;
 import com.intellij.psi.util.PsiTreeUtil;
@@ -17,9 +16,12 @@ import java.util.List;
  *
  * @author Yaron Yamin
  */
-public class GroovyPsiUtils {
+public class GroovyPsiTreeUtils {
+
+    public static final String GROOVY_LANGUAGE_ID = "Groovy";
+
     public static boolean isGroovy(Language language) {
-        return language == com.intellij.lang.Language.findLanguageByID("Groovy");
+        return language == com.intellij.lang.Language.findLanguageByID(GROOVY_LANGUAGE_ID) && LanguageUtils.isPluginEnabled(LanguageUtils.GROOVY_PLUGIN_ID);
     }
 
     public static PsiType resolveType(PsiElement prevSibling) {
@@ -60,11 +62,8 @@ public class GroovyPsiUtils {
             if(".".equals(prevSibling.getText())) {
                 dotAppeared = true;
             }
-            else if(dotAppeared && GroovyPsiUtils.isGroovy(prevSibling.getLanguage())) {
-                return GroovyPsiUtils.resolveType(prevSibling);
-            }
-            else if(dotAppeared && prevSibling instanceof PsiExpression) {
-                return ((PsiExpression) prevSibling).getType();
+            else if(dotAppeared && prevSibling instanceof GrReferenceExpression ) {
+                return GroovyPsiTreeUtils.resolveType(prevSibling);
             }
         }
         return null;

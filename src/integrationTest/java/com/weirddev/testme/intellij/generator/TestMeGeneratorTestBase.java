@@ -7,6 +7,7 @@ import com.intellij.psi.*;
 import com.weirddev.testme.intellij.BaseIJIntegrationTest;
 import com.weirddev.testme.intellij.template.FileTemplateContext;
 import org.jetbrains.annotations.NotNull;
+import org.junit.Assert;
 
 import java.util.GregorianCalendar;
 import java.util.Map;
@@ -31,10 +32,20 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
         this.testDirectory = testDirectory;
     }
     protected void skipTestIfGroovyPluginDisabled() {
-        testEnabled = isGroovyPluginEnabled();
+        testEnabled = groovyPluginShouldBeEnabled();
+        Assert.assertEquals(testEnabled, isGroovyPluginEnabled());
     }
 
-    protected Boolean isGroovyPluginEnabled() {
+    private boolean isGroovyPluginEnabled() {
+        boolean groovyPluginEnabled = false;
+        try {
+            Class.forName("org.jetbrains.plugins.groovy.GroovyLanguage");
+            groovyPluginEnabled = true;
+        } catch (ClassNotFoundException e) { }
+        return groovyPluginEnabled;
+    }
+
+    protected Boolean groovyPluginShouldBeEnabled() {
         return Boolean.valueOf(System.getProperty("enableIdeaGroovyPlugin","true"));
     }
 

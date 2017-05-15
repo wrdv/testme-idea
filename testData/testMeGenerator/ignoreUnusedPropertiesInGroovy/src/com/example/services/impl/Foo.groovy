@@ -14,8 +14,8 @@ class Foo {
     String smashing(FooBro fooBro,JavaBean javaBean){
         println fooBro.iCanBeAccessedDirectly
         callMe(fooBro, javaBean)
-        javaBean.getFire()
-        return javaBean.ice.toString()
+        javaBean   .   getFire()
+        return javaBean  /*comment should be ignored */  .   ice  .  toString()
     }
 
     private void callMe(FooBro fooBro, JavaBean javaBean) {
