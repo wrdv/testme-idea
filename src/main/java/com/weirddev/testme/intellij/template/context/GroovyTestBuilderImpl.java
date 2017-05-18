@@ -16,14 +16,18 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
     private static final Logger LOG = Logger.getInstance(GroovyTestBuilderImpl.class.getName());
     public static final String PARAMS_SEPERATOR = ", ";
     private boolean shouldIgnoreUnusedProperties;
+    private final boolean isReadParam;
+
     public GroovyTestBuilderImpl(int maxRecursionDepth, boolean shouldIgnoreUnusedProperties) {
         super(maxRecursionDepth);
         this.shouldIgnoreUnusedProperties = shouldIgnoreUnusedProperties;
+        isReadParam = true;
     }
 
-    public GroovyTestBuilderImpl(int maxRecursionDepth, Method method, boolean shouldIgnoreUnusedProperties) {
+    public GroovyTestBuilderImpl(int maxRecursionDepth, Method method, boolean shouldIgnoreUnusedProperties, boolean isReadParam) {
         super(maxRecursionDepth, method);
         this.shouldIgnoreUnusedProperties = shouldIgnoreUnusedProperties;
+        this.isReadParam = isReadParam;
     }
 
     @Override
@@ -68,7 +72,7 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
         if (params != null) {
             for (int i = 0; i < params.size(); i++) {
                 final Node<Param> paramNode = new Node<Param>(params.get(i), ownerParamNode, ownerParamNode.getDepth() + 1);
-                if (isPropertyParam(paramNode) && shouldIgnoreUnusedProperties && testedMethod!=null && !isPropertyRead(testedMethod, ownerParamNode.getData().getType(), paramNode.getData())) {
+                if (isPropertyParam(paramNode) && shouldIgnoreUnusedProperties && testedMethod!=null && !isPropertyUsed(testedMethod, ownerParamNode.getData().getType(), paramNode.getData())) {
                     continue;
                 }
                 buildCallParam(replacementTypes, defaultTypeValues, testBuilder, paramNode);
@@ -80,18 +84,19 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
         }
     }
 
-    private boolean isPropertyRead(@NotNull Method testedMethod, Type paramOwnerType, Param propertyParam) {
+    private boolean isPropertyUsed(@NotNull Method testedMethod, Type paramOwnerType, Param propertyParam) {
         //todo migrate the logic of identifying setters/getters calls to JavaTestBuilder ( direct references)
         if (isReferencedInMethod(testedMethod, paramOwnerType, propertyParam)) return true;
         for (Method calledMethod : testedMethod.getCalledMethods()) {
-            if (paramOwnerType.getCanonicalName().equals(calledMethod.getOwnerClassCanonicalType()) && calledMethod.isGetter() && propertyParam.getName().equals(calledMethod.getPropertyName()) && calledMethod.getReturnType().equals(propertyParam.getType())) {
+            if (paramOwnerType.getCanonicalName().equals(calledMethod.getOwnerClassCanonicalType()) && (isReadParam && calledMethod.isGetter()&& calledMethod.getReturnType().equals(propertyParam.getType()) ||
+                    calledMethod.isSetter() && calledMethod.getMethodParams().size()==1 && calledMethod.getMethodParams().get(0).getType().equals(propertyParam.getType()) ) && propertyParam.getName().equals(calledMethod.getPropertyName()) ) {
                 return true;
             }
         }
         for (Method method : testedMethod.getCalledFamilyMembers()) {
             if (isReferencedInMethod(method, paramOwnerType, propertyParam)) return true;
         }
-        //todo handle cases where property is read implicitly in groovy
+        //todo handle cases where property is written implicitly in groovy
         return false;
     }
 

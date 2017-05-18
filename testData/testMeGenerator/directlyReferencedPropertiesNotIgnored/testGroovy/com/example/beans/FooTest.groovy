@@ -28,13 +28,13 @@ class FooTest {
     @Test
     void testConvert() {
         ConvertedBean result = foo.convert(new Fire(), "foeName", new JavaBean(myString: "myString", myDate: new GregorianCalendar(2016, Calendar.JANUARY, 11, 22, 45).getTime(), someNum: 0, fear: new Fear(), fire: new Fire(), ice: new Ice(), someBinaryOption: true))
-        assert result == new ConvertedBean(myString: "myString", myDate: new GregorianCalendar(2016, Calendar.JANUARY, 11, 22, 45).getTime(), someNum: 0, someLongerNum: 1l, fear: new Fear(), ice: new Ice(), someBinaryOption: true)
+        assert result == new ConvertedBean(myString: "myString", myDate: new GregorianCalendar(2016, Calendar.JANUARY, 11, 22, 45).getTime(), someNum: 0, fear: new Fear(), ice: new Ice(), someBinaryOption: true)
     }
 
     @Test
     void testCallOthers() {
         ChildWithSetters result = foo.callOthers(new ChildWithSetters(strField: "strField", someNumber: 0, fire: new FireBall(new JavaBean(myString: "myString", myDate: new GregorianCalendar(2016, Calendar.JANUARY, 11, 22, 45).getTime(), ice: new Ice(), someBinaryOption: true))))
-        assert result == new ChildWithSetters(strField: "strField", someNumber: 0, fire: new FireBall(new JavaBean(myString: "myString", myDate: new GregorianCalendar(2016, Calendar.JANUARY, 11, 22, 45).getTime(), someNum: 0, someLongerNum: 1l, fear: new Fear(), fire: new Fire(), ice: new Ice(), someBinaryOption: true)))
+        assert result == new ChildWithSetters(strField: "strField")
     }
 }
 

@@ -20,7 +20,10 @@ public class TestBuilderImpl implements TestBuilder{
 
     @Override
     public String renderMethodParams(String language /*todo should accept enum?*/, Method method, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues) throws Exception {
-        return langTestBuilderFactory.createTestBuilder(language, method).renderJavaCallParams(method.getMethodParams(), replacementTypes, defaultTypeValues);
+        return langTestBuilderFactory.createTestBuilder(language, method,true).renderJavaCallParams(method.getMethodParams(), replacementTypes, defaultTypeValues);
     }
-
+    @Override
+    public String renderReturnParam(String language /*todo should accept enum?*/, Method method,String defaultName, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues) throws Exception {
+        return langTestBuilderFactory.createTestBuilder(language, method,false).renderJavaCallParam(method.getReturnType(),defaultName,replacementTypes, defaultTypeValues);
+    }
 }

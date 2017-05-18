@@ -29,7 +29,7 @@ class ${CLASS_NAME}  extends Specification {
         #grRenderMethodCall($method,$TESTED_CLASS.name)
 
         then:
-#if($method.returnType && $method.returnType.name !="void")        #grRenderAssert($method.returnType)#{else}false//todo - validate something
+#if($method.returnType && $method.returnType.name !="void")        #grRenderAssert($method)#{else}false//todo - validate something
 #end
     }
 #end

@@ -71,8 +71,8 @@
 #end
 #end
 ##
-#macro(grRenderAssert $type)
-result == $GroovyTestBuilder.renderJavaCallParam($type,"replaceMeWithExpectedResult",$grReplacementTypes,$grDefaultTypeValues)
+#macro(grRenderAssert $method)
+result == $TestBuilder.renderReturnParam("Groovy",$method,"replaceMeWithExpectedResult",$grReplacementTypes,$grDefaultTypeValues)
 #end
 ##
 #macro(grRenderMethodCall $method,$testedClassName)
