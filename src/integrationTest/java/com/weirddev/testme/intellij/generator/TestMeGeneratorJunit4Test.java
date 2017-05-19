@@ -20,7 +20,7 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
         doTest();
     }
     public void testDefaultPackage() throws Exception {
-        doTest("", "Foo", "FooTest", true, false, true, false);
+        doTest("", "Foo", "FooTest", true, false, true, false, 50);
     }
     public void testVariousFieldTypes() throws Exception {
         doTest();
@@ -41,7 +41,7 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
         doTest(false,false,true);
     }
     public void testTypeInDefaultPackageCollision() throws Exception {
-        doTest("", "Foo", "FooTest", true, true, true, false);
+        doTest("", "Foo", "FooTest", true, true, true, false, 50);
     }
     public void testInheritance() throws Exception {
         doTest();
@@ -93,7 +93,7 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
     }
     public void testGroovy() throws Exception {
         skipTestIfGroovyPluginDisabled();
-        doTest("com.example.services.impl", "Foovy", "FoovyTest", true, true, true, false);
+        doTest("com.example.services.impl", "Foovy", "FoovyTest", true, true, true, false, 50);
     }
 
     //todo TC - use static init method when constructor not available

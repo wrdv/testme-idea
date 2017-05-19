@@ -53,18 +53,21 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
         doTest(true, false, false);
     }
     protected void doTest(final boolean ignoreUnusedProperties) {
-        doTest("com.example.services.impl", "Foo", "FooTest", true, true, true, ignoreUnusedProperties);
+        doTest("com.example.services.impl", "Foo", "FooTest", true, true, true, ignoreUnusedProperties,50);
     }
 
     protected void doTest(boolean reformatCode, boolean optimizeImports, boolean replaceFqn) {
-        doTest("com.example.services.impl", "Foo", "FooTest", reformatCode, optimizeImports, replaceFqn, false);
+        doTest(reformatCode, optimizeImports, replaceFqn, 50);
+    }
+    protected void doTest(boolean reformatCode, boolean optimizeImports, boolean replaceFqn, int minPercentOfExcessiveSettersToPreferDefaultCtor) {
+        doTest("com.example.services.impl", "Foo", "FooTest", reformatCode, optimizeImports, replaceFqn, false, minPercentOfExcessiveSettersToPreferDefaultCtor);
     }
 
     protected void setTestModePropsForUI() {
         System.setProperty("testme.popoup.center", "true");//WA swing error when popup set relative to fake test editor
     }
 
-    protected void doTest(final String packageName, String testSubjectClassName, final String expectedTestClassName, final boolean reformatCode, final boolean optimizeImports, final boolean replaceFqn, final boolean ignoreUnusedProperties) {
+    protected void doTest(final String packageName, String testSubjectClassName, final String expectedTestClassName, final boolean reformatCode, final boolean optimizeImports, final boolean replaceFqn, final boolean ignoreUnusedProperties, final int minPercentOfExcessiveSettersToPreferDefaultCtor) {
         if (!testEnabled) {
             System.out.println("Groovy idea plugin disabled. Skipping test");
             return;
@@ -85,7 +88,7 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
                         fooClass,
                         reformatCode,
                         optimizeImports,
-                        4, replaceFqn, ignoreUnusedProperties));
+                        4, replaceFqn, ignoreUnusedProperties, minPercentOfExcessiveSettersToPreferDefaultCtor));
                 System.out.println("result:"+result);
                 verifyGeneratedTest(packageName, expectedTestClassName);
             }

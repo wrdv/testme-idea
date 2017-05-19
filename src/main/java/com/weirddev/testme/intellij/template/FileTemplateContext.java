@@ -25,8 +25,9 @@ public class FileTemplateContext {
     private final int maxRecursionDepth;
     private final boolean replaceFqn;
     private final boolean ignoreUnusedProperties;
+    private final int minPercentOfExcessiveSettersToPreferDefaultCtor;
 
-    public FileTemplateContext(FileTemplateDescriptor fileTemplateDescriptor, Project project, String targetClass, PsiPackage targetPackage, Module targetModule, PsiDirectory targetDirectory, PsiClass srcClass, boolean reformatCode, boolean optimizeImports, int maxRecursionDepth, boolean replaceFqn, boolean ignoreUnusedProperties) {
+    public FileTemplateContext(FileTemplateDescriptor fileTemplateDescriptor, Project project, String targetClass, PsiPackage targetPackage, Module targetModule, PsiDirectory targetDirectory, PsiClass srcClass, boolean reformatCode, boolean optimizeImports, int maxRecursionDepth, boolean replaceFqn, boolean ignoreUnusedProperties, int minPercentOfExcessiveSettersToPreferDefaultCtor) {
         this.fileTemplateDescriptor = fileTemplateDescriptor;
         this.project = project;
         this.targetClass = targetClass;
@@ -39,6 +40,7 @@ public class FileTemplateContext {
         this.maxRecursionDepth = maxRecursionDepth;
         this.replaceFqn = replaceFqn;
         this.ignoreUnusedProperties = ignoreUnusedProperties;
+        this.minPercentOfExcessiveSettersToPreferDefaultCtor = minPercentOfExcessiveSettersToPreferDefaultCtor;
     }
 
     public Project getProject() {
@@ -87,5 +89,9 @@ public class FileTemplateContext {
 
     public boolean isIgnoreUnusedProperties() {
         return ignoreUnusedProperties;
+    }
+
+    public int getMinPercentOfExcessiveSettersToPreferDefaultCtor() {
+        return minPercentOfExcessiveSettersToPreferDefaultCtor;
     }
 }

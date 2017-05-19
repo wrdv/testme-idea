@@ -17,17 +17,20 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
     public static final String PARAMS_SEPERATOR = ", ";
     private boolean shouldIgnoreUnusedProperties;
     private final boolean isReadParam;
+    private final int minPercentOfExcessiveSettersToPreferDefaultCtor;
 
     public GroovyTestBuilderImpl(int maxRecursionDepth, boolean shouldIgnoreUnusedProperties) {
         super(maxRecursionDepth);
         this.shouldIgnoreUnusedProperties = shouldIgnoreUnusedProperties;
         isReadParam = true;
+        minPercentOfExcessiveSettersToPreferDefaultCtor = 50;
     }
 
-    public GroovyTestBuilderImpl(int maxRecursionDepth, Method method, boolean shouldIgnoreUnusedProperties, boolean isReadParam) {
+    public GroovyTestBuilderImpl(int maxRecursionDepth, Method method, boolean shouldIgnoreUnusedProperties, boolean isReadParam, int minPercentOfExcessiveSettersToPreferDefaultCtor) {
         super(maxRecursionDepth, method);
         this.shouldIgnoreUnusedProperties = shouldIgnoreUnusedProperties;
         this.isReadParam = isReadParam;
+        this.minPercentOfExcessiveSettersToPreferDefaultCtor = minPercentOfExcessiveSettersToPreferDefaultCtor;
     }
 
     @Override
@@ -142,5 +145,38 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
     @Override
     protected String resolveNestedClassTypeName(String typeName) {
         return typeName;
+    }
+
+    @Nullable
+    @Override
+    protected Method findValidConstructor(Type type, Map<String, String> replacementTypes, boolean hasEmptyConstructor) {
+        final Method constructor = super.findValidConstructor(type, replacementTypes, hasEmptyConstructor);
+        if (constructor == null) {
+            return null;
+        } else if (hasEmptyConstructor) {
+            int noOfCtorArgs = constructor.getMethodParams().size();
+            int noOfSetters = countSetters(type);
+            if (shouldPreferSettersOverCtor(noOfCtorArgs, noOfSetters)) {
+                return null; //Prefer default ctor and use setters instead
+            } else {
+                return constructor;
+            }
+        } else {
+            return constructor;
+        }
+    }
+
+    boolean shouldPreferSettersOverCtor(int noOfCtorArgs, int noOfSetters) {
+        return noOfCtorArgs * ((minPercentOfExcessiveSettersToPreferDefaultCtor + 100f) / 100f) <= noOfSetters;
+    }
+
+    private int countSetters(Type type) {
+        int noOfSetters = 0;
+        for (Method method : type.getMethods()) {
+            if (method.isSetter()) {
+                noOfSetters++;
+            }
+        }
+        return noOfSetters;
     }
 }

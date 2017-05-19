@@ -15,11 +15,11 @@ public class LangTestBuilderFactory {
     }
 
     @NotNull
-    public LangTestBuilder createTestBuilder(String languageName, Method method, boolean isReadParam) throws Exception {
+    public LangTestBuilder createTestBuilder(String languageName, Method method, boolean isReadParam, int minPercentOfExcessiveSettersToPreferDefaultCtor) throws Exception {
         final Language language = Language.valueOf(languageName);
         LangTestBuilder langTestBuilder;
         if (language == Language.Groovy) {
-            langTestBuilder = new GroovyTestBuilderImpl(maxRecursionDepth, method, shouldIgnoreUnusedProperties,isReadParam); //todo add replacementTypes, defaultTypeValues and testBuilder as members
+            langTestBuilder = new GroovyTestBuilderImpl(maxRecursionDepth, method, shouldIgnoreUnusedProperties,isReadParam, minPercentOfExcessiveSettersToPreferDefaultCtor); //todo add replacementTypes, defaultTypeValues and testBuilder as members
         } else if (language == Language.Java) {
             langTestBuilder = new JavaTestBuilderImpl(maxRecursionDepth, method);
         } else {

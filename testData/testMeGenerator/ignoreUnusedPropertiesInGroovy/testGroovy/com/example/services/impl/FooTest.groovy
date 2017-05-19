@@ -1,5 +1,6 @@
 package com.example.services.impl
 
+import com.example.beans.ConvertedBean
 import com.example.beans.JavaBean
 import com.example.foes.Fear
 import com.example.foes.Fire
