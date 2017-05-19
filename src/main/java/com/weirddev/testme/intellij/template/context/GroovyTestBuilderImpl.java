@@ -167,7 +167,7 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
     }
 
     boolean shouldPreferSettersOverCtor(int noOfCtorArgs, int noOfSetters) {
-        return noOfCtorArgs * ((minPercentOfExcessiveSettersToPreferDefaultCtor + 100f) / 100f) <= noOfSetters;
+        return 0 < noOfSetters && (noOfCtorArgs * ((minPercentOfExcessiveSettersToPreferDefaultCtor + 100f) / 100f) <= ((float)noOfSetters) );
     }
 
     private int countSetters(Type type) {
