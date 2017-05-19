@@ -30,6 +30,12 @@ class FooTest {
         String result = foo.smashing(new FooBro(propInSamePackage: "propInSamePackage", iCanBeAccessedDirectly: 0), new JavaBean(fear: new Fear(), fire: new Fire(), ice: new Ice()))
         assert result == "replaceMeWithExpectedResult"
     }
+
+    @Test
+    void testConvertWhileSettingPropsInline() {
+        ConvertedBean result = foo.convertWhileSettingPropsInline(new FooBro(anotherProp: new GregorianCalendar(2016, Calendar.JANUARY, 11, 22, 45).getTime()), new JavaBean(myString: "myString", myDate: new GregorianCalendar(2016, Calendar.JANUARY, 11, 22, 45).getTime(), someNum: 0, fire: new Fire(), ice: new Ice(), someBinaryOption: true))
+        assert result == new ConvertedBean(myString: "myString", myDate: new GregorianCalendar(2016, Calendar.JANUARY, 11, 22, 45).getTime(), someNum: 0, ice: new Ice(), someBinaryOption: true)
+    }
 }
 
 //Generated with love by TestMe :) Please report issues and submit feature requests at: http://weirddev.com/forum#!/testme

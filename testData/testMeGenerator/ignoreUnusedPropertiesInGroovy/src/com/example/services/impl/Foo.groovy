@@ -2,6 +2,7 @@ package com.example.services.impl
 
 import com.example.beans.JavaBean
 import com.example.foes.Ice
+import com.example.beans.ConvertedBean
 
 /**
  * Created by Admin on 03/03/2017.
@@ -16,6 +17,13 @@ class Foo {
         callMe(fooBro, javaBean)
         javaBean   .   getFire()
         return javaBean  /*comment should be ignored */  .   ice  .  toString()
+    }
+
+    ConvertedBean convertWhileSettingPropsInline(FooBro fooBro,JavaBean javaBean){
+        ConvertedBean convertedBean = new ConvertedBean(ice:javaBean.getIce(),myDate:javaBean.getMyDate(),myString:javaBean.getMyString(),someBinaryOption:javaBean.isSomeBinaryOption(),someNum:javaBean.getSomeNum())
+        println fooBro.getAnotherProp()
+        System.out.println(javaBean.getFire())
+        return convertedBean
     }
 
     private void callMe(FooBro fooBro, JavaBean javaBean) {

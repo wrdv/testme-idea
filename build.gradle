@@ -16,7 +16,7 @@ def enableIdeaGroovyPlugin=Boolean.valueOf(enableIdeaGroovyPlugin)
 def groovyOn = enableIdeaGroovyPlugin ? 'enabled':'disabled'
 
 println "*****************************************************************************************************************************"
-println "*************** Running build for ideaVersion: $ideaVersion with Groovy idea plugin ${groovyOn} *****************************"
+println "                 Running build for ideaVersion: $ideaVersion with Groovy idea plugin ${groovyOn}"
 println "*****************************************************************************************************************************"
 
 apply plugin: 'java'

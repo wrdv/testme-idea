@@ -2,10 +2,14 @@ package com.weirddev.testme.intellij.groovy;
 import com.intellij.lang.Language;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiMethod;
+import com.intellij.psi.PsiPolyVariantReference;
 import com.intellij.psi.PsiType;
 import com.intellij.psi.util.PsiTreeUtil;
+import org.jetbrains.plugins.groovy.lang.psi.api.statements.arguments.GrArgumentLabel;
+import org.jetbrains.plugins.groovy.lang.psi.api.statements.arguments.GrNamedArgument;
 import org.jetbrains.plugins.groovy.lang.psi.api.statements.expressions.GrReferenceExpression;
 import org.jetbrains.plugins.groovy.lang.psi.api.statements.expressions.path.GrMethodCallExpression;
+import org.jetbrains.plugins.groovy.lang.psi.impl.statements.arguments.GrArgumentLabelImpl;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -50,6 +54,14 @@ public class GroovyPsiTreeUtils {
         for (GrMethodCallExpression grMethodCallExpression : grMethodCallExpressions) {
             final PsiMethod psiMethodResolved  = grMethodCallExpression.resolveMethod();
             if (psiMethodResolved != null) {
+                psiMethods.add(psiMethodResolved);
+            }
+        }
+        final Collection<GrArgumentLabelImpl> grArgLabels = PsiTreeUtil.findChildrenOfType(psiMethod, GrArgumentLabelImpl.class);
+        for (GrArgumentLabelImpl grArgumentLabel : grArgLabels) {
+            final PsiElement psiElement = grArgumentLabel.resolve();
+            if (psiElement != null && psiElement instanceof PsiMethod) {
+                final PsiMethod psiMethodResolved  = (PsiMethod) psiElement;
                 psiMethods.add(psiMethodResolved);
             }
         }
