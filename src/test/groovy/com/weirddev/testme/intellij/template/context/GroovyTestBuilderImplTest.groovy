@@ -10,7 +10,7 @@ class GroovyTestBuilderImplTest extends Specification {
 
     def "test should Prefer Setters Over Ctor"() {
         given:
-        GroovyTestBuilderImpl groovyTestBuilderImpl = new GroovyTestBuilderImpl(4, null, true, true, 50)
+        GroovyTestBuilderImpl groovyTestBuilderImpl = new GroovyTestBuilderImpl(4, null, true, null, 50)
 
         expect:
         result == groovyTestBuilderImpl.shouldPreferSettersOverCtor(noOfCtorArgs, noOfSetters)

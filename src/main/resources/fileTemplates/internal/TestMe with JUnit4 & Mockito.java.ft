@@ -31,7 +31,7 @@ public class ${CLASS_NAME} {
     @Test
     public void #renderTestMethodName($method.name)() throws Exception {
         #renderMethodCall($method,$TESTED_CLASS.name)
-#if($method.returnType && $method.returnType.name !="void")        Assert.#renderJUnitAssert($method.returnType)#end
+#if($method.returnType && $method.returnType.name !="void")        Assert.#renderJUnitAssert($method)#end
     }
 #end
 #end

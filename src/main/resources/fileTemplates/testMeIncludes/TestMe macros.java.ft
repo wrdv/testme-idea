@@ -54,7 +54,7 @@
     @InjectMocks
     $testedClass.canonicalName $StringUtils.deCapitalizeFirstLetter($testedClass.name);
 #elseif($hasTestableInstanceMethod)
-    $testedClass.canonicalName $StringUtils.deCapitalizeFirstLetter($testedClass.name)= $JavaTestBuilder.renderJavaCallParam($testedClass,"$class.name",$replacementTypes,$defaultTypeValues);
+    $testedClass.canonicalName $StringUtils.deCapitalizeFirstLetter($testedClass.name)= $TestBuilder.renderInitType($testedClass,"$class.name",$replacementTypes,$defaultTypeValues);
 #end
 #end
 ##
@@ -73,8 +73,8 @@
 #if($type && $type.name !="void")$type.canonicalName#if($type.array)[]#end result = #end
 #end
 ##
-#macro(renderJUnitAssert $type)
-#renderJunitAssertMethod($type)($JavaTestBuilder.renderJavaCallParam($type,"replaceMeWithExpectedResult",$replacementTypes,$defaultTypeValues), result);
+#macro(renderJUnitAssert $method)
+#renderJunitAssertMethod($type)($TestBuilder.renderReturnParam($method,"replaceMeWithExpectedResult",$replacementTypes,$defaultTypeValues), result);
 #end
 ##
 #macro(renderJunitAssertMethod $type)
@@ -82,5 +82,5 @@
 #end
 ##
 #macro(renderMethodCall $method,$testedClassName)
-#renderJavaReturnVar($method.returnType)#if($method.static)$testedClassName#{else}$StringUtils.deCapitalizeFirstLetter($testedClassName)#end.${method.name}($JavaTestBuilder.renderJavaCallParams($method.methodParams,$replacementTypes,$defaultTypeValues));
+#renderJavaReturnVar($method.returnType)#if($method.static)$testedClassName#{else}$StringUtils.deCapitalizeFirstLetter($testedClassName)#end.${method.name}($TestBuilder.renderMethodParams($method,$replacementTypes,$defaultTypeValues));
 #end

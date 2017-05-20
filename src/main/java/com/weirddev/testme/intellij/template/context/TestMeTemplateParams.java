@@ -13,7 +13,6 @@ public interface TestMeTemplateParams {
     String CLASS_NAME = "CLASS_NAME";
 
     String TEST_BUILDER = "TestBuilder";
-    String JAVA_TEST_BUILDER = "JavaTestBuilder";
     String STRING_UTILS = "StringUtils";
     String MOCKITO_UTILS = "MockitoUtils";
     String TEST_SUBJECT_UTILS = "TestSubjectUtils";

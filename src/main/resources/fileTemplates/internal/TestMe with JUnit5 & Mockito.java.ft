@@ -30,7 +30,7 @@ class ${CLASS_NAME} {
     @Test
     void #renderTestMethodName($method.name)(){
         #renderMethodCall($method,$TESTED_CLASS.name)
-#if($method.returnType && $method.returnType.name !="void")        Assertions.#renderJUnitAssert($method.returnType)#end
+#if($method.returnType && $method.returnType.name !="void")        Assertions.#renderJUnitAssert($method)#end
     }
 #end
 #end
