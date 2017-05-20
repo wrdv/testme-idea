@@ -5,6 +5,7 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.util.PsiUtil;
+import com.weirddev.testme.intellij.groovy.GroovyPsiTreeUtils;
 import com.weirddev.testme.intellij.template.FileTemplateContext;
 import com.weirddev.testme.intellij.template.TypeDictionary;
 import com.weirddev.testme.intellij.template.context.*;
@@ -40,7 +41,7 @@ public class TestTemplateContextBuilder {
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS, typeDictionary.getType(Type.resolveType(targetClass), maxRecursionDepth));
             List<Field> fields = createFields(context.getSrcClass());
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_FIELDS, fields);//todo refactor to be part of TESTED_CLASS
-            List<Method> methods = createMethods(context.getSrcClass(),maxRecursionDepth, typeDictionary);
+            List<Method> methods = createMethods(context, maxRecursionDepth, typeDictionary);
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_METHODS, methods);//todo refactor to be part of TESTED_CLASS
         }
         logger.debug("Done building Test Template context in "+(new Date().getTime()-start)+" millis");
@@ -78,14 +79,21 @@ public class TestTemplateContextBuilder {
         return fields;
     }
 
-    private List<Method> createMethods(PsiClass srcClass, int maxRecursionDepth, TypeDictionary typeDictionary) {
+    private List<Method> createMethods(FileTemplateContext context, int maxRecursionDepth, TypeDictionary typeDictionary) {
         ArrayList<Method> methods = new ArrayList<Method>();
+        final TypeDictionary typeDictionaryOfInternalReferences = new TypeDictionary(context.getSrcClass(), context.getTargetPackage());
+        PsiClass srcClass = context.getSrcClass();
         for (PsiMethod psiMethod : srcClass.getAllMethods()) {
             String ownerClassCanonicalType = psiMethod.getContainingClass() == null ? null : psiMethod.getContainingClass().getQualifiedName();
             if (!Method.isInheritedFromObject(ownerClassCanonicalType)) {
                 final Method method = new Method(psiMethod, srcClass, maxRecursionDepth, typeDictionary);
-                method.resolveInternalReferences(psiMethod, typeDictionary);
-                logger.debug("resolved internal references for "+method.getMethodId());
+                logger.debug("Initialized Method: "+method);
+                final String methodId = method.getMethodId();
+                if (GroovyPsiTreeUtils.isGroovy(psiMethod.getLanguage()) && (methodId.endsWith(".invokeMethod(java.lang.String,java.lang.Object)") || methodId.endsWith(".getProperty(java.lang.String)") || methodId.endsWith(".setProperty(java.lang.String,java.lang.Object)"))) {
+                    continue;
+                }
+                method.resolveInternalReferences(psiMethod, typeDictionaryOfInternalReferences);
+                logger.debug("resolved internal references for "+ methodId);
                 logger.debug(method.getInternalReferences().toString());
                 methods.add(method);
             }
