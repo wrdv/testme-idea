@@ -74,7 +74,7 @@
 #end
 ##
 #macro(renderJUnitAssert $method)
-#renderJunitAssertMethod($type)($TestBuilder.renderReturnParam($method,"replaceMeWithExpectedResult",$replacementTypes,$defaultTypeValues), result);
+#renderJunitAssertMethod($method.returnType)($TestBuilder.renderReturnParam($method,"replaceMeWithExpectedResult",$replacementTypes,$defaultTypeValues), result);
 #end
 ##
 #macro(renderJunitAssertMethod $type)
