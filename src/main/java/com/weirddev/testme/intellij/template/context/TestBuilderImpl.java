@@ -20,10 +20,14 @@ public class TestBuilderImpl implements TestBuilder{
 
     @Override
     public String renderMethodParams(Method method, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues) throws Exception {
-        return langTestBuilderFactory.createTestBuilder(method,true, minPercentOfExcessiveSettersToPreferDefaultCtor).renderJavaCallParams(method.getMethodParams(), replacementTypes, defaultTypeValues);
+        return langTestBuilderFactory.createTestBuilder(method,ParamUsageMode.ReadFrom, minPercentOfExcessiveSettersToPreferDefaultCtor).renderJavaCallParams(method.getMethodParams(), replacementTypes, defaultTypeValues);
     }
     @Override
     public String renderReturnParam(Method method, String defaultName, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues) throws Exception {
-        return langTestBuilderFactory.createTestBuilder(method,false, minPercentOfExcessiveSettersToPreferDefaultCtor).renderJavaCallParam(method.getReturnType(),defaultName,replacementTypes, defaultTypeValues);
+        return langTestBuilderFactory.createTestBuilder(method,ParamUsageMode.CreateAs, minPercentOfExcessiveSettersToPreferDefaultCtor).renderJavaCallParam(method.getReturnType(),defaultName,replacementTypes, defaultTypeValues);
+    }
+    @Override
+    public String renderInitType(Type type, String defaultName, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues) throws Exception {
+        return langTestBuilderFactory.createTestBuilder(null,null, minPercentOfExcessiveSettersToPreferDefaultCtor).renderJavaCallParam(type,defaultName,replacementTypes, defaultTypeValues);
     }
 }

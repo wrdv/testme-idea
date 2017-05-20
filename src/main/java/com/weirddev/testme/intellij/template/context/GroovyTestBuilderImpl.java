@@ -5,7 +5,10 @@ import com.weirddev.testme.intellij.utils.Node;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Date: 24/02/2017
@@ -16,20 +19,20 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
     private static final Logger LOG = Logger.getInstance(GroovyTestBuilderImpl.class.getName());
     public static final String PARAMS_SEPERATOR = ", ";
     private boolean shouldIgnoreUnusedProperties;
-    private final boolean isReadParam;
+    private final TestBuilder.ParamUsageMode paramUsageMode;
     private final int minPercentOfExcessiveSettersToPreferDefaultCtor;
 
     public GroovyTestBuilderImpl(int maxRecursionDepth, boolean shouldIgnoreUnusedProperties) {
         super(maxRecursionDepth);
         this.shouldIgnoreUnusedProperties = shouldIgnoreUnusedProperties;
-        isReadParam = true;
         minPercentOfExcessiveSettersToPreferDefaultCtor = 50;
+        paramUsageMode = null;
     }
 
-    public GroovyTestBuilderImpl(int maxRecursionDepth, Method method, boolean shouldIgnoreUnusedProperties, boolean isReadParam, int minPercentOfExcessiveSettersToPreferDefaultCtor) {
+    public GroovyTestBuilderImpl(int maxRecursionDepth, Method method, boolean shouldIgnoreUnusedProperties, TestBuilder.ParamUsageMode paramUsageMode, int minPercentOfExcessiveSettersToPreferDefaultCtor) {
         super(maxRecursionDepth, method);
         this.shouldIgnoreUnusedProperties = shouldIgnoreUnusedProperties;
-        this.isReadParam = isReadParam;
+        this.paramUsageMode = paramUsageMode;
         this.minPercentOfExcessiveSettersToPreferDefaultCtor = minPercentOfExcessiveSettersToPreferDefaultCtor;
     }
 
@@ -91,8 +94,8 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
         //todo migrate the logic of identifying setters/getters calls to JavaTestBuilder ( direct references)
         if (isReferencedInMethod(testedMethod, paramOwnerType, propertyParam)) return true;
         for (Method calledMethod : testedMethod.getCalledMethods()) {
-            if (paramOwnerType.getCanonicalName().equals(calledMethod.getOwnerClassCanonicalType()) && (isReadParam && calledMethod.isGetter()&& calledMethod.getReturnType().equals(propertyParam.getType()) ||
-                    calledMethod.isSetter() && calledMethod.getMethodParams().size()==1 && calledMethod.getMethodParams().get(0).getType().equals(propertyParam.getType()) ) && propertyParam.getName().equals(calledMethod.getPropertyName()) ) {
+            if (paramOwnerType.getCanonicalName().equals(calledMethod.getOwnerClassCanonicalType()) && (paramUsageMode== TestBuilder.ParamUsageMode.ReadFrom && calledMethod.isGetter()&& calledMethod.getReturnType().equals(propertyParam.getType()) ||
+                    paramUsageMode== TestBuilder.ParamUsageMode.CreateAs && calledMethod.isSetter() && calledMethod.getMethodParams().size()==1 && calledMethod.getMethodParams().get(0).getType().equals(propertyParam.getType()) ) && propertyParam.getName().equals(calledMethod.getPropertyName()) ) {
                 return true;
             }
         }

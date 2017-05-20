@@ -12,4 +12,9 @@ public interface TestBuilder {
     String renderMethodParams(Method method, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues) throws Exception;
 
     String renderReturnParam(Method method, String defaultName, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues) throws Exception;
+
+    String renderInitType(Type type, String defaultName, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues) throws Exception;
+    enum ParamUsageMode{
+        ReadFrom,CreateAs
+    }
 }

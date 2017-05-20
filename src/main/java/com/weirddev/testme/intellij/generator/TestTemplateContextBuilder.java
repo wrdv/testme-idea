@@ -1,12 +1,10 @@
 package com.weirddev.testme.intellij.generator;
 
-import com.intellij.lang.java.JavaLanguage;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.util.PsiUtil;
-import com.weirddev.testme.intellij.groovy.GroovyPsiTreeUtils;
 import com.weirddev.testme.intellij.template.FileTemplateContext;
 import com.weirddev.testme.intellij.template.TypeDictionary;
 import com.weirddev.testme.intellij.template.context.*;
@@ -32,7 +30,6 @@ public class TestTemplateContextBuilder {
         int maxRecursionDepth = context.getMaxRecursionDepth();
         ctxtParams.put(TestMeTemplateParams.MAX_RECURSION_DEPTH, maxRecursionDepth);
         ctxtParams.put(TestMeTemplateParams.TEST_BUILDER, new TestBuilderImpl(context.getLanguage(),maxRecursionDepth, context.isIgnoreUnusedProperties(), context.getMinPercentOfExcessiveSettersToPreferDefaultCtor()));
-        ctxtParams.put(TestMeTemplateParams.GROOVY_TEST_BUILDER, new GroovyTestBuilderImpl(maxRecursionDepth, context.isIgnoreUnusedProperties()));//todo should be deprecated in favor of TestBuilder
         ctxtParams.put(TestMeTemplateParams.JAVA_TEST_BUILDER, new JavaTestBuilderImpl(maxRecursionDepth));//todo should be deprecated in favor of TestBuilder
         ctxtParams.put(TestMeTemplateParams.STRING_UTILS, new StringUtils());
         ctxtParams.put(TestMeTemplateParams.MOCKITO_UTILS, new MockitoUtils());

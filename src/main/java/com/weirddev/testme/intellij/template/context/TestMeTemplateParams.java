@@ -14,7 +14,6 @@ public interface TestMeTemplateParams {
 
     String TEST_BUILDER = "TestBuilder";
     String JAVA_TEST_BUILDER = "JavaTestBuilder";
-    String GROOVY_TEST_BUILDER = "GroovyTestBuilder";
     String STRING_UTILS = "StringUtils";
     String MOCKITO_UTILS = "MockitoUtils";
     String TEST_SUBJECT_UTILS = "TestSubjectUtils";

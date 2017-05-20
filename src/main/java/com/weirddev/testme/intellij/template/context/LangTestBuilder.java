@@ -8,7 +8,6 @@ import java.util.Map;
  *
  * @author Yaron Yamin
  */
-@SuppressWarnings("unused")
 public interface LangTestBuilder {
     String renderJavaCallParams(List<Param> params, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues);
 
