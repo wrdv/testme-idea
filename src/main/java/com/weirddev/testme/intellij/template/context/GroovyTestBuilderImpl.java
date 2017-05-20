@@ -22,13 +22,6 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
     private final TestBuilder.ParamUsageMode paramUsageMode;
     private final int minPercentOfExcessiveSettersToPreferDefaultCtor;
 
-    public GroovyTestBuilderImpl(int maxRecursionDepth, boolean shouldIgnoreUnusedProperties) {
-        super(maxRecursionDepth);
-        this.shouldIgnoreUnusedProperties = shouldIgnoreUnusedProperties;
-        minPercentOfExcessiveSettersToPreferDefaultCtor = 50;
-        paramUsageMode = null;
-    }
-
     public GroovyTestBuilderImpl(int maxRecursionDepth, Method method, boolean shouldIgnoreUnusedProperties, TestBuilder.ParamUsageMode paramUsageMode, int minPercentOfExcessiveSettersToPreferDefaultCtor) {
         super(maxRecursionDepth, method);
         this.shouldIgnoreUnusedProperties = shouldIgnoreUnusedProperties;
@@ -102,7 +95,6 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
         for (Method method : testedMethod.getCalledFamilyMembers()) {
             if (isReferencedInMethod(method, paramOwnerType, propertyParam)) return true;
         }
-        //todo handle cases where property is written implicitly in groovy
         return false;
     }
 
