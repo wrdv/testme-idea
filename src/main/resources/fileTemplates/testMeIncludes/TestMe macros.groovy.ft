@@ -72,10 +72,10 @@
 #end
 ##
 #macro(grRenderAssert $method)
-result == $TestBuilder.renderReturnParam("Groovy",$method,"replaceMeWithExpectedResult",$grReplacementTypes,$grDefaultTypeValues)
+result == $TestBuilder.renderReturnParam($method,"replaceMeWithExpectedResult",$grReplacementTypes,$grDefaultTypeValues)
 #end
 ##
 #macro(grRenderMethodCall $method,$testedClassName)
-#renderJavaReturnVar($method.returnType)#if($method.static)$testedClassName#{else}$StringUtils.deCapitalizeFirstLetter($testedClassName)#end.${method.name}($TestBuilder.renderMethodParams("Groovy",$method,$grReplacementTypes,$grDefaultTypeValues))
+#renderJavaReturnVar($method.returnType)#if($method.static)$testedClassName#{else}$StringUtils.deCapitalizeFirstLetter($testedClassName)#end.${method.name}($TestBuilder.renderMethodParams($method,$grReplacementTypes,$grDefaultTypeValues))
 #end
 ##

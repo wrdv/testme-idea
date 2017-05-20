@@ -25,4 +25,8 @@ public interface TestMeTemplateParams {
     String HOUR_NUMERIC = "HOUR_NUMERIC"; //Current Hour for numeric calculations. i.e. if the current time is 09:45 - HOUR_NUMERIC = 9. HOUR = 09
     String MINUTE_NUMERIC = "MINUTE_NUMERIC"; //Current Minute for numeric calculations. i.e. if the current time is 09:05 - MINUTE_NUMERIC = 5. MINUTE = 05
     String SECOND_NUMERIC = "SECOND_NUMERIC"; //Current Second for numeric calculations. i.e. if the current time is 09:15:05 - SECOND_NUMERIC = 5
+    /**
+     * String. Language of class under test. Groovy, Java ...
+     */
+    String TESTED_CLASS_LANGUAGE = "TESTED_CLASS_LANGUAGE";
 }

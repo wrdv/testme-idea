@@ -7,6 +7,7 @@ import com.intellij.psi.PsiClass;
 import com.weirddev.testme.intellij.generator.TestMeGeneratorTestBase;
 import com.weirddev.testme.intellij.template.TemplateDescriptor;
 import com.weirddev.testme.intellij.template.TemplateRegistry;
+import com.weirddev.testme.intellij.template.context.Language;
 import com.weirddev.testme.intellij.ui.TestMePopUpHandler;
 import org.junit.Assert;
 
@@ -20,7 +21,7 @@ import java.util.List;
 public class TestMeActionHandlerTest extends TestMeGeneratorTestBase {
 
     public TestMeActionHandlerTest() {
-        super(null, "test");
+        super(null, "test", Language.Java);
     }
 
     public void testNestedClassParams() throws Exception {

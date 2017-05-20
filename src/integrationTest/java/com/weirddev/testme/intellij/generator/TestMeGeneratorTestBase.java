@@ -6,6 +6,7 @@ import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.psi.*;
 import com.weirddev.testme.intellij.BaseIJIntegrationTest;
 import com.weirddev.testme.intellij.template.FileTemplateContext;
+import com.weirddev.testme.intellij.template.context.Language;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
 
@@ -22,14 +23,16 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
     protected final String templateFilename;
     protected final String testDirectory;
     private final TestTemplateContextBuilder testTemplateContextBuilder = mockTestTemplateContextBuilder();
+    private final Language language;
     protected String expectedTestClassExtension = "java";
     protected boolean testEnabled = true;
     protected boolean ignoreTrailingWhitespaces;
 
-    protected TestMeGeneratorTestBase(String templateFilename, String testDirectory) {
+    protected TestMeGeneratorTestBase(String templateFilename, String testDirectory, Language language) {
         super("testData/testMeGenerator/");
         this.templateFilename = templateFilename;
         this.testDirectory = testDirectory;
+        this.language = language;
     }
     protected void skipTestIfGroovyPluginDisabled() {
         testEnabled = groovyPluginShouldBeEnabled();
@@ -80,7 +83,7 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
             @Override
             public void run() {
                 myFixture.openFileInEditor(fooClass.getContainingFile().getVirtualFile());
-                PsiElement result = new TestMeGenerator(new TestClassElementsLocator(), testTemplateContextBuilder,new CodeRefactorUtil()).generateTest(new FileTemplateContext(new FileTemplateDescriptor(templateFilename), getProject(),
+                PsiElement result = new TestMeGenerator(new TestClassElementsLocator(), testTemplateContextBuilder,new CodeRefactorUtil()).generateTest(new FileTemplateContext(new FileTemplateDescriptor(templateFilename), language, getProject(),
                         expectedTestClassName,
                         targetPackage,
                         myModule,

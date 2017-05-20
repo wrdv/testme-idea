@@ -1,6 +1,7 @@
 package com.weirddev.testme.intellij.generator;
 
 import com.weirddev.testme.intellij.template.TemplateRegistry;
+import com.weirddev.testme.intellij.template.context.Language;
 
 /**
  * Date: 13/12/2016
@@ -10,7 +11,7 @@ import com.weirddev.testme.intellij.template.TemplateRegistry;
 public class TestMeGeneratorJunit5Test extends TestMeGeneratorTestBase {
 
     public TestMeGeneratorJunit5Test() {
-        super(TemplateRegistry.JUNIT5_MOCKITO_JAVA_TEMPLATE, "testJunit5");
+        super(TemplateRegistry.JUNIT5_MOCKITO_JAVA_TEMPLATE, "testJunit5", Language.Java);
     }
 
     public void testSimpleClass() throws Exception {

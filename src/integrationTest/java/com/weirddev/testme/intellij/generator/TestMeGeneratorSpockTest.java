@@ -1,6 +1,7 @@
 package com.weirddev.testme.intellij.generator;
 
 import com.weirddev.testme.intellij.template.TemplateRegistry;
+import com.weirddev.testme.intellij.template.context.Language;
 
 /**
  * Date: 24/02/2017
@@ -9,7 +10,7 @@ import com.weirddev.testme.intellij.template.TemplateRegistry;
  */
 public class TestMeGeneratorSpockTest extends TestMeGeneratorTestBase {
     public TestMeGeneratorSpockTest() {
-        super(TemplateRegistry.SPOCK_GROOVY_MOCKITO_JAVA_TEMPLATE, "testSpock");
+        super(TemplateRegistry.SPOCK_GROOVY_MOCKITO_JAVA_TEMPLATE, "testSpock", Language.Groovy);
         expectedTestClassExtension = "groovy";
         skipTestIfGroovyPluginDisabled();
     }

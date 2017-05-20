@@ -3,27 +3,24 @@ package com.weirddev.testme.intellij.template;
 import com.weirddev.testme.intellij.template.context.*;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
-
 public class LangTestBuilderFactory {
     private final boolean shouldIgnoreUnusedProperties;
+    private Language language;
     private int maxRecursionDepth;
 
-    public LangTestBuilderFactory(int maxRecursionDepth, boolean shouldIgnoreUnusedProperties) {
+    public LangTestBuilderFactory(Language language, int maxRecursionDepth, boolean shouldIgnoreUnusedProperties) {
+        this.language = language;
         this.maxRecursionDepth = maxRecursionDepth;
         this.shouldIgnoreUnusedProperties = shouldIgnoreUnusedProperties;
     }
 
     @NotNull
-    public LangTestBuilder createTestBuilder(String languageName, Method method, boolean isReadParam, int minPercentOfExcessiveSettersToPreferDefaultCtor) throws Exception {
-        final Language language = Language.valueOf(languageName);
+    public LangTestBuilder createTestBuilder(Method method, boolean isReadParam, int minPercentOfExcessiveSettersToPreferDefaultCtor) throws Exception {
         LangTestBuilder langTestBuilder;
-        if (language == Language.Groovy) {
+        if ( language==Language.Groovy) {
             langTestBuilder = new GroovyTestBuilderImpl(maxRecursionDepth, method, shouldIgnoreUnusedProperties,isReadParam, minPercentOfExcessiveSettersToPreferDefaultCtor); //todo add replacementTypes, defaultTypeValues and testBuilder as members
-        } else if (language == Language.Java) {
+        } else{
             langTestBuilder = new JavaTestBuilderImpl(maxRecursionDepth, method);
-        } else {
-            throw new Exception("Unsupported Language for this test builder. language should be one of:" + Arrays.toString(Language.values()));
         }
         return langTestBuilder;
     }

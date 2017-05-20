@@ -9,6 +9,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.psi.PsiClass;
 import com.weirddev.testme.intellij.generator.TestMeGeneratorTestBase;
+import com.weirddev.testme.intellij.template.context.Language;
 import org.junit.Assert;
 
 import javax.swing.event.MenuKeyEvent;
@@ -20,7 +21,7 @@ import javax.swing.event.MenuKeyEvent;
  */
 public class TestMeActionTest extends TestMeGeneratorTestBase {
     public TestMeActionTest() {
-        super(null, "test");
+        super(null, "test", Language.Java);
     }
 
     @Override

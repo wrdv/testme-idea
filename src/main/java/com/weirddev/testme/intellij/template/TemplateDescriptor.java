@@ -2,6 +2,9 @@ package com.weirddev.testme.intellij.template;
 
 import com.weirddev.testme.intellij.groovy.LanguageUtils;
 import com.weirddev.testme.intellij.icon.IconTokensReplacerImpl;
+import com.weirddev.testme.intellij.template.context.Language;
+
+import static com.weirddev.testme.intellij.groovy.LanguageUtils.GROOVY_PLUGIN_ID;
 
 /**
  * Date: 10/12/2016
@@ -9,16 +12,20 @@ import com.weirddev.testme.intellij.icon.IconTokensReplacerImpl;
  * @author Yaron Yamin
  */
 public class TemplateDescriptor {
+    private final Language language;
     private String tokenizedDisplayName;
     private String displayName;
     private String filename;
     private String[] dependantPlugins;
 
-    public TemplateDescriptor(String tokenizedDisplayName, String filename, String[] dependantPlugins) {
+    public TemplateDescriptor(String tokenizedDisplayName, String filename, Language language) {
         this.tokenizedDisplayName = tokenizedDisplayName;
         this.displayName = IconTokensReplacerImpl.stripTokens(tokenizedDisplayName);
         this.filename = filename;
-        this.dependantPlugins = dependantPlugins;
+        this.language = language;
+        if (language == Language.Groovy) {
+            this.dependantPlugins = new String[]{GROOVY_PLUGIN_ID};
+        }
     }
 
     public String getTokenizedDisplayName() {
@@ -45,5 +52,9 @@ public class TemplateDescriptor {
             }
         }
         return true;
+    }
+
+    public Language getLanguage() {
+        return language;
     }
 }

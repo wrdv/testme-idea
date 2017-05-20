@@ -1,11 +1,9 @@
 package com.weirddev.testme.intellij.template;
 
-import com.weirddev.testme.intellij.groovy.LanguageUtils;
+import com.weirddev.testme.intellij.template.context.Language;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.weirddev.testme.intellij.groovy.LanguageUtils.GROOVY_PLUGIN_ID;
 
 /**
  * Date: 10/12/2016
@@ -30,10 +28,10 @@ public class TemplateRegistry {
         templateDescriptors.add(new TemplateDescriptor("<html>with <i><b>JUnit4</b></i><img src='"+ juDark +"'> & <i><b>Mockito</b></i><img src='"+ mockito +"'></html>", "TestMe with JUnit4 & Mockito.java"));
         templateDescriptors.add(new TemplateDescriptor("<html>with <i><b>JUnit5</b></i><img src='"+ ju5 +"'> & <i><b>Mockito</b></i><img src='"+ mockito +"'></html>", "TestMe with JUnit4 & Mockito.java"));
 */
-        templateDescriptors.add(new TemplateDescriptor("<html>with <i>JUnit4</i></html><JUnit4><html>& <i>Mockito</i></html><Mockito>", JUNIT4_MOCKITO_JAVA_TEMPLATE, null));
-        templateDescriptors.add(new TemplateDescriptor("<html>with <i>JUnit5</i></html><JUnit5><html>& <i>Mockito</i></html><Mockito>", JUNIT5_MOCKITO_JAVA_TEMPLATE, null));
-        templateDescriptors.add(new TemplateDescriptor("<html>with <i>Groovy</i></html><Groovy><html><i>JUnit4</i></html><JUnit4><html>& <i>Mockito</i></html><Mockito>", JUNIT4_GROOVY_MOCKITO_JAVA_TEMPLATE, new String[]{GROOVY_PLUGIN_ID}));
-        templateDescriptors.add(new TemplateDescriptor("<html>with <i>Spock</i></html><Groovy><html> & <i>Mockito</i></html><Mockito>", SPOCK_GROOVY_MOCKITO_JAVA_TEMPLATE, new String[]{GROOVY_PLUGIN_ID}));
+        templateDescriptors.add(new TemplateDescriptor("<html>with <i>JUnit4</i></html><JUnit4><html>& <i>Mockito</i></html><Mockito>", JUNIT4_MOCKITO_JAVA_TEMPLATE, Language.Java));
+        templateDescriptors.add(new TemplateDescriptor("<html>with <i>JUnit5</i></html><JUnit5><html>& <i>Mockito</i></html><Mockito>", JUNIT5_MOCKITO_JAVA_TEMPLATE, Language.Java));
+        templateDescriptors.add(new TemplateDescriptor("<html>with <i>Groovy</i></html><Groovy><html><i>JUnit4</i></html><JUnit4><html>& <i>Mockito</i></html><Mockito>", JUNIT4_GROOVY_MOCKITO_JAVA_TEMPLATE, Language.Groovy));
+        templateDescriptors.add(new TemplateDescriptor("<html>with <i>Spock</i></html><Groovy><html> & <i>Mockito</i></html><Mockito>", SPOCK_GROOVY_MOCKITO_JAVA_TEMPLATE, Language.Groovy));
     }
     public List<TemplateDescriptor> getTemplateDescriptors(){
         return templateDescriptors;

@@ -9,7 +9,7 @@ import java.util.Map;
  */
 @SuppressWarnings("unused")
 public interface TestBuilder {
-    String renderMethodParams(String language, Method method, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues) throws Exception;
+    String renderMethodParams(Method method, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues) throws Exception;
 
-    String renderReturnParam(String language, Method method, String defaultName, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues) throws Exception;
+    String renderReturnParam(Method method, String defaultName, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues) throws Exception;
 }
