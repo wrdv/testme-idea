@@ -2,9 +2,7 @@ package com.weirddev.testme.intellij.generator;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiMethod;
-import com.intellij.psi.util.PsiUtil;
 import com.weirddev.testme.intellij.groovy.GroovyPsiTreeUtils;
 import com.weirddev.testme.intellij.template.FileTemplateContext;
 import com.weirddev.testme.intellij.template.TypeDictionary;
@@ -38,11 +36,11 @@ public class TestTemplateContextBuilder {
         if (targetClass != null && targetClass.isValid()) {
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_LANGUAGE, targetClass.getLanguage().getID());
             final TypeDictionary typeDictionary = new TypeDictionary(context.getSrcClass(), context.getTargetPackage());
-            ctxtParams.put(TestMeTemplateParams.TESTED_CLASS, typeDictionary.getType(Type.resolveType(targetClass), maxRecursionDepth));
-            List<Field> fields = createFields(context.getSrcClass());
-            ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_FIELDS, fields);//todo refactor to be part of TESTED_CLASS
+            final Type type = typeDictionary.getType(Type.resolveType(targetClass), maxRecursionDepth);
+            ctxtParams.put(TestMeTemplateParams.TESTED_CLASS, type);
+            ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_FIELDS, type == null ? null : type.getFields());
             List<Method> methods = createMethods(context, maxRecursionDepth, typeDictionary);
-            ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_METHODS, methods);//todo refactor to be part of TESTED_CLASS
+            ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_METHODS, methods);//todo refactor to be part of TESTED_CLASS?
         }
         logger.debug("Done building Test Template context in "+(new Date().getTime()-start)+" millis");
         return ctxtParams;
@@ -63,20 +61,6 @@ public class TestTemplateContextBuilder {
             templateCtxtParams.put((String) entry.getKey(), entry.getValue());
         }
         return templateCtxtParams;
-    }
-
-    @NotNull
-    private List<Field> createFields(PsiClass psiClass) {
-        ArrayList<Field> fields = new ArrayList<Field>();
-        if (psiClass != null) {
-            for (PsiField psiField : psiClass.getAllFields()) {
-                //TODO mark fields initialized inline (so no need to mock them)
-                if(!"groovy.lang.MetaClass".equals(psiField.getType().getCanonicalText())){
-                    fields.add(new Field(psiField, PsiUtil.resolveClassInType(psiField.getType()), psiClass));
-                }
-            }
-        }
-        return fields;
     }
 
     private List<Method> createMethods(FileTemplateContext context, int maxRecursionDepth, TypeDictionary typeDictionary) {

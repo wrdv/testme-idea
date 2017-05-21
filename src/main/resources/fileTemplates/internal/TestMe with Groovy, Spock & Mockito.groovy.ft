@@ -1,5 +1,5 @@
 #parse("TestMe macros.groovy")
-#set($hasMocks=$MockitoUtils.hasMockable($TESTED_CLASS_FIELDS))
+#set($hasMocks=$MockitoUtils.hasMockable($TESTED_CLASS.fields))
 #if($PACKAGE_NAME)
 package ${PACKAGE_NAME}
 #end
@@ -13,7 +13,7 @@ import org.mockito.MockitoAnnotations
 
 #parse("File Header.java")
 class ${CLASS_NAME}  extends Specification {
-#grRenderMockedFields($TESTED_CLASS_FIELDS)
+#grRenderMockedFields($TESTED_CLASS.fields)
 #grRenderTestSubjectInit($TESTED_CLASS,$TestSubjectUtils.hasTestableInstanceMethod($TESTED_CLASS_METHODS),$hasMocks)
 #if($hasMocks)
 
