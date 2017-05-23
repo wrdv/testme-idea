@@ -17,6 +17,7 @@ public class IconRegistry {
         add(new IconDescriptor("JUnit5", Icons.JUNIT5,Icons.JUNIT5));
         add(new IconDescriptor("Mockito", Icons.MOCKITO,Icons.MOCKITO));
         add(new IconDescriptor("Groovy", Icons.GROOVY,Icons.GROOVY));
+        add(new IconDescriptor("TestNG", Icons.TESTNG,Icons.TESTNG));
     }
 
     private static IconDescriptor add(IconDescriptor iconDescriptor) {

@@ -18,6 +18,7 @@ public class TemplateRegistry {
     public static final String JUNIT4_GROOVY_MOCKITO_JAVA_TEMPLATE = "TestMe with Groovy, JUnit4 & Mockito.groovy";
     public static final String SPOCK_GROOVY_MOCKITO_JAVA_TEMPLATE = "TestMe with Groovy, Spock & Mockito.groovy";
     public static final String JUNIT5_MOCKITO_JAVA_TEMPLATE = "TestMe with JUnit5 & Mockito.java";
+    public static final String TESTNG_MOCKITO_JAVA_TEMPLATE = "TestMe with TestNG & Mockito.java";
 
     static {
 /*
@@ -30,6 +31,7 @@ public class TemplateRegistry {
 */
         templateDescriptors.add(new TemplateDescriptor("<html>with <i>JUnit4</i></html><JUnit4><html>& <i>Mockito</i></html><Mockito>", JUNIT4_MOCKITO_JAVA_TEMPLATE, Language.Java));
         templateDescriptors.add(new TemplateDescriptor("<html>with <i>JUnit5</i></html><JUnit5><html>& <i>Mockito</i></html><Mockito>", JUNIT5_MOCKITO_JAVA_TEMPLATE, Language.Java));
+        templateDescriptors.add(new TemplateDescriptor("<html>with <i>TestNG</i></html><TestNG><html>& <i>Mockito</i></html><Mockito>", TESTNG_MOCKITO_JAVA_TEMPLATE, Language.Java));
         templateDescriptors.add(new TemplateDescriptor("<html>with <i>Groovy</i></html><Groovy><html><i>JUnit4</i></html><JUnit4><html>& <i>Mockito</i></html><Mockito>", JUNIT4_GROOVY_MOCKITO_JAVA_TEMPLATE, Language.Groovy));
         templateDescriptors.add(new TemplateDescriptor("<html>with <i>Spock</i></html><Groovy><html> & <i>Mockito</i></html><Mockito>", SPOCK_GROOVY_MOCKITO_JAVA_TEMPLATE, Language.Groovy));
     }
