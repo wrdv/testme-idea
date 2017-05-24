@@ -16,14 +16,21 @@ import java.util.regex.Pattern;
  *
  * @author Yaron Yamin
  */
-public class JavaTestBuilderImpl implements TestBuilder {
+public class JavaTestBuilderImpl implements LangTestBuilder {
     private static final Logger LOG = Logger.getInstance(JavaTestBuilderImpl.class.getName());
     private static final Pattern GENERICS_PATTERN = Pattern.compile("(<.*>)");
     private static Type DEFAULT_TYPE = new Type("java.lang.String", "String", "java.lang", false, false, false, false, false, new ArrayList<Type>());
     protected final int maxRecursionDepth;
+    protected final Method testedMethod;
 
     public JavaTestBuilderImpl(int maxRecursionDepth) {
         this.maxRecursionDepth = maxRecursionDepth;
+        testedMethod = null;
+    }
+
+    public JavaTestBuilderImpl(int maxRecursionDepth, Method testedMethod) {
+        this.maxRecursionDepth = maxRecursionDepth;
+        this.testedMethod = testedMethod;
     }
 
     //TODO consider aggregating conf into context object and managing maps outside of template
@@ -152,6 +159,9 @@ public class JavaTestBuilderImpl implements TestBuilder {
         return ":".equals(expFragment) && !"java.lang.String".equals(canonicalTypeName);
     }
 
+    /**
+     * @param type Input assumption: type constructors are sorted in descending order by no of arguments
+     */
     @Nullable
     protected Method findValidConstructor(Type type, Map<String, String> replacementTypes, boolean hasEmptyConstructor) {
         Method foundCtor = null;
@@ -180,7 +190,6 @@ public class JavaTestBuilderImpl implements TestBuilder {
             if ((methodParamType.isInterface() || methodParamType.isAbstract()) && (replacementTypes == null || replacementTypes.get(stripGenerics(methodParamType.getCanonicalName())) == null) && hasEmptyConstructor) {
                 return false;
             }
-          //todo consider prioritizing inline properties initialization if groovy + hasEmptyConstructor + more setters than ctor params
         }
         return true;
     }

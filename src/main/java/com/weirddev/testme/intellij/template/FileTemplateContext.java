@@ -6,6 +6,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiPackage;
+import com.weirddev.testme.intellij.template.context.Language;
 
 /**
  * Date: 10/19/2016
@@ -14,6 +15,7 @@ import com.intellij.psi.PsiPackage;
  */
 public class FileTemplateContext {
     private FileTemplateDescriptor fileTemplateDescriptor;
+    private Language language;
     private final Project project;
     private final String targetClass;
     private final PsiPackage targetPackage;
@@ -24,9 +26,12 @@ public class FileTemplateContext {
     private final boolean optimizeImports;
     private final int maxRecursionDepth;
     private final boolean replaceFqn;
+    private final boolean ignoreUnusedProperties;
+    private final int minPercentOfExcessiveSettersToPreferDefaultCtor;
 
-    public FileTemplateContext(FileTemplateDescriptor fileTemplateDescriptor, Project project, String targetClass, PsiPackage targetPackage, Module targetModule, PsiDirectory targetDirectory, PsiClass srcClass, boolean reformatCode, boolean optimizeImports, int maxRecursionDepth, boolean replaceFqn) {
+    public FileTemplateContext(FileTemplateDescriptor fileTemplateDescriptor, Language language, Project project, String targetClass, PsiPackage targetPackage, Module targetModule, PsiDirectory targetDirectory, PsiClass srcClass, boolean reformatCode, boolean optimizeImports, int maxRecursionDepth, boolean replaceFqn, boolean ignoreUnusedProperties, int minPercentOfExcessiveSettersToPreferDefaultCtor) {
         this.fileTemplateDescriptor = fileTemplateDescriptor;
+        this.language = language;
         this.project = project;
         this.targetClass = targetClass;
         this.targetPackage = targetPackage;
@@ -37,6 +42,8 @@ public class FileTemplateContext {
         this.optimizeImports = optimizeImports;
         this.maxRecursionDepth = maxRecursionDepth;
         this.replaceFqn = replaceFqn;
+        this.ignoreUnusedProperties = ignoreUnusedProperties;
+        this.minPercentOfExcessiveSettersToPreferDefaultCtor = minPercentOfExcessiveSettersToPreferDefaultCtor;
     }
 
     public Project getProject() {
@@ -81,5 +88,17 @@ public class FileTemplateContext {
 
     public boolean isReplaceFqn() {
         return replaceFqn;
+    }
+
+    public boolean isIgnoreUnusedProperties() {
+        return ignoreUnusedProperties;
+    }
+
+    public int getMinPercentOfExcessiveSettersToPreferDefaultCtor() {
+        return minPercentOfExcessiveSettersToPreferDefaultCtor;
+    }
+
+    public Language getLanguage() {
+        return language;
     }
 }

@@ -1,5 +1,5 @@
 #parse("TestMe macros.java")
-#set($hasMocks=$MockitoUtils.hasMockable($TESTED_CLASS_FIELDS))
+#set($hasMocks=$MockitoUtils.hasMockable($TESTED_CLASS.fields))
 #if($PACKAGE_NAME)
 package ${PACKAGE_NAME};
 #end
@@ -16,7 +16,7 @@ import org.mockito.MockitoAnnotations;
 
 #parse("File Header.java")
 public class ${CLASS_NAME} {
-#renderMockedFields($TESTED_CLASS_FIELDS)
+#renderMockedFields($TESTED_CLASS.fields)
 #renderTestSubjectInit($TESTED_CLASS,$TestSubjectUtils.hasTestableInstanceMethod($TESTED_CLASS_METHODS),$hasMocks)
 #if($hasMocks)
 
@@ -31,7 +31,7 @@ public class ${CLASS_NAME} {
     @Test
     public void #renderTestMethodName($method.name)() throws Exception {
         #renderMethodCall($method,$TESTED_CLASS.name)
-#if($method.returnType && $method.returnType.name !="void")        Assert.#renderJUnitAssert($method.returnType)#end
+#if($method.returnType && $method.returnType.name !="void")        Assert.#renderJUnitAssert($method)#end
     }
 #end
 #end

@@ -6,7 +6,9 @@ import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.psi.*;
 import com.weirddev.testme.intellij.BaseIJIntegrationTest;
 import com.weirddev.testme.intellij.template.FileTemplateContext;
+import com.weirddev.testme.intellij.template.context.Language;
 import org.jetbrains.annotations.NotNull;
+import org.junit.Assert;
 
 import java.util.GregorianCalendar;
 import java.util.Map;
@@ -21,36 +23,54 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
     protected final String templateFilename;
     protected final String testDirectory;
     private final TestTemplateContextBuilder testTemplateContextBuilder = mockTestTemplateContextBuilder();
+    private final Language language;
     protected String expectedTestClassExtension = "java";
     protected boolean testEnabled = true;
     protected boolean ignoreTrailingWhitespaces;
 
-    protected TestMeGeneratorTestBase(String templateFilename, String testDirectory) {
+    protected TestMeGeneratorTestBase(String templateFilename, String testDirectory, Language language) {
         super("testData/testMeGenerator/");
         this.templateFilename = templateFilename;
         this.testDirectory = testDirectory;
+        this.language = language;
     }
     protected void skipTestIfGroovyPluginDisabled() {
-        testEnabled = isGroovyPluginEnabled();
+        testEnabled = groovyPluginShouldBeEnabled();
+        Assert.assertEquals(testEnabled, isGroovyPluginEnabled());
     }
 
-    protected Boolean isGroovyPluginEnabled() {
+    private boolean isGroovyPluginEnabled() {
+        boolean groovyPluginEnabled = false;
+        try {
+            Class.forName("org.jetbrains.plugins.groovy.GroovyLanguage");
+            groovyPluginEnabled = true;
+        } catch (ClassNotFoundException e) { }
+        return groovyPluginEnabled;
+    }
+
+    protected Boolean groovyPluginShouldBeEnabled() {
         return Boolean.valueOf(System.getProperty("enableIdeaGroovyPlugin","true"));
     }
 
     protected void doTest() {
         doTest(true, false, false);
     }
+    protected void doTest(final boolean ignoreUnusedProperties) {
+        doTest("com.example.services.impl", "Foo", "FooTest", true, true, true, ignoreUnusedProperties,50);
+    }
 
     protected void doTest(boolean reformatCode, boolean optimizeImports, boolean replaceFqn) {
-        doTest("com.example.services.impl", "Foo", "FooTest", reformatCode, optimizeImports, replaceFqn);
+        doTest(reformatCode, optimizeImports, replaceFqn, 50);
+    }
+    protected void doTest(boolean reformatCode, boolean optimizeImports, boolean replaceFqn, int minPercentOfExcessiveSettersToPreferDefaultCtor) {
+        doTest("com.example.services.impl", "Foo", "FooTest", reformatCode, optimizeImports, replaceFqn, false, minPercentOfExcessiveSettersToPreferDefaultCtor);
     }
 
     protected void setTestModePropsForUI() {
         System.setProperty("testme.popoup.center", "true");//WA swing error when popup set relative to fake test editor
     }
 
-    protected void doTest(final String packageName, String testSubjectClassName, final String expectedTestClassName, final boolean reformatCode, final boolean optimizeImports, final boolean replaceFqn) {
+    protected void doTest(final String packageName, String testSubjectClassName, final String expectedTestClassName, final boolean reformatCode, final boolean optimizeImports, final boolean replaceFqn, final boolean ignoreUnusedProperties, final int minPercentOfExcessiveSettersToPreferDefaultCtor) {
         if (!testEnabled) {
             System.out.println("Groovy idea plugin disabled. Skipping test");
             return;
@@ -63,7 +83,7 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
             @Override
             public void run() {
                 myFixture.openFileInEditor(fooClass.getContainingFile().getVirtualFile());
-                PsiElement result = new TestMeGenerator(new TestClassElementsLocator(), testTemplateContextBuilder,new CodeRefactorUtil()).generateTest(new FileTemplateContext(new FileTemplateDescriptor(templateFilename), getProject(),
+                PsiElement result = new TestMeGenerator(new TestClassElementsLocator(), testTemplateContextBuilder,new CodeRefactorUtil()).generateTest(new FileTemplateContext(new FileTemplateDescriptor(templateFilename), language, getProject(),
                         expectedTestClassName,
                         targetPackage,
                         myModule,
@@ -71,7 +91,7 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
                         fooClass,
                         reformatCode,
                         optimizeImports,
-                        4, replaceFqn));
+                        4, replaceFqn, ignoreUnusedProperties, minPercentOfExcessiveSettersToPreferDefaultCtor));
                 System.out.println("result:"+result);
                 verifyGeneratedTest(packageName, expectedTestClassName);
             }

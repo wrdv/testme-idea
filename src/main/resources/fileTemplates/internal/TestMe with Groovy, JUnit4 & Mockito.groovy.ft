@@ -1,5 +1,5 @@
 #parse("TestMe macros.groovy")
-#set($hasMocks=$MockitoUtils.hasMockable($TESTED_CLASS_FIELDS))
+#set($hasMocks=$MockitoUtils.hasMockable($TESTED_CLASS.fields))
 #if($PACKAGE_NAME)
 package ${PACKAGE_NAME}
 #end
@@ -15,7 +15,7 @@ import org.mockito.MockitoAnnotations
 
 #parse("File Header.java")
 class ${CLASS_NAME} {
-#grRenderMockedFields($TESTED_CLASS_FIELDS)
+#grRenderMockedFields($TESTED_CLASS.fields)
 #grRenderTestSubjectInit($TESTED_CLASS,$TestSubjectUtils.hasTestableInstanceMethod($TESTED_CLASS_METHODS),$hasMocks)
 #if($hasMocks)
 
@@ -30,7 +30,7 @@ class ${CLASS_NAME} {
     @Test
     void #renderTestMethodName($method.name)() {
         #grRenderMethodCall($method,$TESTED_CLASS.name)
-#if($method.returnType && $method.returnType.name !="void")        assert #grRenderAssert($method.returnType)#end
+#if($method.returnType && $method.returnType.name !="void")        assert #grRenderAssert($method)#end
     }
 #end
 #end

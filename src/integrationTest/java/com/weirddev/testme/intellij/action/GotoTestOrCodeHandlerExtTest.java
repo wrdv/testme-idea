@@ -6,6 +6,7 @@ import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.psi.PsiClass;
 import com.weirddev.testme.intellij.generator.TestMeGeneratorTestBase;
 import com.weirddev.testme.intellij.icon.Icons;
+import com.weirddev.testme.intellij.template.context.Language;
 import org.junit.Assert;
 
 /**
@@ -15,7 +16,7 @@ import org.junit.Assert;
  */
 public class GotoTestOrCodeHandlerExtTest extends TestMeGeneratorTestBase {
     public GotoTestOrCodeHandlerExtTest() {
-        super(null, "test");
+        super(null, "test", Language.Java);
     }
 
     public void testNestedClassParams() throws Exception {
@@ -29,7 +30,7 @@ public class GotoTestOrCodeHandlerExtTest extends TestMeGeneratorTestBase {
     }
 
     @Override
-    protected void doTest(final String packageName, final String testSubjectClassName, final String expectedTestClassName, final boolean reformatCode, final boolean optimizeImports, final boolean replaceFqn) {
+    protected void doTest(final String packageName, final String testSubjectClassName, final String expectedTestClassName, final boolean reformatCode, final boolean optimizeImports, final boolean replaceFqn, final boolean ignoreUnusedProperties, final int minPercentOfExcessiveSettersToPreferDefaultCtor) {
         final PsiClass fooClass = setupSourceFiles(packageName, testSubjectClassName);
         CommandProcessor.getInstance().executeCommand(getProject(), new Runnable() {
             @Override

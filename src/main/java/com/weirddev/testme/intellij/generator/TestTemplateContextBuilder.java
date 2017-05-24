@@ -1,8 +1,9 @@
 package com.weirddev.testme.intellij.generator;
 
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.psi.*;
-import com.intellij.psi.util.PsiUtil;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiMethod;
+import com.weirddev.testme.intellij.groovy.GroovyPsiTreeUtils;
 import com.weirddev.testme.intellij.template.FileTemplateContext;
 import com.weirddev.testme.intellij.template.TypeDictionary;
 import com.weirddev.testme.intellij.template.context.*;
@@ -27,19 +28,19 @@ public class TestTemplateContextBuilder {
         ctxtParams.put(TestMeTemplateParams.PACKAGE_NAME, context.getTargetPackage().getQualifiedName());
         int maxRecursionDepth = context.getMaxRecursionDepth();
         ctxtParams.put(TestMeTemplateParams.MAX_RECURSION_DEPTH, maxRecursionDepth);
-        ctxtParams.put(TestMeTemplateParams.GROOVY_TEST_BUILDER, new GroovyTestBuilderImpl(maxRecursionDepth));
-        ctxtParams.put(TestMeTemplateParams.JAVA_TEST_BUILDER, new JavaTestBuilderImpl(maxRecursionDepth));
+        ctxtParams.put(TestMeTemplateParams.TEST_BUILDER, new TestBuilderImpl(context.getLanguage(),maxRecursionDepth, context.isIgnoreUnusedProperties(), context.getMinPercentOfExcessiveSettersToPreferDefaultCtor()));
         ctxtParams.put(TestMeTemplateParams.STRING_UTILS, new StringUtils());
         ctxtParams.put(TestMeTemplateParams.MOCKITO_UTILS, new MockitoUtils());
         ctxtParams.put(TestMeTemplateParams.TEST_SUBJECT_UTILS,new TestSubjectUtils());
         final PsiClass targetClass = context.getSrcClass();
         if (targetClass != null && targetClass.isValid()) {
+            ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_LANGUAGE, targetClass.getLanguage().getID());
             final TypeDictionary typeDictionary = new TypeDictionary(context.getSrcClass(), context.getTargetPackage());
-            ctxtParams.put(TestMeTemplateParams.TESTED_CLASS, typeDictionary.getType(Type.resolveType(targetClass), maxRecursionDepth));
-            List<Field> fields = createFields(context);
-            ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_FIELDS, fields);//todo refactor to be part of TESTED_CLASS
-            List<Method> methods = createMethods(context.getSrcClass(),maxRecursionDepth, typeDictionary);
-            ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_METHODS, methods);//todo refactor to be part of TESTED_CLASS
+            final Type type = typeDictionary.getType(Type.resolveType(targetClass), maxRecursionDepth);
+            ctxtParams.put(TestMeTemplateParams.TESTED_CLASS, type);
+            ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_FIELDS, type == null ? null : type.getFields());
+            List<Method> methods = createMethods(context, maxRecursionDepth, typeDictionary);
+            ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_METHODS, methods);//todo refactor to be part of TESTED_CLASS?
         }
         logger.debug("Done building Test Template context in "+(new Date().getTime()-start)+" millis");
         return ctxtParams;
@@ -62,24 +63,65 @@ public class TestTemplateContextBuilder {
         return templateCtxtParams;
     }
 
-    @NotNull
-    private List<Field> createFields(FileTemplateContext context) {
-        ArrayList<Field> fields = new ArrayList<Field>();
-        PsiClass srcClass = context.getSrcClass();
-        for (PsiField psiField : srcClass.getAllFields()) {
-            //TODO mark fields initialized inline/in default constructor
-            if(!"groovy.lang.MetaClass".equals(psiField.getType().getCanonicalText())){
-                fields.add(new Field(psiField, PsiUtil.resolveClassInType(psiField.getType()), srcClass));
-            }
-        }
-        return fields;
-    }
-
-    private List<Method> createMethods(PsiClass srcClass, int maxRecursionDepth, TypeDictionary typeDictionary) {
+    private List<Method> createMethods(FileTemplateContext context, int maxRecursionDepth, TypeDictionary typeDictionary) {
         ArrayList<Method> methods = new ArrayList<Method>();
+        final TypeDictionary typeDictionaryOfInternalReferences = new TypeDictionary(context.getSrcClass(), context.getTargetPackage());
+        PsiClass srcClass = context.getSrcClass();
         for (PsiMethod psiMethod : srcClass.getAllMethods()) {
-            methods.add(new Method(psiMethod, srcClass, maxRecursionDepth, typeDictionary));
+            String ownerClassCanonicalType = psiMethod.getContainingClass() == null ? null : psiMethod.getContainingClass().getQualifiedName();
+            if (!Method.isInheritedFromObject(ownerClassCanonicalType)) {
+                final Method method = new Method(psiMethod, srcClass, maxRecursionDepth, typeDictionary);
+                logger.debug("Initialized Method: "+method);
+                final String methodId = method.getMethodId();
+                if (GroovyPsiTreeUtils.isGroovy(psiMethod.getLanguage()) && (methodId.endsWith(".invokeMethod(java.lang.String,java.lang.Object)") || methodId.endsWith(".getProperty(java.lang.String)") || methodId.endsWith(".setProperty(java.lang.String,java.lang.Object)"))) {
+                    continue;
+                }
+                method.resolveInternalReferences(psiMethod, typeDictionaryOfInternalReferences);
+                logger.debug("resolved internal references for "+ methodId);
+                logger.debug(method.getInternalReferences().toString());
+                methods.add(method);
+            }
+            /*
+            for each  method call (PsiMethodCallExpression) in tested class and parent classes:
+              - if getter ( or read property in groovy source) [or setter  - in a later stage will be used to init expected return type] - add it to dictionary
+              -store constructor calls - help deduct if return type was initialized by default ctor - only the used setters should be init in expected return type
+              -in future release - support groovy property read (implicitly) & direct field access + traverse methods recursively to relate all getter calls to specific method
+              -test generic methods and type params.use actual type params to pass when generating
+            */
+        }
+        for (int i = 0; i < maxRecursionDepth; i++) {
+            for (Method methodInTestedHierarchy : methods) {
+                final Set<Method> calledMethods = methodInTestedHierarchy.getCalledMethods();
+                final Set<Method> calledFamilyMembers = methodInTestedHierarchy.getCalledFamilyMembers();
+                final Set<Method> calledMethodsByCalledMethods = new HashSet<Method>();
+                final Set<Method> calledMethodsInMyTypeHierarchy = new HashSet<Method>();
+                for (Method calledMethod : calledMethods) {
+                    if (methods.contains(calledMethod)) {
+                        final Method method = find(methods, calledMethod.getMethodId());
+                        if (method != null) {
+                            calledMethodsInMyTypeHierarchy.add(method);
+                            calledMethodsByCalledMethods.addAll(method.getCalledMethods());
+                        }
+                    }
+                }
+                if (calledMethodsByCalledMethods.size() > 0) {
+                    calledMethods.addAll(calledMethodsByCalledMethods);
+                }
+                if (calledMethodsInMyTypeHierarchy.size() > 0) {
+                    calledFamilyMembers.addAll(calledMethodsInMyTypeHierarchy);
+                }
+            }
         }
         return methods;
     }
+
+    private Method find(ArrayList<Method> methods, String methodId) {
+        for (Method method : methods) {
+            if (method.getMethodId().equals(methodId)) {
+                return method;
+            }
+        }
+        return null;
+    }
+
 }

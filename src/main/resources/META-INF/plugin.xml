@@ -1,15 +1,15 @@
 <idea-plugin version="2">
   <id>com.weirddev.testme</id>
   <name>TestMe</name>
-  <version>1.4.0</version>
+  <version>1.5.0</version>
   <vendor email="testme@weirddev.com" url="http://weirddev.com">WeirdDev</vendor>
 
   <description><![CDATA[
-   <p>Auto Generate Unit Test Class from code.</p>
+   <p>Auto Generate Unit Tests for source class in Java or Groovy.</p>
    <p>No more boilerplate!</p>
    <h3>Features:</h3>
    <ul>
-     <li>Auto generate Java or Groovy test class with JUnit 4,5 & Spock</li>
+     <li>Auto generate Java or Groovy test code with JUnit 4/5, TestNG or Spock frameworks</li>
      <li>Auto generate Mockito mocks </li>
      <li>Generate test params and assertion statements</li>
      <li>Integrate with IDEA menus: Code->TestMe, Code->Generate</li>
@@ -18,14 +18,11 @@
     ]]></description>
 
   <change-notes><![CDATA[
-        <i>Main changes in v1.4.0:</i>
+        <i>Main changes in v1.5.0:</i>
           <ul>
-            <li>Spock framework support - added a new option on TestMe popup UI to generate Spock test</li>
-            <li>Better auto identification of matching test root directory in a multi module project without prompting the user></li>
-            <li>Initialize tested subject class directly when no mocks generated</li>
-            <li>Skip generation of mock supporting statements (imports, @Before..) when no mocks generated</li>
-            <li>Skip generation of test subject initialization statement when only static methods being tested</li>
-            <li>Improve constructor selection and initialization of non static nested classes</li>
+            <li>TestNG framework support - added a new option on TestMe popup UI to generate TestNG test class</li>
+            <li>Groovy test params generator improvements: do not initialize map constructor properties that are not used in tested class</li>
+            <li>Groovy test params generator improvements: prefer map constructor over biggest constructor if the type has 50% more setters than constructor arguments</li>
           </ul>
         <a href="http://weirddev.com/testme/release-notes">Complete Changelog</a>
     ]]>
