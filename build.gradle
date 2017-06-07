@@ -69,16 +69,10 @@ intellij {
     updateSinceUntilBuild false
     plugins = enableIdeaGroovyPlugin ? (mandatoryPlugins + 'Groovy') : mandatoryPlugins
 
-    publish{
-        username ideaPublishUsername
-        password ideaPublishPassword
-//        channels ideaPublishChannels
-    }
-    //old conf props
     publishPlugin {
         username ideaPublishUsername
         password ideaPublishPassword
-//        channels ideaPublishChannels
+        channels = [ideaPublishChannel]
     }
 }
 idea {
