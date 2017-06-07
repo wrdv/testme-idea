@@ -1,7 +1,7 @@
 <idea-plugin version="2">
   <id>com.weirddev.testme</id>
   <name>TestMe</name>
-  <version>1.5.0</version>
+  <version>1.5.1</version>
   <vendor email="testme@weirddev.com" url="http://weirddev.com">WeirdDev</vendor>
 
   <description><![CDATA[
@@ -18,11 +18,9 @@
     ]]></description>
 
   <change-notes><![CDATA[
-        <i>Main changes in v1.5.0:</i>
+        <i>Changes in v1.5.1:</i>
           <ul>
-            <li>TestNG framework support - a new option on TestMe popup UI to generate TestNG test class (requested by bkolasa)</li>
-            <li>Groovy test params generator improvements: do not initialize map constructor properties that are not used in tested class</li>
-            <li>Groovy test params generator improvements: prefer map constructor over biggest constructor if the type has 50% more setters than constructor arguments</li>
+            <li>bugfix: test params generator - Java Primitive wrappers should not be unwrapped to avoid method call ambiguity (reported by intars on June 6 '17)</li>
           </ul>
         <a href="http://weirddev.com/testme/release-notes">Complete Changelog</a>
     ]]>

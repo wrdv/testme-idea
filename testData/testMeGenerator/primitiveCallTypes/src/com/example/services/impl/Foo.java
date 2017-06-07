@@ -9,7 +9,7 @@ public class Foo{
 
     private FooFighter fooFighter;
 
-    public String fight(Fire withFire,String foeName,
+    public Double fight(Fire withFire,String foeName,
                         byte byteParam,
                         short shortParam,
                         int intParam,
@@ -28,6 +28,7 @@ public class Foo{
                         Boolean booleanParamWrapper,
                         BigDecimal bigDecimalParam
     ) {
-        return fooFighter.fight(withFire);
+        System.out.println(fooFighter.fight(withFire));
+        return doubleParamWrapper;
     }
 }
