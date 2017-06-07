@@ -20,7 +20,7 @@
   <change-notes><![CDATA[
         <i>Main changes in v1.5.0:</i>
           <ul>
-            <li>TestNG framework support - added a new option on TestMe popup UI to generate TestNG test class</li>
+            <li>TestNG framework support - a new option on TestMe popup UI to generate TestNG test class (requested by bkolasa)</li>
             <li>Groovy test params generator improvements: do not initialize map constructor properties that are not used in tested class</li>
             <li>Groovy test params generator improvements: prefer map constructor over biggest constructor if the type has 50% more setters than constructor arguments</li>
           </ul>
