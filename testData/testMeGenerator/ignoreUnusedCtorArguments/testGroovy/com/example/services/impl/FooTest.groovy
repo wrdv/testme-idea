@@ -2,9 +2,11 @@ package com.example.services.impl
 
 import com.example.beans.BeanByCtor
 import com.example.beans.BigBean
+import com.example.beans.JavaBean
 import com.example.foes.Ice
 import com.example.groovies.Groove
 import com.example.groovies.ImGroovy
+import com.example.groovies.ImGroovyWithTupleCtor
 import com.example.warriers.FooFighter
 import org.junit.Test
 import org.junit.Before
@@ -29,6 +31,12 @@ class FooTest {
     void testFind() {
         BigBean result = foo.find([new BeanByCtor("myName", new Ice(), null, 0d)], new ImGroovy(groove: new Groove(someString: "someString")))
         assert result == new BigBean(null, new Many("family", "members", "only"), null)
+    }
+
+    @Test
+    void testUseGroovyTypeWithCtor() {
+        Many result = foo.useGroovyTypeWithCtor(new ImGroovyWithTupleCtor("myName", null, [new JavaBean()]))
+        assert result == new Many("family", "members", "only")
     }
 }
 

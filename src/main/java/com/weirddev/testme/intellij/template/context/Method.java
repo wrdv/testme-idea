@@ -161,6 +161,7 @@ public class Method {
         }
         return fields;
     }
+
     public static PsiField resolveLeftHandExpressionAsField(@NotNull PsiExpression expr) {
         PsiElement parent = PsiTreeUtil.skipParentsOfType(expr, PsiParenthesizedExpression.class);
         if (!(parent instanceof PsiAssignmentExpression)) {

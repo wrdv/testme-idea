@@ -22,9 +22,9 @@ public class BeanByCtor {
         this.myDate = myDate;
     }
 
-    public BeanByCtor(String myName, Ice ice, Collection<JavaBean> myBeans,double myDouble) {
+    public BeanByCtor(String myName, Ice iceArg, Collection<JavaBean> myBeans,double myDouble) {
         this.myName = myName;
-        this.ice = ice;
+        this.ice = iceArg;
         this.myBeans = myBeans;
         this.myDouble = myDouble;
     }
