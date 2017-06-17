@@ -141,19 +141,21 @@ public class Method {
     private List<Param> extractMethodParams(PsiParameterList parameterList, TypeDictionary typeDictionary, int maxRecursionDepth, PsiMethod psiMethod) {
         ArrayList<Param> params = new ArrayList<Param>();
         for (PsiParameter psiParameter : parameterList.getParameters()) {
-            final ArrayList<Field> assignedToFields = findMatchingFields(psiParameter, new PsiMethod[]{psiMethod});
+            final ArrayList<Field> assignedToFields = findMatchingFields(psiParameter, psiMethod);
             params.add(new Param(psiParameter,typeDictionary,maxRecursionDepth,assignedToFields));
         }
         return params;
     }
-    private static ArrayList<Field> findMatchingFields(PsiParameter psiParameter, PsiMethod[] methods) {
+    private static ArrayList<Field> findMatchingFields(PsiParameter psiParameter, PsiMethod psiMethod) {
         final ArrayList<Field> fields = new ArrayList<Field>();
-        for (PsiReference reference : ReferencesSearch.search(psiParameter, new LocalSearchScope(methods))) {
-            final PsiElement element = reference.getElement();
-            if (element instanceof PsiExpression && !PsiUtil.isOnAssignmentLeftHand((PsiExpression)element)) {
-                final PsiField psiField = resolveLeftHandExpressionAsField((PsiExpression) element);
-                if (psiField != null) {
-                    fields.add(new Field(psiField, psiField.getContainingClass()));
+        if (!psiMethod.hasModifierProperty(PsiModifier.STATIC)) {
+            for (PsiReference reference : ReferencesSearch.search(psiParameter, new LocalSearchScope(new PsiMethod[]{psiMethod}))) {
+                final PsiElement element = reference.getElement();
+                if (element instanceof PsiExpression && !PsiUtil.isOnAssignmentLeftHand((PsiExpression)element)) {
+                    final PsiField psiField = resolveLeftHandExpressionAsField((PsiExpression) element);
+                    if (psiField != null) {
+                        fields.add(new Field(psiField, psiField.getContainingClass()));
+                    }
                 }
             }
         }
