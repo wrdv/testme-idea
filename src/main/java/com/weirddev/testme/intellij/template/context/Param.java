@@ -3,6 +3,8 @@ package com.weirddev.testme.intellij.template.context;
 import com.intellij.psi.PsiParameter;
 import com.weirddev.testme.intellij.template.TypeDictionary;
 
+import java.util.ArrayList;
+
 /**
  * Date: 24/10/2016
  * @author Yaron Yamin
@@ -10,14 +12,16 @@ import com.weirddev.testme.intellij.template.TypeDictionary;
 public class Param {
     private final Type type;
     private String name;
+    private final ArrayList<Field> assignedToFields;
 
-    public Param(PsiParameter psiParameter, TypeDictionary typeDictionary, int maxRecursionDepth) {
-        this(typeDictionary.getType(psiParameter.getType(), maxRecursionDepth), psiParameter.getName());
+    public Param(PsiParameter psiParameter, TypeDictionary typeDictionary, int maxRecursionDepth, ArrayList<Field> assignedToFields) {
+        this(typeDictionary.getType(psiParameter.getType(), maxRecursionDepth), psiParameter.getName(),assignedToFields);
     }
 
-    public Param(Type type, String name) {
+    public Param(Type type, String name, ArrayList<Field> assignedToFields) {
         this.type = type;
         this.name = name;
+        this.assignedToFields = assignedToFields;
     }
 
     public Type getType() {
@@ -28,6 +32,9 @@ public class Param {
         return name;
     }
 
+    public ArrayList<Field> getAssignedToFields() {
+        return assignedToFields;
+    }
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -86,7 +86,7 @@ public class Type {
     private void resolveFields(@NotNull PsiClass psiClass) {
         for (PsiField psiField : psiClass.getAllFields()) {
             if(!"groovy.lang.MetaClass".equals(psiField.getType().getCanonicalText())){
-                fields.add(new Field(psiField, PsiUtil.resolveClassInType(psiField.getType()), psiClass));
+                fields.add(new Field(psiField, psiClass));
             }
         }
     }

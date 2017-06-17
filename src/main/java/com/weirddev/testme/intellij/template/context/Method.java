@@ -1,12 +1,17 @@
 package com.weirddev.testme.intellij.template.context;
 
 import com.intellij.psi.*;
+import com.intellij.psi.search.LocalSearchScope;
+import com.intellij.psi.search.searches.ReferencesSearch;
 import com.intellij.psi.util.PropertyUtil;
+import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.psi.util.PsiUtil;
 import com.weirddev.testme.intellij.groovy.GroovyPsiTreeUtils;
 import com.weirddev.testme.intellij.groovy.ResolvedReference;
 import com.weirddev.testme.intellij.template.TypeDictionary;
 import com.weirddev.testme.intellij.utils.ClassNameUtils;
 import com.weirddev.testme.intellij.utils.JavaPsiTreeUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -54,7 +59,7 @@ public class Method {
         this.returnType = typeDictionary.getType(psiMethod.getReturnType(),maxRecursionDepth);
         name = psiMethod.getName();
         ownerClassCanonicalType = psiMethod.getContainingClass() == null ? null : psiMethod.getContainingClass().getQualifiedName();
-        methodParams = extractMethodParams(psiMethod.getParameterList(), typeDictionary, maxRecursionDepth);
+        methodParams = extractMethodParams(psiMethod.getParameterList(), typeDictionary, maxRecursionDepth,psiMethod);
         isSetter = PropertyUtil.isSimplePropertySetter(psiMethod)||PropertyUtil.isSimpleSetter(psiMethod);
         isGetter = PropertyUtil.isSimplePropertyGetter(psiMethod)||PropertyUtil.isSimpleGetter(psiMethod);
 //        final PsiField psiField = PropertyUtil.findPropertyFieldByMember(psiMethod);
@@ -133,12 +138,36 @@ public class Method {
         return (srcQualifiedName!=null && methodClsQualifiedName!=null &&  !srcQualifiedName.equals(methodClsQualifiedName));
     }
 
-    private List<Param> extractMethodParams(PsiParameterList parameterList, TypeDictionary typeDictionary, int maxRecursionDepth) {
+    private List<Param> extractMethodParams(PsiParameterList parameterList, TypeDictionary typeDictionary, int maxRecursionDepth, PsiMethod psiMethod) {
         ArrayList<Param> params = new ArrayList<Param>();
         for (PsiParameter psiParameter : parameterList.getParameters()) {
-            params.add(new Param(psiParameter,typeDictionary,maxRecursionDepth));
+            final ArrayList<Field> assignedToFields = findMatchingFields(psiParameter, new PsiMethod[]{psiMethod});
+            params.add(new Param(psiParameter,typeDictionary,maxRecursionDepth,assignedToFields));
         }
         return params;
+    }
+    private static ArrayList<Field> findMatchingFields(PsiParameter psiParameter, PsiMethod[] methods) {
+        final ArrayList<Field> fields = new ArrayList<Field>();
+        for (PsiReference reference : ReferencesSearch.search(psiParameter, new LocalSearchScope(methods))) {
+            final PsiElement element = reference.getElement();
+            if (element instanceof PsiExpression && !PsiUtil.isOnAssignmentLeftHand((PsiExpression)element)) {
+                final PsiField psiField = resolveLeftHandExpressionAsField((PsiExpression) element);
+                if (psiField != null) {
+                    fields.add(new Field(psiField, psiField.getContainingClass()));
+                }
+            }
+        }
+        return fields;
+    }
+    public static PsiField resolveLeftHandExpressionAsField(@NotNull PsiExpression expr) {
+        PsiElement parent = PsiTreeUtil.skipParentsOfType(expr, PsiParenthesizedExpression.class);
+        if (!(parent instanceof PsiAssignmentExpression)) {
+            return null;
+        }
+        final PsiAssignmentExpression psiAssignmentExpression = (PsiAssignmentExpression) parent;
+        final PsiReference reference = psiAssignmentExpression.getLExpression().getReference();
+        final PsiElement element = reference != null ? reference.resolve() : null;
+        return element == null || !(element instanceof PsiField) ? null : (PsiField)element ;
     }
 
     public String getName() {

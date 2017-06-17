@@ -12,7 +12,7 @@
      <li>Auto generate Java or Groovy test code with JUnit 4/5, TestNG or Spock frameworks</li>
      <li>Auto generate Mockito mocks </li>
      <li>Generate test params and assertion statements</li>
-     <li>Integrate with IDEA menus: Code->TestMe, Code->Generate</li>
+     <li>Integrates with IDEA menus: Code->TestMe, Code->Generate</li>
    </ul>
    <p>You're welcome to report issues and raise feature requests at <a href="http://weirddev.com/forum#!/testme">TestMe project forum</a></p>
     ]]></description>

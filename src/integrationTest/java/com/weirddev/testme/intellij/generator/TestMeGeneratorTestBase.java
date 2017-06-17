@@ -56,14 +56,14 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
         doTest(true, false, false);
     }
     protected void doTest(final boolean ignoreUnusedProperties) {
-        doTest("com.example.services.impl", "Foo", "FooTest", true, true, true, ignoreUnusedProperties,50);
+        doTest(true, true, true, 50, ignoreUnusedProperties);
     }
 
     protected void doTest(boolean reformatCode, boolean optimizeImports, boolean replaceFqn) {
-        doTest(reformatCode, optimizeImports, replaceFqn, 50);
+        doTest(reformatCode, optimizeImports, replaceFqn, 50, false);
     }
-    protected void doTest(boolean reformatCode, boolean optimizeImports, boolean replaceFqn, int minPercentOfExcessiveSettersToPreferDefaultCtor) {
-        doTest("com.example.services.impl", "Foo", "FooTest", reformatCode, optimizeImports, replaceFqn, false, minPercentOfExcessiveSettersToPreferDefaultCtor);
+    protected void doTest(boolean reformatCode, boolean optimizeImports, boolean replaceFqn, int minPercentOfExcessiveSettersToPreferDefaultCtor, boolean ignoreUnusedProperties) {
+        doTest("com.example.services.impl", "Foo", "FooTest", reformatCode, optimizeImports, replaceFqn, ignoreUnusedProperties, minPercentOfExcessiveSettersToPreferDefaultCtor);
     }
 
     protected void setTestModePropsForUI() {

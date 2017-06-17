@@ -3,6 +3,8 @@ package com.weirddev.testme.intellij.template.context;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiModifier;
+import com.intellij.psi.util.PsiUtil;
+import com.weirddev.testme.intellij.utils.ClassNameUtils;
 
 /**
  * Date: 24/10/2016
@@ -14,12 +16,15 @@ public class Field {
     private final boolean finalType;
     private final boolean isFinal;
     private final boolean isStatic;
+    private final String ownerClassCanonicalName;
     private String name;
 
-    public Field(PsiField psiField, PsiClass fieldTypeClass, PsiClass srcClass) {
+    public Field(PsiField psiField, PsiClass srcClass) {
         this.name = psiField.getName();
         type = new Type(psiField.getType(), null, 0);
-        finalType = isFinal(fieldTypeClass);
+        finalType = isFinal(PsiUtil.resolveClassInType(psiField.getType()));
+        String canonicalText = srcClass.getQualifiedName();
+        ownerClassCanonicalName = ClassNameUtils.stripArrayVarargsDesignator(canonicalText);
         overridden = isOverriddenInChild(psiField, srcClass);
         isFinal = psiField.getModifierList() != null && psiField.getModifierList().hasExplicitModifier(PsiModifier.FINAL);
         isStatic = psiField.getModifierList() != null && psiField.getModifierList().hasExplicitModifier(PsiModifier.STATIC);
@@ -54,5 +59,9 @@ public class Field {
 
     public boolean isStatic() {
         return isStatic;
+    }
+
+    public String getOwnerClassCanonicalName() {
+        return ownerClassCanonicalName;
     }
 }
