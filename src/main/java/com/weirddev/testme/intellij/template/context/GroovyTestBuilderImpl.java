@@ -18,21 +18,35 @@ import java.util.Map;
 public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
     private static final Logger LOG = Logger.getInstance(GroovyTestBuilderImpl.class.getName());
     public static final String PARAMS_SEPERATOR = ", ";
+    private final TestBuilder.ParamRole paramRole;//todo consider removing. not used anymore
+    /**
+     * do not invoke setter or getter for a property not used in tested method
+     */
     private boolean shouldIgnoreUnusedProperties;
-    private final TestBuilder.ParamUsageMode paramUsageMode;
+    /**
+     * If constructed type has more than this minimum percentage of setters over number of arguments in biggest constructor and default constructor is accessible
+     * then use initialize the type with default constructor and setters instead of biggest constructor
+     */
     private final int minPercentOfExcessiveSettersToPreferDefaultCtor;
+    /**
+     * Relevant when shouldIgnoreUnusedProperties is true. When the minimum percentage of all interactions with constructed type are via setters/getters or direct property field read/assignment - then the type is considered as a 'data' bean,
+     * so a null value is passed for any constructor argument that is bound to a field in the constructed type which is not used in the tested method
+     */
+    private final int minPercentOfInteractionWithPropertiesToTriggerConstructorOptimization;
 
-    public GroovyTestBuilderImpl(int maxRecursionDepth, Method method, boolean shouldIgnoreUnusedProperties, TestBuilder.ParamUsageMode paramUsageMode, int minPercentOfExcessiveSettersToPreferDefaultCtor) {
+    public GroovyTestBuilderImpl(int maxRecursionDepth, Method method, boolean shouldIgnoreUnusedProperties, TestBuilder.ParamRole paramRole, int minPercentOfExcessiveSettersToPreferDefaultCtor, int
+            minPercentOfInteractionWithPropertiesToTriggerConstructorOptimization) {
         super(maxRecursionDepth, method);
         this.shouldIgnoreUnusedProperties = shouldIgnoreUnusedProperties;
-        this.paramUsageMode = paramUsageMode;
+        this.paramRole = paramRole;
         this.minPercentOfExcessiveSettersToPreferDefaultCtor = minPercentOfExcessiveSettersToPreferDefaultCtor;
+        this.minPercentOfInteractionWithPropertiesToTriggerConstructorOptimization = minPercentOfInteractionWithPropertiesToTriggerConstructorOptimization;
     }
 
     @Override
     protected void buildCallParam(Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Param> paramNode) {
         final Type type = paramNode.getData().getType();
-        if (isPropertyParam(paramNode)) {
+        if (isPropertyParam(paramNode.getData())) {
             testBuilder.append(paramNode.getData().getName()).append(" : ");
         }
         if (type.isArray()) {
@@ -44,8 +58,8 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
         }
     }
 
-    private boolean isPropertyParam(Node<Param> paramNode) {
-        return paramNode.getData() instanceof SyntheticParam && ((SyntheticParam) paramNode.getData()).isProperty;
+    private boolean isPropertyParam(Param param) {
+        return param instanceof SyntheticParam && ((SyntheticParam) param).isProperty;
     }
 
     @Override
@@ -69,10 +83,17 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
     protected void buildGroovyCallParams(List<? extends Param> params, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Param> ownerParamNode) {
         final int origLength = testBuilder.length();
         if (params != null) {
-            for (int i = 0; i < params.size(); i++) {
-                final Node<Param> paramNode = new Node<Param>(params.get(i), ownerParamNode, ownerParamNode.getDepth() + 1);
-                if (isPropertyParam(paramNode) && shouldIgnoreUnusedProperties && testedMethod!=null && !isPropertyUsed(testedMethod, ownerParamNode.getData().getType(), paramNode.getData())) {
-                    continue;
+            final String ownerTypeCanonicalName = ownerParamNode.getData()==null?null:ownerParamNode.getData().getType().getCanonicalName();
+            boolean shouldOptimizeConstructorInitialization = ownerTypeCanonicalName!=null&& isShouldOptimizeConstructorInitialization(params, ownerTypeCanonicalName);
+            for (Param param : params) {
+                final Node<Param> paramNode = new Node<Param>(param, ownerParamNode, ownerParamNode.getDepth() + 1);
+                if (shouldIgnoreUnusedProperties && testedMethod != null) {
+                    if (isPropertyParam(paramNode.getData()) && ownerTypeCanonicalName != null && !isPropertyUsed(testedMethod, paramNode.getData(), ownerTypeCanonicalName)) {
+                        continue;
+                    } else if (shouldOptimizeConstructorInitialization && !param.getType().isPrimitive() && isUnused(testedMethod, param.getAssignedToFields())) {
+                        testBuilder.append("null"+PARAMS_SEPERATOR);
+                        continue;
+                    }
                 }
                 buildCallParam(replacementTypes, defaultTypeValues, testBuilder, paramNode);
                 testBuilder.append(PARAMS_SEPERATOR);
@@ -83,24 +104,75 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
         }
     }
 
-    private boolean isPropertyUsed(@NotNull Method testedMethod, Type paramOwnerType, Param propertyParam) {
+    private boolean isShouldOptimizeConstructorInitialization(List<? extends Param> params, String ownerTypeCanonicalName) {
+        boolean shouldOptimizeConstructorInitialization = false;
+        if (shouldIgnoreUnusedProperties && testedMethod != null && params.size() > 0) {
+            int nBeanUsages = 0;
+            int nTotalTypeUsages = 0;
+            for (Param param : params) {
+                if (!isUnused(testedMethod, param.getAssignedToFields())) {
+                    nBeanUsages++;
+                }
+            }
+            nTotalTypeUsages += countTypeReferences(ownerTypeCanonicalName, testedMethod);
+            for (Method method : testedMethod.getCalledFamilyMembers()) {
+                nTotalTypeUsages += countTypeReferences(ownerTypeCanonicalName, method);
+            }
+//            for (Method calledMethod : testedMethod.getCalledMethods()) {
+//                if (ownerTypeCanonicalName.equals(calledMethod.getOwnerClassCanonicalType()) ) {
+//                    nTotalTypeUsages++;
+//                }
+//            }
+            shouldOptimizeConstructorInitialization = shouldOptimizeConstructorInitialization(nTotalTypeUsages, nBeanUsages);
+        }
+        return shouldOptimizeConstructorInitialization;
+    }
+
+    private int countTypeReferences(String ownerTypeCanonicalName, Method method) {
+        int nTotalTypeReferences = 0;
+        if (method != null) {
+            for (Reference internalReference : method.getInternalReferences()) {
+                if (ownerTypeCanonicalName.equals(internalReference.getOwnerType().getCanonicalName())) {
+                    nTotalTypeReferences++;
+                }
+            }
+        }
+        return nTotalTypeReferences;
+    }
+
+    private boolean isUnused(Method testedMethod, ArrayList<Field> fields) {
+        int unusedFieldsCount=0;
+        for (Field field : fields) {
+            if (!isPropertyUsed(testedMethod, new SyntheticParam(field.getType(),field.getName(),true),field.getOwnerClassCanonicalName())) {
+                unusedFieldsCount++;
+            }
+        }
+        if (fields.size() > 0 && fields.size() == unusedFieldsCount) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private boolean isPropertyUsed(@NotNull Method testedMethod, Param propertyParam, String paramOwnerCanonicalName) {
         //todo migrate the logic of identifying setters/getters calls to JavaTestBuilder ( direct references)
-        if (isReferencedInMethod(testedMethod, paramOwnerType, propertyParam)) return true;
+        if (isReferencedInMethod(testedMethod, propertyParam, paramOwnerCanonicalName)) return true;
         for (Method calledMethod : testedMethod.getCalledMethods()) {
-            if (paramOwnerType.getCanonicalName().equals(calledMethod.getOwnerClassCanonicalType()) && (paramUsageMode== TestBuilder.ParamUsageMode.ReadFrom && calledMethod.isGetter()&& calledMethod.getReturnType().equals(propertyParam.getType()) ||
-                    paramUsageMode== TestBuilder.ParamUsageMode.CreateAs && calledMethod.isSetter() && calledMethod.getMethodParams().size()==1 && calledMethod.getMethodParams().get(0).getType().equals(propertyParam.getType()) ) && propertyParam.getName().equals(calledMethod.getPropertyName()) ) {
+            if (paramOwnerCanonicalName.equals(calledMethod.getOwnerClassCanonicalType()) &&
+                    (calledMethod.isGetter() && calledMethod.getReturnType().getCanonicalName().equals(propertyParam.getType().getCanonicalName()) ||
+                     calledMethod.isSetter() && calledMethod.getMethodParams().size()==1 && calledMethod.getMethodParams().get(0).getType().equals(propertyParam.getType()) ) && propertyParam.getName().equals(calledMethod.getPropertyName()) ) {
                 return true;
             }
         }
         for (Method method : testedMethod.getCalledFamilyMembers()) {
-            if (isReferencedInMethod(method, paramOwnerType, propertyParam)) return true;
+            if (isReferencedInMethod(method, propertyParam, paramOwnerCanonicalName)) return true;
         }
         return false;
     }
 
-    private boolean isReferencedInMethod(@NotNull Method testedMethod, Type paramOwnerType, Param propertyParam) {
+    private boolean isReferencedInMethod(@NotNull Method testedMethod, Param propertyParam, String paramOwnerTypeCanonicalName) {
         for (Reference internalReference : testedMethod.getInternalReferences()) {
-            if (paramOwnerType.equals(internalReference.getOwnerType()) && propertyParam.getType().equals(internalReference.getReferenceType()) && propertyParam.getName().equals(internalReference.getReferenceName())) {
+            if (paramOwnerTypeCanonicalName.equals(internalReference.getOwnerType().getCanonicalName()) && propertyParam.getType().equals(internalReference.getReferenceType()) && propertyParam.getName().equals(internalReference.getReferenceName())) {
                 return true;
             }
         }
@@ -163,6 +235,9 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
 
     boolean shouldPreferSettersOverCtor(int noOfCtorArgs, int noOfSetters) {
         return 0 < noOfSetters && (noOfCtorArgs * ((minPercentOfExcessiveSettersToPreferDefaultCtor + 100f) / 100f) <= ((float)noOfSetters) );
+    }
+    boolean shouldOptimizeConstructorInitialization(int nTotalTypeUsages, int nBeanUsages) {
+        return 0 < nBeanUsages && (nTotalTypeUsages * (minPercentOfInteractionWithPropertiesToTriggerConstructorOptimization / 100f) <= ((float)nBeanUsages) );
     }
 
     private int countSetters(Type type) {

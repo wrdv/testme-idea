@@ -27,6 +27,9 @@ public class TestMeGeneratorGroovyJunit4Test extends TestMeGeneratorJunit4Test {
     public void testIgnoreUnusedProperties() throws Exception{
         doTest(true); //todo nested class getter call not identified - property someLongerNum
     }
+    public void testIgnoreUnusedCtorArguments() throws Exception{
+        doTest(true,true,true,67, true);
+    }
     public void testDirectlyReferencedPropertiesNotIgnored() throws Exception{
         doTest("com.example.beans", "Foo", "FooTest", true, true, true, true, 50);
     }
@@ -37,6 +40,6 @@ public class TestMeGeneratorGroovyJunit4Test extends TestMeGeneratorJunit4Test {
         doTest(true,true,true);
     }
     public void testCtorOverSetters() throws Exception{
-        doTest(true,true,true,67);
+        doTest(true,true,true,67, false);
     }
 }

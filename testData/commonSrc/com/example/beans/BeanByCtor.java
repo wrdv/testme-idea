@@ -7,7 +7,7 @@ import java.util.Collection;
 /**
  * Created by Admin on 03/03/2017.
  */
-public class SettersOverCtors {
+public class BeanByCtor {
     String myName;
     Ice ice;
     Collection<JavaBean> myBeans;
@@ -22,13 +22,14 @@ public class SettersOverCtors {
         this.myDate = myDate;
     }
 
-    public SettersOverCtors(String myName, Ice ice, Collection<JavaBean> myBeans) {
+    public BeanByCtor(String myName, Ice ice, Collection<JavaBean> myBeans,double myDouble) {
         this.myName = myName;
         this.ice = ice;
         this.myBeans = myBeans;
+        this.myDouble = myDouble;
     }
 
-    public SettersOverCtors() {
+    public BeanByCtor() {
         myName="Slim Shady";
     }
 
