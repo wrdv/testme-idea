@@ -1,12 +1,10 @@
 package com.weirddev.testme.intellij.groovy;
+
 import com.intellij.lang.Language;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiMethod;
-import com.intellij.psi.PsiPolyVariantReference;
-import com.intellij.psi.PsiType;
+import com.intellij.psi.*;
 import com.intellij.psi.util.PsiTreeUtil;
-import org.jetbrains.plugins.groovy.lang.psi.api.statements.arguments.GrArgumentLabel;
-import org.jetbrains.plugins.groovy.lang.psi.api.statements.arguments.GrNamedArgument;
+import org.jetbrains.plugins.groovy.lang.psi.api.statements.expressions.GrAssignmentExpression;
+import org.jetbrains.plugins.groovy.lang.psi.api.statements.expressions.GrParenthesizedExpression;
 import org.jetbrains.plugins.groovy.lang.psi.api.statements.expressions.GrReferenceExpression;
 import org.jetbrains.plugins.groovy.lang.psi.api.statements.expressions.path.GrMethodCallExpression;
 import org.jetbrains.plugins.groovy.lang.psi.impl.statements.arguments.GrArgumentLabelImpl;
@@ -81,5 +79,18 @@ public class GroovyPsiTreeUtils {
         return null;
     }
 
-
+    public static PsiField resolveGrLeftHandExpressionAsField(PsiElement element) {
+        if (!(element instanceof GrReferenceExpression)) {
+            return null;
+        }
+        final GrReferenceExpression grExpr = (GrReferenceExpression) element;
+        PsiElement parent = PsiTreeUtil.skipParentsOfType(grExpr, GrParenthesizedExpression.class);
+        if (!(parent instanceof GrAssignmentExpression)) {
+            return null;
+        }
+        final GrAssignmentExpression grAssignmentExpression = (GrAssignmentExpression) parent;
+        final PsiReference reference = grAssignmentExpression.getLValue().getReference();
+        final PsiElement possibleFieldElement = reference != null ? reference.resolve() : null;
+        return possibleFieldElement == null || !(possibleFieldElement instanceof PsiField) ? null : (PsiField)possibleFieldElement ;
+    }
 }
