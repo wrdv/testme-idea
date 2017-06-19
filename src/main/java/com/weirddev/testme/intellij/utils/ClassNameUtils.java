@@ -50,10 +50,9 @@ public class ClassNameUtils {
         } else return null;
     }
 
-    @NotNull
-    public static String removeFromCamelCaseName(String name, String set) {
-        final String removed = name.replaceFirst(set, "");
-        return removed.substring(0, 1).toLowerCase() + removed.substring(1, removed.length());
+    public static String removeFromCamelCaseName(String name, String prefix) {
+        final String removed = name.replaceFirst(prefix, "");
+        return removed.length()==0 ? null:removed.substring(0, 1).toLowerCase() + removed.substring(1, removed.length());
     }
 
     public static boolean isVarargs(String canonicalText) {
