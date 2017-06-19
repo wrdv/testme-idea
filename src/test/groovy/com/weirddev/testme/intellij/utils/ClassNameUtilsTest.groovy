@@ -81,6 +81,11 @@ class ClassNameUtilsTest {
         String result = ClassNameUtils.removeFromCamelCaseName("setMyName", "set")
         assert result == "myName"
     }
+    @Test
+    void testRemoveFromCamelCaseNameReturnNullWhenInvalid() {
+        String result = ClassNameUtils.removeFromCamelCaseName("set", "set")
+        assert result == null
+    }
 }
 
 //Generated with love by TestMe :) Please report issues and submit feature requests at: http://weirddev.com/forum#!/testme
