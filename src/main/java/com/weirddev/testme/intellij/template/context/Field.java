@@ -64,4 +64,24 @@ public class Field {
     public String getOwnerClassCanonicalName() {
         return ownerClassCanonicalName;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Field)) return false;
+
+        Field field = (Field) o;
+
+        if (!type.equals(field.type)) return false;
+        if (!ownerClassCanonicalName.equals(field.ownerClassCanonicalName)) return false;
+        return name.equals(field.name);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = type.hashCode();
+        result = 31 * result + ownerClassCanonicalName.hashCode();
+        result = 31 * result + name.hashCode();
+        return result;
+    }
 }

@@ -2,7 +2,7 @@ package com.weirddev.testme.intellij.utils;
 import com.intellij.psi.*;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.weirddev.testme.intellij.groovy.ResolvedReference;
-import com.weirddev.testme.intellij.template.context.Method;
+import com.weirddev.testme.intellij.template.context.MethodCallArgument;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -44,15 +44,43 @@ public class JavaPsiTreeUtils {
     }
 
     @NotNull
-    public static List<PsiMethod> findMethodCalls(PsiMethod psiMethod) {
-        List<PsiMethod> psiMethods=new ArrayList<PsiMethod>();
-        final Collection<PsiMethodCallExpression> psiMethodCallExpressions = PsiTreeUtil.findChildrenOfType(psiMethod, PsiMethodCallExpression.class);
-        for (PsiMethodCallExpression psiMethodCallExpression : psiMethodCallExpressions) {
+    public static List<MethodCalled> findMethodCalls(PsiMethod psiMethod) {
+        List<MethodCalled> psiMethods=new ArrayList<MethodCalled>();
+        final Collection<PsiCallExpression> psiMethodCallExpressions = PsiTreeUtil.findChildrenOfType(psiMethod, PsiCallExpression.class);
+        for (PsiCallExpression psiMethodCallExpression : psiMethodCallExpressions) {
+            final PsiExpressionList argumentList = psiMethodCallExpression.getArgumentList();
+            final ArrayList<MethodCallArgument> methodCallArguments = new ArrayList<MethodCallArgument>();
+            if (argumentList != null) {
+                for (PsiElement psiElement : argumentList.getChildren()) {
+                    if (psiElement instanceof PsiJavaToken) {
+                        continue;
+                    }
+                    methodCallArguments.add(new MethodCallArgument(psiElement.getText()==null?"":psiElement.getText().trim()));
+                }
+            }
             final PsiMethod psiMethodResolved = psiMethodCallExpression.resolveMethod();
             if (psiMethodResolved != null) {
-                psiMethods.add(psiMethodResolved);
+                psiMethods.add(new MethodCalled(psiMethodResolved,methodCallArguments));
             }
         }
         return psiMethods;
+    }
+
+    public static class MethodCalled {
+        private final PsiMethod psiMethod;
+        private final ArrayList<MethodCallArgument> methodCallArguments;
+
+        public MethodCalled(PsiMethod psiMethod, ArrayList<MethodCallArgument> methodCallArguments) {
+            this.psiMethod = psiMethod;
+            this.methodCallArguments = methodCallArguments;
+        }
+
+        public PsiMethod getPsiMethod() {
+            return psiMethod;
+        }
+
+        public ArrayList<MethodCallArgument> getMethodCallArguments() {
+            return methodCallArguments;
+        }
     }
 }

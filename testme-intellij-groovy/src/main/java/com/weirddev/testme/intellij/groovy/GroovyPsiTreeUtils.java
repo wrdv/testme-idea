@@ -4,9 +4,9 @@ import com.intellij.lang.Language;
 import com.intellij.psi.*;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.plugins.groovy.lang.psi.api.statements.expressions.GrAssignmentExpression;
+import org.jetbrains.plugins.groovy.lang.psi.api.statements.expressions.GrCall;
 import org.jetbrains.plugins.groovy.lang.psi.api.statements.expressions.GrParenthesizedExpression;
 import org.jetbrains.plugins.groovy.lang.psi.api.statements.expressions.GrReferenceExpression;
-import org.jetbrains.plugins.groovy.lang.psi.api.statements.expressions.path.GrMethodCallExpression;
 import org.jetbrains.plugins.groovy.lang.psi.impl.statements.arguments.GrArgumentLabelImpl;
 
 import java.util.ArrayList;
@@ -48,8 +48,8 @@ public class GroovyPsiTreeUtils {
 
     public static List<PsiMethod> findMethodCalls(PsiElement psiMethod){
         List<PsiMethod> psiMethods=new ArrayList<PsiMethod>();
-        final Collection<GrMethodCallExpression> grMethodCallExpressions = PsiTreeUtil.findChildrenOfType(psiMethod, GrMethodCallExpression.class);
-        for (GrMethodCallExpression grMethodCallExpression : grMethodCallExpressions) {
+        final Collection<GrCall> grMethodCallExpressions = PsiTreeUtil.findChildrenOfType(psiMethod, GrCall.class);
+        for (GrCall grMethodCallExpression : grMethodCallExpressions) {
             final PsiMethod psiMethodResolved  = grMethodCallExpression.resolveMethod();
             if (psiMethodResolved != null) {
                 psiMethods.add(psiMethodResolved);

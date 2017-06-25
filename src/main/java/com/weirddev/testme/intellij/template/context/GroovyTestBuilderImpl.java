@@ -115,14 +115,9 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
                 }
             }
             nTotalTypeUsages += countTypeReferences(ownerTypeCanonicalName, testedMethod);
-            for (Method method : testedMethod.getCalledFamilyMembers()) {
-                nTotalTypeUsages += countTypeReferences(ownerTypeCanonicalName, method);
+            for (MethodCall methodCall : testedMethod.getCalledFamilyMembers()) {
+                nTotalTypeUsages += countTypeReferences(ownerTypeCanonicalName, methodCall.getMethod());
             }
-//            for (Method calledMethod : testedMethod.getCalledMethods()) {
-//                if (ownerTypeCanonicalName.equals(calledMethod.getOwnerClassCanonicalType()) ) {
-//                    nTotalTypeUsages++;
-//                }
-//            }
             shouldOptimizeConstructorInitialization = shouldOptimizeConstructorInitialization(nTotalTypeUsages, nBeanUsages);
         }
         return shouldOptimizeConstructorInitialization;
@@ -157,15 +152,39 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
     private boolean isPropertyUsed(@NotNull Method testedMethod, Param propertyParam, String paramOwnerCanonicalName) {
         //todo migrate the logic of identifying setters/getters calls to JavaTestBuilder ( direct references)
         if (isReferencedInMethod(testedMethod, propertyParam, paramOwnerCanonicalName)) return true;
-        for (Method calledMethod : testedMethod.getCalledMethods()) {
-            if (paramOwnerCanonicalName.equals(calledMethod.getOwnerClassCanonicalType()) &&
-                    (calledMethod.isGetter() && calledMethod.getReturnType().getCanonicalName().equals(propertyParam.getType().getCanonicalName()) ||
-                     calledMethod.isSetter() && calledMethod.getMethodParams().size()==1 && calledMethod.getMethodParams().get(0).getType().equals(propertyParam.getType()) ) && propertyParam.getName().equals(calledMethod.getPropertyName()) ) {
+        for (MethodCall methodCall : testedMethod.getMethodCalls()) {
+            final Method method = methodCall.getMethod();
+            if (paramOwnerCanonicalName.equals(method.getOwnerClassCanonicalType()) &&
+                    (isGetterUsed(propertyParam, method) || isSetterUsed(propertyParam, method) || isConstructorArgumentUsed(propertyParam, paramOwnerCanonicalName, methodCall, method))) {
                 return true;
             }
         }
-        for (Method method : testedMethod.getCalledFamilyMembers()) {
-            if (isReferencedInMethod(method, propertyParam, paramOwnerCanonicalName)) return true;
+        for (MethodCall methodCall : testedMethod.getCalledFamilyMembers()) {
+            if (isReferencedInMethod(methodCall.getMethod(), propertyParam, paramOwnerCanonicalName)) return true;
+        }
+        return false;
+    }
+
+    private boolean isConstructorArgumentUsed(Param propertyParam, String paramOwnerCanonicalName, MethodCall methodCall, Method method) {
+        return method.isConstructor()  /*&& hasFieldMapping(method.getMethodParams(),propertyParam, paramOwnerCanonicalName)*/ && hasNonNullFieldMapping(methodCall, propertyParam,paramOwnerCanonicalName);
+    }
+
+    private boolean isSetterUsed(Param propertyParam, Method calledMethod) {
+        return calledMethod.isSetter() && calledMethod.getMethodParams().size()==1 && calledMethod.getMethodParams().get(0).getType().equals(propertyParam.getType()) && propertyParam.getName().equals(calledMethod.getPropertyName());
+    }
+
+    private boolean isGetterUsed(Param propertyParam, Method calledMethod) {
+        return calledMethod.isGetter() && calledMethod.getReturnType().getCanonicalName().equals(propertyParam.getType().getCanonicalName());
+    }
+
+    private boolean hasNonNullFieldMapping(MethodCall methodCall, Param propertyParam, String paramOwnerCanonicalName) {
+        for (int i = 0; i < methodCall.getMethod().getMethodParams().size(); i++) {
+            for (Field field : methodCall.getMethod().getMethodParams().get(i).getAssignedToFields()) {
+                if (methodCall.getMethodCallArguments() != null && methodCall.getMethodCallArguments().size() > i   && !"null".equals(methodCall.getMethodCallArguments().get(i).getText())
+                        && field.getName().equals(propertyParam.getName()) && field.getType().equals(propertyParam.getType()) && field.getOwnerClassCanonicalName().equals(paramOwnerCanonicalName)) {
+                    return true;
+                }
+            }
         }
         return false;
     }

@@ -14,6 +14,14 @@ public class Many {
         this.members = members;
         this.only = only;
     }
+    public Many(String family){
+        this.family = family;
+    }
+
+    public void setMembers(String members) {
+        this.members = members;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
