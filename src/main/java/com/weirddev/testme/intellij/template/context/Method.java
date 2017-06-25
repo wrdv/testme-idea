@@ -42,9 +42,9 @@ public class Method {
     private final boolean inherited;
     private final boolean isInInterface;
     private final String propertyName;
-    private Set<Method> directlyCalledMethods = new HashSet<Method>();
-    private Set<Method> calledMethods = new HashSet<Method>();//methods called directly from this method or on the call stack from this method via other methods belonging to the same type hierarchy
-    private final Set<Method> calledFamilyMembers=new HashSet<Method>();//called other methods of this method owner's class type or one of it's ancestor type. Method objects of the class under test have more data resolved such as internalReferences
+    private Set<MethodCall> directMethodCalls = new HashSet<MethodCall>();
+    private Set<MethodCall> methodCalls = new HashSet<MethodCall>();//methods called directly from this method or on the call stack from this method via other methods belonging to the same type hierarchy
+    private final Set<MethodCall> calledFamilyMembers=new HashSet<MethodCall>();//called other methods of this method owner's class type or one of it's ancestor type. MethodCalled objects of the class under test have more data resolved such as internalReferences
     private Set<Reference> internalReferences = new HashSet<Reference>();
     private final String methodId;
 
@@ -114,17 +114,17 @@ public class Method {
     }
     private void resolveCalledMethods(PsiMethod psiMethod, TypeDictionary typeDictionary) {
         if (GroovyPsiTreeUtils.isGroovy(psiMethod.getLanguage())) {
-            for (PsiMethod methodCall : GroovyPsiTreeUtils.findMethodCalls(psiMethod)) {
-                this.directlyCalledMethods.add(new Method(methodCall, null, 1, typeDictionary));
+            for (PsiMethod method : GroovyPsiTreeUtils.findMethodCalls(psiMethod)) {
+                this.directMethodCalls.add(new MethodCall(new Method(method, null, 1, typeDictionary),null));//todo handle for groovy as well after *.context migrated to a new module
             }
         } else {
-            List<PsiMethod> psiMethods = JavaPsiTreeUtils.findMethodCalls(psiMethod);
-            for (PsiMethod method : psiMethods) {
-                this.directlyCalledMethods.add(new Method(method, null, 1, typeDictionary));
+            List<JavaPsiTreeUtils.MethodCalled> psiMethods = JavaPsiTreeUtils.findMethodCalls(psiMethod);
+            for (JavaPsiTreeUtils.MethodCalled methodCall : psiMethods) {
+                this.directMethodCalls.add(new MethodCall(new Method(methodCall.getPsiMethod(), null, 1, typeDictionary),methodCall.getMethodCallArguments()));
             }
 
         }
-        calledMethods = this.directlyCalledMethods;
+        methodCalls = this.directMethodCalls;
     }
 
     private boolean isOverriddenInChild(PsiMethod method, PsiClass srcClass) {
@@ -253,8 +253,8 @@ public class Method {
         return propertyName;
     }
 
-    public Set<Method> getCalledMethods() {
-        return calledMethods;
+    public Set<MethodCall> getMethodCalls() {
+        return methodCalls;
     }
 
     public String getMethodId() {
@@ -280,7 +280,7 @@ public class Method {
         return methodId.hashCode();
     }
 
-    public Set<Method> getCalledFamilyMembers() {
+    public Set<MethodCall> getCalledFamilyMembers() {
         return calledFamilyMembers;
     }
 
@@ -288,7 +288,7 @@ public class Method {
     public String toString() {
         return "Method{" + "returnType=" + returnType + ", name='" + name + '\'' + ", ownerClassCanonicalType='" + ownerClassCanonicalType + '\'' + ", methodParams=" + methodParams + ", isPrivate=" + isPrivate + ", isProtected=" + isProtected + "," +
                 " isDefault=" + isDefault + ", isPublic=" + isPublic + ", isAbstract=" + isAbstract + ", isNative=" + isNative + ", isStatic=" + isStatic + ", isSetter=" + isSetter + ", isGetter=" + isGetter + ", constructor=" + constructor + ", " +
-                "overridden=" + overridden + ", inherited=" + inherited + ", isInInterface=" + isInInterface + ", propertyName='" + propertyName + '\'' + ", directlyCalledMethods=" + directlyCalledMethods +
+                "overridden=" + overridden + ", inherited=" + inherited + ", isInInterface=" + isInInterface + ", propertyName='" + propertyName + '\'' + ", directMethodCalls=" + directMethodCalls +
                 ", internalReferences=" + internalReferences + ", methodId='" + methodId + '\'' + '}';
     }
 }

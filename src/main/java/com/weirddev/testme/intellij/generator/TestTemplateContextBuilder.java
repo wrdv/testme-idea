@@ -91,24 +91,24 @@ public class TestTemplateContextBuilder {
         }
         for (int i = 0; i < maxRecursionDepth; i++) {
             for (Method methodInTestedHierarchy : methods) {
-                final Set<Method> calledMethods = methodInTestedHierarchy.getCalledMethods();
-                final Set<Method> calledFamilyMembers = methodInTestedHierarchy.getCalledFamilyMembers();
-                final Set<Method> calledMethodsByCalledMethods = new HashSet<Method>();
-                final Set<Method> calledMethodsInMyTypeHierarchy = new HashSet<Method>();
-                for (Method calledMethod : calledMethods) {
-                    if (methods.contains(calledMethod)) {
-                        final Method method = find(methods, calledMethod.getMethodId());
+                final Set<MethodCall> methodCalls = methodInTestedHierarchy.getMethodCalls();
+                final Set<MethodCall> calledFamilyMembers = methodInTestedHierarchy.getCalledFamilyMembers();
+                final Set<MethodCall> calledMethodsByMethodCalls = new HashSet<MethodCall>();
+                final Set<MethodCall> methodsInMyTypeHierarchyCall = new HashSet<MethodCall>();
+                for (MethodCall methodCall : methodCalls) {
+                    if (methods.contains(methodCall.getMethod())) {
+                        final Method method = find(methods, methodCall.getMethod().getMethodId());
                         if (method != null) {
-                            calledMethodsInMyTypeHierarchy.add(method);
-                            calledMethodsByCalledMethods.addAll(method.getCalledMethods());
+                            methodsInMyTypeHierarchyCall.add(new MethodCall(method,methodCall.getMethodCallArguments()));
+                            calledMethodsByMethodCalls.addAll(method.getMethodCalls());
                         }
                     }
                 }
-                if (calledMethodsByCalledMethods.size() > 0) {
-                    calledMethods.addAll(calledMethodsByCalledMethods);
+                if (calledMethodsByMethodCalls.size() > 0) {
+                    methodCalls.addAll(calledMethodsByMethodCalls);
                 }
-                if (calledMethodsInMyTypeHierarchy.size() > 0) {
-                    calledFamilyMembers.addAll(calledMethodsInMyTypeHierarchy);
+                if (methodsInMyTypeHierarchyCall.size() > 0) {
+                    calledFamilyMembers.addAll(methodsInMyTypeHierarchyCall);
                 }
             }
         }
