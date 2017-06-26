@@ -151,11 +151,15 @@ public class Method {
         if (!psiMethod.hasModifierProperty(PsiModifier.STATIC)) {
             for (PsiReference reference : ReferencesSearch.search(psiParameter, new LocalSearchScope(new PsiMethod[]{psiMethod}))) {
                 final PsiElement element = reference.getElement();
-                if (element instanceof PsiExpression && !PsiUtil.isOnAssignmentLeftHand((PsiExpression)element)) {
-                    final PsiField psiField = resolveLeftHandExpressionAsField((PsiExpression) element);
-                    if (psiField != null) {
-                        fields.add(new Field(psiField, psiField.getContainingClass()));
-                    }
+                PsiField psiField = null;
+                if (GroovyPsiTreeUtils.isGroovy(element.getLanguage())) {
+                    psiField = GroovyPsiTreeUtils.resolveGrLeftHandExpressionAsField(element);
+                }
+                else if (element instanceof PsiExpression && !PsiUtil.isOnAssignmentLeftHand((PsiExpression) element)) {
+                    psiField = resolveLeftHandExpressionAsField((PsiExpression) element);
+                }
+                if (psiField != null) {
+                    fields.add(new Field(psiField, psiField.getContainingClass()));
                 }
             }
         }
