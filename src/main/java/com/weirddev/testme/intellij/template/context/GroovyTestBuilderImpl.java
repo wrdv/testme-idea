@@ -166,7 +166,7 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
     }
 
     private boolean isConstructorArgumentUsed(Param propertyParam, String paramOwnerCanonicalName, MethodCall methodCall, Method method) {
-        return method.isConstructor()  /*&& hasFieldMapping(method.getMethodParams(),propertyParam, paramOwnerCanonicalName)*/ && hasNonNullFieldMapping(methodCall, propertyParam,paramOwnerCanonicalName);
+        return method.isConstructor() && hasNonNullFieldMapping(methodCall, propertyParam,paramOwnerCanonicalName);
     }
 
     private boolean isSetterUsed(Param propertyParam, Method calledMethod) {

@@ -29,4 +29,8 @@ public class Foo {
         many.setMembers(groovyTypeArg.getMyBeans().size()+"");
         return many;
     }
+    public ImGroovyWithTupleCtor returnGroovyType(ImGroovy grArg){
+        ImGroovyWithTupleCtor returnVal=new ImGroovyWithTupleCtor(null,grArg.getIce(),grArg.getMyBeans());
+        return returnVal;
+    }
 }

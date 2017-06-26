@@ -118,8 +118,7 @@ public class Method {
                 this.directMethodCalls.add(new MethodCall(new Method(method, null, 1, typeDictionary),null));//todo handle for groovy as well after *.context migrated to a new module
             }
         } else {
-            List<JavaPsiTreeUtils.MethodCalled> psiMethods = JavaPsiTreeUtils.findMethodCalls(psiMethod);
-            for (JavaPsiTreeUtils.MethodCalled methodCall : psiMethods) {
+            for (JavaPsiTreeUtils.MethodCalled methodCall : JavaPsiTreeUtils.findMethodCalls(psiMethod)) {
                 this.directMethodCalls.add(new MethodCall(new Method(methodCall.getPsiMethod(), null, 1, typeDictionary),methodCall.getMethodCallArguments()));
             }
 
