@@ -1,6 +1,6 @@
 package com.weirddev.testme.intellij.template.context;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Date: 23/06/2017
@@ -9,10 +9,10 @@ import java.util.ArrayList;
  */
 public class MethodCall {
     private final Method method;
-    private final ArrayList<MethodCallArgument> methodCallArguments;
+    private final List<MethodCallArgument> methodCallArguments;
 
 
-    public MethodCall(Method method, ArrayList<MethodCallArgument> methodCallArguments) {
+    public MethodCall(Method method, List<MethodCallArgument> methodCallArguments) {
 
         this.method = method;
         this.methodCallArguments = methodCallArguments;
@@ -22,7 +22,7 @@ public class MethodCall {
         return method;
     }
 
-    public ArrayList<MethodCallArgument> getMethodCallArguments() {
+    public List<MethodCallArgument> getMethodCallArguments() {
         return methodCallArguments;
     }
 }
