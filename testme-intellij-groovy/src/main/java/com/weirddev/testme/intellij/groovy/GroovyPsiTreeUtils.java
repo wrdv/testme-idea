@@ -3,6 +3,7 @@ package com.weirddev.testme.intellij.groovy;
 import com.intellij.lang.Language;
 import com.intellij.psi.*;
 import com.intellij.psi.util.PsiTreeUtil;
+import org.jetbrains.plugins.groovy.lang.psi.api.statements.arguments.GrArgumentList;
 import org.jetbrains.plugins.groovy.lang.psi.api.statements.expressions.GrAssignmentExpression;
 import org.jetbrains.plugins.groovy.lang.psi.api.statements.expressions.GrCall;
 import org.jetbrains.plugins.groovy.lang.psi.api.statements.expressions.GrParenthesizedExpression;
@@ -46,13 +47,23 @@ public class GroovyPsiTreeUtils {
         return resolvedReferences;
     }
 
-    public static List<PsiMethod> findMethodCalls(PsiElement psiMethod){
-        List<PsiMethod> psiMethods=new ArrayList<PsiMethod>();
+    public static List<MethodCalled> findMethodCalls(PsiElement psiMethod){
+        List<MethodCalled> psiMethods=new ArrayList<MethodCalled>();
         final Collection<GrCall> grMethodCallExpressions = PsiTreeUtil.findChildrenOfType(psiMethod, GrCall.class);
         for (GrCall grMethodCallExpression : grMethodCallExpressions) {
-            final PsiMethod psiMethodResolved  = grMethodCallExpression.resolveMethod();
+            final GrArgumentList argumentList = grMethodCallExpression.getArgumentList();
+            final ArrayList<String> methodCallArguments = new ArrayList<String>();
+            if (argumentList != null) {
+                for (PsiElement psiElement : argumentList.getChildren()) {
+                    if (psiElement instanceof PsiJavaToken) {
+                        continue;
+                    }
+                    methodCallArguments.add(psiElement.getText()==null?"":psiElement.getText().trim());
+                }
+            }
+            final PsiMethod psiMethodResolved  = grMethodCallExpression.resolveMethod();//todo fix issue with methods not resolved in old idea versions
             if (psiMethodResolved != null) {
-                psiMethods.add(psiMethodResolved);
+                psiMethods.add(new MethodCalled(psiMethodResolved,methodCallArguments));
             }
         }
         final Collection<GrArgumentLabelImpl> grArgLabels = PsiTreeUtil.findChildrenOfType(psiMethod, GrArgumentLabelImpl.class);
@@ -60,7 +71,7 @@ public class GroovyPsiTreeUtils {
             final PsiElement psiElement = grArgumentLabel.resolve();
             if (psiElement != null && psiElement instanceof PsiMethod) {
                 final PsiMethod psiMethodResolved  = (PsiMethod) psiElement;
-                psiMethods.add(psiMethodResolved);
+                psiMethods.add(new MethodCalled(psiMethodResolved,null));//todo resolve args for this scenario as well?
             }
         }
         return psiMethods;
@@ -92,5 +103,23 @@ public class GroovyPsiTreeUtils {
         final PsiReference reference = grAssignmentExpression.getLValue().getReference();
         final PsiElement possibleFieldElement = reference != null ? reference.resolve() : null;
         return possibleFieldElement == null || !(possibleFieldElement instanceof PsiField) ? null : (PsiField)possibleFieldElement ;
+    }
+
+    public static class MethodCalled {
+        private final PsiMethod psiMethod;
+        private final ArrayList<String> methodCallArguments;
+
+        public MethodCalled(PsiMethod psiMethod, ArrayList<String> methodCallArguments) {
+            this.psiMethod = psiMethod;
+            this.methodCallArguments = methodCallArguments;
+        }
+
+        public PsiMethod getPsiMethod() {
+            return psiMethod;
+        }
+
+        public ArrayList<String> getMethodCallArguments() {
+            return methodCallArguments;
+        }
     }
 }

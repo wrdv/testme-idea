@@ -114,8 +114,8 @@ public class Method {
     }
     private void resolveCalledMethods(PsiMethod psiMethod, TypeDictionary typeDictionary) {
         if (GroovyPsiTreeUtils.isGroovy(psiMethod.getLanguage())) {
-            for (PsiMethod method : GroovyPsiTreeUtils.findMethodCalls(psiMethod)) {
-                this.directMethodCalls.add(new MethodCall(new Method(method, null, 1, typeDictionary),null));//todo handle for groovy as well after *.context migrated to a new module
+            for (GroovyPsiTreeUtils.MethodCalled methodCalled : GroovyPsiTreeUtils.findMethodCalls(psiMethod)) {
+                this.directMethodCalls.add(new MethodCall(new Method(methodCalled.getPsiMethod(), null, 1, typeDictionary),convertArgs(methodCalled.getMethodCallArguments())));
             }
         } else {
             for (JavaPsiTreeUtils.MethodCalled methodCall : JavaPsiTreeUtils.findMethodCalls(psiMethod)) {
@@ -124,6 +124,14 @@ public class Method {
 
         }
         methodCalls = this.directMethodCalls;
+    }
+
+    private List<MethodCallArgument> convertArgs(List<String> methodCallArguments) {
+        final ArrayList<MethodCallArgument> methodCallArgs = new ArrayList<MethodCallArgument>();
+        for (String methodCallArgument : methodCallArguments) {
+            methodCallArgs.add(new MethodCallArgument(methodCallArgument));
+        }
+        return methodCallArgs;
     }
 
     private boolean isOverriddenInChild(PsiMethod method, PsiClass srcClass) {
