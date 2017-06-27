@@ -128,8 +128,10 @@ public class Method {
 
     private List<MethodCallArgument> convertArgs(List<String> methodCallArguments) {
         final ArrayList<MethodCallArgument> methodCallArgs = new ArrayList<MethodCallArgument>();
-        for (String methodCallArgument : methodCallArguments) {
-            methodCallArgs.add(new MethodCallArgument(methodCallArgument));
+        if (methodCallArguments != null) {
+            for (String methodCallArgument : methodCallArguments) {
+                methodCallArgs.add(new MethodCallArgument(methodCallArgument));
+            }
         }
         return methodCallArgs;
     }
