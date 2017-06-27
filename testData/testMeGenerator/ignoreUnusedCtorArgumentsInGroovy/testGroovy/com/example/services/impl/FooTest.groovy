@@ -29,7 +29,7 @@ class FooTest {
 
     @Test
     void testFind() {
-        BigBean result = foo.find([new BeanByCtor("myName", new Ice(), null, 0d)], new ImGroovy(groove: new Groove(someString: "someString")))
+        BigBean result = foo.find([new BeanByCtor("myName", null, null, 0d)], new ImGroovy(groove: new Groove(someString: "someString")))
         assert result == new BigBean(null, new Many("family", "members", null), null)
     }
 
