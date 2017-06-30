@@ -81,38 +81,35 @@ public class TestTemplateContextBuilder {
                 logger.debug(method.getInternalReferences().toString());
                 methods.add(method);
             }
-            /*
-            for each  method call (PsiMethodCallExpression) in tested class and parent classes:
-              - if getter ( or read property in groovy source) [or setter  - in a later stage will be used to init expected return type] - add it to dictionary
-              -store constructor calls - help deduct if return type was initialized by default ctor - only the used setters should be init in expected return type
-              -in future release - support groovy property read (implicitly) & direct field access + traverse methods recursively to relate all getter calls to specific method
-              -test generic methods and type params.use actual type params to pass when generating
-            */
         }
-        for (int i = 0; i < maxRecursionDepth; i++) {
-            for (Method methodInTestedHierarchy : methods) {
-                final Set<MethodCall> methodCalls = methodInTestedHierarchy.getMethodCalls();
-                final Set<MethodCall> calledFamilyMembers = methodInTestedHierarchy.getCalledFamilyMembers();
-                final Set<MethodCall> calledMethodsByMethodCalls = new HashSet<MethodCall>();
-                final Set<MethodCall> methodsInMyTypeHierarchyCall = new HashSet<MethodCall>();
-                for (MethodCall methodCall : methodCalls) {
-                    if (methods.contains(methodCall.getMethod())) {
-                        final Method method = find(methods, methodCall.getMethod().getMethodId());
-                        if (method != null) {
-                            methodsInMyTypeHierarchyCall.add(new MethodCall(method,methodCall.getMethodCallArguments()));
-                            calledMethodsByMethodCalls.addAll(method.getMethodCalls());
-                        }
-                    }
-                }
-                if (calledMethodsByMethodCalls.size() > 0) {
-                    methodCalls.addAll(calledMethodsByMethodCalls);
-                }
-                if (methodsInMyTypeHierarchyCall.size() > 0) {
-                    calledFamilyMembers.addAll(methodsInMyTypeHierarchyCall);
+        resolveMethodCalls(maxRecursionDepth, methods);
+        return methods;
+    }
+
+    private void resolveMethodCalls(int maxMethodCallsDepth, ArrayList<Method> methods) {
+//              todo support groovy property read (implicitly) & direct field access + traverse methods recursively to relate all getter calls to specific method
+//              todo test generic methods and type params. use actual type params to pass when generating
+        for (int i = 0; i < maxMethodCallsDepth; i++) {
+            for (Method method : methods) {
+                resolveMethodCalls(methods, method);
+            }
+        }
+    }
+
+    private void resolveMethodCalls(ArrayList<Method> methods, Method method) {
+        final Set<MethodCall> calledMethodsByMethodCalls = new HashSet<MethodCall>();
+        final Set<MethodCall> methodsInMyFamilyTree= new HashSet<MethodCall>();
+        for (MethodCall methodCall : method.getMethodCalls()) {
+            if (methods.contains(methodCall.getMethod())) {
+                final Method calledMethodFound = find(methods, methodCall.getMethod().getMethodId());//find originally resolved method since methods in resolved method call are resolved in a shallow manner
+                if (calledMethodFound != null) {
+                    methodsInMyFamilyTree.add(new MethodCall(calledMethodFound,methodCall.getMethodCallArguments()));
+                    calledMethodsByMethodCalls.addAll(calledMethodFound.getMethodCalls());
                 }
             }
         }
-        return methods;
+        method.getMethodCalls().addAll(calledMethodsByMethodCalls);
+        method.getCalledFamilyMembers().addAll(methodsInMyFamilyTree);
     }
 
     private Method find(ArrayList<Method> methods, String methodId) {

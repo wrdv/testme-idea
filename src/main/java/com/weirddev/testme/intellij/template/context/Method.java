@@ -44,7 +44,7 @@ public class Method {
     private final String propertyName;
     private Set<MethodCall> directMethodCalls = new HashSet<MethodCall>();
     private Set<MethodCall> methodCalls = new HashSet<MethodCall>();//methods called directly from this method or on the call stack from this method via other methods belonging to the same type hierarchy
-    private final Set<MethodCall> calledFamilyMembers=new HashSet<MethodCall>();//called other methods of this method owner's class type or one of it's ancestor type. MethodCalled objects of the class under test have more data resolved such as internalReferences
+    private final Set<MethodCall> calledFamilyMembers=new HashSet<MethodCall>();//method calls of methods in this owner's class type or one of it's ancestor type. including indirectly called methods up to max method call search depth. MethodCalled objects of the class under test are deeply resolved
     private Set<Reference> internalReferences = new HashSet<Reference>();
     private final String methodId;
 
