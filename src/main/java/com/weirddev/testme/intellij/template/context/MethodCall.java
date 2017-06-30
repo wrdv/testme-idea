@@ -25,4 +25,22 @@ public class MethodCall {
     public List<MethodCallArgument> getMethodCallArguments() {
         return methodCallArguments;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof MethodCall)) return false;
+
+        MethodCall that = (MethodCall) o;
+
+        if (method != null ? !method.equals(that.method) : that.method != null) return false;
+        return methodCallArguments != null ? methodCallArguments.equals(that.methodCallArguments) : that.methodCallArguments == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = method != null ? method.hashCode() : 0;
+        result = 31 * result + (methodCallArguments != null ? methodCallArguments.hashCode() : 0);
+        return result;
+    }
 }
