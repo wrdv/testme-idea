@@ -63,7 +63,7 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
     }
 
     @Override
-    protected void buildCallParams(List<? extends Param> params, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Param> ownerParamNode) {
+    protected void buildCallParams(Method constructor, List<? extends Param> params, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Param> ownerParamNode) {
         final Type parentContainerClass = ownerParamNode.getData()!=null?ownerParamNode.getData().getType().getParentContainerClass():null;
         final boolean isNonStaticNestedClass = parentContainerClass != null && !ownerParamNode.getData().getType().isStatic();
         if (params != null && params.size()>0 || isNonStaticNestedClass) {
@@ -72,25 +72,25 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
                 buildCallParam(replacementTypes, defaultTypeValues, testBuilder,parentContainerNode);
                 testBuilder.append(",");
             }
-            buildGroovyCallParams(params, replacementTypes, defaultTypeValues, testBuilder, ownerParamNode);
+            buildGroovyCallParams(constructor,params, replacementTypes, defaultTypeValues, testBuilder, ownerParamNode);
         } else if(ownerParamNode.getData()!=null){
             List<SyntheticParam> syntheticParams = findProperties(ownerParamNode.getData().getType());
             if (syntheticParams.size() > 0) {
-                buildCallParams(syntheticParams, replacementTypes, defaultTypeValues, testBuilder, ownerParamNode);
+                buildCallParams(null, syntheticParams, replacementTypes, defaultTypeValues, testBuilder, ownerParamNode);
             }
         }
     }
-    protected void buildGroovyCallParams(List<? extends Param> params, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Param> ownerParamNode) {
+    protected void buildGroovyCallParams(Method constructor, List<? extends Param> params, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Param> ownerParamNode) {
         final int origLength = testBuilder.length();
         if (params != null) {
             final String ownerTypeCanonicalName = ownerParamNode.getData()==null?null:ownerParamNode.getData().getType().getCanonicalName();
-            boolean shouldOptimizeConstructorInitialization = ownerTypeCanonicalName!=null&& isShouldOptimizeConstructorInitialization(params, ownerTypeCanonicalName);
+            boolean shouldOptimizeConstructorInitialization = ownerTypeCanonicalName !=null && constructor!=null && isShouldOptimizeConstructorInitialization(constructor,params, ownerTypeCanonicalName);
             for (Param param : params) {
                 final Node<Param> paramNode = new Node<Param>(param, ownerParamNode, ownerParamNode.getDepth() + 1);
                 if (shouldIgnoreUnusedProperties && testedMethod != null) {
                     if (isPropertyParam(paramNode.getData()) && ownerTypeCanonicalName != null && !isPropertyUsed(testedMethod, paramNode.getData(), ownerTypeCanonicalName)) {
                         continue;
-                    } else if (shouldOptimizeConstructorInitialization && !param.getType().isPrimitive() && isUnused(testedMethod, param.getAssignedToFields())) {
+                    } else if (shouldOptimizeConstructorInitialization && !param.getType().isPrimitive() && isUnused(testedMethod, deductAssignedToFields(constructor, param))) {
                         testBuilder.append("null"+PARAMS_SEPERATOR);
                         continue;
                     }
@@ -104,13 +104,13 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
         }
     }
 
-    private boolean isShouldOptimizeConstructorInitialization(List<? extends Param> params, String ownerTypeCanonicalName) {
+    private boolean isShouldOptimizeConstructorInitialization(Method constructor, List<? extends Param> params, String ownerTypeCanonicalName) {
         boolean shouldOptimizeConstructorInitialization = false;
         if (shouldIgnoreUnusedProperties && testedMethod != null && params.size() > 0) {
             int nBeanUsages = 0;
             int nTotalTypeUsages = 0;
             for (Param param : params) {
-                if (!isUnused(testedMethod, param.getAssignedToFields())) {
+                if (!isUnused(testedMethod, deductAssignedToFields(constructor,param))) {
                     nBeanUsages++;
                 }
             }
@@ -121,6 +121,25 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
             shouldOptimizeConstructorInitialization = shouldOptimizeConstructorInitialization(nTotalTypeUsages, nBeanUsages);
         }
         return shouldOptimizeConstructorInitialization;
+    }
+
+    private List<Field> deductAssignedToFields(Method constructor, Param param) {
+        final ArrayList<Field> assignedToFields = param.getAssignedToFields();
+        if (assignedToFields.size() == 0 ) {
+            return deductAffectedFields(constructor,param);
+        } else {
+            return assignedToFields;
+        }
+    }
+
+    private List<Field> deductAffectedFields(Method constructor, Param param) {
+        final List<Field> affectedFields = new ArrayList<Field>();
+        for (Field field : constructor.getAffectedFields()) {
+            if (field.getType().equals(param.getType())) {
+                affectedFields.add(field);
+            }
+        }
+        return affectedFields;
     }
 
     private int countTypeReferences(String ownerTypeCanonicalName, Method method) {
@@ -135,7 +154,7 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
         return nTotalTypeReferences;
     }
 
-    private boolean isUnused(Method testedMethod, ArrayList<Field> fields) {
+    private boolean isUnused(Method testedMethod, List<Field> fields) {
         int unusedFieldsCount=0;
         for (Field field : fields) {
             if (!isPropertyUsed(testedMethod, new SyntheticParam(field.getType(),field.getName(),true),field.getOwnerClassCanonicalName())) {
@@ -179,7 +198,7 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
 
     private boolean hasNonNullFieldMapping(MethodCall methodCall, Param propertyParam, String paramOwnerCanonicalName) {
         for (int i = 0; i < methodCall.getMethod().getMethodParams().size(); i++) {
-            for (Field field : methodCall.getMethod().getMethodParams().get(i).getAssignedToFields()) {
+            for (Field field : deductAssignedToFields(methodCall.getMethod(), methodCall.getMethod().getMethodParams().get(i))) {
                 if (methodCall.getMethodCallArguments() != null && methodCall.getMethodCallArguments().size() > i   && !"null".equals(methodCall.getMethodCallArguments().get(i).getText())
                         && field.getName().equals(propertyParam.getName()) && field.getType().equals(propertyParam.getType()) && field.getOwnerClassCanonicalName().equals(paramOwnerCanonicalName)) {
                     return true;

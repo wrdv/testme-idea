@@ -88,15 +88,47 @@ public class TestTemplateContextBuilder {
 
     private void resolveMethodCalls(int maxMethodCallsDepth, ArrayList<Method> methods) {
 //              todo support groovy property read (implicitly) & direct field access + traverse methods recursively to relate all getter calls to specific method
-//              todo test generic methods and type params. use actual type params to pass when generating
+//              todo test generic methods and type params. use actual type params passed
         for (int i = 0; i < maxMethodCallsDepth; i++) {
             for (Method method : methods) {
                 resolveMethodCalls(methods, method);
+                resolveConstructorCalls(method.getReturnType());
+            }
+        }
+        for (Method method : methods) {
+            resolveFieldsAffectedByCtor(method.getReturnType());
+        }
+    }
+
+    private void resolveFieldsAffectedByCtor(Type type) {
+        if (isValidObject(type)) {
+            for (Method ctor : type.getConstructors()) {
+                Set<Field> affectedFields = new HashSet<Field>();
+                for (MethodCall methodCall : ctor.getCalledFamilyMembers()) {
+                    if (methodCall.getMethod().isConstructor()) {
+                        for (Param param : methodCall.getMethod().getMethodParams()) {
+                            affectedFields.addAll(param.getAssignedToFields());
+                        }
+                    }
+                }
+                ctor.getAffectedFields().addAll(affectedFields);
             }
         }
     }
 
-    private void resolveMethodCalls(ArrayList<Method> methods, Method method) {
+    private boolean isValidObject(Type type) {
+        return type != null && !type.isPrimitive() && !type.isArray() && !type.isInterface() && !type.isAbstract() && !type.isVarargs();
+    }
+
+    private void resolveConstructorCalls(Type type) {
+        if (isValidObject(type)) {
+            for (Method ctor : type.getConstructors()) {
+                resolveMethodCalls(type.getMethods(), ctor);
+            }
+        }
+    }
+
+    private void resolveMethodCalls(List<Method> methods, Method method) {
         final Set<MethodCall> calledMethodsByMethodCalls = new HashSet<MethodCall>();
         final Set<MethodCall> methodsInMyFamilyTree= new HashSet<MethodCall>();
         for (MethodCall methodCall : method.getMethodCalls()) {
@@ -112,7 +144,7 @@ public class TestTemplateContextBuilder {
         method.getCalledFamilyMembers().addAll(methodsInMyFamilyTree);
     }
 
-    private Method find(ArrayList<Method> methods, String methodId) {
+    private Method find(List<Method> methods, String methodId) {
         for (Method method : methods) {
             if (method.getMethodId().equals(methodId)) {
                 return method;

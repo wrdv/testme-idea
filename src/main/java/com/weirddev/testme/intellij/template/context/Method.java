@@ -42,11 +42,13 @@ public class Method {
     private final boolean inherited;
     private final boolean isInInterface;
     private final String propertyName;
+    private final boolean accessible; // true - when accessible from class under test
     private Set<MethodCall> directMethodCalls = new HashSet<MethodCall>();
     private Set<MethodCall> methodCalls = new HashSet<MethodCall>();//methods called directly from this method or on the call stack from this method via other methods belonging to the same type hierarchy
     private final Set<MethodCall> calledFamilyMembers=new HashSet<MethodCall>();//method calls of methods in this owner's class type or one of it's ancestor type. including indirectly called methods up to max method call search depth. MethodCalled objects of the class under test are deeply resolved
     private Set<Reference> internalReferences = new HashSet<Reference>();
     private final String methodId;
+    private final Set<Field> affectedFields = new HashSet<Field>(); //Fields affected(assigned to ) indirectly by this method. only relevant for ctors. i.e. when delegating to other ctors
 
     public Method(PsiMethod psiMethod, PsiClass srcClass, int maxRecursionDepth,TypeDictionary typeDictionary) {
         isPrivate = psiMethod.hasModifierProperty(PsiModifier.PRIVATE);
@@ -59,7 +61,7 @@ public class Method {
         this.returnType = typeDictionary.getType(psiMethod.getReturnType(),maxRecursionDepth);
         name = psiMethod.getName();
         ownerClassCanonicalType = psiMethod.getContainingClass() == null ? null : psiMethod.getContainingClass().getQualifiedName();
-        methodParams = extractMethodParams(psiMethod.getParameterList(), typeDictionary, maxRecursionDepth,psiMethod);
+        methodParams = extractMethodParams(typeDictionary, maxRecursionDepth,psiMethod);
         isSetter = PropertyUtil.isSimplePropertySetter(psiMethod)||PropertyUtil.isSimpleSetter(psiMethod);
         isGetter = PropertyUtil.isSimplePropertyGetter(psiMethod)||PropertyUtil.isSimpleGetter(psiMethod);
 //        final PsiField psiField = PropertyUtil.findPropertyFieldByMember(psiMethod);
@@ -75,6 +77,7 @@ public class Method {
         }
         isInInterface = psiMethod.getContainingClass() != null && psiMethod.getContainingClass().isInterface();
         methodId = formatMethodId();
+        accessible = typeDictionary.isAccessible(psiMethod);
     }
 
     private String formatMethodId() {
@@ -147,9 +150,9 @@ public class Method {
         return (srcQualifiedName!=null && methodClsQualifiedName!=null &&  !srcQualifiedName.equals(methodClsQualifiedName));
     }
 
-    private List<Param> extractMethodParams(PsiParameterList parameterList, TypeDictionary typeDictionary, int maxRecursionDepth, PsiMethod psiMethod) {
+    private List<Param> extractMethodParams(TypeDictionary typeDictionary, int maxRecursionDepth, PsiMethod psiMethod) {
         ArrayList<Param> params = new ArrayList<Param>();
-        for (PsiParameter psiParameter : parameterList.getParameters()) {
+        for (PsiParameter psiParameter : psiMethod.getParameterList().getParameters()) {
             final ArrayList<Field> assignedToFields = findMatchingFields(psiParameter, psiMethod);
             params.add(new Param(psiParameter,typeDictionary,maxRecursionDepth,assignedToFields));
         }
@@ -303,5 +306,12 @@ public class Method {
                 " isDefault=" + isDefault + ", isPublic=" + isPublic + ", isAbstract=" + isAbstract + ", isNative=" + isNative + ", isStatic=" + isStatic + ", isSetter=" + isSetter + ", isGetter=" + isGetter + ", constructor=" + constructor + ", " +
                 "overridden=" + overridden + ", inherited=" + inherited + ", isInInterface=" + isInInterface + ", propertyName='" + propertyName + '\'' + ", directMethodCalls=" + directMethodCalls +
                 ", internalReferences=" + internalReferences + ", methodId='" + methodId + '\'' + '}';
+    }
+    public Set<Field> getAffectedFields() {
+        return affectedFields;
+    }
+
+    public boolean isAccessible() {
+        return accessible;
     }
 }

@@ -37,7 +37,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
     @Override
     public String renderJavaCallParams(List<Param> params, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues) {
         final StringBuilder stringBuilder = new StringBuilder();
-        buildCallParams(params, replacementTypes, defaultTypeValues, stringBuilder,new Node<Param>(null,null,0));
+        buildCallParams(null, params, replacementTypes, defaultTypeValues, stringBuilder,new Node<Param>(null,null,0));
         return stringBuilder.toString();
     }
 
@@ -88,7 +88,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
         }
     }
 
-    protected void buildCallParams(List<? extends Param> params, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Param> ownerParamNode) {
+    protected void buildCallParams(Method constructor, List<? extends Param> params, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Param> ownerParamNode) {
         if (params != null) {
             for (int i = 0; i < params.size(); i++) {
                 if (i != 0) {
@@ -141,7 +141,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
                         typeName = resolveNestedClassTypeName(typeName);
                     }
                     testBuilder.append(typeName).append("(");
-                    buildCallParams(foundCtor==null?new ArrayList<Param>():foundCtor.getMethodParams(), replacementTypes, defaultTypeValues, testBuilder, paramNode);
+                    buildCallParams(foundCtor,foundCtor==null?new ArrayList<Param>():foundCtor.getMethodParams(), replacementTypes, defaultTypeValues, testBuilder, paramNode);
                     testBuilder.append(")");
                 }
 
@@ -180,7 +180,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
     }
 
     protected boolean isValidConstructor(Type type, Method constructor, boolean hasEmptyConstructor, Map<String, String> replacementTypes) {
-        if (type.isInterface() || type.isAbstract()) return false;
+        if (!constructor.isAccessible() || type.isInterface() || type.isAbstract()) return false;
         final List<Param> methodParams = constructor.getMethodParams();
         for (Param methodParam : methodParams) {
             final Type methodParamType = methodParam.getType();
@@ -202,7 +202,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
             return true;
         }
         for (Method method : type.getConstructors()) {
-            if (method.getMethodParams().size() == 0) {
+            if (method.isAccessible() &&  method.getMethodParams().size() == 0) {
                 return true;
             }
         }
