@@ -104,9 +104,7 @@ public class Type {
                  hasDefaultConstructor=true;
             } else {
                 for (PsiMethod psiMethod : psiClass.getConstructors()) {
-                    if (typeDictionary.isAccessible(psiMethod)) {
-                        constructors.add(new Method(psiMethod,psiClass, maxRecursionDepth-1, typeDictionary));
-                    }
+                    constructors.add(new Method(psiMethod,psiClass, maxRecursionDepth-1, typeDictionary));
                 }
             }
 

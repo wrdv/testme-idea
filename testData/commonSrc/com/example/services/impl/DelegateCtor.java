@@ -4,26 +4,26 @@ package com.example.services.impl;
  * Created by Admin on 28/06/2017.
  */
 public class DelegateCtor {
-    private String family;
-    private String members;
-    private String only;
+    private String youre;
+    private String asCold;
+    private Ice asIce;
 
-    protected DelegateCtor(String family,String members,String only){
-        this.family = family;
-        DelegateCtor(members, only);
+    protected DelegateCtor(String youre,String asCold,Ice asIce){
+        this.youre = youre;
+        DelegateCtor(asCold, asIce);
     }
 
-    private void DelegateCtor(String members, String only) {
-        this.members = members;
-        this.only = only;
+    private void DelegateCtor(String asCold, String asIce) {
+        this.asCold = asCold;
+        this.asIce = asIce;
     }
 
     @Override
     public String toString() {
         return "DelegateCtor{" +
-                "family='" + family + '\'' +
-                ", members='" + members + '\'' +
-                ", only='" + only + '\'' +
+                "youre='" + youre + '\'' +
+                ", asCold='" + asCold + '\'' +
+                ", asIce='" + asIce + '\'' +
                 '}';
     }
 
@@ -35,9 +35,9 @@ public class DelegateCtor {
 
         DelegateCtor that = (DelegateCtor) o;
 
-        if (family != null ? !family.equals(that.family) : that.family != null) return false;
-        if (members != null ? !members.equals(that.members) : that.members != null) return false;
-        return !(only != null ? !only.equals(that.only) : that.only != null);
+        if (youre != null ? !youre.equals(that.youre) : that.youre != null) return false;
+        if (asCold != null ? !asCold.equals(that.asCold) : that.asCold != null) return false;
+        return !(asIce != null ? !asIce.equals(that.asIce) : that.asIce != null);
 
     }
 }
