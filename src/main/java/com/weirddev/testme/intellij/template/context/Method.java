@@ -58,7 +58,7 @@ public class Method {
         isAbstract = psiMethod.hasModifierProperty(PsiModifier.ABSTRACT);
         isNative = psiMethod.hasModifierProperty(PsiModifier.NATIVE);
         isStatic = psiMethod.hasModifierProperty(PsiModifier.STATIC);
-        this.returnType = typeDictionary.getType(psiMethod.getReturnType(),maxRecursionDepth);
+        this.returnType = typeDictionary.getType(psiMethod.getReturnType(),maxRecursionDepth,true);
         name = psiMethod.getName();
         ownerClassCanonicalType = psiMethod.getContainingClass() == null ? null : psiMethod.getContainingClass().getQualifiedName();
         methodParams = extractMethodParams(typeDictionary, maxRecursionDepth,psiMethod);
@@ -76,19 +76,23 @@ public class Method {
             inherited = false;
         }
         isInInterface = psiMethod.getContainingClass() != null && psiMethod.getContainingClass().isInterface();
-        methodId = formatMethodId();
+        methodId = formatMethodId(psiMethod);
         accessible = typeDictionary.isAccessible(psiMethod);
     }
 
-    private String formatMethodId() {
-        return ownerClassCanonicalType + "." + name + "(" +formatMathodParams(methodParams) +")";
+    static String formatMethodId(PsiMethod psiMethod) {
+        String name = psiMethod.getName();
+        String ownerClassCanonicalType = psiMethod.getContainingClass() == null ? null : psiMethod.getContainingClass().getQualifiedName();
+        return ownerClassCanonicalType + "." + name + "(" + formatMethodParams(psiMethod.getParameterList().getParameters()) +")";
 
     }
 
-    private String formatMathodParams(List<Param> methodParams) {
+    static String formatMethodParams(PsiParameter[] parameters) {
         final StringBuilder sb = new StringBuilder();
-        for (Param methodParam : methodParams) {
-            sb.append(methodParam.getType().getCanonicalName()).append(",");
+        if (parameters != null) {
+            for (PsiParameter parameter : parameters) {
+                sb.append(parameter.getType().getCanonicalText()).append(",");
+            }
         }
         if (sb.length() > 0) {
             sb.deleteCharAt(sb.length() - 1);
@@ -122,7 +126,7 @@ public class Method {
             }
         } else {
             for (JavaPsiTreeUtils.MethodCalled methodCall : JavaPsiTreeUtils.findMethodCalls(psiMethod)) {
-                this.directMethodCalls.add(new MethodCall(new Method(methodCall.getPsiMethod(), null, 1, typeDictionary),methodCall.getMethodCallArguments()));
+                this.directMethodCalls.add(new MethodCall(new Method(methodCall.getPsiMethod(), methodCall.getPsiMethod().getContainingClass(), 1, typeDictionary),methodCall.getMethodCallArguments()));
             }
 
         }

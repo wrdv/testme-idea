@@ -3,6 +3,7 @@ package com.weirddev.testme.intellij.template.context;
 import com.intellij.psi.*;
 import com.intellij.psi.util.PropertyUtil;
 import com.intellij.psi.util.PsiUtil;
+import com.weirddev.testme.intellij.groovy.GroovyPsiTreeUtils;
 import com.weirddev.testme.intellij.template.TypeDictionary;
 import com.weirddev.testme.intellij.utils.ClassNameUtils;
 import org.jetbrains.annotations.NotNull;
@@ -75,7 +76,8 @@ public class Type {
         isInterface = psiClass != null && psiClass.isInterface();
         isAbstract = psiClass != null && psiClass.getModifierList()!=null &&  psiClass.getModifierList().hasModifierProperty(PsiModifier.ABSTRACT);
         isStatic = psiClass != null && psiClass.getModifierList() != null && psiClass.getModifierList().hasExplicitModifier(PsiModifier.STATIC);
-        parentContainerClass = psiClass != null && psiClass.getParent()!=null && psiClass.getParent() instanceof PsiClass && typeDictionary!=null ? typeDictionary.getType(resolveType((PsiClass) psiClass.getParent()), maxRecursionDepth):null;
+        parentContainerClass = psiClass != null && psiClass.getParent()!=null && psiClass.getParent() instanceof PsiClass && typeDictionary!=null ? typeDictionary.getType(resolveType((PsiClass) psiClass.getParent()), maxRecursionDepth,
+                false):null;
         fields = new ArrayList<Field>();
         enumValues = resolveEnumValues(psiType);
         dependenciesResolvable = maxRecursionDepth > 0;
@@ -96,7 +98,7 @@ public class Type {
         return JavaPsiFacade.getInstance(psiClass.getProject()).getElementFactory().createType(psiClass);
     }
 
-    public void resolveDependencies(@Nullable TypeDictionary typeDictionary, int maxRecursionDepth, PsiType psiType) {
+    public void resolveDependencies(@Nullable TypeDictionary typeDictionary, int maxRecursionDepth, PsiType psiType, boolean shouldResolveAllMethods) {
         String canonicalText = psiType.getCanonicalText();
         PsiClass psiClass = PsiUtil.resolveClassInType(psiType);
         if (psiClass != null && maxRecursionDepth>0 && !canonicalText.startsWith("java.") /*todo consider replacing with just java.util.* || java.lang.*  */&& typeDictionary!=null) {
@@ -114,12 +116,22 @@ public class Type {
                     return o2.getMethodParams().size()-o1.getMethodParams().size();
                 }
             });
-            final PsiMethod[] methods = psiClass.getMethods();//todo getAllMethods + filter out from Object and not accessible
-            for (PsiMethod method : methods) {
-                if (/*PropertyUtil.isSimplePropertyGetter(method) || PropertyUtil.isSimpleGetter(method) ||*/ (PropertyUtil.isSimplePropertySetter(method) || PropertyUtil.isSimpleSetter(method))&& !isGroovyLangProperty(method)) {
-                    this.methods.add(new Method(method,psiClass,maxRecursionDepth-1,typeDictionary));
+            final PsiMethod[] methods = shouldResolveAllMethods? psiClass.getAllMethods(): psiClass.getMethods();
+                for (PsiMethod psiMethod : methods) {
+                    String ownerClassCanonicalType = psiClass.getQualifiedName();
+                    if (!Method.isInheritedFromObject(ownerClassCanonicalType)) {
+                        final String methodId = Method.formatMethodId(psiMethod);
+                        if (/*PropertyUtil.isSimplePropertyGetter(psiMethod) || PropertyUtil.isSimpleGetter(psiMethod) ||*/ shouldResolveAllMethods || (PropertyUtil.isSimplePropertySetter(psiMethod) || PropertyUtil.isSimpleSetter(psiMethod)) && !isGroovyLangProperty(psiMethod)) {
+                            if (GroovyPsiTreeUtils.isGroovy(psiMethod.getLanguage()) && (methodId.endsWith(".invokeMethod(java.lang.String,java.lang.Object)") || methodId.endsWith(".getProperty(java.lang.String)") || methodId.endsWith(".setProperty(java.lang.String,java.lang.Object)"))) {
+                                continue;
+                            }
+
+                            final Method method = new Method(psiMethod, psiClass, maxRecursionDepth - 1, typeDictionary);
+                            method.resolveInternalReferences(psiMethod, typeDictionary);
+                            this.methods.add(method);
+                        }
+                    }
                 }
-            }
             resolveFields(psiClass);
             dependenciesResolved=true;
         }
@@ -158,7 +170,7 @@ public class Type {
             PsiType[] parameters = psiClassType.getParameters();
             if (parameters.length > 0) {
                 for (PsiType parameter : parameters) {
-                    types.add(typeDictionary.getType(parameter,maxRecursionDepth));
+                    types.add(typeDictionary.getType(parameter,maxRecursionDepth, false));
                 }
             }
         }

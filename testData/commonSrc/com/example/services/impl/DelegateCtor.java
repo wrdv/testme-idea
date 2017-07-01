@@ -1,5 +1,5 @@
 package com.example.services.impl;
-
+import com.example.foes.Ice;
 /**
  * Created by Admin on 28/06/2017.
  */
@@ -8,12 +8,12 @@ public class DelegateCtor {
     private String asCold;
     private Ice asIce;
 
-    protected DelegateCtor(String youre,String asCold,Ice asIce){
+    protected DelegateCtor(String youre,String asCold,Ice asIce/*,youreWilling Fire*/){
+        this(asCold, asIce);
         this.youre = youre;
-        DelegateCtor(asCold, asIce);
     }
 
-    private void DelegateCtor(String asCold, String asIce) {
+    private DelegateCtor(String asCold, Ice asIce) {
         this.asCold = asCold;
         this.asIce = asIce;
     }

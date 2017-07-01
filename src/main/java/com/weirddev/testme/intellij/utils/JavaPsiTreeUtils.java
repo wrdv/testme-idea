@@ -45,7 +45,7 @@ public class JavaPsiTreeUtils {
 
     @NotNull
     public static List<MethodCalled> findMethodCalls(PsiMethod psiMethod) {
-        List<MethodCalled> psiMethods=new ArrayList<MethodCalled>();
+        List<MethodCalled> methodCalled=new ArrayList<MethodCalled>();
         final Collection<PsiCallExpression> psiMethodCallExpressions = PsiTreeUtil.findChildrenOfType(psiMethod, PsiCallExpression.class);
         for (PsiCallExpression psiMethodCallExpression : psiMethodCallExpressions) {
             final PsiExpressionList argumentList = psiMethodCallExpression.getArgumentList();
@@ -60,10 +60,10 @@ public class JavaPsiTreeUtils {
             }
             final PsiMethod psiMethodResolved = psiMethodCallExpression.resolveMethod();
             if (psiMethodResolved != null) {
-                psiMethods.add(new MethodCalled(psiMethodResolved,methodCallArguments));
+                methodCalled.add(new MethodCalled(psiMethodResolved,methodCallArguments));
             }
         }
-        return psiMethods;
+        return methodCalled;
     }
 
     public static class MethodCalled {
