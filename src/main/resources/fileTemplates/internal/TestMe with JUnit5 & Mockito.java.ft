@@ -16,7 +16,7 @@ import org.mockito.MockitoAnnotations;
 #parse("File Header.java")
 class ${CLASS_NAME} {
 #renderMockedFields($TESTED_CLASS.fields)
-#renderTestSubjectInit($TESTED_CLASS,$TestSubjectUtils.hasTestableInstanceMethod($TESTED_CLASS_METHODS),$hasMocks)
+#renderTestSubjectInit($TESTED_CLASS,$TestSubjectUtils.hasTestableInstanceMethod($TESTED_CLASS.methods),$hasMocks)
 #if($hasMocks)
 
     @BeforeEach
@@ -24,7 +24,7 @@ class ${CLASS_NAME} {
         MockitoAnnotations.initMocks(this);
     }
 #end
-#foreach($method in $TESTED_CLASS_METHODS)
+#foreach($method in $TESTED_CLASS.methods)
 #if($method.isTestable())
 
     @Test

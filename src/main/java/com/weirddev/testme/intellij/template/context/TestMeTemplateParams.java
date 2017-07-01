@@ -4,10 +4,10 @@ package com.weirddev.testme.intellij.template.context;
  * Created by Yaron Yamin on 24/10/2016.
  */
 public interface TestMeTemplateParams {
-
-    String TESTED_CLASS = "TESTED_CLASS"; //Target test Class
-    String TESTED_CLASS_METHODS = "TESTED_CLASS_METHODS";
-    String TESTED_CLASS_FIELDS = "TESTED_CLASS_FIELDS";
+    /**
+        Object representing target Class under test
+     */
+    String TESTED_CLASS = "TESTED_CLASS";
 
     String PACKAGE_NAME = "PACKAGE_NAME";
     String CLASS_NAME = "CLASS_NAME";

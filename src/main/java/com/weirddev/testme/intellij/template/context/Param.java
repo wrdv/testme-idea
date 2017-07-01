@@ -15,7 +15,7 @@ public class Param {
     private final ArrayList<Field> assignedToFields;
 
     public Param(PsiParameter psiParameter, TypeDictionary typeDictionary, int maxRecursionDepth, ArrayList<Field> assignedToFields) {
-        this(typeDictionary.getType(psiParameter.getType(), maxRecursionDepth), psiParameter.getName(),assignedToFields);
+        this(typeDictionary.getType(psiParameter.getType(), maxRecursionDepth, false), psiParameter.getName(),assignedToFields);
     }
 
     public Param(Type type, String name, ArrayList<Field> assignedToFields) {

@@ -31,7 +31,7 @@ public class TypeDictionary {
     }
 
     @Nullable
-    public Type getType(PsiType psiType, int maxRecursionDepth) {
+    public Type getType(PsiType psiType, int maxRecursionDepth, boolean shouldResolveAllMethods) {
         Type type = null;
         if (psiType != null) {
             final String canonicalText = psiType.getCanonicalText();
@@ -40,7 +40,7 @@ public class TypeDictionary {
                 LOG.debug(newTypeCounter.incrementAndGet()+". Creating new type object for:" + canonicalText);
                 type = new Type(psiType, this, maxRecursionDepth);
                 typeDictionary.put(canonicalText, type);
-                type.resolveDependencies(this,maxRecursionDepth, psiType);
+                type.resolveDependencies(this,maxRecursionDepth, psiType,shouldResolveAllMethods);
             } else {
                 LOG.debug(existingTypeHitsCounter.incrementAndGet()+". Found existing type object for:" + canonicalText);
             }

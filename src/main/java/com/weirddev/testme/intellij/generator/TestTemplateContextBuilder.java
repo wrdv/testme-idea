@@ -2,8 +2,6 @@ package com.weirddev.testme.intellij.generator;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiMethod;
-import com.weirddev.testme.intellij.groovy.GroovyPsiTreeUtils;
 import com.weirddev.testme.intellij.template.FileTemplateContext;
 import com.weirddev.testme.intellij.template.TypeDictionary;
 import com.weirddev.testme.intellij.template.context.*;
@@ -36,11 +34,11 @@ public class TestTemplateContextBuilder {
         if (targetClass != null && targetClass.isValid()) {
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_LANGUAGE, targetClass.getLanguage().getID());
             final TypeDictionary typeDictionary = new TypeDictionary(context.getSrcClass(), context.getTargetPackage());
-            final Type type = typeDictionary.getType(Type.resolveType(targetClass), maxRecursionDepth);
+            final Type type = typeDictionary.getType(Type.resolveType(targetClass), maxRecursionDepth, true);
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS, type);
-            ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_FIELDS, type == null ? null : type.getFields());
-            List<Method> methods = createMethods(context, maxRecursionDepth, typeDictionary);
-            ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_METHODS, methods);//todo refactor to be part of TESTED_CLASS?
+            if (type != null) {
+                resolveMethodCalls(maxRecursionDepth, type.getMethods());
+            }
         }
         logger.debug("Done building Test Template context in "+(new Date().getTime()-start)+" millis");
         return ctxtParams;
@@ -63,30 +61,7 @@ public class TestTemplateContextBuilder {
         return templateCtxtParams;
     }
 
-    private List<Method> createMethods(FileTemplateContext context, int maxRecursionDepth, TypeDictionary typeDictionary) {
-        ArrayList<Method> methods = new ArrayList<Method>();
-        final TypeDictionary typeDictionaryOfInternalReferences = new TypeDictionary(context.getSrcClass(), context.getTargetPackage());
-        PsiClass srcClass = context.getSrcClass();
-        for (PsiMethod psiMethod : srcClass.getAllMethods()) {
-            String ownerClassCanonicalType = psiMethod.getContainingClass() == null ? null : psiMethod.getContainingClass().getQualifiedName();
-            if (!Method.isInheritedFromObject(ownerClassCanonicalType)) {
-                final Method method = new Method(psiMethod, srcClass, maxRecursionDepth, typeDictionary);
-                logger.debug("Initialized Method: "+method);
-                final String methodId = method.getMethodId();
-                if (GroovyPsiTreeUtils.isGroovy(psiMethod.getLanguage()) && (methodId.endsWith(".invokeMethod(java.lang.String,java.lang.Object)") || methodId.endsWith(".getProperty(java.lang.String)") || methodId.endsWith(".setProperty(java.lang.String,java.lang.Object)"))) {
-                    continue;
-                }
-                method.resolveInternalReferences(psiMethod, typeDictionaryOfInternalReferences);
-                logger.debug("resolved internal references for "+ methodId);
-                logger.debug(method.getInternalReferences().toString());
-                methods.add(method);
-            }
-        }
-        resolveMethodCalls(maxRecursionDepth, methods);
-        return methods;
-    }
-
-    private void resolveMethodCalls(int maxMethodCallsDepth, ArrayList<Method> methods) {
+    private void resolveMethodCalls(int maxMethodCallsDepth, List<Method> methods) {
 //              todo support groovy property read (implicitly) & direct field access + traverse methods recursively to relate all getter calls to specific method
 //              todo test generic methods and type params. use actual type params passed
         for (int i = 0; i < maxMethodCallsDepth; i++) {
@@ -105,11 +80,11 @@ public class TestTemplateContextBuilder {
             for (Method ctor : type.getConstructors()) {
                 Set<Field> affectedFields = new HashSet<Field>();
                 for (MethodCall methodCall : ctor.getCalledFamilyMembers()) {
-                    if (methodCall.getMethod().isConstructor()) {
+//                    if (methodCall.getMethod().isConstructor()) {
                         for (Param param : methodCall.getMethod().getMethodParams()) {
                             affectedFields.addAll(param.getAssignedToFields());
                         }
-                    }
+//                    }
                 }
                 ctor.getAffectedFields().addAll(affectedFields);
             }
@@ -123,7 +98,10 @@ public class TestTemplateContextBuilder {
     private void resolveConstructorCalls(Type type) {
         if (isValidObject(type)) {
             for (Method ctor : type.getConstructors()) {
-                resolveMethodCalls(type.getMethods(), ctor);
+                final List<Method> methodsAndCtors = new ArrayList<Method>();
+                methodsAndCtors.addAll(type.getMethods());
+                methodsAndCtors.addAll(type.getConstructors());
+                resolveMethodCalls(methodsAndCtors, ctor);
             }
         }
     }
