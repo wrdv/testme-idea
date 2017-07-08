@@ -78,7 +78,7 @@ public class CreateTestMeAction extends CreateTestAction {
         final PsiPackage srcPackage = JavaDirectoryService.getInstance().getPackage(srcDir);
 
         final PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
-        Module testModule = suggestModuleForTests(project, srcModule);
+        Module testModule = suggestModuleForTestsLocator(project, srcModule);
         final List<VirtualFile> testRootUrls = computeTestRoots(testModule);
 //            final HashSet<VirtualFile> testFolders = new HashSet<VirtualFile>(); //from v14
 //        checkForTestRoots(srcModule, testFolders); //from v14
@@ -112,10 +112,14 @@ public class CreateTestMeAction extends CreateTestAction {
         CreateTestAction.checkForTestRoots(srcModule, testFolders);
     }
 
+    /**
+     * @see CreateTestAction.suggestModuleForTests
+     * @return
+     */
     @NotNull
-    private static Module suggestModuleForTests(@NotNull Project project, @NotNull Module productionModule) {
+    private static Module suggestModuleForTestsLocator(@NotNull Project project, @NotNull Module productionModule) {
         try {
-        final Method suggestModuleForTests = CreateTestAction.class.getDeclaredMethod("suggestModuleForTests", Project.class,Module.class);
+        final Method suggestModuleForTests = CreateTestAction.class.getDeclaredMethod("suggestModuleForTestsLocator", Project.class,Module.class);
         suggestModuleForTests.setAccessible(true);
             try {
                 final Object module = suggestModuleForTests.invoke(null, project,productionModule);
@@ -125,10 +129,10 @@ public class CreateTestMeAction extends CreateTestAction {
                     return (Module) module;
                 }
             } catch (Exception e) {
-                LOG.debug("error invoking suggestModuleForTests through reflection. falling back to older implementation",e);
+                LOG.debug("error invoking suggestModuleForTestsLocator through reflection. falling back to older implementation",e);
             }
         } catch (Exception e) {
-        LOG.debug("suggestModuleForTests Method mot found . this is probably not idea 2016. falling back to older implementation");
+        LOG.debug("suggestModuleForTestsLocator Method mot found . this is probably not idea 2016. falling back to older implementation");
         }
         return productionModule;
     }
