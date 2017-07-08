@@ -21,7 +21,8 @@ public class JavaPsiTreeUtils {
         final Collection<PsiReferenceExpression> psiReferenceExpressions = PsiTreeUtil.findChildrenOfType(psiMethod, PsiReferenceExpression.class);
         for (PsiReferenceExpression psiReferenceExpression : psiReferenceExpressions) {
             final PsiType refType = psiReferenceExpression.getType();
-            if (refType != null) {
+            final PsiElement psiElement = psiReferenceExpression.resolve();
+            if (refType != null && !(psiElement instanceof PsiMethod)) {
                 final PsiType psiOwnerType = psiReferenceExpression.getLastChild()==null?null: resolveOwnerType(psiReferenceExpression.getLastChild());
                 if (psiOwnerType != null) {
                     resolvedReferences.add(new ResolvedReference(psiReferenceExpression.getReferenceName() , refType, psiOwnerType));
@@ -48,18 +49,18 @@ public class JavaPsiTreeUtils {
         List<MethodCalled> methodCalled=new ArrayList<MethodCalled>();
         final Collection<PsiCallExpression> psiMethodCallExpressions = PsiTreeUtil.findChildrenOfType(psiMethod, PsiCallExpression.class);
         for (PsiCallExpression psiMethodCallExpression : psiMethodCallExpressions) {
-            final PsiExpressionList argumentList = psiMethodCallExpression.getArgumentList();
-            final ArrayList<MethodCallArgument> methodCallArguments = new ArrayList<MethodCallArgument>();
-            if (argumentList != null) {
-                for (PsiElement psiElement : argumentList.getChildren()) {
-                    if (psiElement instanceof PsiJavaToken) {
-                        continue;
-                    }
-                    methodCallArguments.add(new MethodCallArgument(psiElement.getText()==null?"":psiElement.getText().trim()));
-                }
-            }
             final PsiMethod psiMethodResolved = psiMethodCallExpression.resolveMethod();
             if (psiMethodResolved != null) {
+                final PsiExpressionList argumentList = psiMethodCallExpression.getArgumentList();
+                final ArrayList<MethodCallArgument> methodCallArguments = new ArrayList<MethodCallArgument>();
+                if (argumentList != null) {
+                    for (PsiElement psiElement : argumentList.getChildren()) {
+                        if (psiElement instanceof PsiJavaToken || psiElement instanceof PsiWhiteSpace ) {
+                            continue;
+                        }
+                        methodCallArguments.add(new MethodCallArgument(psiElement.getText()==null?"":psiElement.getText().trim()));
+                    }
+                }
                 methodCalled.add(new MethodCalled(psiMethodResolved,methodCallArguments));
             }
         }

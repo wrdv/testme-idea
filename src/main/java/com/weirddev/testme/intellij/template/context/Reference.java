@@ -7,6 +7,8 @@ import com.weirddev.testme.intellij.template.TypeDictionary;
  * Date: 06/05/2017
  *
  * @author Yaron Yamin
+ *
+ * A referene to a non method langauge construct (i.e. field/variable)
  */
 public class Reference {
     private final String referenceName;

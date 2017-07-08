@@ -62,12 +62,10 @@ public class TestTemplateContextBuilder {
     }
 
     private void resolveMethodCalls(int maxMethodCallsDepth, List<Method> methods) {
-//              todo support groovy property read (implicitly) & direct field access + traverse methods recursively to relate all getter calls to specific method
 //              todo test generic methods and type params. use actual type params passed
         for (int i = 0; i < maxMethodCallsDepth; i++) {
             for (Method method : methods) {
                 resolveMethodCalls(methods, method);
-                resolveConstructorCalls(method.getReturnType());
             }
         }
         for (Method method : methods) {
@@ -75,18 +73,20 @@ public class TestTemplateContextBuilder {
         }
     }
 
-    private void resolveFieldsAffectedByCtor(Type type) {
+    private void resolveFieldsAffectedByCtor(Type type) {//todo consider moving to test builder
         if (isValidObject(type)) {
-            for (Method ctor : type.getConstructors()) {
+            for (Method ctor : type.findConstructors()) {
                 Set<Field> affectedFields = new HashSet<Field>();
-                for (MethodCall methodCall : ctor.getCalledFamilyMembers()) {
-//                    if (methodCall.getMethod().isConstructor()) {
+                for (MethodCall methodCall : ctor.getMethodCalls()) {
                         for (Param param : methodCall.getMethod().getMethodParams()) {
-                            affectedFields.addAll(param.getAssignedToFields());
+                            for (Field assignedToField : param.getAssignedToFields()) {
+                                if (assignedToField.getOwnerClassCanonicalName().equals(ctor.getOwnerClassCanonicalType())) {
+                                    affectedFields.add(assignedToField);
+                                }
+                            }
                         }
-//                    }
                 }
-                ctor.getAffectedFields().addAll(affectedFields);
+                ctor.getIndirectlyAffectedFields().addAll(affectedFields);
             }
         }
     }
@@ -95,29 +95,26 @@ public class TestTemplateContextBuilder {
         return type != null && !type.isPrimitive() && !type.isArray() && !type.isInterface() && !type.isAbstract() && !type.isVarargs();
     }
 
-    private void resolveConstructorCalls(Type type) {
-        if (isValidObject(type)) {
-            for (Method ctor : type.getConstructors()) {
-                final List<Method> methodsAndCtors = new ArrayList<Method>();
-                methodsAndCtors.addAll(type.getMethods());
-                methodsAndCtors.addAll(type.getConstructors());
-                resolveMethodCalls(methodsAndCtors, ctor);
-            }
-        }
-    }
-
     private void resolveMethodCalls(List<Method> methods, Method method) {
         final Set<MethodCall> calledMethodsByMethodCalls = new HashSet<MethodCall>();
         final Set<MethodCall> methodsInMyFamilyTree= new HashSet<MethodCall>();
         for (MethodCall methodCall : method.getMethodCalls()) {
-            if (methods.contains(methodCall.getMethod())) {
-                final Method calledMethodFound = find(methods, methodCall.getMethod().getMethodId());//find originally resolved method since methods in resolved method call are resolved in a shallow manner
-                if (calledMethodFound != null) {
-                    methodsInMyFamilyTree.add(new MethodCall(calledMethodFound,methodCall.getMethodCallArguments()));
+            final Method calledMethodFound = find(methods, methodCall.getMethod().getMethodId());//find originally resolved method since methods in resolved method call are resolved in a shallow manner
+            if (calledMethodFound != null) {
+                MethodCall methodCallFound;
+                if (methodCall.getMethod() == calledMethodFound) {
+                    methodCallFound = methodCall;
+                } else {
+                    methodCallFound = new MethodCall(calledMethodFound, methodCall.getMethodCallArguments());
+                }
+                methodsInMyFamilyTree.add(methodCallFound);
+                calledMethodsByMethodCalls.add(methodCallFound);
+                if (method.getOwnerClassCanonicalType()!=null && method.getOwnerClassCanonicalType().equals(methodCallFound.getMethod().getOwnerClassCanonicalType())) {
                     calledMethodsByMethodCalls.addAll(calledMethodFound.getMethodCalls());
                 }
             }
         }
+        method.getMethodCalls().removeAll(calledMethodsByMethodCalls);
         method.getMethodCalls().addAll(calledMethodsByMethodCalls);
         method.getCalledFamilyMembers().addAll(methodsInMyFamilyTree);
     }
@@ -126,6 +123,14 @@ public class TestTemplateContextBuilder {
         for (Method method : methods) {
             if (method.getMethodId().equals(methodId)) {
                 return method;
+            }
+            if (method.getReturnType() != null) {
+                for (Method returnTypeMethod : method.getReturnType().getMethods()) {
+                    if (returnTypeMethod.getMethodId().equals(methodId)) {
+                        return returnTypeMethod;
+                    }
+                }
+
             }
         }
         return null;

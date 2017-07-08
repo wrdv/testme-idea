@@ -165,7 +165,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
     @Nullable
     protected Method findValidConstructor(Type type, Map<String, String> replacementTypes, boolean hasEmptyConstructor) {
         Method foundCtor = null;
-        for (Method method : type.getConstructors()) {
+        for (Method method : type.findConstructors()) {
             if (isValidConstructor(type, method,hasEmptyConstructor,replacementTypes)) {
                 foundCtor = method;
                 break;
@@ -201,7 +201,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
         if (type.isHasDefaultConstructor()) {
             return true;
         }
-        for (Method method : type.getConstructors()) {
+        for (Method method : type.findConstructors()) {
             if (method.isAccessible() &&  method.getMethodParams().size() == 0) {
                 return true;
             }

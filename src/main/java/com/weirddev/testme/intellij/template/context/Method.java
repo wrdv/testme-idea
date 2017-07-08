@@ -45,10 +45,14 @@ public class Method {
     private final boolean accessible; // true - when accessible from class under test
     private Set<MethodCall> directMethodCalls = new HashSet<MethodCall>();
     private Set<MethodCall> methodCalls = new HashSet<MethodCall>();//methods called directly from this method or on the call stack from this method via other methods belonging to the same type hierarchy
-    private final Set<MethodCall> calledFamilyMembers=new HashSet<MethodCall>();//method calls of methods in this owner's class type or one of it's ancestor type. including indirectly called methods up to max method call search depth. MethodCalled objects of the class under test are deeply resolved
+    /**
+     *  method calls of methods in this owner's class type or one of it's ancestor type. including indirectly called methods up to max method call search depth. MethodCalled objects of the class under test are deeply resolved
+     *  @deprecated not used. might be removed
+     */
+    private final Set<MethodCall> calledFamilyMembers=new HashSet<MethodCall>(); /*todo consider removing*/
     private Set<Reference> internalReferences = new HashSet<Reference>();
     private final String methodId;
-    private final Set<Field> affectedFields = new HashSet<Field>(); //Fields affected(assigned to ) indirectly by this method. only relevant for ctors. i.e. when delegating to other ctors
+    private final Set<Field> indirectlyAffectedFields = new HashSet<Field>(); //Fields affected(assigned to ) by methods called from this method. calculated only for ctors. i.e. when delegating to other ctors
 
     public Method(PsiMethod psiMethod, PsiClass srcClass, int maxRecursionDepth,TypeDictionary typeDictionary) {
         isPrivate = psiMethod.hasModifierProperty(PsiModifier.PRIVATE);
@@ -100,6 +104,18 @@ public class Method {
         return sb.toString();
     }
 
+    public static boolean isRelevant(PsiClass psiClass, PsiMethod psiMethod) {
+        boolean isRelevant = true;
+        if (psiClass!=null && isInheritedFromObject(psiClass.getQualifiedName())) {
+            isRelevant = false;
+        }
+        final String methodId = formatMethodId(psiMethod);
+        if (GroovyPsiTreeUtils.isGroovy(psiMethod.getLanguage()) && (methodId.endsWith(".invokeMethod(java.lang.String,java.lang.Object)") || methodId.endsWith(".getProperty(java.lang.String)") || methodId.endsWith(".setProperty(java.lang.String,java.lang.Object)"))) {
+            isRelevant = false;
+        }
+        return isRelevant;
+    }
+
     public void resolveInternalReferences(PsiMethod psiMethod, TypeDictionary typeDictionary) {
         if (!isInheritedFromObject(getOwnerClassCanonicalType())) {
             resolveCalledMethods(psiMethod, typeDictionary);
@@ -122,11 +138,15 @@ public class Method {
     private void resolveCalledMethods(PsiMethod psiMethod, TypeDictionary typeDictionary) {
         if (GroovyPsiTreeUtils.isGroovy(psiMethod.getLanguage())) {
             for (GroovyPsiTreeUtils.MethodCalled methodCalled : GroovyPsiTreeUtils.findMethodCalls(psiMethod)) {
-                this.directMethodCalls.add(new MethodCall(new Method(methodCalled.getPsiMethod(), null, 1, typeDictionary),convertArgs(methodCalled.getMethodCallArguments())));
+                if (isRelevant(methodCalled.getPsiMethod().getContainingClass(), methodCalled.getPsiMethod())) {
+                    this.directMethodCalls.add(new MethodCall(new Method(methodCalled.getPsiMethod(), null, 1, typeDictionary),convertArgs(methodCalled.getMethodCallArguments())));
+                }
             }
         } else {
-            for (JavaPsiTreeUtils.MethodCalled methodCall : JavaPsiTreeUtils.findMethodCalls(psiMethod)) {
-                this.directMethodCalls.add(new MethodCall(new Method(methodCall.getPsiMethod(), methodCall.getPsiMethod().getContainingClass(), 1, typeDictionary),methodCall.getMethodCallArguments()));
+            for (JavaPsiTreeUtils.MethodCalled methodCalled : JavaPsiTreeUtils.findMethodCalls(psiMethod)) {
+                if (isRelevant(methodCalled.getPsiMethod().getContainingClass(), methodCalled.getPsiMethod())) {
+                    this.directMethodCalls.add(new MethodCall(new Method(methodCalled.getPsiMethod(), methodCalled.getPsiMethod().getContainingClass(), 1, typeDictionary),methodCalled.getMethodCallArguments()));
+                }
             }
 
         }
@@ -300,7 +320,7 @@ public class Method {
         return methodId.hashCode();
     }
 
-    public Set<MethodCall> getCalledFamilyMembers() {
+    public Set<MethodCall> getCalledFamilyMembers() {//todo get rid of this
         return calledFamilyMembers;
     }
 
@@ -311,8 +331,8 @@ public class Method {
                 "overridden=" + overridden + ", inherited=" + inherited + ", isInInterface=" + isInInterface + ", propertyName='" + propertyName + '\'' + ", directMethodCalls=" + directMethodCalls +
                 ", internalReferences=" + internalReferences + ", methodId='" + methodId + '\'' + '}';
     }
-    public Set<Field> getAffectedFields() {
-        return affectedFields;
+    public Set<Field> getIndirectlyAffectedFields() {
+        return indirectlyAffectedFields;
     }
 
     public boolean isAccessible() {
