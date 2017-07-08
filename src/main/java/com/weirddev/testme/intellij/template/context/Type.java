@@ -3,7 +3,6 @@ package com.weirddev.testme.intellij.template.context;
 import com.intellij.psi.*;
 import com.intellij.psi.util.PropertyUtil;
 import com.intellij.psi.util.PsiUtil;
-import com.weirddev.testme.intellij.groovy.GroovyPsiTreeUtils;
 import com.weirddev.testme.intellij.template.TypeDictionary;
 import com.weirddev.testme.intellij.utils.ClassNameUtils;
 import org.jetbrains.annotations.NotNull;
@@ -31,7 +30,6 @@ public class Type {
     private final boolean isInterface;
     private final boolean isAbstract;
     private final boolean isStatic;
-    private final List<Method> constructors;
     private final List<Method> methods;//resolve Setters/Getters only for now
     private final Type parentContainerClass;
     private final List<Field> fields;
@@ -51,7 +49,6 @@ public class Type {
         this.composedTypes = composedTypes;
         enumValues = new ArrayList<String>();
         isEnum = false;
-        constructors = new ArrayList<Method>();
         methods=new ArrayList<Method>();
         fields=new ArrayList<Field>();
         parentContainerClass = null;
@@ -81,7 +78,6 @@ public class Type {
         fields = new ArrayList<Field>();
         enumValues = resolveEnumValues(psiType);
         dependenciesResolvable = maxRecursionDepth > 0;
-        constructors = new ArrayList<Method>();
         methods=new ArrayList<Method>();
     }
 
@@ -103,34 +99,18 @@ public class Type {
         PsiClass psiClass = PsiUtil.resolveClassInType(psiType);
         if (psiClass != null && maxRecursionDepth>0 && !canonicalText.startsWith("java.") /*todo consider replacing with just java.util.* || java.lang.*  */&& typeDictionary!=null) {
             if (psiClass.getConstructors().length == 0) {
-                 hasDefaultConstructor=true;
-            } else {
-                for (PsiMethod psiMethod : psiClass.getConstructors()) {
-                    constructors.add(new Method(psiMethod,psiClass, maxRecursionDepth-1, typeDictionary));
-                }
+                 hasDefaultConstructor=true; //todo check if parent ctors are also retrieved by getConstructors()
             }
-
-            Collections.sort(constructors, new Comparator<Method>() {
-                @Override
-                public int compare(Method o1, Method o2) { //sort in reverse order by #no of c'tor params
-                    return o2.getMethodParams().size()-o1.getMethodParams().size();
-                }
-            });
-            final PsiMethod[] methods = shouldResolveAllMethods? psiClass.getAllMethods(): psiClass.getMethods();
+            final PsiMethod[] methods = psiClass.getAllMethods();
                 for (PsiMethod psiMethod : methods) {
-                    String ownerClassCanonicalType = psiClass.getQualifiedName();
-                    if (!Method.isInheritedFromObject(ownerClassCanonicalType)) {
-                        final String methodId = Method.formatMethodId(psiMethod);
-                        if (/*PropertyUtil.isSimplePropertyGetter(psiMethod) || PropertyUtil.isSimpleGetter(psiMethod) ||*/ shouldResolveAllMethods || (PropertyUtil.isSimplePropertySetter(psiMethod) || PropertyUtil.isSimpleSetter(psiMethod)) && !isGroovyLangProperty(psiMethod)) {
-                            if (GroovyPsiTreeUtils.isGroovy(psiMethod.getLanguage()) && (methodId.endsWith(".invokeMethod(java.lang.String,java.lang.Object)") || methodId.endsWith(".getProperty(java.lang.String)") || methodId.endsWith(".setProperty(java.lang.String,java.lang.Object)"))) {
-                                continue;
-                            }
+                    if (Method.isRelevant(psiClass, psiMethod) &&  (shouldResolveAllMethods || (PropertyUtil.isSimplePropertySetter(psiMethod)
+                            || PropertyUtil.isSimpleSetter(psiMethod)) && !isGroovyLangProperty(psiMethod) || psiMethod.isConstructor())) {
 
-                            final Method method = new Method(psiMethod, psiClass, maxRecursionDepth - 1, typeDictionary);
-                            method.resolveInternalReferences(psiMethod, typeDictionary);
-                            this.methods.add(method);
-                        }
+                        final Method method = new Method(psiMethod, psiClass, maxRecursionDepth - 1, typeDictionary);
+                        method.resolveInternalReferences(psiMethod, typeDictionary);
+                        this.methods.add(method);
                     }
+
                 }
             resolveFields(psiClass);
             dependenciesResolved=true;
@@ -231,7 +211,19 @@ public class Type {
         return varargs;
     }
 
-    public List<Method> getConstructors() {
+    public List<Method> findConstructors() {
+        List<Method> constructors = new ArrayList<Method>();
+        for (Method method : methods) {
+            if (method.isConstructor() && !"java.lang.Object".equals(method.getOwnerClassCanonicalType())) {
+                constructors.add(method);
+            }
+        }
+        Collections.sort(constructors, new Comparator<Method>() {
+            @Override
+            public int compare(Method o1, Method o2) { //sort in reverse order by #no of c'tor params
+                return o2.getMethodParams().size()-o1.getMethodParams().size();
+            }
+        });
         return constructors;
     }
 

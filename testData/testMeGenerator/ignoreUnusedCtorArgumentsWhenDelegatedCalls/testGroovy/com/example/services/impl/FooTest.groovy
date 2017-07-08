@@ -1,6 +1,7 @@
 package com.example.services.impl
 
 import com.example.beans.BeanByCtor
+import com.example.foes.Fire
 import com.example.foes.Ice
 import com.example.groovies.Groove
 import com.example.groovies.ImGroovy
@@ -27,7 +28,7 @@ class FooTest {
     @Test
     void testFindWithDelegatedCalls() {
         DelegateCtor result = foo.findWithDelegatedCalls([new BeanByCtor("myName", new Ice(), null, 0d)], new ImGroovy(groove: new Groove(someString: "someString")))
-        assert result == new DelegateCtor("youre", "asCold", null)
+        assert result == new DelegateCtor("youre", "asCold", null, new Fire())
     }
 }
 

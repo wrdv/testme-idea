@@ -115,8 +115,11 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
                 }
             }
             nTotalTypeUsages += countTypeReferences(ownerTypeCanonicalName, testedMethod);
-            for (MethodCall methodCall : testedMethod.getCalledFamilyMembers()) {
-                nTotalTypeUsages += countTypeReferences(ownerTypeCanonicalName, methodCall.getMethod());
+//            for (MethodCall methodCall : testedMethod.getCalledFamilyMembers()) {
+            for (MethodCall methodCall : testedMethod.getMethodCalls()) {
+                if (!methodCall.getMethod().isConstructor() && ownerTypeCanonicalName.equals(methodCall.getMethod().getOwnerClassCanonicalType())) {
+                    nTotalTypeUsages++;
+                }
             }
             shouldOptimizeConstructorInitialization = shouldOptimizeConstructorInitialization(nTotalTypeUsages, nBeanUsages);
         }
@@ -134,7 +137,7 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
 
     private List<Field> deductAffectedFields(Method constructor, Param param) {
         final List<Field> affectedFields = new ArrayList<Field>();
-        for (Field field : constructor.getAffectedFields()) {
+        for (Field field : constructor.getIndirectlyAffectedFields()) {
             if (field.getType().equals(param.getType())) {
                 affectedFields.add(field);
             }
@@ -171,15 +174,24 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
     private boolean isPropertyUsed(@NotNull Method testedMethod, Param propertyParam, String paramOwnerCanonicalName) {
         //todo migrate the logic of identifying setters/getters calls to JavaTestBuilder ( direct references)
         if (isReferencedInMethod(testedMethod, propertyParam, paramOwnerCanonicalName)) return true;
+        if (isPropertyUsedIndirectly(null, testedMethod, propertyParam, paramOwnerCanonicalName)) return true;
+//        for (MethodCall methodCall : testedMethod.getCalledFamilyMembers()) {
         for (MethodCall methodCall : testedMethod.getMethodCalls()) {
-            final Method method = methodCall.getMethod();
-            if (paramOwnerCanonicalName.equals(method.getOwnerClassCanonicalType()) &&
-                    (isGetterUsed(propertyParam, method) || isSetterUsed(propertyParam, method) || isConstructorArgumentUsed(propertyParam, paramOwnerCanonicalName, methodCall, method))) {
+            if (isReferencedInMethod(methodCall.getMethod(), propertyParam, paramOwnerCanonicalName)) return true;
+            if (isPropertyUsedIndirectly(methodCall,methodCall.getMethod(), propertyParam, paramOwnerCanonicalName)) return true;
+        }
+        return false;
+    }
+
+    private boolean isPropertyUsedIndirectly(MethodCall methodCall, @NotNull Method method, Param propertyParam, String paramOwnerCanonicalName) {
+        if (methodCall !=null && paramOwnerCanonicalName.equals(methodCall.getMethod().getOwnerClassCanonicalType()) && isConstructorArgumentUsed(propertyParam, paramOwnerCanonicalName, methodCall, methodCall.getMethod())) {
+            return true;
+        }
+        for (MethodCall methodCallArg : method.getMethodCalls()) {
+            final Method methodCalled = methodCallArg.getMethod();
+            if (paramOwnerCanonicalName.equals(methodCalled.getOwnerClassCanonicalType()) && (isGetterUsed(propertyParam, methodCalled) || isSetterUsed(propertyParam, methodCalled) )) {
                 return true;
             }
-        }
-        for (MethodCall methodCall : testedMethod.getCalledFamilyMembers()) {
-            if (isReferencedInMethod(methodCall.getMethod(), propertyParam, paramOwnerCanonicalName)) return true;
         }
         return false;
     }
@@ -208,9 +220,13 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
         return false;
     }
 
-    private boolean isReferencedInMethod(@NotNull Method testedMethod, Param propertyParam, String paramOwnerTypeCanonicalName) {
-        for (Reference internalReference : testedMethod.getInternalReferences()) {
-            if (paramOwnerTypeCanonicalName.equals(internalReference.getOwnerType().getCanonicalName()) && propertyParam.getType().equals(internalReference.getReferenceType()) && propertyParam.getName().equals(internalReference.getReferenceName())) {
+    private boolean isReferencedInMethod(@NotNull Method method, Param propertyParam, String paramOwnerTypeCanonicalName) {
+        if (method.isConstructor()) { /*assuming a more extensive ctor param usage check already done*/
+            return false;
+        }
+        for (Reference internalReference : method.getInternalReferences()) {
+            if (paramOwnerTypeCanonicalName.equals(internalReference.getOwnerType().getCanonicalName()) && propertyParam.getType().equals(internalReference.getReferenceType())
+                    && propertyParam.getName().equals(internalReference.getReferenceName())) {
                 return true;
             }
         }
