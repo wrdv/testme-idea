@@ -27,7 +27,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Date: 10/18/2016
@@ -108,9 +107,9 @@ public class CreateTestMeAction extends CreateTestAction {
         }
         LOG.debug("End CreateTestMeAction.invoke");
     }
-    public static void checkForTestRoots(Module srcModule, Set<VirtualFile> testFolders) {
-        CreateTestAction.checkForTestRoots(srcModule, testFolders);
-    }
+//    public static void checkForTestRoots(Module srcModule, Set<VirtualFile> testFolders) {
+//        CreateTestAction.checkForTestRoots(srcModule, testFolders);
+//    }
 
     @NotNull
     private static Module suggestModuleForTests(@NotNull Project project, @NotNull Module productionModule) {

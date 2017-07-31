@@ -40,6 +40,7 @@ public class TestSubjectResolverUtils {
     }
 
     private static boolean canBeTested(PsiElement element) {
+        if (TestFinderHelper.findSourceElement(element) == null) return false;
         if (TestFinderHelper.isTest(element)) return false;
         if (Extensions.getExtensions(TestFramework.EXTENSION_NAME).length == 0) return false;
         if (element == null) return false;
