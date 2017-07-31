@@ -1,7 +1,7 @@
 <idea-plugin version="2">
   <id>com.weirddev.testme</id>
   <name>TestMe</name>
-  <version>1.5.1</version>
+  <version>1.5.2</version>
   <vendor email="testme@weirddev.com" url="http://weirddev.com">WeirdDev</vendor>
 
   <description><![CDATA[
@@ -18,9 +18,9 @@
     ]]></description>
 
   <change-notes><![CDATA[
-        <i>Changes in v1.5.1:</i>
+        <i>Changes in v1.5.2:</i>
           <ul>
-            <li>bugfix: test params generator - Java Primitive wrappers should not be unwrapped to avoid method call ambiguity (reported by intars on June 6 '17)</li>
+            <li>bugfix: Goto Test or Test Generation popup doesn't open for python files due to internal error on testability validation check (reported by aristotll on July 30 '17)</li>
           </ul>
         <a href="http://weirddev.com/testme/release-notes">Complete Changelog</a>
     ]]>
