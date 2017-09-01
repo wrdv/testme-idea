@@ -37,7 +37,7 @@ public class TestTemplateContextBuilder {
             final Type type = typeDictionary.getType(Type.resolveType(targetClass), maxRecursionDepth, true);
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS, type);
             if (type != null) {
-                resolveMethodCalls(maxRecursionDepth, type.getMethods());
+                resolveInternalReferences(maxRecursionDepth, type.getMethods());
             }
         }
         logger.debug("Done building Test Template context in "+(new Date().getTime()-start)+" millis");
@@ -61,7 +61,7 @@ public class TestTemplateContextBuilder {
         return templateCtxtParams;
     }
 
-    private void resolveMethodCalls(int maxMethodCallsDepth, List<Method> methods) {
+    private void resolveInternalReferences(int maxMethodCallsDepth, List<Method> methods) {
 //              todo test generic methods and type params. use actual type params passed
         for (int i = 0; i < maxMethodCallsDepth; i++) {
             for (Method method : methods) {
@@ -69,22 +69,26 @@ public class TestTemplateContextBuilder {
             }
         }
         for (Method method : methods) {
-            resolveFieldsAffectedByCtor(method.getReturnType());
+            resolveFieldsAffectedByCtor(method.getReturnType(),maxMethodCallsDepth);
         }
     }
 
-    private void resolveFieldsAffectedByCtor(Type type) {//todo consider moving to test builder
+    private void resolveFieldsAffectedByCtor(Type type, int maxMethodCallsDepth) {//todo consider moving to test builder
+        if (maxMethodCallsDepth < 1) {
+            return;
+        }
         if (isValidObject(type)) {
             for (Method ctor : type.findConstructors()) {
                 Set<Field> affectedFields = new HashSet<Field>();
                 for (MethodCall methodCall : ctor.getMethodCalls()) {
-                        for (Param param : methodCall.getMethod().getMethodParams()) {
-                            for (Field assignedToField : param.getAssignedToFields()) {
-                                if (assignedToField.getOwnerClassCanonicalName().equals(ctor.getOwnerClassCanonicalType())) {
-                                    affectedFields.add(assignedToField);
-                                }
+                    for (Param param : methodCall.getMethod().getMethodParams()) {
+                        for (Field assignedToField : param.getAssignedToFields()) {
+                            if (assignedToField.getOwnerClassCanonicalName().equals(ctor.getOwnerClassCanonicalType())) {
+                                affectedFields.add(assignedToField);
                             }
                         }
+                        resolveFieldsAffectedByCtor(param.getType(), maxMethodCallsDepth--);
+                    }
                 }
                 ctor.getIndirectlyAffectedFields().addAll(affectedFields);
             }
