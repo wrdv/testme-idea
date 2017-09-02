@@ -16,7 +16,7 @@ class JavaTestBuilderImplTest extends Specification {
                                        "java.util.NavigableMap": "new java.util.TreeMap<TYPES>(new java.util.HashMap<TYPES>(){{put(<VAL>,<VAL>);}})",
                                        "java.util.List"        : "java.util.Arrays.<TYPES>asList(<VAL>)"
     ]
-    def testBuilder = new JavaTestBuilderImpl(5)
+    def testBuilder = new JavaTestBuilderImpl(5,null,false,TestBuilder.ParamRole.Input,66)
 
     def "stripGenerics"() {
 

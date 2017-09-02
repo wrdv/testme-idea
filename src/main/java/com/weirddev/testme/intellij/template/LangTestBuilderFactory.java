@@ -20,7 +20,7 @@ public class LangTestBuilderFactory {
         if ( language==Language.Groovy) {
             langTestBuilder = new GroovyTestBuilderImpl(maxRecursionDepth, method, shouldIgnoreUnusedProperties, paramRole, minPercentOfExcessiveSettersToPreferDefaultCtor, 66); //todo add replacementTypes, defaultTypeValues and testBuilder as members
         } else{
-            langTestBuilder = new JavaTestBuilderImpl(maxRecursionDepth, method);
+            langTestBuilder = new JavaTestBuilderImpl(maxRecursionDepth, method, shouldIgnoreUnusedProperties, paramRole, 66);
         }
         return langTestBuilder;
     }
