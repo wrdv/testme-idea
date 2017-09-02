@@ -2,7 +2,6 @@ package com.weirddev.testme.intellij.action.helpers;
 
 import com.intellij.CommonBundle;
 import com.intellij.codeInsight.CodeInsightBundle;
-import com.intellij.ide.util.PackageUtil;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.application.Result;
 import com.intellij.openapi.command.WriteCommandAction;
@@ -13,6 +12,8 @@ import com.intellij.openapi.roots.JavaProjectRootsUtil;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.SourceFolder;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.vfs.VfsUtil;
+import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiManager;
@@ -62,26 +63,6 @@ public class TargetDirectoryLocator{
         return myTargetDirectory;
     }
 
-@Nullable
-private PsiDirectory chooseDefaultDirectory(String packageName, Module myTargetModule, Project myProject) {
-    List<PsiDirectory> dirs = new ArrayList<PsiDirectory>();
-    for (VirtualFile file : ModuleRootManager.getInstance(myTargetModule).getSourceRoots(JavaSourceRootType.TEST_SOURCE)) {
-        final PsiDirectory dir = PsiManager.getInstance(myProject).findDirectory(file);
-        if (dir != null) {
-            dirs.add(dir);
-        }
-    }
-    if (!dirs.isEmpty()) {
-        for (PsiDirectory dir : dirs) {
-            final String dirName = dir.getVirtualFile().getPath();
-            if (dirName.contains("generated")) continue;
-            return dir;
-        }
-        return dirs.get(0);
-    }
-    return PackageUtil.findPossiblePackageDirectoryInModule(myTargetModule, packageName);
-}
-
     @Nullable
     private PsiDirectory selectTargetDirectory(final String packageName, final Project myProject, final Module myTargetModule) throws IncorrectOperationException {
         final PackageWrapper targetPackage = new PackageWrapper(PsiManager.getInstance(myProject), packageName);
@@ -89,21 +70,18 @@ private PsiDirectory chooseDefaultDirectory(String packageName, Module myTargetM
             protected void run(Result<VirtualFile> result) throws Throwable {
 //                final HashSet<VirtualFile> testFolders = new HashSet<VirtualFile>();
 //                CreateTestMeAction.checkForTestRoots(myTargetModule, testFolders);
-//                final List<VirtualFile> testFolders = CreateTestAction.computeTestRoots(myTargetModule); // tbd- replaces above from v14
                 final List<VirtualFile> testFolders = CreateTestMeAction.computeTestRoots(myTargetModule); // tbd- replaces above from v14
                 List<VirtualFile> roots;
-                if (testFolders.isEmpty()) {
+                if (testFolders==null || testFolders.isEmpty()) {
                     roots = new ArrayList<VirtualFile>();
-/* // tbd- added post v14 - another attempt to find Test source dirs
-                    List<String> urls = CreateTestAction.computeSuitableTestRootUrls(myTargetModule);
+                    List<String> urls = CreateTestMeAction.computeSuitableTestRootUrls(myTargetModule);
                     for (String url : urls) {
                         ContainerUtil.addIfNotNull(roots, VfsUtil.createDirectories(VfsUtilCore.urlToPath(url)));
                     }
-*/
                     //  roots = ModuleRootManager.getInstance(myTargetModule).getSourceRoots(JavaModuleSourceRootTypes.SOURCES); // from v14
-//                    if (roots.isEmpty()) { //...replaced by
+                    if (roots.isEmpty()) {
                         collectSuitableDestinationSourceRoots(myTargetModule, roots);
-//                    }
+                    }
                     if (roots.isEmpty()) return;
                 } else {
                     roots = new ArrayList<VirtualFile>(testFolders);
@@ -113,7 +91,7 @@ private PsiDirectory chooseDefaultDirectory(String packageName, Module myTargetM
                     result.setResult(roots.get(0));
                 }
                 else {
-                    PsiDirectory defaultDir = chooseDefaultDirectory(packageName, myTargetModule, myProject);
+                    PsiDirectory defaultDir = chooseDefaultDirectory(targetPackage.getDirectories(),roots, myTargetModule, myProject);
                     result.setResult(MoveClassesOrPackagesUtil.chooseSourceRoot(targetPackage, roots, defaultDir));
                 }
             }
@@ -128,10 +106,40 @@ private PsiDirectory chooseDefaultDirectory(String packageName, Module myTargetM
         }.execute().getResultObject();
     }
 
+    @Nullable
+    private PsiDirectory chooseDefaultDirectory(PsiDirectory[] directories, List<VirtualFile> roots, Module myTargetModule, Project myProject) {
+        List<PsiDirectory> dirs = new ArrayList<PsiDirectory>();
+        for (VirtualFile file : ModuleRootManager.getInstance(myTargetModule).getSourceRoots(JavaSourceRootType.TEST_SOURCE)) {
+            final PsiDirectory dir = PsiManager.getInstance(myProject).findDirectory(file);
+            if (dir != null) {
+                dirs.add(dir);
+            }
+        }
+        if (!dirs.isEmpty()) {
+            for (PsiDirectory dir : dirs) {
+                final String dirName = dir.getVirtualFile().getPath();
+                if (dirName.contains("generated")) continue;
+                return dir;
+            }
+            return dirs.get(0);
+        }
+        for (PsiDirectory dir : directories) {
+            final VirtualFile file = dir.getVirtualFile();
+            for (VirtualFile root : roots) {
+                if (VfsUtilCore.isAncestor(root, file, false)) {
+                    final PsiDirectory rootDir = PsiManager.getInstance(myProject).findDirectory(root);
+                    if (rootDir != null) {
+                        return rootDir;
+                    }
+                }
+            }
+        }
+        return null;
+//        return PackageUtil.findPossiblePackageDirectoryInModule(myTargetModule, packageName); //from v14
+    }
     /**
-     * @see JavaProjectRootsUtil#collectSuitableDestinationSourceRoots (*added post v14)
+     * @see JavaProjectRootsUtil#collectSuitableDestinationSourceRoots (*added in v15)
      */
-
     public static void collectSuitableDestinationSourceRoots(@NotNull Module module, @NotNull List<VirtualFile> result) {
         for (ContentEntry entry : ModuleRootManager.getInstance(module).getContentEntries()) {
             for (SourceFolder sourceFolder : entry.getSourceFolders(JavaModuleSourceRootTypes.SOURCES)) {

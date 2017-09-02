@@ -110,7 +110,8 @@ public class Method {
             isRelevant = false;
         }
         final String methodId = formatMethodId(psiMethod);
-        if (GroovyPsiTreeUtils.isGroovy(psiMethod.getLanguage()) && (methodId.endsWith(".invokeMethod(java.lang.String,java.lang.Object)") || methodId.endsWith(".getProperty(java.lang.String)") || methodId.endsWith(".setProperty(java.lang.String,java.lang.Object)"))) {
+        if (GroovyPsiTreeUtils.isGroovy(psiMethod.getLanguage())
+                && ( psiMethod.getClass().getCanonicalName().contains ("GrGdkMethodImpl") || methodId.endsWith(".invokeMethod(java.lang.String,java.lang.Object)") || methodId.endsWith(".getProperty(java.lang.String)") || methodId.endsWith(".setProperty(java.lang.String,java.lang.Object)"))) {
             isRelevant = false;
         }
         return isRelevant;
