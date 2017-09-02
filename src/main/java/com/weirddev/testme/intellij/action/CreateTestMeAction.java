@@ -172,18 +172,18 @@ public class CreateTestMeAction extends CreateTestAction {
                     suggestModuleForTests = method;
                 }
             }
-            assert suggestModuleForTests != null;
-            suggestModuleForTests.setAccessible(true);
-            try {
-                final Object module = suggestModuleForTests.invoke(null, project,productionModule);
-                if (module == null) {
-                    return productionModule;
-                } else {
-                    return (Module) module;
+            if (suggestModuleForTests != null) {
+                suggestModuleForTests.setAccessible(true);
+                try {
+                    final Object module = suggestModuleForTests.invoke(null, project,productionModule);
+                    if (module != null) {
+                        return (Module) module;
+                    }
+                } catch (Exception e) {
+                    LOG.debug("error invoking suggestModuleForTests through reflection. falling back to older implementation",e);
                 }
-            } catch (Exception e) {
-                LOG.debug("error invoking suggestModuleForTests through reflection. falling back to older implementation",e);
             }
+
         } catch (Exception e) {
             LOG.debug("suggestModuleForTests Method mot found. expected to exist on idea 15 - 2017. falling back to older implementation",e);
         }
