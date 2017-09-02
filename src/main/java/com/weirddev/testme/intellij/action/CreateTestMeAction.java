@@ -163,12 +163,21 @@ public class CreateTestMeAction extends CreateTestAction {
     @NotNull
     private static Module suggestModuleForTestsReflective(@NotNull Project project, @NotNull Module productionModule) {
         try {
-        final Method suggestModuleForTests = CreateTestAction.class.getDeclaredMethod("suggestModuleForTests", Project.class,Module.class);
-        suggestModuleForTests.setAccessible(true);
+            Method suggestModuleForTests = null;
+            //          suggestModuleForTests = CreateTestAction.class.getDeclaredMethod("suggestModuleForTests", Project.class,Module.class);
+            // this didn't do the trick. actual compiled method name differs from original source code. so locating by signature..
+            for (Method method : CreateTestAction.class.getDeclaredMethods()) {
+                final Class<?>[] parameters = method.getParameterTypes();
+                if ( method.getReturnType().isAssignableFrom(Module.class)  && parameters != null && parameters.length == 2 && parameters[0].isAssignableFrom(Project.class) && parameters[1].isAssignableFrom(Module.class) ) {
+                    suggestModuleForTests = method;
+                }
+            }
+            assert suggestModuleForTests != null;
+            suggestModuleForTests.setAccessible(true);
             try {
                 final Object module = suggestModuleForTests.invoke(null, project,productionModule);
                 if (module == null) {
-                    return null;
+                    return productionModule;
                 } else {
                     return (Module) module;
                 }
@@ -176,31 +185,38 @@ public class CreateTestMeAction extends CreateTestAction {
                 LOG.debug("error invoking suggestModuleForTests through reflection. falling back to older implementation",e);
             }
         } catch (Exception e) {
-        LOG.debug("suggestModuleForTests Method mot found . this is probably not idea 2016. falling back to older implementation");
+            LOG.debug("suggestModuleForTests Method mot found. expected to exist on idea 15 - 2017. falling back to older implementation",e);
         }
         return productionModule;
     }
 
-    public static List<VirtualFile> computeTestRoots(Module srcModule) {
-        try {
-            final Method computeTestRootsMethod = CreateTestAction.class.getDeclaredMethod("computeTestRoots", Module.class);//Added in v15
-            computeTestRootsMethod.setAccessible(true);
-            try {
-                final Object roots = computeTestRootsMethod.invoke(null, srcModule);
-                if (roots == null) {
-                    return null;
-                } else if (roots instanceof List && !((List)roots).isEmpty() &&((List)roots).get(0) instanceof VirtualFile) {
-                    return (List<VirtualFile>) roots;
+    /**
+     * @see  CreateTestAction#computeTestRoots
+     */
+    public static List<VirtualFile> computeTestRoots(@NotNull Module mainModule) {
+        final ArrayList<VirtualFile> virtualFiles = new ArrayList<VirtualFile>();
+        final List<SourceFolder> sourceFolders = suitableTestSourceFolders(mainModule);
+        if (!sourceFolders.isEmpty()) {
+            //create test in the same module, if the test source folder doesn't exist yet it will be created
+            for (SourceFolder sourceFolder : sourceFolders) {
+                if (sourceFolder.getFile() != null) {
+                    virtualFiles.add(sourceFolder.getFile());
                 }
-            } catch (Exception e) {
-                LOG.debug("error invoking computeTestRootsMethod through reflection. falling back to older implementation",e);
             }
-        } catch (Exception e) {
-            LOG.debug("computeTestRoots Method mot found. this is probably not idea 2016. falling back to older implementation");
+        } else {
+            //suggest to choose from all dependencies modules
+            final HashSet<Module> modules = new HashSet<Module>();
+            ModuleUtilCore.collectModulesDependsOn(mainModule, modules);
+            for (Module module : modules) {
+                final List<SourceFolder> folders = suitableTestSourceFolders(module);
+                for (SourceFolder sourceFolder : folders) {
+                    if (sourceFolder.getFile() != null) {
+                        virtualFiles.add(sourceFolder.getFile());
+                    }
+                }
+            }
         }
-        final HashSet<VirtualFile> testFolders = new HashSet<VirtualFile>();
-        CreateTestAction.checkForTestRoots(srcModule, testFolders);
-        return new ArrayList<VirtualFile>(testFolders);
+        return virtualFiles;
     }
 
     /**

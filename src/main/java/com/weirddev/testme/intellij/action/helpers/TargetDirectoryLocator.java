@@ -70,7 +70,7 @@ public class TargetDirectoryLocator{
             protected void run(Result<VirtualFile> result) throws Throwable {
 //                final HashSet<VirtualFile> testFolders = new HashSet<VirtualFile>();
 //                CreateTestMeAction.checkForTestRoots(myTargetModule, testFolders);
-                final List<VirtualFile> testFolders = CreateTestMeAction.computeTestRoots(myTargetModule); // tbd- replaces above from v14
+                final List<VirtualFile> testFolders = CreateTestMeAction.computeTestRoots(myTargetModule); // replaces above from v14
                 List<VirtualFile> roots;
                 if (testFolders==null || testFolders.isEmpty()) {
                     roots = new ArrayList<VirtualFile>();
