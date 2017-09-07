@@ -25,14 +25,6 @@ public class FooTest {
     com.example.warriers.FooFighter fooFighterFinal;
     @Mock
     com.example.warriers.FooFighter fooFighterStatic;
-    //Field byteFieldWrapper of type Byte - was not mocked since Mockito doesn't mock a Final class when 'mock-maker-inline' option is not set
-    //Field shortFieldWrapper of type Short - was not mocked since Mockito doesn't mock a Final class when 'mock-maker-inline' option is not set
-    //Field intFieldWrapper of type Integer - was not mocked since Mockito doesn't mock a Final class when 'mock-maker-inline' option is not set
-    //Field longFieldWrapper of type Long - was not mocked since Mockito doesn't mock a Final class when 'mock-maker-inline' option is not set
-    //Field floatFieldWrapper of type Float - was not mocked since Mockito doesn't mock a Final class when 'mock-maker-inline' option is not set
-    //Field doubleFieldWrapper of type Double - was not mocked since Mockito doesn't mock a Final class when 'mock-maker-inline' option is not set
-    //Field charFieldWrapper of type Character - was not mocked since Mockito doesn't mock a Final class when 'mock-maker-inline' option is not set
-    //Field booleanFieldWrapper of type Boolean - was not mocked since Mockito doesn't mock a Final class when 'mock-maker-inline' option is not set
     @Mock
     Foo.PublicInnerClass publicInnerClass;
     @Mock
