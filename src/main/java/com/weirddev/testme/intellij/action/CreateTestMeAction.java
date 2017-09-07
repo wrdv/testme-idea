@@ -107,10 +107,11 @@ public class CreateTestMeAction extends CreateTestAction {
         LOG.debug("targetDirectory:"+targetDirectory.getVirtualFile().getUrl());
         final ClassNameSelection classNameSelection = generatedClassNameResolver.resolveClassName(project, targetDirectory, srcClass.getName(), templateDescriptor);
         if (classNameSelection.getUserDecision() != ClassNameSelection.UserDecision.Abort) {
+            final Module finalTestModule = testModule;
             CommandProcessor.getInstance().executeCommand(project, new Runnable() {
                 @Override
                 public void run() {
-                    testMeGenerator.generateTest(new FileTemplateContext(new FileTemplateDescriptor(templateDescriptor.getFilename()),templateDescriptor.getLanguage(),project, classNameSelection.getClassName(), srcPackage, srcModule, targetDirectory, srcClass, true, true, MAX_RECURSION_DEPTH, true, true, 50));
+                    testMeGenerator.generateTest(new FileTemplateContext(new FileTemplateDescriptor(templateDescriptor.getFilename()),templateDescriptor.getLanguage(),project, classNameSelection.getClassName(), srcPackage, srcModule, finalTestModule,targetDirectory, srcClass, true, true, MAX_RECURSION_DEPTH, true, true, 50));
                 }
             }, "TestMe Generate Test", this);
         }

@@ -18,4 +18,13 @@ public class StringUtils extends org.apache.velocity.util.StringUtils {
         return stringBuilder.toString().trim();
     }
 
+    public static boolean hasLine(String multiLineText, String toFind) {
+        final String[] lines = multiLineText.split("\\n");
+        for (String line : lines) {
+            if (line.matches("\\s*"+toFind+"\\s*")) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

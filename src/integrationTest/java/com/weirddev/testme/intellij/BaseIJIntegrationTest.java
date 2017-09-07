@@ -2,8 +2,11 @@ package com.weirddev.testme.intellij;
 
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
+import com.intellij.openapi.module.Module;
 import com.intellij.openapi.projectRoots.JavaSdk;
 import com.intellij.openapi.projectRoots.Sdk;
+import com.intellij.openapi.roots.ContentEntry;
+import com.intellij.openapi.roots.ModifiableRootModel;
 import com.intellij.testFramework.LightProjectDescriptor;
 import com.intellij.testFramework.fixtures.DefaultLightProjectDescriptor;
 import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
@@ -60,6 +63,26 @@ abstract public class BaseIJIntegrationTest extends LightCodeInsightFixtureTestC
             @Override
             public Sdk getSdk() {
                 return JavaSdk.getInstance().createJdk("java 1.7", new File(System.getProperty("java.home")).getParent(), false);
+            }
+
+            @Override
+            public void configureModule(Module module, ModifiableRootModel model, ContentEntry contentEntry) {
+                super.configureModule(module, model, contentEntry);
+//                VirtualFile dummyRoot = VirtualFileManager.getInstance().findFileByUrl("temp:///");
+//                assert dummyRoot != null;
+//                dummyRoot.refresh(false, false);
+//                try {
+//                    dummyRoot.createChildDirectory(this, "resources");
+//                    dummyRoot.createChildDirectory(this, "test");
+//                    dummyRoot.refresh(false, true);
+//                }
+//                catch (IOException e) {
+//                    throw new RuntimeException(e);
+//                }
+//                VirtualFile resRoot = VirtualFileManager.getInstance().refreshAndFindFileByUrl("temp:///resources");
+//                VirtualFile testRoot = VirtualFileManager.getInstance().refreshAndFindFileByUrl("temp:///test");
+//                model.addContentEntry(resRoot).addSourceFolder("temp:///resources", JavaResourceRootType.RESOURCE);
+//                model.addContentEntry(testRoot).addSourceFolder("temp:///test", JavaSourceRootType.TEST_SOURCE);
             }
         };
     }

@@ -30,6 +30,7 @@ public class Type {
     private final boolean isInterface;
     private final boolean isAbstract;
     private final boolean isStatic;
+    private final boolean isFinal;
     private final List<Method> methods;//resolve Setters/Getters only for now
     private final Type parentContainerClass;
     private final List<Field> fields;
@@ -53,6 +54,7 @@ public class Type {
         fields=new ArrayList<Field>();
         parentContainerClass = null;
         isStatic = false;
+        isFinal = false;
     }
 
     Type(String canonicalName) {
@@ -79,6 +81,11 @@ public class Type {
         enumValues = resolveEnumValues(psiType);
         dependenciesResolvable = maxRecursionDepth > 0;
         methods=new ArrayList<Method>();
+        isFinal = isFinalType(PsiUtil.resolveClassInType(psiType));
+    }
+
+    private boolean isFinalType(PsiClass aClass) {
+        return aClass != null &&  aClass.getModifierList()!=null && aClass.getModifierList().hasExplicitModifier(PsiModifier.FINAL);
     }
 
     private void resolveFields(@NotNull PsiClass psiClass) {
@@ -261,5 +268,9 @@ public class Type {
 
     public List<Field> getFields() {
         return fields;
+    }
+
+    public boolean isFinal() {
+        return isFinal;
     }
 }

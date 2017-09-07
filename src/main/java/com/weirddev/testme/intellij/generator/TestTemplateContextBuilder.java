@@ -1,7 +1,12 @@
 package com.weirddev.testme.intellij.generator;
 
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.module.ResourceFileUtil;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
+import com.intellij.psi.impl.PsiManagerEx;
 import com.weirddev.testme.intellij.template.FileTemplateContext;
 import com.weirddev.testme.intellij.template.TypeDictionary;
 import com.weirddev.testme.intellij.template.context.*;
@@ -28,7 +33,6 @@ public class TestTemplateContextBuilder {
         ctxtParams.put(TestMeTemplateParams.MAX_RECURSION_DEPTH, maxRecursionDepth);
         ctxtParams.put(TestMeTemplateParams.TEST_BUILDER, new TestBuilderImpl(context.getLanguage(),maxRecursionDepth, context.isIgnoreUnusedProperties(), context.getMinPercentOfExcessiveSettersToPreferDefaultCtor()));
         ctxtParams.put(TestMeTemplateParams.STRING_UTILS, new StringUtils());
-        ctxtParams.put(TestMeTemplateParams.MOCKITO_UTILS, new MockitoUtils());
         ctxtParams.put(TestMeTemplateParams.TEST_SUBJECT_UTILS,new TestSubjectUtils());
         final PsiClass targetClass = context.getSrcClass();
         if (targetClass != null && targetClass.isValid()) {
@@ -40,8 +44,28 @@ public class TestTemplateContextBuilder {
                 resolveInternalReferences(maxRecursionDepth, type.getMethods());
             }
         }
+        logger.debug("Resolved internal references in test template context");
+        ctxtParams.put(TestMeTemplateParams.MOCKITO_UTILS, createMockitoUtils(context));
         logger.debug("Done building Test Template context in "+(new Date().getTime()-start)+" millis");
         return ctxtParams;
+    }
+
+    @NotNull
+    private MockitoUtils createMockitoUtils(FileTemplateContext context) {
+        boolean found = false;
+//        final VirtualFile mockMakerVFile = ResourceFileUtil.findResourceFileInScope("mockito-extensions/org.mockito.plugins.MockMaker", context.getProject(), context.getTestModule().getModuleWithDependenciesAndLibrariesScope(true));
+        final VirtualFile mockMakerVFile = ResourceFileUtil.findResourceFileInDependents(context.getTestModule(), "mockito-extensions/org.mockito.plugins.MockMaker");
+        logger.debug("found mockito MockMaker in test module classpath:"+mockMakerVFile);
+        if (mockMakerVFile != null) {
+            final PsiFile mockMakerPsiFile = ((PsiManagerEx) PsiManager.getInstance(context.getProject())).getFileManager().getCachedPsiFile(mockMakerVFile);
+            if (mockMakerPsiFile != null) {
+                final String mockFileText = mockMakerPsiFile.getText();
+                found = StringUtils.hasLine(mockFileText,"mock-maker-inline");
+                logger.debug("mockito MockMaker content:"+ mockFileText);
+                logger.debug("is mock-maker-inline turned on:"+ found);
+            }
+        }
+        return new MockitoUtils(found);
     }
 
     void populateDateFields(Map<String, Object> ctxtParams, Calendar calendar) {

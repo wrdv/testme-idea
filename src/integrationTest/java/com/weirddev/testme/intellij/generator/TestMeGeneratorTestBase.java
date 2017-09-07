@@ -87,6 +87,7 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
                         expectedTestClassName,
                         targetPackage,
                         myModule,
+                        myModule,
                         srcDir,
                         fooClass,
                         reformatCode,

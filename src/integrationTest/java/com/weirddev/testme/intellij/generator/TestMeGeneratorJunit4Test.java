@@ -116,6 +116,13 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
         // For some reason manual tests match the expected behaviour but the UT fails. expected test has been adapted to the 'wrong' UT runtime behaviour
         doTest(true,true,true,67, true);
     }
+    public void testWithFinalTypeDependency() throws Exception {
+        doTest(true, true, true);
+    }
+//   public void testWithFinalTypeDependencyMockable() throws Exception {
+//       myFixture.copyDirectoryToProject("resources", "resources"); //issue with setting up a resource folder
+//        doTest(true, true, true);
+//    }
 
     //todo TC - use static init method when constructor not available
 

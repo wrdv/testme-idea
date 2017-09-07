@@ -19,7 +19,6 @@ import static org.mockito.Mockito.*;
 public class FooTest {
     @Mock
     FooFighter fooFighter;
-    //Field clazz of type Class - was not mocked since Mockito doesn't mock a Final class
     @InjectMocks
     Foo foo;
 
