@@ -73,4 +73,9 @@ public class Field {
         result = 31 * result + name.hashCode();
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "Field{" + "type=" + type + ", overridden=" + overridden + ", isFinal=" + isFinal + ", isStatic=" + isStatic + ", ownerClassCanonicalName='" + ownerClassCanonicalName + '\'' + ", name='" + name + '\'' + '}';
+    }
 }

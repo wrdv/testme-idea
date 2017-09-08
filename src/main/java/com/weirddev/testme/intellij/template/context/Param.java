@@ -49,4 +49,9 @@ public class Param {
     public int hashCode() {
         return type != null ? type.hashCode() : 0;
     }
+
+    @Override
+    public String toString() {
+        return "Param{" + "name='" + name + ", type=" + type + '\'' + ", assignedToFields=" + assignedToFields + '}';
+    }
 }

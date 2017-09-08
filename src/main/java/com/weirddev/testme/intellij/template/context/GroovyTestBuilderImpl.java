@@ -62,29 +62,6 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
             }
         }
     }
-    protected void buildGroovyCallParams(Method constructor, List<? extends Param> params, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Param> ownerParamNode) {
-        final int origLength = testBuilder.length();
-        if (params != null) {
-            final String ownerTypeCanonicalName = ownerParamNode.getData()==null?null:ownerParamNode.getData().getType().getCanonicalName();
-            boolean shouldOptimizeConstructorInitialization = ownerTypeCanonicalName !=null && constructor!=null && isShouldOptimizeConstructorInitialization(constructor,params, ownerTypeCanonicalName);
-            for (Param param : params) {
-                final Node<Param> paramNode = new Node<Param>(param, ownerParamNode, ownerParamNode.getDepth() + 1);
-                if (shouldIgnoreUnusedProperties && testedMethod != null) {
-                    if (isPropertyParam(paramNode.getData()) && ownerTypeCanonicalName != null && !isPropertyUsed(testedMethod, paramNode.getData(), ownerTypeCanonicalName)) {
-                        continue;
-                    } else if (shouldOptimizeConstructorInitialization && !param.getType().isPrimitive() && isUnused(testedMethod, deductAssignedToFields(constructor, param))) {
-                        testBuilder.append("null"+PARAMS_SEPERATOR);
-                        continue;
-                    }
-                }
-                buildCallParam(replacementTypes, defaultTypeValues, testBuilder, paramNode);
-                testBuilder.append(PARAMS_SEPERATOR);
-            }
-            if (origLength < testBuilder.length()) {
-                testBuilder.delete(testBuilder.length() - PARAMS_SEPERATOR.length(),testBuilder.length());
-            }
-        }
-    }
 
     @NotNull
     private List<SyntheticParam> findProperties(Type type) {

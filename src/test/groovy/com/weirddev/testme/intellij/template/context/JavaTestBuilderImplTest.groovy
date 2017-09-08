@@ -1,5 +1,6 @@
 package com.weirddev.testme.intellij.template.context
 
+import com.weirddev.testme.intellij.utils.ClassNameUtils
 import spock.lang.Specification
 
 /**
@@ -21,7 +22,7 @@ class JavaTestBuilderImplTest extends Specification {
     def "stripGenerics"() {
 
         expect:
-        testBuilder.stripGenerics(canonicalName) == result
+        ClassNameUtils.stripGenerics(canonicalName) == result
 
         where:
         canonicalName               | result
@@ -33,7 +34,7 @@ class JavaTestBuilderImplTest extends Specification {
     def "extractGenerics"() {
 
         expect:
-        testBuilder.extractGenerics(canonicalName) == result
+        ClassNameUtils.extractGenerics(canonicalName) == result
 
         where:
         canonicalName               | result

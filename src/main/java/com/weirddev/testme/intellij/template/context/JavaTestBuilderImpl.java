@@ -9,8 +9,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Date: 2/16/2017
@@ -19,7 +17,6 @@ import java.util.regex.Pattern;
  */
 public class JavaTestBuilderImpl implements LangTestBuilder {
     private static final Logger LOG = Logger.getInstance(JavaTestBuilderImpl.class.getName());
-    private static final Pattern GENERICS_PATTERN = Pattern.compile("(<.*>)");
     private static Type DEFAULT_TYPE = new Type("java.lang.String", "String", "java.lang", false, false, false, false, false, new ArrayList<Type>());
     public static final String PARAMS_SEPERATOR = ", ";
 
@@ -61,25 +58,12 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
 
     String resolveType(Type type, Map<String, String> replacementTypes) {
         String canonicalName = type.getCanonicalName();
-        String sanitizedCanonicalName = stripGenerics(canonicalName);
+        String sanitizedCanonicalName = ClassNameUtils.stripGenerics(canonicalName);
         if (replacementTypes != null && replacementTypes.get(sanitizedCanonicalName) != null) {
             String replacedSanitizedCanonicalName = replacementTypes.get(sanitizedCanonicalName);
-            canonicalName = replacedSanitizedCanonicalName.replace("<TYPES>", extractGenerics(canonicalName));
+            canonicalName = replacedSanitizedCanonicalName.replace("<TYPES>", ClassNameUtils.extractGenerics(canonicalName));
         }
         return canonicalName;
-    }
-    //todo move to util class
-    String stripGenerics(String canonicalName) {
-        return canonicalName.replaceFirst("<.*", "");
-    }
-
-    String extractGenerics(String canonicalName) {
-        Matcher matcher = GENERICS_PATTERN.matcher(canonicalName);
-        if (matcher.find()) {
-            return matcher.group(1);
-        } else {
-            return "";
-        }
     }
 
     protected void buildCallParam(Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Param> paramNode) {
@@ -159,9 +143,11 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
                 final Node<Param> paramNode = new Node<Param>(param, ownerParamNode, ownerParamNode.getDepth() + 1);
                 if (shouldIgnoreUnusedProperties && testedMethod != null) {
                     if (isPropertyParam(paramNode.getData()) && ownerTypeCanonicalName != null && !isPropertyUsed(testedMethod, paramNode.getData(), ownerTypeCanonicalName)) {
+                        LOG.debug("property unused "+paramNode.getData());
                         continue;
                     } else if (shouldOptimizeConstructorInitialization && !param.getType().isPrimitive() && isUnused(testedMethod, deductAssignedToFields(constructor, param))) {
                         testBuilder.append("null"+PARAMS_SEPERATOR);
+                        LOG.debug("unused param "+param);
                         continue;
                     }
                 }
@@ -176,27 +162,31 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
     protected boolean isPropertyParam(Param param) {
         return param instanceof SyntheticParam && ((SyntheticParam) param).isProperty;
     }
+
     protected boolean isShouldOptimizeConstructorInitialization(Method constructor, List<? extends Param> params, String ownerTypeCanonicalName) {
         boolean shouldOptimizeConstructorInitialization = false;
         if (shouldIgnoreUnusedProperties && testedMethod != null && params.size() > 0) {
             int nBeanUsages = 0;
-            int nTotalTypeUsages = 0;
             for (Param param : params) {
-                if (!isUnused(testedMethod, deductAssignedToFields(constructor,param))) {
+                if (!isUnused(testedMethod, deductAssignedToFields(constructor, param))) {
                     nBeanUsages++;
                 }
             }
-            nTotalTypeUsages += countTypeReferences(ownerTypeCanonicalName, testedMethod);
-//            for (MethodCall methodCall : testedMethod.getCalledFamilyMembers()) {
+            int nTypeReferences = countTypeReferences(ownerTypeCanonicalName, testedMethod);
+            //            for (MethodCall methodCall : testedMethod.getCalledFamilyMembers()) {
+            int nMethodCalls = 0;
             for (MethodCall methodCall : testedMethod.getMethodCalls()) {
                 if (!methodCall.getMethod().isConstructor() && ownerTypeCanonicalName.equals(methodCall.getMethod().getOwnerClassCanonicalType())) {
-                    nTotalTypeUsages++;
+                    nMethodCalls++;
                 }
             }
-            shouldOptimizeConstructorInitialization = shouldOptimizeConstructorInitialization(nTotalTypeUsages, nBeanUsages);
+            shouldOptimizeConstructorInitialization = shouldOptimizeConstructorInitialization(nTypeReferences + nMethodCalls, nBeanUsages);
+            LOG.debug(String.format("shouldOptimizeConstructorInitialization:%s shouldOptimizeConstructorInitialization= %d nBeanUsages %d nTypeReferences %d nMethodCalls %d", shouldOptimizeConstructorInitialization,
+                    minPercentOfInteractionWithPropertiesToTriggerConstructorOptimization, nBeanUsages, nTypeReferences, nMethodCalls));
         }
         return shouldOptimizeConstructorInitialization;
     }
+
     boolean shouldOptimizeConstructorInitialization(int nTotalTypeUsages, int nBeanUsages) {
         return 0 < nBeanUsages && (nTotalTypeUsages * (minPercentOfInteractionWithPropertiesToTriggerConstructorOptimization / 100f) <= ((float)nBeanUsages) );
     }
@@ -232,6 +222,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
         for (MethodCall methodCallArg : method.getMethodCalls()) {
             final Method methodCalled = methodCallArg.getMethod();
             if (paramOwnerCanonicalName.equals(methodCalled.getOwnerClassCanonicalType()) && (isGetterUsed(propertyParam, methodCalled) || isSetterUsed(propertyParam, methodCalled) )) {
+                LOG.debug("getter or setter are used "+paramOwnerCanonicalName+"#"+propertyParam+" in methodCall "+methodCalled);
                 return true;
             }
         }
@@ -254,6 +245,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
             for (Field field : deductAssignedToFields(methodCall.getMethod(), methodCall.getMethod().getMethodParams().get(i))) {
                 if (methodCall.getMethodCallArguments() != null && methodCall.getMethodCallArguments().size() > i   && !"null".equals(methodCall.getMethodCallArguments().get(i).getText())
                         && field.getName().equals(propertyParam.getName()) && field.getType().equals(propertyParam.getType()) && field.getOwnerClassCanonicalName().equals(paramOwnerCanonicalName)) {
+                    LOG.debug("param has non-null field mapping -"+paramOwnerCanonicalName+"#"+propertyParam+"   -  field - " + field);
                     return true;
                 }
             }
@@ -268,6 +260,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
         for (Reference internalReference : method.getInternalReferences()) {
             if (paramOwnerTypeCanonicalName.equals(internalReference.getOwnerType().getCanonicalName()) && propertyParam.getType().equals(internalReference.getReferenceType())
                     && propertyParam.getName().equals(internalReference.getReferenceName())) {
+                LOG.debug("property referenced in method "+paramOwnerTypeCanonicalName+"#"+propertyParam+" - method - "+internalReference);
                 return true;
             }
         }
@@ -342,7 +335,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
             if (methodParamType.equals(type) && hasEmptyConstructor) {
                 return false;
             }
-            if ((methodParamType.isInterface() || methodParamType.isAbstract()) && (replacementTypes == null || replacementTypes.get(stripGenerics(methodParamType.getCanonicalName())) == null) && hasEmptyConstructor) {
+            if ((methodParamType.isInterface() || methodParamType.isAbstract()) && (replacementTypes == null || replacementTypes.get(ClassNameUtils.stripGenerics(methodParamType.getCanonicalName())) == null) && hasEmptyConstructor) {
                 return false;
             }
         }

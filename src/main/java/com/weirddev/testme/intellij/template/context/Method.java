@@ -327,11 +327,9 @@ public class Method {
 
     @Override
     public String toString() {
-        return "Method{" + "returnType=" + returnType + ", name='" + name + '\'' + ", ownerClassCanonicalType='" + ownerClassCanonicalType + '\'' + ", methodParams=" + methodParams + ", isPrivate=" + isPrivate + ", isProtected=" + isProtected + "," +
-                " isDefault=" + isDefault + ", isPublic=" + isPublic + ", isAbstract=" + isAbstract + ", isNative=" + isNative + ", isStatic=" + isStatic + ", isSetter=" + isSetter + ", isGetter=" + isGetter + ", constructor=" + constructor + ", " +
-                "overridden=" + overridden + ", inherited=" + inherited + ", isInInterface=" + isInInterface + ", propertyName='" + propertyName + '\'' + ", directMethodCalls=" + directMethodCalls +
-                ", internalReferences=" + internalReferences + ", methodId='" + methodId + '\'' + '}';
+        return "Method{" + "methodId='" + methodId + '\'' + '}';
     }
+
     public Set<Field> getIndirectlyAffectedFields() {
         return indirectlyAffectedFields;
     }

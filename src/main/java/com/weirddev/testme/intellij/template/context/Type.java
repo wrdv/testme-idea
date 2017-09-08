@@ -209,11 +209,6 @@ public class Type {
         return canonicalName.hashCode();
     }
 
-    @Override
-    public String toString() {
-        return canonicalName;
-    }
-
     public boolean isVarargs() {
         return varargs;
     }
@@ -272,5 +267,10 @@ public class Type {
 
     public boolean isFinal() {
         return isFinal;
+    }
+
+    @Override
+    public String toString() {
+        return "Type{" + "canonicalName='" + canonicalName + '\'' + '}';
     }
 }

@@ -2,12 +2,17 @@ package com.weirddev.testme.intellij.utils;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * Date: 15/11/2016
  *
  * @author Yaron Yamin
  */
 public class ClassNameUtils {
+
+    private static final Pattern GENERICS_PATTERN = Pattern.compile("(<.*>)");
 
     public static boolean isArray(String canonicalName) {
         return canonicalName.endsWith("[]");
@@ -57,5 +62,18 @@ public class ClassNameUtils {
 
     public static boolean isVarargs(String canonicalText) {
         return canonicalText.endsWith("...");
+    }
+
+    public static final String stripGenerics(String canonicalName) {
+        return canonicalName.replaceFirst("<.*", "");
+    }
+
+    public static final String extractGenerics(String canonicalName) {
+        Matcher matcher = GENERICS_PATTERN.matcher(canonicalName);
+        if (matcher.find()) {
+            return matcher.group(1);
+        } else {
+            return "";
+        }
     }
 }
