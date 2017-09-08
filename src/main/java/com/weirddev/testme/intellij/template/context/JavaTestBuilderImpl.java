@@ -18,7 +18,7 @@ import java.util.Map;
 public class JavaTestBuilderImpl implements LangTestBuilder {
     private static final Logger LOG = Logger.getInstance(JavaTestBuilderImpl.class.getName());
     private static Type DEFAULT_TYPE = new Type("java.lang.String", "String", "java.lang", false, false, false, false, false, new ArrayList<Type>());
-    public static final String PARAMS_SEPERATOR = ", ";
+    private static final String PARAMS_SEPERATOR = ", ";
 
     protected final int maxRecursionDepth;
     protected final Method testedMethod;
@@ -137,15 +137,15 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
     protected void buildCallParams(Method constructor, List<? extends Param> params, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Param> ownerParamNode) {
         final int origLength = testBuilder.length();
         if (params != null) {
-            final String ownerTypeCanonicalName = ownerParamNode.getData()==null?null:ownerParamNode.getData().getType().getCanonicalName();
-            boolean shouldOptimizeConstructorInitialization = ownerTypeCanonicalName !=null && constructor!=null && isShouldOptimizeConstructorInitialization(constructor,params, ownerTypeCanonicalName);
+            final Type ownerType = ownerParamNode.getData()==null?null: ownerParamNode.getData().getType();
+            boolean shouldOptimizeConstructorInitialization = ownerType !=null && constructor!=null && isShouldOptimizeConstructorInitialization(ownerType,constructor,params, ownerType.getCanonicalName());
             for (Param param : params) {
                 final Node<Param> paramNode = new Node<Param>(param, ownerParamNode, ownerParamNode.getDepth() + 1);
                 if (shouldIgnoreUnusedProperties && testedMethod != null) {
-                    if (isPropertyParam(paramNode.getData()) && ownerTypeCanonicalName != null && !isPropertyUsed(testedMethod, paramNode.getData(), ownerTypeCanonicalName)) {
+                    if (isPropertyParam(paramNode.getData()) && ownerType != null && !isPropertyUsed(testedMethod, paramNode.getData(), ownerType)) {
                         LOG.debug("property unused "+paramNode.getData());
                         continue;
-                    } else if (shouldOptimizeConstructorInitialization && !param.getType().isPrimitive() && isUnused(testedMethod, deductAssignedToFields(constructor, param))) {
+                    } else if (shouldOptimizeConstructorInitialization && !param.getType().isPrimitive() && isUnused(ownerType,testedMethod, deductAssignedToFields(constructor, param))) {
                         testBuilder.append("null"+PARAMS_SEPERATOR);
                         LOG.debug("unused param "+param);
                         continue;
@@ -163,12 +163,12 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
         return param instanceof SyntheticParam && ((SyntheticParam) param).isProperty;
     }
 
-    protected boolean isShouldOptimizeConstructorInitialization(Method constructor, List<? extends Param> params, String ownerTypeCanonicalName) {
+    protected boolean isShouldOptimizeConstructorInitialization(Type ownerType, Method constructor, List<? extends Param> params, String ownerTypeCanonicalName) {
         boolean shouldOptimizeConstructorInitialization = false;
         if (shouldIgnoreUnusedProperties && testedMethod != null && params.size() > 0) {
             int nBeanUsages = 0;
             for (Param param : params) {
-                if (!isUnused(testedMethod, deductAssignedToFields(constructor, param))) {
+                if (!isUnused(ownerType, testedMethod, deductAssignedToFields(constructor, param))) {
                     nBeanUsages++;
                 }
             }
@@ -176,7 +176,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
             //            for (MethodCall methodCall : testedMethod.getCalledFamilyMembers()) {
             int nMethodCalls = 0;
             for (MethodCall methodCall : testedMethod.getMethodCalls()) {
-                if (!methodCall.getMethod().isConstructor() && ownerTypeCanonicalName.equals(methodCall.getMethod().getOwnerClassCanonicalType())) {
+                if (!methodCall.getMethod().isConstructor() && isSharedType(ownerType, methodCall.getMethod())) {
                     nMethodCalls++;
                 }
             }
@@ -191,10 +191,10 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
         return 0 < nBeanUsages && (nTotalTypeUsages * (minPercentOfInteractionWithPropertiesToTriggerConstructorOptimization / 100f) <= ((float)nBeanUsages) );
     }
 
-    protected boolean isUnused(Method testedMethod, List<Field> fields) {
+    protected boolean isUnused(Type ownerType, Method testedMethod, List<Field> fields) {
         int unusedFieldsCount=0;
         for (Field field : fields) {
-            if (!isPropertyUsed(testedMethod, new SyntheticParam(field.getType(),field.getName(),true),field.getOwnerClassCanonicalName())) {
+            if (!isPropertyUsed(testedMethod, new SyntheticParam(field.getType(),field.getName(),true), ownerType)) {
                 unusedFieldsCount++;
             }
         }
@@ -205,24 +205,35 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
         }
     }
 
-    protected boolean isPropertyUsed(@NotNull Method testedMethod, Param propertyParam, String paramOwnerCanonicalName) {
+    protected boolean isPropertyUsed(@NotNull Method testedMethod, Param propertyParam, Type ownerType) {
+        String paramOwnerCanonicalName = ownerType.getCanonicalName();
         if (isReferencedInMethod(testedMethod, propertyParam, paramOwnerCanonicalName)) return true;
-        if (isPropertyUsedIndirectly(null, testedMethod, propertyParam, paramOwnerCanonicalName)) return true;
+        if (isPropertyUsedIndirectly(null, testedMethod, propertyParam, ownerType)) return true;
 //        for (MethodCall methodCall : testedMethod.getCalledFamilyMembers()) {
         for (MethodCall methodCall : testedMethod.getMethodCalls()) {
             if (isReferencedInMethod(methodCall.getMethod(), propertyParam, paramOwnerCanonicalName)) return true;
-            if (isPropertyUsedIndirectly(methodCall,methodCall.getMethod(), propertyParam, paramOwnerCanonicalName)) return true;
+            if (isPropertyUsedIndirectly(methodCall,methodCall.getMethod(), propertyParam, ownerType)) return true;
         }
         return false;
     }
-    private boolean isPropertyUsedIndirectly(MethodCall methodCall, @NotNull Method method, Param propertyParam, String paramOwnerCanonicalName) {
-        if (methodCall !=null && paramOwnerCanonicalName.equals(methodCall.getMethod().getOwnerClassCanonicalType()) && isConstructorArgumentUsed(propertyParam, paramOwnerCanonicalName, methodCall, methodCall.getMethod())) {
+    private boolean isPropertyUsedIndirectly(MethodCall methodCall, @NotNull Method method, Param propertyParam, Type paramOwner) {
+        String paramOwnerCanonicalName = paramOwner.getCanonicalName();
+        if (methodCall !=null && isSharedType(paramOwner, methodCall.getMethod()) && isConstructorArgumentUsed(propertyParam, paramOwnerCanonicalName, methodCall, methodCall.getMethod())) {
             return true;
         }
         for (MethodCall methodCallArg : method.getMethodCalls()) {
             final Method methodCalled = methodCallArg.getMethod();
-            if (paramOwnerCanonicalName.equals(methodCalled.getOwnerClassCanonicalType()) && (isGetterUsed(propertyParam, methodCalled) || isSetterUsed(propertyParam, methodCalled) )) {
+            if (isSharedType(paramOwner, methodCalled) && (isGetterUsed(propertyParam, methodCalled) || isSetterUsed(propertyParam, methodCalled) )) {
                 LOG.debug("getter or setter are used "+paramOwnerCanonicalName+"#"+propertyParam+" in methodCall "+methodCalled);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isSharedType(Type ownerType, Method methodCalled) {
+        for (Method method : ownerType.getMethods()) {
+            if (method.getMethodId().equals(methodCalled.getMethodId())) {
                 return true;
             }
         }

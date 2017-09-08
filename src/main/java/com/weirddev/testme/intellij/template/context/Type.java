@@ -32,6 +32,9 @@ public class Type {
     private final boolean isStatic;
     private final boolean isFinal;
     private final List<Method> methods;//resolve Setters/Getters only for now
+    /**
+     * in case this is an inner class - the outer class where this type is defined
+     */
     private final Type parentContainerClass;
     private final List<Field> fields;
     private boolean dependenciesResolved =false;
@@ -110,8 +113,8 @@ public class Type {
             }
             final PsiMethod[] methods = psiClass.getAllMethods();
                 for (PsiMethod psiMethod : methods) {
-                    if (Method.isRelevant(psiClass, psiMethod) &&  (shouldResolveAllMethods || (PropertyUtil.isSimplePropertySetter(psiMethod)
-                            || PropertyUtil.isSimpleSetter(psiMethod)) && !isGroovyLangProperty(psiMethod) || psiMethod.isConstructor())) {
+                    if (Method.isRelevant(psiClass, psiMethod) &&  (shouldResolveAllMethods || (PropertyUtil.isSimplePropertySetter(psiMethod) || PropertyUtil.isSimplePropertyGetter(psiMethod)
+                            || PropertyUtil.isSimpleSetter(psiMethod)|| PropertyUtil.isSimpleGetter(psiMethod)) && !isGroovyLangProperty(psiMethod) || psiMethod.isConstructor())) {
 
                         final Method method = new Method(psiMethod, psiClass, maxRecursionDepth - 1, typeDictionary);
                         method.resolveInternalReferences(psiMethod, typeDictionary);
