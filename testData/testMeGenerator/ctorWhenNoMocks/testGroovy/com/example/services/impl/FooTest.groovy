@@ -9,7 +9,7 @@ import org.junit.Test
 /** created by TestMe integration test on MMXVI */
 class FooTest {
     //Field fooFighter of type FooFighter[] - was not mocked since Mockito doesn't mock arrays
-    Foo foo = new Foo("thereGoes", "myHero", new JavaBean(myString: "myString", myDate: new GregorianCalendar(2016, Calendar.JANUARY, 11, 22, 45).getTime(), someNum: 0, someLongerNum: 1l, fear: new Fear(), fire: new Fire(), ice: new Ice(), someBinaryOption: true))
+    Foo foo = new Foo("thereGoes", "myHero", new JavaBean(myString: "myString", myDate: new GregorianCalendar(2016, Calendar.JANUARY, 11, 22, 45).getTime(), someNum: 0, someLongerNum: 1l, fear: new Fear(), fire: new Fire(), ice: new Ice(), myOtherString: "myOtherString", someBinaryOption: true))
 
     @Test
     void testFight() {

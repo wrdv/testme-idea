@@ -39,7 +39,7 @@ public class Foo extends FooConverterAbs{
         return childWithSetters;
     }
 
-    private void recursive(Fire fire) {
+    private void recursive(FireBall fire) {
         JavaBean javaBean = fire.getJavaBean();
         Ice ice = javaBean.getIce();
         if (badPractiseRecursionCounter > 0) {

@@ -4,11 +4,13 @@ import com.example.foes.Fear;
 import com.example.foes.Fire;
 import com.example.foes.Ice;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /** Test input class*/
-public class JavaBean {
+public class JavaBean implements Serializable{
     String myString;
+    String myOtherString;
     Date myDate;
     private int someNum;
     Long someLongerNum;
@@ -73,10 +75,52 @@ public class JavaBean {
         this.ice = ice;
     }
 
+    public String getMyOtherString() {
+        return myOtherString;
+    }
+
+    public void setMyOtherString(String myOtherString) {
+        this.myOtherString = myOtherString;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        JavaBean javaBean = (JavaBean) o;
+
+        if (someNum != javaBean.someNum) return false;
+        if (someBinaryOption != javaBean.someBinaryOption) return false;
+        if (myString != null ? !myString.equals(javaBean.myString) : javaBean.myString != null) return false;
+        if (myOtherString != null ? !myOtherString.equals(javaBean.myOtherString) : javaBean.myOtherString != null) return false;
+        if (myDate != null ? !myDate.equals(javaBean.myDate) : javaBean.myDate != null) return false;
+        if (someLongerNum != null ? !someLongerNum.equals(javaBean.someLongerNum) : javaBean.someLongerNum != null) return false;
+        if (fear != null ? !fear.equals(javaBean.fear) : javaBean.fear != null) return false;
+        if (fire != null ? !fire.equals(javaBean.fire) : javaBean.fire != null) return false;
+        return !(ice != null ? !ice.equals(javaBean.ice) : javaBean.ice != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = myString != null ? myString.hashCode() : 0;
+        result = 31 * result + (myOtherString != null ? myOtherString.hashCode() : 0);
+        result = 31 * result + (myDate != null ? myDate.hashCode() : 0);
+        result = 31 * result + someNum;
+        result = 31 * result + (someLongerNum != null ? someLongerNum.hashCode() : 0);
+        result = 31 * result + (fear != null ? fear.hashCode() : 0);
+        result = 31 * result + (fire != null ? fire.hashCode() : 0);
+        result = 31 * result + (ice != null ? ice.hashCode() : 0);
+        result = 31 * result + (someBinaryOption ? 1 : 0);
+        return result;
+    }
+
     @Override
     public String toString() {
         return "JavaBean{" +
                 "myString='" + myString + '\'' +
+                ", myOtherString='" + myOtherString + '\'' +
                 ", myDate=" + myDate +
                 ", someNum=" + someNum +
                 ", someLongerNum=" + someLongerNum +
@@ -95,35 +139,4 @@ public class JavaBean {
         this.someBinaryOption = someBinaryOption;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        JavaBean javaBean = (JavaBean) o;
-
-        if (someNum != javaBean.someNum) return false;
-        if (someBinaryOption != javaBean.someBinaryOption) return false;
-        if (myString != null ? !myString.equals(javaBean.myString) : javaBean.myString != null) return false;
-        if (myDate != null ? !myDate.equals(javaBean.myDate) : javaBean.myDate != null) return false;
-        if (someLongerNum != null ? !someLongerNum.equals(javaBean.someLongerNum) : javaBean.someLongerNum != null)
-            return false;
-        if (fear != null ? !fear.equals(javaBean.fear) : javaBean.fear != null) return false;
-        if (fire != null ? !fire.equals(javaBean.fire) : javaBean.fire != null) return false;
-        return !(ice != null ? !ice.equals(javaBean.ice) : javaBean.ice != null);
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = myString != null ? myString.hashCode() : 0;
-        result = 31 * result + (myDate != null ? myDate.hashCode() : 0);
-        result = 31 * result + someNum;
-        result = 31 * result + (someLongerNum != null ? someLongerNum.hashCode() : 0);
-        result = 31 * result + (fear != null ? fear.hashCode() : 0);
-        result = 31 * result + (fire != null ? fire.hashCode() : 0);
-        result = 31 * result + (ice != null ? ice.hashCode() : 0);
-        result = 31 * result + (someBinaryOption ? 1 : 0);
-        return result;
-    }
 }

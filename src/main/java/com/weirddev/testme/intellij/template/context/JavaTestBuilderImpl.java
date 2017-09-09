@@ -224,7 +224,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
         for (MethodCall methodCallArg : method.getMethodCalls()) {
             final Method methodCalled = methodCallArg.getMethod();
             if (isSharedType(paramOwner, methodCalled) && (isGetterUsed(propertyParam, methodCalled) || isSetterUsed(propertyParam, methodCalled) )) {
-                LOG.debug("getter or setter are used "+paramOwnerCanonicalName+"#"+propertyParam+" in methodCall "+methodCalled);
+                LOG.debug("getter or setter are used "+paramOwnerCanonicalName+" - "+propertyParam+" in methodCall "+methodCalled);
                 return true;
             }
         }
@@ -249,7 +249,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
     }
 
     private boolean isGetterUsed(Param propertyParam, Method calledMethod) {
-        return calledMethod.isGetter() && calledMethod.getReturnType().getCanonicalName().equals(propertyParam.getType().getCanonicalName());
+        return calledMethod.isGetter() && calledMethod.getReturnType().getCanonicalName().equals(propertyParam.getType().getCanonicalName()) && propertyParam.getName().equals(calledMethod.getPropertyName());
     }
     private boolean hasNonNullFieldMapping(MethodCall methodCall, Param propertyParam, String paramOwnerCanonicalName) {
         for (int i = 0; i < methodCall.getMethod().getMethodParams().size(); i++) {
