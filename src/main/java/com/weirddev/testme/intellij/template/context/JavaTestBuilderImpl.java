@@ -18,7 +18,7 @@ import java.util.Map;
 public class JavaTestBuilderImpl implements LangTestBuilder {
     private static final Logger LOG = Logger.getInstance(JavaTestBuilderImpl.class.getName());
     private static Type DEFAULT_TYPE = new Type("java.lang.String", "String", "java.lang", false, false, false, false, false, new ArrayList<Type>());
-    private static final String PARAMS_SEPERATOR = ", ";
+    private static final String PARAMS_SEPARATOR = ", ";
 
     protected final int maxRecursionDepth;
     protected final Method testedMethod;
@@ -138,24 +138,26 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
         final int origLength = testBuilder.length();
         if (params != null) {
             final Type ownerType = ownerParamNode.getData()==null?null: ownerParamNode.getData().getType();
-            boolean shouldOptimizeConstructorInitialization = ownerType !=null && constructor!=null && isShouldOptimizeConstructorInitialization(ownerType,constructor,params, ownerType.getCanonicalName());
             for (Param param : params) {
                 final Node<Param> paramNode = new Node<Param>(param, ownerParamNode, ownerParamNode.getDepth() + 1);
                 if (shouldIgnoreUnusedProperties && testedMethod != null) {
                     if (isPropertyParam(paramNode.getData()) && ownerType != null && !isPropertyUsed(testedMethod, paramNode.getData(), ownerType)) {
                         LOG.debug("property unused "+paramNode.getData());
                         continue;
-                    } else if (shouldOptimizeConstructorInitialization && !param.getType().isPrimitive() && isUnused(ownerType,testedMethod, deductAssignedToFields(constructor, param))) {
-                        testBuilder.append("null"+PARAMS_SEPERATOR);
-                        LOG.debug("unused param "+param);
-                        continue;
+                    } else {
+                        boolean shouldOptimizeConstructorInitialization = ownerType !=null && constructor!=null && isShouldOptimizeConstructorInitialization(ownerType,constructor,params, ownerType.getCanonicalName());
+                        if (shouldOptimizeConstructorInitialization && !param.getType().isPrimitive() && isUnused(ownerType, testedMethod, deductAssignedToFields(constructor, param))) {
+                            testBuilder.append("null" + PARAMS_SEPARATOR);
+                            LOG.debug("unused param " + param);
+                            continue;
+                        }
                     }
                 }
                 buildCallParam(replacementTypes, defaultTypeValues, testBuilder, paramNode);
-                testBuilder.append(PARAMS_SEPERATOR);
+                testBuilder.append(PARAMS_SEPARATOR);
             }
             if (origLength < testBuilder.length()) {
-                testBuilder.delete(testBuilder.length() - PARAMS_SEPERATOR.length(),testBuilder.length());
+                testBuilder.delete(testBuilder.length() - PARAMS_SEPARATOR.length(),testBuilder.length());
             }
         }
     }
@@ -165,7 +167,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
 
     protected boolean isShouldOptimizeConstructorInitialization(Type ownerType, Method constructor, List<? extends Param> params, String ownerTypeCanonicalName) {
         boolean shouldOptimizeConstructorInitialization = false;
-        if (shouldIgnoreUnusedProperties && testedMethod != null && params.size() > 0) {
+        if (testedMethod != null && params.size() > 0) {
             int nBeanUsages = 0;
             for (Param param : params) {
                 if (!isUnused(ownerType, testedMethod, deductAssignedToFields(constructor, param))) {

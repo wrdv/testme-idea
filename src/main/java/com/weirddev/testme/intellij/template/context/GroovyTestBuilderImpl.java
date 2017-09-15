@@ -19,7 +19,7 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
     private static final Logger LOG = Logger.getInstance(GroovyTestBuilderImpl.class.getName());
     /**
      * If constructed type has more than this minimum percentage of setters over number of arguments in biggest constructor and default constructor is accessible
-     * then use initialize the type with default constructor and setters instead of biggest constructor
+     * then initialize the type with default constructor and setters (map constructor) instead of biggest constructor
      */
     private final int minPercentOfExcessiveSettersToPreferDefaultCtor;
 
