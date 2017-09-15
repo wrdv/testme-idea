@@ -3,6 +3,7 @@ package com.weirddev.testme.intellij.ui;
 
 import com.intellij.codeInsight.CodeInsightActionHandler;
 import com.intellij.codeInsight.hint.HintManager;
+import com.intellij.codeInsight.navigation.GotoTargetHandler;
 import com.intellij.codeInsight.navigation.ListBackgroundUpdaterTask;
 import com.intellij.ide.util.EditSourceUtil;
 import com.intellij.ide.util.PsiElementListCellRenderer;
@@ -14,7 +15,9 @@ import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.IndexNotReadyException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.JBPopup;
+import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.openapi.ui.popup.PopupChooserBuilder;
+import com.intellij.openapi.ui.popup.util.BaseListPopupStep;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.util.Ref;
 import com.intellij.pom.Navigatable;
@@ -25,6 +28,7 @@ import com.intellij.ui.CollectionListModel;
 import com.intellij.ui.JBListWithHintProvider;
 import com.intellij.ui.popup.AbstractPopup;
 import com.intellij.ui.popup.HintUpdateSupply;
+import com.intellij.ui.popup.list.ListPopupImpl;
 import com.intellij.usages.UsageView;
 import com.intellij.util.Function;
 import org.jetbrains.annotations.NonNls;
@@ -37,6 +41,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @see GotoTargetHandler
+ */
 public abstract class TestMePopUpHandler implements CodeInsightActionHandler {
   private static final PsiElementListCellRenderer ourDefaultTargetElementRenderer = new DefaultPsiElementListCellRenderer();
   private final DefaultListCellRenderer myActionElementRenderer = new TestMeActionCellRenderer();
@@ -66,6 +73,21 @@ public abstract class TestMePopUpHandler implements CodeInsightActionHandler {
 
   @Nullable
   protected abstract GotoData getSourceAndTargetElements(Editor editor, PsiFile file);
+  @NotNull
+  protected abstract String getChooserTitle(Editor editor, PsiFile file, PsiElement sourceElement);
+
+  @NotNull
+  protected abstract String getNotFoundMessage(@NotNull Project project, @NotNull Editor editor, @NotNull PsiFile file);
+
+  @Nullable
+  protected String getAdText(PsiElement source, int length) {
+    return null;
+  }
+
+  protected void navigateToElement(Navigatable descriptor) {
+    descriptor.navigate(true);
+  }
+
 
   private void show(@NotNull final Project project,
                     @NotNull Editor editor,
@@ -78,7 +100,24 @@ public abstract class TestMePopUpHandler implements CodeInsightActionHandler {
       return;
     }
     final String title = getChooserTitle(editor, file, gotoData.source);
+
+    //another alt. try to use a custom renderer with the standard abstraction of ListPopupImpl
+    final BaseListPopupStep step = new BaseListPopupStep("");
+//    step.
+//    final ListPopup listPopup = JBPopupFactory.getInstance().createListPopup(step);
+    final ListPopup listPopup = new ListPopupImpl(step) {
+      @Override
+      protected ListCellRenderer getListElementRenderer() {
+        return super.getListElementRenderer();
+      }
+    };
+
     final JBListWithHintProvider list = new JBListWithHintProvider(new CollectionListModel<Object>(additionalActions)) {
+      @Override
+      public void registerHint(JBPopup hint) {
+        super.registerHint(hint);
+      }
+
       @Override
       protected PsiElement getPsiElementForHint(final Object selectedValue) {
         return selectedValue instanceof PsiElement ? (PsiElement) selectedValue : null;
@@ -174,20 +213,7 @@ public abstract class TestMePopUpHandler implements CodeInsightActionHandler {
     }
   }
 
-  protected void navigateToElement(Navigatable descriptor) {
-    descriptor.navigate(true);
-  }
 
-  @NotNull
-  protected abstract String getChooserTitle(Editor editor, PsiFile file, PsiElement sourceElement);
-
-  @NotNull
-  protected abstract String getNotFoundMessage(@NotNull Project project, @NotNull Editor editor, @NotNull PsiFile file);
-
-  @Nullable
-  protected String getAdText(PsiElement source, int length) {
-    return null;
-  }
 
   public interface AdditionalAction {
     @NotNull
