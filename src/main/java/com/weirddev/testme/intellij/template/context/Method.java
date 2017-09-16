@@ -6,8 +6,9 @@ import com.intellij.psi.search.searches.ReferencesSearch;
 import com.intellij.psi.util.PropertyUtil;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.util.PsiUtil;
-import com.weirddev.testme.intellij.groovy.GroovyPsiTreeUtils;
-import com.weirddev.testme.intellij.groovy.ResolvedReference;
+import com.weirddev.testme.intellij.resolvers.groovy.GroovyPsiTreeUtils;
+import com.weirddev.testme.intellij.resolvers.to.ResolvedMethodCall;
+import com.weirddev.testme.intellij.resolvers.to.ResolvedReference;
 import com.weirddev.testme.intellij.template.TypeDictionary;
 import com.weirddev.testme.intellij.utils.ClassNameUtils;
 import com.weirddev.testme.intellij.utils.JavaPsiTreeUtils;
@@ -42,11 +43,24 @@ public class Method {
     private final boolean inherited;
     private final boolean isInInterface;
     private final String propertyName;
-    private final boolean accessible; // true - when accessible from class under test
-    private Set<MethodCall> directMethodCalls = new HashSet<MethodCall>();
-    private Set<MethodCall> methodCalls = new HashSet<MethodCall>();//methods called directly from this method or on the call stack from this method via other methods belonging to the same type hierarchy
     /**
-     *  method calls of methods in this owner's class type or one of it's ancestor type. including indirectly called methods up to max method call search depth. MethodCalled objects of the class under test are deeply resolved
+     *true - when accessible from class under test
+     */
+    private final boolean accessible;
+    /**
+     * methods called directly from this method
+     */
+    private Set<MethodCall> directMethodCalls = new HashSet<MethodCall>();
+    /**
+     * methods called directly from this method or on the call stack from this method via other methods belonging to the same type hierarchy
+     */
+    private Set<MethodCall> methodCalls = new HashSet<MethodCall>();
+    /**
+     * methods referenced from this method. i.e.  SomeClassName::someMethodName
+     */
+    private Set<Method> methodRefereneces = new HashSet<Method>();
+    /**
+     *  method calls of methods in this owner's class type or one of it's ancestor type. including indirectly called methods up to max method call search depth. ResolvedMethodCall objects of the class under test are deeply resolved
      *  @deprecated not used. might be removed
      */
     private final Set<MethodCall> calledFamilyMembers=new HashSet<MethodCall>(); /*todo consider removing*/
@@ -121,6 +135,7 @@ public class Method {
         if (!isInheritedFromObject(getOwnerClassCanonicalType())) {
             resolveCalledMethods(psiMethod, typeDictionary);
             resolveReferences(psiMethod,typeDictionary);
+            resolveMethodReferences(psiMethod,typeDictionary);
         }
     }
 
@@ -136,11 +151,18 @@ public class Method {
             }
         }
     }
+    private void resolveMethodReferences(PsiMethod psiMethod, TypeDictionary typeDictionary) {
+        for (PsiMethod resolvedMethodReference : JavaPsiTreeUtils.findMethodReferences(psiMethod)) {
+            if (isRelevant(resolvedMethodReference.getContainingClass(), resolvedMethodReference)) {
+                this.methodRefereneces.add(new Method(resolvedMethodReference, resolvedMethodReference.getContainingClass(), 1, typeDictionary));
+            }
+        }
+    }
     private void resolveCalledMethods(PsiMethod psiMethod, TypeDictionary typeDictionary) {
         if (GroovyPsiTreeUtils.isGroovy(psiMethod.getLanguage())) {
-            for (GroovyPsiTreeUtils.MethodCalled methodCalled : GroovyPsiTreeUtils.findMethodCalls(psiMethod)) {
-                if (isRelevant(methodCalled.getPsiMethod().getContainingClass(), methodCalled.getPsiMethod())) {
-                    this.directMethodCalls.add(new MethodCall(new Method(methodCalled.getPsiMethod(), null, 1, typeDictionary),convertArgs(methodCalled.getMethodCallArguments())));
+            for (ResolvedMethodCall resolvedMethodCall : GroovyPsiTreeUtils.findMethodCalls(psiMethod)) {
+                if (isRelevant(resolvedMethodCall.getPsiMethod().getContainingClass(), resolvedMethodCall.getPsiMethod())) {
+                    this.directMethodCalls.add(new MethodCall(new Method(resolvedMethodCall.getPsiMethod(), null, 1, typeDictionary),convertArgs(resolvedMethodCall.getMethodCallArguments())));
                 }
             }
         } else {
@@ -336,5 +358,9 @@ public class Method {
 
     public boolean isAccessible() {
         return accessible;
+    }
+
+    public Set<Method> getMethodRefereneces() {
+        return methodRefereneces;
     }
 }

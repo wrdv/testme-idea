@@ -1,4 +1,4 @@
-package com.weirddev.testme.intellij.groovy;
+package com.weirddev.testme.intellij.resolvers.to;
 
 import com.intellij.psi.PsiType;
 

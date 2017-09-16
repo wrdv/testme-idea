@@ -1,7 +1,7 @@
 package com.weirddev.testme.intellij.utils;
 import com.intellij.psi.*;
 import com.intellij.psi.util.PsiTreeUtil;
-import com.weirddev.testme.intellij.groovy.ResolvedReference;
+import com.weirddev.testme.intellij.resolvers.to.ResolvedReference;
 import com.weirddev.testme.intellij.template.context.MethodCallArgument;
 import org.jetbrains.annotations.NotNull;
 
@@ -26,6 +26,22 @@ public class JavaPsiTreeUtils {
                 final PsiType psiOwnerType = psiReferenceExpression.getLastChild()==null?null: resolveOwnerType(psiReferenceExpression.getLastChild());
                 if (psiOwnerType != null) {
                     resolvedReferences.add(new ResolvedReference(psiReferenceExpression.getReferenceName() , refType, psiOwnerType));
+                }
+            }
+        }
+        return resolvedReferences;
+    }
+    @NotNull
+    public static List<PsiMethod> findMethodReferences(PsiMethod psiMethod) {
+        List<PsiMethod> resolvedReferences = new ArrayList<PsiMethod>();
+
+        final Collection<PsiJavaToken> psiJavaTokens= PsiTreeUtil.findChildrenOfType(psiMethod, PsiJavaToken.class);
+        for (PsiJavaToken psiJavaToken : psiJavaTokens) {
+            if (JavaTokenType.DOUBLE_COLON == psiJavaToken.getTokenType() && psiJavaToken.getParent() instanceof PsiMethodReferenceExpression /*|| "::".equals(psiJavaToken.getText())*/) {
+                final PsiMethodReferenceExpression psiMethodReferenceExpression = (PsiMethodReferenceExpression) psiJavaToken.getParent();
+                final PsiElement resolved = psiMethodReferenceExpression.resolve();
+                if (resolved instanceof PsiMethod) {
+                    resolvedReferences.add(((PsiMethod) resolved));
                 }
             }
         }

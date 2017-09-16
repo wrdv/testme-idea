@@ -1,4 +1,4 @@
-package com.weirddev.testme.intellij.groovy;
+package com.weirddev.testme.intellij.resolvers.groovy;
 
 import com.intellij.ide.plugins.PluginManager;
 import com.intellij.openapi.extensions.PluginId;

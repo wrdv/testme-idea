@@ -62,7 +62,7 @@ abstract public class BaseIJIntegrationTest extends LightCodeInsightFixtureTestC
         return new DefaultLightProjectDescriptor() {
             @Override
             public Sdk getSdk() {
-                return JavaSdk.getInstance().createJdk("java 1.7", new File(System.getProperty("java.home")).getParent(), false);
+                return JavaSdk.getInstance().createJdk("java 1.8", new File(System.getProperty("java.home")).getParent(), false);
             }
 
             @Override

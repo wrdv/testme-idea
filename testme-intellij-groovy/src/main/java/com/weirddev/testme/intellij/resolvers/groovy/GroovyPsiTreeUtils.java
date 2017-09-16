@@ -1,8 +1,10 @@
-package com.weirddev.testme.intellij.groovy;
+package com.weirddev.testme.intellij.resolvers.groovy;
 
 import com.intellij.lang.Language;
 import com.intellij.psi.*;
 import com.intellij.psi.util.PsiTreeUtil;
+import com.weirddev.testme.intellij.resolvers.to.ResolvedMethodCall;
+import com.weirddev.testme.intellij.resolvers.to.ResolvedReference;
 import org.jetbrains.plugins.groovy.lang.psi.api.statements.arguments.GrArgumentList;
 import org.jetbrains.plugins.groovy.lang.psi.api.statements.expressions.GrAssignmentExpression;
 import org.jetbrains.plugins.groovy.lang.psi.api.statements.expressions.GrCall;
@@ -47,8 +49,8 @@ public class GroovyPsiTreeUtils {
         return resolvedReferences;
     }
 
-    public static Set<MethodCalled> findMethodCalls(PsiElement psiMethod){
-        Set<MethodCalled> methodCalls=new HashSet<MethodCalled>();
+    public static Set<ResolvedMethodCall> findMethodCalls(PsiElement psiMethod){
+        Set<ResolvedMethodCall> methodCalls=new HashSet<ResolvedMethodCall>();
         final Collection<GrCall> grMethodCallExpressions = PsiTreeUtil.findChildrenOfType(psiMethod, GrCall.class);
         for (GrCall grMethodCallExpression : grMethodCallExpressions) {
             final GrArgumentList argumentList = grMethodCallExpression.getArgumentList();
@@ -63,7 +65,7 @@ public class GroovyPsiTreeUtils {
             }
             final PsiMethod psiMethodResolved  = grMethodCallExpression.resolveMethod();//todo fix issue with methods not resolved in old idea versions
             if (psiMethodResolved != null) {
-                methodCalls.add(new MethodCalled(psiMethodResolved,methodCallArguments));
+                methodCalls.add(new ResolvedMethodCall(psiMethodResolved,methodCallArguments));
             }
         }
         final Collection<GrArgumentLabelImpl> grArgLabels = PsiTreeUtil.findChildrenOfType(psiMethod, GrArgumentLabelImpl.class);
@@ -71,14 +73,14 @@ public class GroovyPsiTreeUtils {
             final PsiElement psiElement = grArgumentLabel.resolve();
             if (psiElement != null && psiElement instanceof PsiMethod) {
                 final PsiMethod psiMethodResolved  = (PsiMethod) psiElement;
-                methodCalls.add(new MethodCalled(psiMethodResolved,null));//todo resolve args for this scenario as well?
+                methodCalls.add(new ResolvedMethodCall(psiMethodResolved,null));//todo resolve args for this scenario as well?
             }
         }
         final Collection<GrReferenceExpression> grReferenceExpressions = PsiTreeUtil.findChildrenOfType(psiMethod, GrReferenceExpression.class);
         for (GrReferenceExpression grReferenceExpression : grReferenceExpressions) {
             final PsiElement psiElement = grReferenceExpression.resolve();
             if (psiElement!= null && (isGroovy(psiElement.getLanguage()) && psiElement instanceof GrMethod  || !isGroovy(psiElement.getLanguage())  && psiElement instanceof PsiMethod) ) {
-                methodCalls.add(new MethodCalled((PsiMethod) psiElement,null));//todo resolve args
+                methodCalls.add(new ResolvedMethodCall((PsiMethod) psiElement,null));//todo resolve args
             }
         }
         return methodCalls;
@@ -112,59 +114,4 @@ public class GroovyPsiTreeUtils {
         return possibleFieldElement == null || !(possibleFieldElement instanceof PsiField) ? null : (PsiField)possibleFieldElement ;
     }
 
-    public static class MethodCalled {
-        private final PsiMethod psiMethod;
-        private final ArrayList<String> methodCallArguments;
-        private final String methodId;
-
-        public MethodCalled(PsiMethod psiMethod, ArrayList<String> methodCallArguments) {
-            this.psiMethod = psiMethod;
-            this.methodCallArguments = methodCallArguments;
-            methodId = formatMethodId(psiMethod);
-        }
-
-        public PsiMethod getPsiMethod() {
-            return psiMethod;
-        }
-
-        public ArrayList<String> getMethodCallArguments() {
-            return methodCallArguments;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof MethodCalled)) return false;
-
-            MethodCalled that = (MethodCalled) o;
-
-            return methodId.equals(that.methodId);
-        }
-
-        @Override
-        public int hashCode() {
-            return methodId.hashCode();
-        }
-
-        static String formatMethodId(PsiMethod psiMethod) {//todo move to a new common module (copied from com.weirddev.testme.intellij.template.context.Method)
-            String name = psiMethod.getName();
-            String ownerClassCanonicalType = psiMethod.getContainingClass() == null ? null : psiMethod.getContainingClass().getQualifiedName();
-            return ownerClassCanonicalType + "." + name + "(" + formatMethodParams(psiMethod.getParameterList().getParameters()) +")";
-
-        }
-        static String formatMethodParams(PsiParameter[] parameters) { //todo move to a new common module (copied from com.weirddev.testme.intellij.template.context.Method)
-            final StringBuilder sb = new StringBuilder();
-            if (parameters != null) {
-                for (PsiParameter parameter : parameters) {
-                    sb.append(parameter.getType().getCanonicalText()).append(",");
-                }
-            }
-            if (sb.length() > 0) {
-                sb.deleteCharAt(sb.length() - 1);
-            }
-            return sb.toString();
-        }
-
-
-    }
 }

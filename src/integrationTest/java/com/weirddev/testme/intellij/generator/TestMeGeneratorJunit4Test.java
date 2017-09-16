@@ -100,6 +100,10 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
         skipTestIfGroovyPluginDisabled();//this tested feature does not require Groovy IJ plugin but the test cases use Groovy objects
         doTest(true,true,true,67, true);
     }
+    public void testIgnoreUnusedCtorArgumentsIdentifyMethodReference() throws Exception{
+        skipTestIfGroovyPluginDisabled();//this tested feature does not require Groovy IJ plugin but the test cases use Groovy objects
+        doTest(true,true,true,67, true);
+    }
     public void testIgnoreUnusedCtorArgumentsWhenDelegatedCalls() throws Exception{
         skipTestIfGroovyPluginDisabled();//this tested feature does not require Groovy IJ plugin but the test cases use Groovy objects
         doTest(true,true,true,67, true);

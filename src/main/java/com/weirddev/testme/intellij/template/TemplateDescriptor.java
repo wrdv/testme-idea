@@ -1,10 +1,10 @@
 package com.weirddev.testme.intellij.template;
 
-import com.weirddev.testme.intellij.groovy.LanguageUtils;
 import com.weirddev.testme.intellij.icon.IconTokensReplacerImpl;
+import com.weirddev.testme.intellij.resolvers.groovy.LanguageUtils;
 import com.weirddev.testme.intellij.template.context.Language;
 
-import static com.weirddev.testme.intellij.groovy.LanguageUtils.GROOVY_PLUGIN_ID;
+import static com.weirddev.testme.intellij.resolvers.groovy.LanguageUtils.GROOVY_PLUGIN_ID;
 
 /**
  * Date: 10/12/2016
