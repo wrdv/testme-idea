@@ -1,6 +1,7 @@
 package com.weirddev.testme.intellij.template.context;
 
 import com.intellij.psi.*;
+import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.LocalSearchScope;
 import com.intellij.psi.search.searches.ReferencesSearch;
 import com.intellij.psi.util.PropertyUtil;
@@ -120,13 +121,21 @@ public class Method {
 
     public static boolean isRelevant(PsiClass psiClass, PsiMethod psiMethod) {
         boolean isRelevant = true;
-        if (psiClass!=null && isInheritedFromObject(psiClass.getQualifiedName())) {
+        if (psiClass != null && isInheritedFromObject(psiClass.getQualifiedName())) {
             isRelevant = false;
-        }
-        final String methodId = formatMethodId(psiMethod);
-        if (GroovyPsiTreeUtils.isGroovy(psiMethod.getLanguage())
-                && ( psiMethod.getClass().getCanonicalName().contains ("GrGdkMethodImpl") || methodId.endsWith(".invokeMethod(java.lang.String,java.lang.Object)") || methodId.endsWith(".getProperty(java.lang.String)") || methodId.endsWith(".setProperty(java.lang.String,java.lang.Object)"))) {
-            isRelevant = false;
+        } else {
+            final String methodId = formatMethodId(psiMethod);
+            if (GroovyPsiTreeUtils.isGroovy(psiMethod.getLanguage())
+                    && (psiMethod.getClass().getCanonicalName().contains("GrGdkMethodImpl") || methodId.endsWith(".invokeMethod(java.lang.String,java.lang.Object)") || methodId.endsWith(".getProperty(java.lang.String)") || methodId
+                    .endsWith(".setProperty(java.lang.String,java.lang.Object)"))) {
+                isRelevant = false;
+            } else if(psiClass!=null && psiClass.getQualifiedName()!=null){
+                JavaPsiFacade facade = JavaPsiFacade.getInstance( psiClass.getProject());
+                PsiClass[] possibleClasses = facade.findClasses(psiClass.getQualifiedName(), GlobalSearchScope.projectScope(( psiClass.getProject())));
+                if (possibleClasses.length == 0) {
+                    isRelevant = false;
+                }
+            }
         }
         return isRelevant;
     }
