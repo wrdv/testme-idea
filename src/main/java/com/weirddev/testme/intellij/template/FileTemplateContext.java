@@ -19,7 +19,8 @@ public class FileTemplateContext {
     private final Project project;
     private final String targetClass;
     private final PsiPackage targetPackage;
-    private final Module targetModule;
+    private final Module srcModule;
+    private final Module testModule;
     private final PsiDirectory targetDirectory;
     private final PsiClass srcClass;
     private final boolean reformatCode;
@@ -29,13 +30,14 @@ public class FileTemplateContext {
     private final boolean ignoreUnusedProperties;
     private final int minPercentOfExcessiveSettersToPreferDefaultCtor;
 
-    public FileTemplateContext(FileTemplateDescriptor fileTemplateDescriptor, Language language, Project project, String targetClass, PsiPackage targetPackage, Module targetModule, PsiDirectory targetDirectory, PsiClass srcClass, boolean reformatCode, boolean optimizeImports, int maxRecursionDepth, boolean replaceFqn, boolean ignoreUnusedProperties, int minPercentOfExcessiveSettersToPreferDefaultCtor) {
+    public FileTemplateContext(FileTemplateDescriptor fileTemplateDescriptor, Language language, Project project, String targetClass, PsiPackage targetPackage, Module srcModule, Module testModule, PsiDirectory targetDirectory, PsiClass srcClass, boolean reformatCode, boolean optimizeImports, int maxRecursionDepth, boolean replaceFqn, boolean ignoreUnusedProperties, int minPercentOfExcessiveSettersToPreferDefaultCtor) {
         this.fileTemplateDescriptor = fileTemplateDescriptor;
         this.language = language;
         this.project = project;
         this.targetClass = targetClass;
         this.targetPackage = targetPackage;
-        this.targetModule = targetModule;
+        this.srcModule = srcModule;
+        this.testModule = testModule;
         this.targetDirectory = targetDirectory;
         this.srcClass = srcClass;
         this.reformatCode = reformatCode;
@@ -58,8 +60,8 @@ public class FileTemplateContext {
         return targetPackage;
     }
 
-    public Module getTargetModule() {
-        return targetModule;
+    public Module getSrcModule() {
+        return srcModule;
     }
 
     public PsiDirectory getTargetDirectory() {
@@ -100,5 +102,9 @@ public class FileTemplateContext {
 
     public Language getLanguage() {
         return language;
+    }
+
+    public Module getTestModule() {
+        return testModule;
     }
 }

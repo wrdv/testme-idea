@@ -25,14 +25,6 @@ class FooTest {
     com.example.warriers.FooFighter fooFighterFinal;
     @Mock
     com.example.warriers.FooFighter fooFighterStatic;
-    //Field byteFieldWrapper of type Byte - was not mocked since Mockito doesn't mock a Final class
-    //Field shortFieldWrapper of type Short - was not mocked since Mockito doesn't mock a Final class
-    //Field intFieldWrapper of type Integer - was not mocked since Mockito doesn't mock a Final class
-    //Field longFieldWrapper of type Long - was not mocked since Mockito doesn't mock a Final class
-    //Field floatFieldWrapper of type Float - was not mocked since Mockito doesn't mock a Final class
-    //Field doubleFieldWrapper of type Double - was not mocked since Mockito doesn't mock a Final class
-    //Field charFieldWrapper of type Character - was not mocked since Mockito doesn't mock a Final class
-    //Field booleanFieldWrapper of type Boolean - was not mocked since Mockito doesn't mock a Final class
     @Mock
     Foo.PublicInnerClass publicInnerClass;
     @Mock

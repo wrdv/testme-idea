@@ -14,7 +14,7 @@ public class BeanDependsOnInterface {
 
     @Override
     public String BeanDependsOnInterface() {
-        return "Ace{" +
+        return "BeanDependsOnInterface{" +
                 "master=" + master +
                 '}';
     }

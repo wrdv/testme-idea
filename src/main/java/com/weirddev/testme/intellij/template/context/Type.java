@@ -30,8 +30,11 @@ public class Type {
     private final boolean isInterface;
     private final boolean isAbstract;
     private final boolean isStatic;
-    private final List<Method> constructors;
+    private final boolean isFinal;
     private final List<Method> methods;//resolve Setters/Getters only for now
+    /**
+     * in case this is an inner class - the outer class where this type is defined
+     */
     private final Type parentContainerClass;
     private final List<Field> fields;
     private boolean dependenciesResolved =false;
@@ -50,11 +53,11 @@ public class Type {
         this.composedTypes = composedTypes;
         enumValues = new ArrayList<String>();
         isEnum = false;
-        constructors = new ArrayList<Method>();
         methods=new ArrayList<Method>();
         fields=new ArrayList<Field>();
         parentContainerClass = null;
         isStatic = false;
+        isFinal = false;
     }
 
     Type(String canonicalName) {
@@ -75,18 +78,23 @@ public class Type {
         isInterface = psiClass != null && psiClass.isInterface();
         isAbstract = psiClass != null && psiClass.getModifierList()!=null &&  psiClass.getModifierList().hasModifierProperty(PsiModifier.ABSTRACT);
         isStatic = psiClass != null && psiClass.getModifierList() != null && psiClass.getModifierList().hasExplicitModifier(PsiModifier.STATIC);
-        parentContainerClass = psiClass != null && psiClass.getParent()!=null && psiClass.getParent() instanceof PsiClass && typeDictionary!=null ? typeDictionary.getType(resolveType((PsiClass) psiClass.getParent()), maxRecursionDepth):null;
+        parentContainerClass = psiClass != null && psiClass.getParent()!=null && psiClass.getParent() instanceof PsiClass && typeDictionary!=null ? typeDictionary.getType(resolveType((PsiClass) psiClass.getParent()), maxRecursionDepth,
+                false):null;
         fields = new ArrayList<Field>();
         enumValues = resolveEnumValues(psiType);
         dependenciesResolvable = maxRecursionDepth > 0;
-        constructors = new ArrayList<Method>();
         methods=new ArrayList<Method>();
+        isFinal = isFinalType(PsiUtil.resolveClassInType(psiType));
+    }
+
+    private boolean isFinalType(PsiClass aClass) {
+        return aClass != null &&  aClass.getModifierList()!=null && aClass.getModifierList().hasExplicitModifier(PsiModifier.FINAL);
     }
 
     private void resolveFields(@NotNull PsiClass psiClass) {
         for (PsiField psiField : psiClass.getAllFields()) {
             if(!"groovy.lang.MetaClass".equals(psiField.getType().getCanonicalText())){
-                fields.add(new Field(psiField, PsiUtil.resolveClassInType(psiField.getType()), psiClass));
+                fields.add(new Field(psiField, psiClass));
             }
         }
     }
@@ -96,32 +104,24 @@ public class Type {
         return JavaPsiFacade.getInstance(psiClass.getProject()).getElementFactory().createType(psiClass);
     }
 
-    public void resolveDependencies(@Nullable TypeDictionary typeDictionary, int maxRecursionDepth, PsiType psiType) {
+    public void resolveDependencies(@Nullable TypeDictionary typeDictionary, int maxRecursionDepth, PsiType psiType, boolean shouldResolveAllMethods) {
         String canonicalText = psiType.getCanonicalText();
         PsiClass psiClass = PsiUtil.resolveClassInType(psiType);
         if (psiClass != null && maxRecursionDepth>0 && !canonicalText.startsWith("java.") /*todo consider replacing with just java.util.* || java.lang.*  */&& typeDictionary!=null) {
             if (psiClass.getConstructors().length == 0) {
-                 hasDefaultConstructor=true;
-            } else {
-                for (PsiMethod psiMethod : psiClass.getConstructors()) {
-                    if (typeDictionary.isAccessible(psiMethod)) {
-                        constructors.add(new Method(psiMethod,psiClass, maxRecursionDepth-1, typeDictionary));
-                    }
-                }
+                 hasDefaultConstructor=true; //todo check if parent ctors are also retrieved by getConstructors()
             }
+            final PsiMethod[] methods = psiClass.getAllMethods();
+                for (PsiMethod psiMethod : methods) {
+                    if (Method.isRelevant(psiClass, psiMethod) &&  (shouldResolveAllMethods || (PropertyUtil.isSimplePropertySetter(psiMethod) || PropertyUtil.isSimplePropertyGetter(psiMethod)
+                            || PropertyUtil.isSimpleSetter(psiMethod)|| PropertyUtil.isSimpleGetter(psiMethod)) && !isGroovyLangProperty(psiMethod) || psiMethod.isConstructor())) {
 
-            Collections.sort(constructors, new Comparator<Method>() {
-                @Override
-                public int compare(Method o1, Method o2) { //sort in reverse order by #no of c'tor params
-                    return o2.getMethodParams().size()-o1.getMethodParams().size();
+                        final Method method = new Method(psiMethod, psiClass, maxRecursionDepth - 1, typeDictionary);
+                        method.resolveInternalReferences(psiMethod, typeDictionary);
+                        this.methods.add(method);
+                    }
+
                 }
-            });
-            final PsiMethod[] methods = psiClass.getMethods();//todo getAllMethods + filter out from Object and not accessible
-            for (PsiMethod method : methods) {
-                if (/*PropertyUtil.isSimplePropertyGetter(method) || PropertyUtil.isSimpleGetter(method) ||*/ (PropertyUtil.isSimplePropertySetter(method) || PropertyUtil.isSimpleSetter(method))&& !isGroovyLangProperty(method)) {
-                    this.methods.add(new Method(method,psiClass,maxRecursionDepth-1,typeDictionary));
-                }
-            }
             resolveFields(psiClass);
             dependenciesResolved=true;
         }
@@ -160,7 +160,7 @@ public class Type {
             PsiType[] parameters = psiClassType.getParameters();
             if (parameters.length > 0) {
                 for (PsiType parameter : parameters) {
-                    types.add(typeDictionary.getType(parameter,maxRecursionDepth));
+                    types.add(typeDictionary.getType(parameter,maxRecursionDepth, false));
                 }
             }
         }
@@ -212,16 +212,23 @@ public class Type {
         return canonicalName.hashCode();
     }
 
-    @Override
-    public String toString() {
-        return canonicalName;
-    }
-
     public boolean isVarargs() {
         return varargs;
     }
 
-    public List<Method> getConstructors() {
+    public List<Method> findConstructors() {
+        List<Method> constructors = new ArrayList<Method>();
+        for (Method method : methods) {
+            if (method.isConstructor() && !"java.lang.Object".equals(method.getOwnerClassCanonicalType())) {
+                constructors.add(method);
+            }
+        }
+        Collections.sort(constructors, new Comparator<Method>() {
+            @Override
+            public int compare(Method o1, Method o2) { //sort in reverse order by #no of c'tor params
+                return o2.getMethodParams().size()-o1.getMethodParams().size();
+            }
+        });
         return constructors;
     }
 
@@ -259,5 +266,14 @@ public class Type {
 
     public List<Field> getFields() {
         return fields;
+    }
+
+    public boolean isFinal() {
+        return isFinal;
+    }
+
+    @Override
+    public String toString() {
+        return "Type{" + "canonicalName='" + canonicalName + '\'' + '}';
     }
 }

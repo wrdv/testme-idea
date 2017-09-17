@@ -19,6 +19,19 @@ class StringUtilsTest {
         String result = StringUtils.camelCaseToWords("replaceMeWithExpectedResult")
         assert result == "replace Me With Expected Result"
     }
+
+    @Test
+    void testHasLine() {
+        assert StringUtils.hasLine("toFind", "toFind")
+        assert StringUtils.hasLine(" toFind  ", "toFind")
+        assert StringUtils.hasLine(" toFinz \n\r toFind ", "toFind")
+        assert StringUtils.hasLine(" toFinz \n toFind ", "toFind")
+        assert StringUtils.hasLine("toFind \n something", "toFind")
+        assert !StringUtils.hasLine(" toFinz \n\r toFind12 ", "toFind")
+        assert !StringUtils.hasLine("#toFind", "toFind")
+        assert !StringUtils.hasLine(" toFind  12", "toFind")
+    }
+
 }
 
 //Generated with love by TestMe :) Please report issues and submit feature requests at: http://weirddev.com/forum#!/testme

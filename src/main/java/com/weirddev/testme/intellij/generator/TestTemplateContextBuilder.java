@@ -1,9 +1,12 @@
 package com.weirddev.testme.intellij.generator;
 
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.module.ResourceFileUtil;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiMethod;
-import com.weirddev.testme.intellij.groovy.GroovyPsiTreeUtils;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
+import com.intellij.psi.impl.PsiManagerEx;
 import com.weirddev.testme.intellij.template.FileTemplateContext;
 import com.weirddev.testme.intellij.template.TypeDictionary;
 import com.weirddev.testme.intellij.template.context.*;
@@ -30,20 +33,39 @@ public class TestTemplateContextBuilder {
         ctxtParams.put(TestMeTemplateParams.MAX_RECURSION_DEPTH, maxRecursionDepth);
         ctxtParams.put(TestMeTemplateParams.TEST_BUILDER, new TestBuilderImpl(context.getLanguage(),maxRecursionDepth, context.isIgnoreUnusedProperties(), context.getMinPercentOfExcessiveSettersToPreferDefaultCtor()));
         ctxtParams.put(TestMeTemplateParams.STRING_UTILS, new StringUtils());
-        ctxtParams.put(TestMeTemplateParams.MOCKITO_UTILS, new MockitoUtils());
         ctxtParams.put(TestMeTemplateParams.TEST_SUBJECT_UTILS,new TestSubjectUtils());
         final PsiClass targetClass = context.getSrcClass();
         if (targetClass != null && targetClass.isValid()) {
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_LANGUAGE, targetClass.getLanguage().getID());
             final TypeDictionary typeDictionary = new TypeDictionary(context.getSrcClass(), context.getTargetPackage());
-            final Type type = typeDictionary.getType(Type.resolveType(targetClass), maxRecursionDepth);
+            final Type type = typeDictionary.getType(Type.resolveType(targetClass), maxRecursionDepth, true);
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS, type);
-            ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_FIELDS, type == null ? null : type.getFields());
-            List<Method> methods = createMethods(context, maxRecursionDepth, typeDictionary);
-            ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_METHODS, methods);//todo refactor to be part of TESTED_CLASS?
+            if (type != null) {
+                resolveInternalReferences(maxRecursionDepth, type.getMethods());
+            }
         }
+        logger.debug("Resolved internal references in test template context");
+        ctxtParams.put(TestMeTemplateParams.MOCKITO_UTILS, createMockitoUtils(context));
         logger.debug("Done building Test Template context in "+(new Date().getTime()-start)+" millis");
         return ctxtParams;
+    }
+
+    @NotNull
+    private MockitoUtils createMockitoUtils(FileTemplateContext context) {
+        boolean found = false;
+//        final VirtualFile mockMakerVFile = ResourceFileUtil.findResourceFileInScope("mockito-extensions/org.mockito.plugins.MockMaker", context.getProject(), context.getTestModule().getModuleWithDependenciesAndLibrariesScope(true));
+        final VirtualFile mockMakerVFile = ResourceFileUtil.findResourceFileInDependents(context.getTestModule(), "mockito-extensions/org.mockito.plugins.MockMaker");
+        logger.debug("found mockito MockMaker in test module classpath:"+mockMakerVFile);
+        if (mockMakerVFile != null) {
+            final PsiFile mockMakerPsiFile = ((PsiManagerEx) PsiManager.getInstance(context.getProject())).getFileManager().getCachedPsiFile(mockMakerVFile);
+            if (mockMakerPsiFile != null) {
+                final String mockFileText = mockMakerPsiFile.getText();
+                found = StringUtils.hasLine(mockFileText,"mock-maker-inline");
+                logger.debug("mockito MockMaker content:"+ mockFileText);
+                logger.debug("is mock-maker-inline turned on:"+ found);
+            }
+        }
+        return new MockitoUtils(found);
     }
 
     void populateDateFields(Map<String, Object> ctxtParams, Calendar calendar) {
@@ -63,62 +85,80 @@ public class TestTemplateContextBuilder {
         return templateCtxtParams;
     }
 
-    private List<Method> createMethods(FileTemplateContext context, int maxRecursionDepth, TypeDictionary typeDictionary) {
-        ArrayList<Method> methods = new ArrayList<Method>();
-        final TypeDictionary typeDictionaryOfInternalReferences = new TypeDictionary(context.getSrcClass(), context.getTargetPackage());
-        PsiClass srcClass = context.getSrcClass();
-        for (PsiMethod psiMethod : srcClass.getAllMethods()) {
-            String ownerClassCanonicalType = psiMethod.getContainingClass() == null ? null : psiMethod.getContainingClass().getQualifiedName();
-            if (!Method.isInheritedFromObject(ownerClassCanonicalType)) {
-                final Method method = new Method(psiMethod, srcClass, maxRecursionDepth, typeDictionary);
-                logger.debug("Initialized Method: "+method);
-                final String methodId = method.getMethodId();
-                if (GroovyPsiTreeUtils.isGroovy(psiMethod.getLanguage()) && (methodId.endsWith(".invokeMethod(java.lang.String,java.lang.Object)") || methodId.endsWith(".getProperty(java.lang.String)") || methodId.endsWith(".setProperty(java.lang.String,java.lang.Object)"))) {
-                    continue;
-                }
-                method.resolveInternalReferences(psiMethod, typeDictionaryOfInternalReferences);
-                logger.debug("resolved internal references for "+ methodId);
-                logger.debug(method.getInternalReferences().toString());
-                methods.add(method);
-            }
-            /*
-            for each  method call (PsiMethodCallExpression) in tested class and parent classes:
-              - if getter ( or read property in groovy source) [or setter  - in a later stage will be used to init expected return type] - add it to dictionary
-              -store constructor calls - help deduct if return type was initialized by default ctor - only the used setters should be init in expected return type
-              -in future release - support groovy property read (implicitly) & direct field access + traverse methods recursively to relate all getter calls to specific method
-              -test generic methods and type params.use actual type params to pass when generating
-            */
-        }
-        for (int i = 0; i < maxRecursionDepth; i++) {
-            for (Method methodInTestedHierarchy : methods) {
-                final Set<Method> calledMethods = methodInTestedHierarchy.getCalledMethods();
-                final Set<Method> calledFamilyMembers = methodInTestedHierarchy.getCalledFamilyMembers();
-                final Set<Method> calledMethodsByCalledMethods = new HashSet<Method>();
-                final Set<Method> calledMethodsInMyTypeHierarchy = new HashSet<Method>();
-                for (Method calledMethod : calledMethods) {
-                    if (methods.contains(calledMethod)) {
-                        final Method method = find(methods, calledMethod.getMethodId());
-                        if (method != null) {
-                            calledMethodsInMyTypeHierarchy.add(method);
-                            calledMethodsByCalledMethods.addAll(method.getCalledMethods());
-                        }
-                    }
-                }
-                if (calledMethodsByCalledMethods.size() > 0) {
-                    calledMethods.addAll(calledMethodsByCalledMethods);
-                }
-                if (calledMethodsInMyTypeHierarchy.size() > 0) {
-                    calledFamilyMembers.addAll(calledMethodsInMyTypeHierarchy);
-                }
+    private void resolveInternalReferences(int maxMethodCallsDepth, List<Method> methods) {
+//              todo test generic methods and type params. use actual type params passed
+        for (int i = 0; i < maxMethodCallsDepth; i++) {
+            for (Method method : methods) {
+                resolveMethodCalls(methods, method);
             }
         }
-        return methods;
+        for (Method method : methods) {
+            resolveFieldsAffectedByCtor(method.getReturnType(),maxMethodCallsDepth);
+        }
     }
 
-    private Method find(ArrayList<Method> methods, String methodId) {
+    private void resolveFieldsAffectedByCtor(Type type, int maxMethodCallsDepth) {//todo consider moving to test builder
+        if (maxMethodCallsDepth < 1) {
+            return;
+        }
+        if (isValidObject(type)) {
+            for (Method ctor : type.findConstructors()) {
+                Set<Field> affectedFields = new HashSet<Field>();
+                for (MethodCall methodCall : ctor.getMethodCalls()) {
+                    for (Param param : methodCall.getMethod().getMethodParams()) {
+                        for (Field assignedToField : param.getAssignedToFields()) {
+                            if (assignedToField.getOwnerClassCanonicalName().equals(ctor.getOwnerClassCanonicalType())) {
+                                affectedFields.add(assignedToField);
+                            }
+                        }
+                        resolveFieldsAffectedByCtor(param.getType(), maxMethodCallsDepth--);
+                    }
+                }
+                ctor.getIndirectlyAffectedFields().addAll(affectedFields);
+            }
+        }
+    }
+
+    private boolean isValidObject(Type type) {
+        return type != null && !type.isPrimitive() && !type.isArray() && !type.isInterface() && !type.isAbstract() && !type.isVarargs();
+    }
+
+    private void resolveMethodCalls(List<Method> methods, Method method) {
+        final Set<MethodCall> calledMethodsByMethodCalls = new HashSet<MethodCall>();
+        final Set<MethodCall> methodsInMyFamilyTree= new HashSet<MethodCall>();
+        for (MethodCall methodCall : method.getMethodCalls()) {
+            final Method calledMethodFound = find(methods, methodCall.getMethod().getMethodId());//find originally resolved method since methods in resolved method call are resolved in a shallow manner
+            if (calledMethodFound != null) {
+                MethodCall methodCallFound;
+                if (methodCall.getMethod() == calledMethodFound) {
+                    methodCallFound = methodCall;
+                } else {
+                    methodCallFound = new MethodCall(calledMethodFound, methodCall.getMethodCallArguments());
+                }
+                methodsInMyFamilyTree.add(methodCallFound);
+                calledMethodsByMethodCalls.add(methodCallFound);
+                if (method.getOwnerClassCanonicalType()!=null && method.getOwnerClassCanonicalType().equals(methodCallFound.getMethod().getOwnerClassCanonicalType())) {
+                    calledMethodsByMethodCalls.addAll(calledMethodFound.getMethodCalls());
+                }
+            }
+        }
+        method.getMethodCalls().removeAll(calledMethodsByMethodCalls);
+        method.getMethodCalls().addAll(calledMethodsByMethodCalls);
+        method.getCalledFamilyMembers().addAll(methodsInMyFamilyTree);
+    }
+
+    private Method find(List<Method> methods, String methodId) {
         for (Method method : methods) {
             if (method.getMethodId().equals(methodId)) {
                 return method;
+            }
+            if (method.getReturnType() != null) {
+                for (Method returnTypeMethod : method.getReturnType().getMethods()) {
+                    if (returnTypeMethod.getMethodId().equals(methodId)) {
+                        return returnTypeMethod;
+                    }
+                }
+
             }
         }
         return null;

@@ -10,7 +10,7 @@ class GroovyTestBuilderImplTest extends Specification {
 
     def "test should Prefer Setters Over Ctor"() {
         given:
-        GroovyTestBuilderImpl groovyTestBuilderImpl = new GroovyTestBuilderImpl(4, null, true, null, 50)
+        GroovyTestBuilderImpl groovyTestBuilderImpl = new GroovyTestBuilderImpl(4, null, true, null, 50, 66)
 
         expect:
         result == groovyTestBuilderImpl.shouldPreferSettersOverCtor(noOfCtorArgs, noOfSetters)
@@ -30,6 +30,30 @@ class GroovyTestBuilderImplTest extends Specification {
         true   || 5            | 8
         false  || 10           | 14
         true   || 10           | 15
+    }
+
+    def "test should Optimize Constructor Optimization"() {
+        given:
+        GroovyTestBuilderImpl groovyTestBuilderImpl = new GroovyTestBuilderImpl(4, null, true, null, 50, 66)
+
+        expect:
+        result == groovyTestBuilderImpl.shouldOptimizeConstructorInitialization(nTotalTypeUsages, nBeanUsages)
+
+        where:
+        result || nBeanUsages | nTotalTypeUsages
+        false  || 0           | 0
+        true   || 1           | 0
+        true   || 2           | 2
+        true   || 2           | 3
+        true   || 4           | 3
+        true   || 4           | 5
+        true   || 4           | 6
+        true   || 5           | 6
+        true   || 5           | 6
+        true   || 5           | 7
+        false  || 5           | 8
+        true   || 10          | 14
+        true   || 10          | 15
     }
 }
 

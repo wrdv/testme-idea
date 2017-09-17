@@ -1,5 +1,6 @@
 package com.weirddev.testme.intellij.template.context
 
+import com.weirddev.testme.intellij.utils.ClassNameUtils
 import spock.lang.Specification
 
 /**
@@ -16,12 +17,12 @@ class JavaTestBuilderImplTest extends Specification {
                                        "java.util.NavigableMap": "new java.util.TreeMap<TYPES>(new java.util.HashMap<TYPES>(){{put(<VAL>,<VAL>);}})",
                                        "java.util.List"        : "java.util.Arrays.<TYPES>asList(<VAL>)"
     ]
-    def testBuilder = new JavaTestBuilderImpl(5)
+    def testBuilder = new JavaTestBuilderImpl(5,null,false,TestBuilder.ParamRole.Input,66)
 
     def "stripGenerics"() {
 
         expect:
-        testBuilder.stripGenerics(canonicalName) == result
+        ClassNameUtils.stripGenerics(canonicalName) == result
 
         where:
         canonicalName               | result
@@ -33,7 +34,7 @@ class JavaTestBuilderImplTest extends Specification {
     def "extractGenerics"() {
 
         expect:
-        testBuilder.extractGenerics(canonicalName) == result
+        ClassNameUtils.extractGenerics(canonicalName) == result
 
         where:
         canonicalName               | result

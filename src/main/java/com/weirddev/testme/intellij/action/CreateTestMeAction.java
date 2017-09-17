@@ -8,6 +8,10 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ContentEntry;
+import com.intellij.openapi.roots.JavaProjectRootsUtil;
+import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.roots.SourceFolder;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
@@ -22,6 +26,10 @@ import com.weirddev.testme.intellij.template.FileTemplateContext;
 import com.weirddev.testme.intellij.template.TemplateDescriptor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.jps.model.java.JavaModuleSourceRootTypes;
+import org.jetbrains.jps.model.java.JavaResourceRootProperties;
+import org.jetbrains.jps.model.java.JavaSourceRootProperties;
+import org.jetbrains.jps.model.java.JavaSourceRootType;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -71,17 +79,18 @@ public class CreateTestMeAction extends CreateTestAction {
     public void invoke(@NotNull final Project project, Editor editor, @NotNull PsiElement element) throws IncorrectOperationException {
         LOG.debug("Start CreateTestMeAction.invoke");
         final Module srcModule = ModuleUtilCore.findModuleForPsiElement(element);
+        if (srcModule == null) return;
         final PsiClass srcClass = getContainingClass(element);
         if (srcClass == null) return;
         PsiDirectory srcDir = element.getContainingFile().getContainingDirectory();
         final PsiPackage srcPackage = JavaDirectoryService.getInstance().getPackage(srcDir);
 
         final PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
-        Module testModule = suggestModuleForTests(project, srcModule);
+        Module testModule = suggestModuleForTestsReflective(project, srcModule);
         final List<VirtualFile> testRootUrls = computeTestRoots(testModule);
 //            final HashSet<VirtualFile> testFolders = new HashSet<VirtualFile>(); //from v14
 //        checkForTestRoots(srcModule, testFolders); //from v14
-        if (testRootUrls.isEmpty() /*&& computeSuitableTestRootUrls(testModule).isEmpty() Added post v14 */) {
+        if (testRootUrls==null|| testRootUrls.isEmpty() && computeSuitableTestRootUrls(testModule).isEmpty()) {
             testModule = srcModule;
             if (!propertiesComponent.getBoolean(CREATE_TEST_IN_THE_SAME_ROOT, false)) {
                 if (Messages.showOkCancelDialog(project, "Create test in the same source root?", "No Test Roots Found", Messages.getQuestionIcon()) !=
@@ -98,60 +107,117 @@ public class CreateTestMeAction extends CreateTestAction {
         LOG.debug("targetDirectory:"+targetDirectory.getVirtualFile().getUrl());
         final ClassNameSelection classNameSelection = generatedClassNameResolver.resolveClassName(project, targetDirectory, srcClass.getName(), templateDescriptor);
         if (classNameSelection.getUserDecision() != ClassNameSelection.UserDecision.Abort) {
+            final Module finalTestModule = testModule;
             CommandProcessor.getInstance().executeCommand(project, new Runnable() {
                 @Override
                 public void run() {
-                    testMeGenerator.generateTest(new FileTemplateContext(new FileTemplateDescriptor(templateDescriptor.getFilename()),templateDescriptor.getLanguage(),project, classNameSelection.getClassName(), srcPackage, srcModule, targetDirectory, srcClass, true, true, MAX_RECURSION_DEPTH, true, true, 50));
+                    testMeGenerator.generateTest(new FileTemplateContext(new FileTemplateDescriptor(templateDescriptor.getFilename()),templateDescriptor.getLanguage(),project, classNameSelection.getClassName(), srcPackage, srcModule, finalTestModule,targetDirectory, srcClass, true, true, MAX_RECURSION_DEPTH, true, true, 50));
                 }
             }, "TestMe Generate Test", this);
         }
         LOG.debug("End CreateTestMeAction.invoke");
     }
+
+    /**
+     * @see CreateTestAction#computeSuitableTestRootUrls
+     */
+    public static List<String> computeSuitableTestRootUrls(Module module) {
+        final ArrayList<String> rootUrls = new ArrayList<String>();
+        for (SourceFolder sourceFolder : suitableTestSourceFolders(module)) {
+            rootUrls.add(sourceFolder.getUrl());
+        }
+        return rootUrls;
+    }
+    /**
+     * @see CreateTestAction#suitableTestSourceFolders
+     */
+    private static List<SourceFolder> suitableTestSourceFolders(@NotNull Module module) {
+        final ArrayList<SourceFolder> sourceFolders = new ArrayList<SourceFolder>();
+        for (ContentEntry contentEntry : ModuleRootManager.getInstance(module).getContentEntries()) {
+            final List<SourceFolder> testSourceFolders = contentEntry.getSourceFolders(JavaSourceRootType.TEST_SOURCE);
+            for (SourceFolder sourceFolder : testSourceFolders) {
+                if (!isForGeneratedSources(sourceFolder)) {
+                    sourceFolders.add(sourceFolder);
+                }
+            }
+        }
+        return sourceFolders;
+    }
+    /**
+     * @see JavaProjectRootsUtil#isForGeneratedSources(com.intellij.openapi.roots.SourceFolder)
+     */
+    private static boolean isForGeneratedSources(SourceFolder sourceFolder) {
+        JavaSourceRootProperties properties = sourceFolder.getJpsElement().getProperties(JavaModuleSourceRootTypes.SOURCES);
+        JavaResourceRootProperties resourceProperties = sourceFolder.getJpsElement().getProperties(JavaModuleSourceRootTypes.RESOURCES);
+        return properties != null && properties.isForGeneratedSources() || resourceProperties != null && resourceProperties.isForGeneratedSources();
+    }
+
 //    public static void checkForTestRoots(Module srcModule, Set<VirtualFile> testFolders) {
 //        CreateTestAction.checkForTestRoots(srcModule, testFolders);
 //    }
 
+    /**
+     * safely calls CreateTestAction.suggestModuleForTests which was introduced in v15
+     * @see CreateTestAction.suggestModuleForTests
+     * @return
+     */
     @NotNull
-    private static Module suggestModuleForTests(@NotNull Project project, @NotNull Module productionModule) {
+    private static Module suggestModuleForTestsReflective(@NotNull Project project, @NotNull Module productionModule) {
         try {
-        final Method suggestModuleForTests = CreateTestAction.class.getDeclaredMethod("suggestModuleForTests", Project.class,Module.class);
-        suggestModuleForTests.setAccessible(true);
-            try {
-                final Object module = suggestModuleForTests.invoke(null, project,productionModule);
-                if (module == null) {
-                    return null;
-                } else {
-                    return (Module) module;
+            Method suggestModuleForTests = null;
+            //          suggestModuleForTests = CreateTestAction.class.getDeclaredMethod("suggestModuleForTests", Project.class,Module.class);
+            // this didn't do the trick. actual compiled method name differs from original source code. so locating by signature..
+            for (Method method : CreateTestAction.class.getDeclaredMethods()) {
+                final Class<?>[] parameters = method.getParameterTypes();
+                if ( method.getReturnType().isAssignableFrom(Module.class)  && parameters != null && parameters.length == 2 && parameters[0].isAssignableFrom(Project.class) && parameters[1].isAssignableFrom(Module.class) ) {
+                    suggestModuleForTests = method;
                 }
-            } catch (Exception e) {
-                LOG.debug("error invoking suggestModuleForTests through reflection. falling back to older implementation",e);
             }
+            if (suggestModuleForTests != null) {
+                suggestModuleForTests.setAccessible(true);
+                try {
+                    final Object module = suggestModuleForTests.invoke(null, project,productionModule);
+                    if (module != null) {
+                        return (Module) module;
+                    }
+                } catch (Exception e) {
+                    LOG.debug("error invoking suggestModuleForTests through reflection. falling back to older implementation",e);
+                }
+            }
+
         } catch (Exception e) {
-        LOG.debug("suggestModuleForTests Method mot found . this is probably not idea 2016. falling back to older implementation");
+            LOG.debug("suggestModuleForTests Method mot found. expected to exist on idea 15 - 2017. falling back to older implementation",e);
         }
         return productionModule;
     }
 
-    public static List<VirtualFile> computeTestRoots(Module srcModule) {
-        try {
-            final Method computeTestRootsMethod = CreateTestAction.class.getDeclaredMethod("computeTestRoots", Module.class);
-            computeTestRootsMethod.setAccessible(true);
-            try {
-                final Object roots = computeTestRootsMethod.invoke(null, srcModule);
-                if (roots == null) {
-                    return null;
-                } else if (roots instanceof List && !((List)roots).isEmpty() &&((List)roots).get(0) instanceof VirtualFile) {
-                    return (List<VirtualFile>) roots;
+    /**
+     * @see  CreateTestAction#computeTestRoots
+     */
+    public static List<VirtualFile> computeTestRoots(@NotNull Module mainModule) {
+        final ArrayList<VirtualFile> virtualFiles = new ArrayList<VirtualFile>();
+        final List<SourceFolder> sourceFolders = suitableTestSourceFolders(mainModule);
+        if (!sourceFolders.isEmpty()) {
+            //create test in the same module, if the test source folder doesn't exist yet it will be created
+            for (SourceFolder sourceFolder : sourceFolders) {
+                if (sourceFolder.getFile() != null) {
+                    virtualFiles.add(sourceFolder.getFile());
                 }
-            } catch (Exception e) {
-                LOG.debug("error invoking computeTestRootsMethod through reflection. falling back to older implementation",e);
             }
-        } catch (Exception e) {
-            LOG.debug("computeTestRoots Method mot found. this is probably not idea 2016. falling back to older implementation");
+        } else {
+            //suggest to choose from all dependencies modules
+            final HashSet<Module> modules = new HashSet<Module>();
+            ModuleUtilCore.collectModulesDependsOn(mainModule, modules);
+            for (Module module : modules) {
+                final List<SourceFolder> folders = suitableTestSourceFolders(module);
+                for (SourceFolder sourceFolder : folders) {
+                    if (sourceFolder.getFile() != null) {
+                        virtualFiles.add(sourceFolder.getFile());
+                    }
+                }
+            }
         }
-        final HashSet<VirtualFile> testFolders = new HashSet<VirtualFile>();
-        CreateTestAction.checkForTestRoots(srcModule, testFolders);
-        return new ArrayList<VirtualFile>(testFolders);
+        return virtualFiles;
     }
 
     /**

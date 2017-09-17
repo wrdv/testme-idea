@@ -20,11 +20,11 @@ public class TestBuilderImpl implements TestBuilder{
 
     @Override
     public String renderMethodParams(Method method, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues) throws Exception {
-        return langTestBuilderFactory.createTestBuilder(method,ParamUsageMode.ReadFrom, minPercentOfExcessiveSettersToPreferDefaultCtor).renderJavaCallParams(method.getMethodParams(), replacementTypes, defaultTypeValues);
+        return langTestBuilderFactory.createTestBuilder(method, ParamRole.Input, minPercentOfExcessiveSettersToPreferDefaultCtor).renderJavaCallParams(method.getMethodParams(), replacementTypes, defaultTypeValues);
     }
     @Override
     public String renderReturnParam(Method method, String defaultName, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues) throws Exception {
-        return langTestBuilderFactory.createTestBuilder(method,ParamUsageMode.CreateAs, minPercentOfExcessiveSettersToPreferDefaultCtor).renderJavaCallParam(method.getReturnType(),defaultName,replacementTypes, defaultTypeValues);
+        return langTestBuilderFactory.createTestBuilder(method, ParamRole.Output, minPercentOfExcessiveSettersToPreferDefaultCtor).renderJavaCallParam(method.getReturnType(),defaultName,replacementTypes, defaultTypeValues);
     }
     @Override
     public String renderInitType(Type type, String defaultName, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues) throws Exception {
