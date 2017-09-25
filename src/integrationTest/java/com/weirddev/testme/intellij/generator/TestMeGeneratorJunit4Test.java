@@ -1,5 +1,6 @@
 package com.weirddev.testme.intellij.generator;
 
+import com.weirddev.testme.intellij.template.FileTemplateConfig;
 import com.weirddev.testme.intellij.template.TemplateRegistry;
 import com.weirddev.testme.intellij.template.context.Language;
 
@@ -78,7 +79,9 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
         doTest(true, true, false);
     }
     public void testParamsConstructors() throws Exception {
-        doTest(true, true, true);
+        final FileTemplateConfig fileTemplateConfig = new FileTemplateConfig();
+        fileTemplateConfig.setReplaceInterfaceParamsWithConcreteTypes(false);
+        doTest(fileTemplateConfig);
     }
     public void testMiscReplacementTypes() throws Exception {
         doTest(true, true, true);
@@ -123,6 +126,10 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
     public void testWithFinalTypeDependency() throws Exception {
         doTest(true, true, true);
     }
+    public void testReplacedInterface() throws Exception {
+        doTest(true, true, true);
+    }
+
 //   public void testWithFinalTypeDependencyMockable() throws Exception {
 //       myFixture.copyDirectoryToProject("resources", "resources"); //issue with setting up a resource folder
 //        doTest(true, true, true);

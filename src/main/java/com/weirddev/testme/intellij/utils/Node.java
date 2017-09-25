@@ -20,6 +20,10 @@ public class Node<T> {
         return data;
     }
 
+    public Node<T> getParent() {
+        return parent;
+    }
+
     public int getDepth() {
         return depth;
     }

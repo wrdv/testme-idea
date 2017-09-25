@@ -22,6 +22,7 @@ import com.weirddev.testme.intellij.action.helpers.ClassNameSelection;
 import com.weirddev.testme.intellij.action.helpers.GeneratedClassNameResolver;
 import com.weirddev.testme.intellij.action.helpers.TargetDirectoryLocator;
 import com.weirddev.testme.intellij.generator.TestMeGenerator;
+import com.weirddev.testme.intellij.template.FileTemplateConfig;
 import com.weirddev.testme.intellij.template.FileTemplateContext;
 import com.weirddev.testme.intellij.template.TemplateDescriptor;
 import org.jetbrains.annotations.NotNull;
@@ -46,7 +47,6 @@ import java.util.List;
 public class CreateTestMeAction extends CreateTestAction {
     private static final Logger LOG = Logger.getInstance(CreateTestMeAction.class.getName());
     private static final String CREATE_TEST_IN_THE_SAME_ROOT = "create.test.in.the.same.root";
-    public static final int MAX_RECURSION_DEPTH = 9;
     private final TestMeGenerator testMeGenerator;
     private final GeneratedClassNameResolver generatedClassNameResolver;
     private TemplateDescriptor templateDescriptor;
@@ -111,7 +111,7 @@ public class CreateTestMeAction extends CreateTestAction {
             CommandProcessor.getInstance().executeCommand(project, new Runnable() {
                 @Override
                 public void run() {
-                    testMeGenerator.generateTest(new FileTemplateContext(new FileTemplateDescriptor(templateDescriptor.getFilename()),templateDescriptor.getLanguage(),project, classNameSelection.getClassName(), srcPackage, srcModule, finalTestModule,targetDirectory, srcClass, true, true, MAX_RECURSION_DEPTH, true, true, 50));
+                    testMeGenerator.generateTest(new FileTemplateContext(new FileTemplateDescriptor(templateDescriptor.getFilename()),templateDescriptor.getLanguage(),project, classNameSelection.getClassName(), srcPackage, srcModule, finalTestModule,targetDirectory, srcClass, new FileTemplateConfig(true, true, FileTemplateConfig.DEFAULT_MAX_RECURSION_DEPTH, true, true, true, 50)));
                 }
             }, "TestMe Generate Test", this);
         }

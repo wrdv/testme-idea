@@ -49,6 +49,6 @@ public class TypeDictionary {
     }
 
     public boolean isAccessible(PsiMethod psiMethod) {
-        return PsiUtil.isAccessibleFromPackage(psiMethod, targetPackage);
+        return PsiUtil.isAccessibleFromPackage(psiMethod, targetPackage) && (psiMethod.getContainingClass()==null || PsiUtil.isAccessibleFromPackage(psiMethod.getContainingClass(), targetPackage));
     }
 }

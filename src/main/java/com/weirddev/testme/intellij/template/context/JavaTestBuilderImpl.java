@@ -1,6 +1,16 @@
 package com.weirddev.testme.intellij.template.context;
 
+import com.intellij.ide.hierarchy.HierarchyBrowserBaseEx;
+import com.intellij.ide.hierarchy.type.SubtypesHierarchyTreeStructure;
+import com.intellij.ide.hierarchy.type.TypeHierarchyNodeDescriptor;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.module.Module;
+import com.intellij.psi.JavaPsiFacade;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiClassType;
+import com.weirddev.testme.intellij.generator.TestBuilderUtil;
+import com.weirddev.testme.intellij.template.FileTemplateConfig;
+import com.weirddev.testme.intellij.template.TypeDictionary;
 import com.weirddev.testme.intellij.utils.ClassNameUtils;
 import com.weirddev.testme.intellij.utils.Node;
 import org.jetbrains.annotations.NotNull;
@@ -19,29 +29,25 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
     private static final Logger LOG = Logger.getInstance(JavaTestBuilderImpl.class.getName());
     private static Type DEFAULT_TYPE = new Type("java.lang.String", "String", "java.lang", false, false, false, false, false, new ArrayList<Type>());
     private static final String PARAMS_SEPARATOR = ", ";
-
-    protected final int maxRecursionDepth;
-    protected final Method testedMethod;
+    private final TestBuilder.ParamRole paramRole; //todo consider removing. not used anymore
+    private final Method testedMethod;
+    private Module srcModule;
+    private TypeDictionary typeDictionary;
+    protected FileTemplateConfig fileTemplateConfig;
     /**
-     * do not invoke setter or getter for a property not used in tested method
+     *  a heuristic number, assuming too many implementations is an indicator to a general interface (i.e. comparator) - so an arbitrary implementation should not be selected in such case
      */
-    protected final boolean shouldIgnoreUnusedProperties;
-    protected final TestBuilder.ParamRole paramRole; //todo consider removing. not used anymore
-    /**
-     * Relevant when shouldIgnoreUnusedProperties is true. When the minimum percentage of all interactions with constructed type are via setters/getters or direct property field read/assignment - then the type is considered as a 'data' bean,
-     * so a null value is passed for any constructor argument that is bound to a field in the constructed type which is not used in the tested method
-     */
-    protected final int minPercentOfInteractionWithPropertiesToTriggerConstructorOptimization;
+    private final int maxChildTypesForConcreteTypesSearchCandidates = 2;
 
-    public JavaTestBuilderImpl(int maxRecursionDepth, Method testedMethod, boolean shouldIgnoreUnusedProperties, TestBuilder.ParamRole paramRole, int minPercentOfInteractionWithPropertiesToTriggerConstructorOptimization) {
-        this.maxRecursionDepth = maxRecursionDepth;
+    public JavaTestBuilderImpl(Method testedMethod, TestBuilder.ParamRole paramRole, FileTemplateConfig fileTemplateConfig, Module srcModule, TypeDictionary typeDictionary) {
         this.testedMethod = testedMethod;
-        this.shouldIgnoreUnusedProperties = shouldIgnoreUnusedProperties;
+        this.srcModule = srcModule;
+        this.typeDictionary = typeDictionary;
         this.paramRole = paramRole;
-        this.minPercentOfInteractionWithPropertiesToTriggerConstructorOptimization = minPercentOfInteractionWithPropertiesToTriggerConstructorOptimization;
+        this.fileTemplateConfig = fileTemplateConfig;
     }
 
-    //TODO consider aggregating conf into context object and managing maps outside of template
+    //TODO consider managing maps outside of template
     @Override
     public String renderJavaCallParams(List<Param> params, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues) {
         final StringBuilder stringBuilder = new StringBuilder();
@@ -54,16 +60,6 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
         final StringBuilder stringBuilder = new StringBuilder();
         buildCallParam(replacementTypes, defaultTypeValues, stringBuilder,new Node<Param>(new SyntheticParam(type, strValue,false),null,0));
         return stringBuilder.toString();
-    }
-
-    String resolveType(Type type, Map<String, String> replacementTypes) {
-        String canonicalName = type.getCanonicalName();
-        String sanitizedCanonicalName = ClassNameUtils.stripGenerics(canonicalName);
-        if (replacementTypes != null && replacementTypes.get(sanitizedCanonicalName) != null) {
-            String replacedSanitizedCanonicalName = replacementTypes.get(sanitizedCanonicalName);
-            canonicalName = replacedSanitizedCanonicalName.replace("<TYPES>", ClassNameUtils.extractGenerics(canonicalName));
-        }
-        return canonicalName;
     }
 
     protected void buildCallParam(Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Param> paramNode) {
@@ -82,7 +78,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
             testBuilder.append("}");
         }
     }
-    protected void buildJavaParam(Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Param> paramNode) {
+    void buildJavaParam(Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Param> paramNode) {
         final Type type = paramNode.getData().getType();
         final String canonicalName = type.getCanonicalName();
         if (defaultTypeValues.get(canonicalName) != null) {
@@ -93,35 +89,39 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
         } else if (type.getEnumValues().size() > 0) {
             testBuilder.append(canonicalName).append(".").append(type.getEnumValues().get(0));
         } else {
-            String typeName = resolveType(type, replacementTypes);
-            if (!canonicalName.equals(typeName)) {
+            final Type resolvedType=resolveChildTypeIfNeeded(type,fileTemplateConfig.getMaxRecursionDepth());
+            if (!resolvedType.equals(type)) {
+                paramNode=new Node<Param>(new Param(resolvedType,paramNode.getData().getName(),paramNode.getData().getAssignedToFields()),paramNode.getParent(),paramNode.getDepth());
+            }
+            String typeName = resolveTypeName(resolvedType, replacementTypes);
+            if (!resolvedType.getCanonicalName().equals(typeName)) {
                 final String[] typeInitExp = typeName.split("<VAL>");
                 testBuilder.append(typeInitExp[0]);
                 for (int i = 1; i < typeInitExp.length; i++) {
                     Type genericTypeParam;
-                    if (type.getComposedTypes().size() >= i) {
-                        genericTypeParam = type.getComposedTypes().get(i - 1);
+                    if (resolvedType.getComposedTypes().size() >= i) {
+                        genericTypeParam = resolvedType.getComposedTypes().get(i - 1);
                     } else {
                         genericTypeParam = DEFAULT_TYPE;
                     }
-                    if (isLooksLikeObjectKeyInGroovyMap(typeInitExp[i], genericTypeParam.getCanonicalName())) {
+                    if (TestBuilderUtil.looksLikeObjectKeyInGroovyMap(typeInitExp[i], genericTypeParam.getCanonicalName())) {
                         testBuilder.append("(");
                     }
                     buildCallParam(replacementTypes, defaultTypeValues, testBuilder, new Node<Param>(new SyntheticParam(genericTypeParam, genericTypeParam.getName(), false),paramNode,paramNode.getDepth()));
-                    if (isLooksLikeObjectKeyInGroovyMap(typeInitExp[i], genericTypeParam.getCanonicalName())) {
+                    if (TestBuilderUtil.looksLikeObjectKeyInGroovyMap(typeInitExp[i], genericTypeParam.getCanonicalName())) {
                         testBuilder.append(")");
                     }
                     testBuilder.append(typeInitExp[i]);
                 }
             }
             else if (shouldContinueRecursion(paramNode)) {
-                final boolean hasEmptyConstructor = hasEmptyConstructor(type);
-                Method foundCtor = findValidConstructor(type, replacementTypes, hasEmptyConstructor);
-                if (foundCtor == null && !hasEmptyConstructor || !type.isDependenciesResolved()) {
+                final boolean hasEmptyConstructor = TestBuilderUtil.hasValidEmptyConstructor(resolvedType);
+                Method foundCtor = findValidConstructor(resolvedType, replacementTypes, hasEmptyConstructor);
+                if (foundCtor == null && !hasEmptyConstructor || !resolvedType.isDependenciesResolved()) {
                     testBuilder.append("null");
                 } else {
                     testBuilder.append("new ");
-                    if (type.getParentContainerClass() != null && !type.isStatic()) {
+                    if (resolvedType.getParentContainerClass() != null && !resolvedType.isStatic()) {
                         typeName = resolveNestedClassTypeName(typeName);
                     }
                     testBuilder.append(typeName).append("(");
@@ -134,13 +134,69 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
             }
         }
     }
+
+    private Type resolveChildTypeIfNeeded(Type type, int maxRecursionDepth) {
+        if (!isConcreteType(type) && fileTemplateConfig.isReplaceInterfaceParamsWithConcreteTypes()) {
+            final Type childType = findChildType(type,maxRecursionDepth);
+            if (childType == null) {
+                return type;
+            } else {
+                return childType;
+            }
+        } else {
+            return type;
+        }
+    }
+
+    private boolean isConcreteType(Type type) {
+        return !type.isInterface() && !type.isAbstract();
+    }
+
+    private Type findChildType(Type type, int maxRecursionDepth) {
+        final PsiClass psiClass = findClassInModule(type.getCanonicalName());
+        if (psiClass != null) {
+            final Object[] childElements = new SubtypesHierarchyTreeStructure(srcModule.getProject(), psiClass, HierarchyBrowserBaseEx.SCOPE_PROJECT/*"All"*/).getChildElements(new TypeHierarchyNodeDescriptor(srcModule.getProject(),null,psiClass,true));
+            if (childElements != null && childElements.length > 0 && childElements.length <= maxChildTypesForConcreteTypesSearchCandidates ) {
+                for (Object childElement : childElements) {
+                    Type childType = null;
+                    if (childElement instanceof TypeHierarchyNodeDescriptor) {
+                        final TypeHierarchyNodeDescriptor hierarchyNodeDescriptor = ((TypeHierarchyNodeDescriptor) childElement);
+                        if (hierarchyNodeDescriptor.getPsiClass() instanceof PsiClass) {
+                            final PsiClass childPsiClass = (PsiClass) hierarchyNodeDescriptor.getPsiClass();
+                            if (findClassInModule(childPsiClass.getQualifiedName()) != null) {
+                                final PsiClassType psiChildType = JavaPsiFacade.getInstance(srcModule.getProject()).getElementFactory().createType(childPsiClass);//todo verify behaviour with groovy classes
+                                childType = typeDictionary.getType(psiChildType, fileTemplateConfig.getMaxRecursionDepth(), true);
+                            }
+                        }
+                    }
+                    if (childType != null) {
+                        if (isConcreteType(childType)) {
+                            return childType;
+                        } else if(maxRecursionDepth>0){
+                            final Type grandChild = findChildType(childType, maxRecursionDepth - 1);
+                            if (grandChild != null) {
+                                return grandChild;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    private PsiClass findClassInModule(String fqName) {
+        return JavaPsiFacade.getInstance(srcModule.getProject()).findClass(fqName, srcModule.getModuleRuntimeScope(true));
+    }
+
     protected void buildCallParams(Method constructor, List<? extends Param> params, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Param> ownerParamNode) {
         final int origLength = testBuilder.length();
         if (params != null) {
             final Type ownerType = ownerParamNode.getData()==null?null: ownerParamNode.getData().getType();
             for (Param param : params) {
                 final Node<Param> paramNode = new Node<Param>(param, ownerParamNode, ownerParamNode.getDepth() + 1);
-                if (shouldIgnoreUnusedProperties && testedMethod != null) {
+                if (fileTemplateConfig.isIgnoreUnusedProperties() && testedMethod != null) {
                     if (isPropertyParam(paramNode.getData()) && ownerType != null && !isPropertyUsed(testedMethod, paramNode.getData(), ownerType)) {
                         LOG.debug("property unused "+paramNode.getData());
                         continue;
@@ -161,11 +217,35 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
             }
         }
     }
-    protected boolean isPropertyParam(Param param) {
+    /**
+     * @param type Input assumption: type constructors are sorted in descending order by no of arguments
+     */
+    @Nullable
+    protected Method findValidConstructor(Type type, Map<String, String> replacementTypes, boolean hasEmptyConstructor) {
+        Method foundCtor = null;
+        for (Method method : type.findConstructors()) {
+            if (TestBuilderUtil.isValidConstructor(type, method,hasEmptyConstructor,replacementTypes)) {
+                foundCtor = method;
+                break;
+            }
+        }
+        return foundCtor;
+    }
+    String resolveTypeName(Type type, Map<String, String> replacementTypes) {
+        String canonicalName = type.getCanonicalName();
+        String sanitizedCanonicalName = ClassNameUtils.stripGenerics(canonicalName);
+        if (replacementTypes != null && replacementTypes.get(sanitizedCanonicalName) != null) {
+            String replacedSanitizedCanonicalName = replacementTypes.get(sanitizedCanonicalName);
+            canonicalName = replacedSanitizedCanonicalName.replace("<TYPES>", ClassNameUtils.extractGenerics(canonicalName));
+        }
+        return canonicalName;
+    }
+
+    boolean isPropertyParam(Param param) {
         return param instanceof SyntheticParam && ((SyntheticParam) param).isProperty;
     }
 
-    protected boolean isShouldOptimizeConstructorInitialization(Type ownerType, Method constructor, List<? extends Param> params, String ownerTypeCanonicalName) {
+    private boolean isShouldOptimizeConstructorInitialization(Type ownerType, Method constructor, List<? extends Param> params, String ownerTypeCanonicalName) {
         boolean shouldOptimizeConstructorInitialization = false;
         if (testedMethod != null && params.size() > 0) {
             int nBeanUsages = 0;
@@ -184,30 +264,26 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
             }
             shouldOptimizeConstructorInitialization = shouldOptimizeConstructorInitialization(nTypeReferences + nMethodCalls, nBeanUsages);
             LOG.debug(String.format("shouldOptimizeConstructorInitialization:%s shouldOptimizeConstructorInitialization= %d nBeanUsages %d nTypeReferences %d nMethodCalls %d", shouldOptimizeConstructorInitialization,
-                    minPercentOfInteractionWithPropertiesToTriggerConstructorOptimization, nBeanUsages, nTypeReferences, nMethodCalls));
+                    fileTemplateConfig.getMinPercentOfInteractionWithPropertiesToTriggerConstructorOptimization(), nBeanUsages, nTypeReferences, nMethodCalls));
         }
         return shouldOptimizeConstructorInitialization;
     }
 
     boolean shouldOptimizeConstructorInitialization(int nTotalTypeUsages, int nBeanUsages) {
-        return 0 < nBeanUsages && (nTotalTypeUsages * (minPercentOfInteractionWithPropertiesToTriggerConstructorOptimization / 100f) <= ((float)nBeanUsages) );
+        return 0 < nBeanUsages && (nTotalTypeUsages * (fileTemplateConfig.getMinPercentOfInteractionWithPropertiesToTriggerConstructorOptimization() / 100f) <= ((float)nBeanUsages) );
     }
 
-    protected boolean isUnused(Type ownerType, Method testedMethod, List<Field> fields) {
+    private boolean isUnused(Type ownerType, Method testedMethod, List<Field> fields) {
         int unusedFieldsCount=0;
         for (Field field : fields) {
             if (!isPropertyUsed(testedMethod, new SyntheticParam(field.getType(),field.getName(),true), ownerType)) {
                 unusedFieldsCount++;
             }
         }
-        if (fields.size() > 0 && fields.size() == unusedFieldsCount) {
-            return true;
-        } else {
-            return false;
-        }
+        return fields.size() > 0 && fields.size() == unusedFieldsCount;
     }
 
-    protected boolean isPropertyUsed(@NotNull Method testedMethod, Param propertyParam, Type ownerType) {
+    private boolean isPropertyUsed(@NotNull Method testedMethod, Param propertyParam, Type ownerType) {
         String paramOwnerCanonicalName = ownerType.getCanonicalName();
         if (isReferencedInMethod(testedMethod, propertyParam, paramOwnerCanonicalName)) return true;
         if (isPropertyUsedIndirectly(null, testedMethod, propertyParam, ownerType)) return true;
@@ -286,7 +362,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
         return false;
     }
 
-    protected List<Field> deductAssignedToFields(Method constructor, Param param) {
+    private List<Field> deductAssignedToFields(Method constructor, Param param) {
         final ArrayList<Field> assignedToFields = param.getAssignedToFields();
         if (assignedToFields.size() == 0 ) {
             return deductAffectedFields(constructor,param);
@@ -322,57 +398,9 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
         return ClassNameUtils.extractClassName(typeName);
     }
 
-    private boolean isLooksLikeObjectKeyInGroovyMap(String expFragment, String canonicalTypeName) {
-        return ":".equals(expFragment) && !"java.lang.String".equals(canonicalTypeName);
-    }
-
-    /**
-     * @param type Input assumption: type constructors are sorted in descending order by no of arguments
-     */
-    @Nullable
-    protected Method findValidConstructor(Type type, Map<String, String> replacementTypes, boolean hasEmptyConstructor) {
-        Method foundCtor = null;
-        for (Method method : type.findConstructors()) {
-            if (isValidConstructor(type, method,hasEmptyConstructor,replacementTypes)) {
-                foundCtor = method;
-                break;
-            }
-        }
-        return foundCtor;
-    }
-
     private boolean shouldContinueRecursion(Node<Param> paramNode) {
-        LOG.debug("recursionDepth:"+paramNode.getDepth() +". maxRecursionDepth "+maxRecursionDepth);
-        return paramNode.getDepth() <= maxRecursionDepth && !paramNode.hasSameAncestor();
+        LOG.debug("recursionDepth:"+paramNode.getDepth() +". maxRecursionDepth "+fileTemplateConfig.getMaxRecursionDepth());
+        return paramNode.getDepth() <= fileTemplateConfig.getMaxRecursionDepth() && !paramNode.hasSameAncestor();
     }
 
-    protected boolean isValidConstructor(Type type, Method constructor, boolean hasEmptyConstructor, Map<String, String> replacementTypes) {
-        if (!constructor.isAccessible() || type.isInterface() || type.isAbstract()) return false;
-        final List<Param> methodParams = constructor.getMethodParams();
-        for (Param methodParam : methodParams) {
-            final Type methodParamType = methodParam.getType();
-            if (methodParamType.equals(type) && hasEmptyConstructor) {
-                return false;
-            }
-            if ((methodParamType.isInterface() || methodParamType.isAbstract()) && (replacementTypes == null || replacementTypes.get(ClassNameUtils.stripGenerics(methodParamType.getCanonicalName())) == null) && hasEmptyConstructor) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    protected boolean hasEmptyConstructor(Type type) {
-        if (type.isInterface() || type.isAbstract()) {
-            return false;
-        }
-        if (type.isHasDefaultConstructor()) {
-            return true;
-        }
-        for (Method method : type.findConstructors()) {
-            if (method.isAccessible() &&  method.getMethodParams().size() == 0) {
-                return true;
-            }
-        }
-        return false;
-    }
 }

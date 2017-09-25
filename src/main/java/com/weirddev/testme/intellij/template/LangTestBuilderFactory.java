@@ -1,26 +1,30 @@
 package com.weirddev.testme.intellij.template;
 
+import com.intellij.openapi.module.Module;
 import com.weirddev.testme.intellij.template.context.*;
 import org.jetbrains.annotations.NotNull;
 
 public class LangTestBuilderFactory {
-    private final boolean shouldIgnoreUnusedProperties;
     private Language language;
-    private int maxRecursionDepth;
+    private FileTemplateConfig fileTemplateConfig;
+    private Module srcModule;
+    private TypeDictionary typeDictionary;
 
-    public LangTestBuilderFactory(Language language, int maxRecursionDepth, boolean shouldIgnoreUnusedProperties) {
+    public LangTestBuilderFactory(Language language, Module srcModule, FileTemplateConfig fileTemplateConfig, TypeDictionary typeDictionary) {
         this.language = language;
-        this.maxRecursionDepth = maxRecursionDepth;
-        this.shouldIgnoreUnusedProperties = shouldIgnoreUnusedProperties;
+        this.fileTemplateConfig = fileTemplateConfig;
+        this.srcModule = srcModule;
+        this.typeDictionary = typeDictionary;
     }
 
     @NotNull
-    public LangTestBuilder createTestBuilder(Method method, TestBuilder.ParamRole paramRole, int minPercentOfExcessiveSettersToPreferDefaultCtor) throws Exception {
+    public LangTestBuilder createTestBuilder(Method method, TestBuilder.ParamRole paramRole) throws Exception {
         LangTestBuilder langTestBuilder;
         if ( language==Language.Groovy) {
-            langTestBuilder = new GroovyTestBuilderImpl(maxRecursionDepth, method, shouldIgnoreUnusedProperties, paramRole, minPercentOfExcessiveSettersToPreferDefaultCtor, 66); //todo add replacementTypes, defaultTypeValues and testBuilder as members
+            //todo add replacementTypes, defaultTypeValues and testBuilder as members
+            langTestBuilder = new GroovyTestBuilderImpl(method, paramRole,fileTemplateConfig, srcModule,typeDictionary);
         } else{
-            langTestBuilder = new JavaTestBuilderImpl(maxRecursionDepth, method, shouldIgnoreUnusedProperties, paramRole, 66);
+            langTestBuilder = new JavaTestBuilderImpl(method, paramRole, fileTemplateConfig, srcModule,typeDictionary);
         }
         return langTestBuilder;
     }

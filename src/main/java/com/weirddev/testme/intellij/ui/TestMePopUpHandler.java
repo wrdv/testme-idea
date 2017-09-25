@@ -8,6 +8,7 @@ import com.intellij.ide.util.EditSourceUtil;
 import com.intellij.ide.util.PsiElementListCellRenderer;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.navigation.NavigationItem;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.DumbService;
@@ -151,8 +152,9 @@ public abstract class TestMePopUpHandler implements CodeInsightActionHandler {
       gotoData.listUpdaterTask.init((AbstractPopup)popup, list, usageView);
       ProgressManager.getInstance().run(gotoData.listUpdaterTask);
     }
-    if(System.getProperty("testme.popoup.center", "false").equals("true")){
-       //WA for UT - swing error when popup set relative to fake test editor
+
+    if (ApplicationManager.getApplication().isHeadlessEnvironment()) {
+       //for UT support - otherwise theres a swing error when popup set relative to fake test editor
       popup.showCenteredInCurrentWindow(project);
     }else{
       popup.showInBestPositionFor(editor);

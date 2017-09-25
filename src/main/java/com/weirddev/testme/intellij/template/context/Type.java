@@ -84,7 +84,7 @@ public class Type {
         enumValues = resolveEnumValues(psiType);
         dependenciesResolvable = maxRecursionDepth > 0;
         methods=new ArrayList<Method>();
-        isFinal = isFinalType(PsiUtil.resolveClassInType(psiType));
+        isFinal = isFinalType(psiClass);
     }
 
     private boolean isFinalType(PsiClass aClass) {
