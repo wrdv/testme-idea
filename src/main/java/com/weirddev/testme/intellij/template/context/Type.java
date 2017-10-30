@@ -82,7 +82,7 @@ public class Type {
                 false):null;
         fields = new ArrayList<Field>();
         enumValues = resolveEnumValues(psiType);
-        dependenciesResolvable = maxRecursionDepth > 0;
+         dependenciesResolvable = maxRecursionDepth > 1;
         methods=new ArrayList<Method>();
         isFinal = isFinalType(psiClass);
     }
@@ -91,10 +91,10 @@ public class Type {
         return aClass != null &&  aClass.getModifierList()!=null && aClass.getModifierList().hasExplicitModifier(PsiModifier.FINAL);
     }
 
-    private void resolveFields(@NotNull PsiClass psiClass) {
+    private void resolveFields(@NotNull PsiClass psiClass, TypeDictionary typeDictionary, int maxRecursionDepth) {
         for (PsiField psiField : psiClass.getAllFields()) {
             if(!"groovy.lang.MetaClass".equals(psiField.getType().getCanonicalText())){
-                fields.add(new Field(psiField, psiClass));
+                fields.add(new Field(psiField, psiClass,typeDictionary,maxRecursionDepth));
             }
         }
     }
@@ -122,7 +122,7 @@ public class Type {
                     }
 
                 }
-            resolveFields(psiClass);
+            resolveFields(psiClass,typeDictionary,maxRecursionDepth);
             dependenciesResolved=true;
         }
     }

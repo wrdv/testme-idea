@@ -29,6 +29,7 @@ class ${CLASS_NAME} {
 
     @Test
     void #renderTestMethodName($method.name)() {
+        #grRenderMockedReturnedValues($method,$TESTED_CLASS.fields)
         #grRenderMethodCall($method,$TESTED_CLASS.name)
 #if($method.returnType && $method.returnType.name !="void")        assert #grRenderAssert($method)#end
     }

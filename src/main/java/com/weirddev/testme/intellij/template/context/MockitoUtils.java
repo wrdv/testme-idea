@@ -1,9 +1,6 @@
 package com.weirddev.testme.intellij.template.context;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Date: 31/03/2017
@@ -11,6 +8,28 @@ import java.util.Set;
  */
 
 public class  MockitoUtils {
+
+    private static final Map<String, String> TYPE_TO_ARG_MATCHERS;
+
+    static {
+        TYPE_TO_ARG_MATCHERS = new HashMap<String, String>();
+        TYPE_TO_ARG_MATCHERS.put("byte", "anyByte()");
+        TYPE_TO_ARG_MATCHERS.put("short", "anyShort()");
+        TYPE_TO_ARG_MATCHERS.put("int", "anyInt()");
+        TYPE_TO_ARG_MATCHERS.put("long", "anyLong()");
+        TYPE_TO_ARG_MATCHERS.put("float", "anyFloat()");
+        TYPE_TO_ARG_MATCHERS.put("double", "anyDouble()");
+        TYPE_TO_ARG_MATCHERS.put("char", "anyChar()");
+        TYPE_TO_ARG_MATCHERS.put("boolean", "anyBoolean()");
+        TYPE_TO_ARG_MATCHERS.put("java.lang.Byte", "anyByte()");
+        TYPE_TO_ARG_MATCHERS.put("java.lang.Short", "anyShort()");
+        TYPE_TO_ARG_MATCHERS.put("java.lang.Integer", "anyInt()");
+        TYPE_TO_ARG_MATCHERS.put("java.lang.Long", "anyLong()");
+        TYPE_TO_ARG_MATCHERS.put("java.lang.Float", "anyFloat()");
+        TYPE_TO_ARG_MATCHERS.put("java.lang.Double", "anyDouble()");
+        TYPE_TO_ARG_MATCHERS.put("java.lang.Character", "anyChar()");
+        TYPE_TO_ARG_MATCHERS.put("java.lang.Boolean", "anyBoolean()");
+    }
 
     private static final Set<String> WRAPPER_TYPES = new HashSet<String>(Arrays.asList(
             Class.class.getCanonicalName(),
@@ -57,6 +76,18 @@ public class  MockitoUtils {
             return "";
         }
     }
+    @SuppressWarnings("unused")
+    public String buildMockArgsMatchers(List<Param> params) {
+        final StringBuilder sb = new StringBuilder();
+        for (Param param : params) {
+            if (sb.length() > 0) {
+                sb.append(", ");
+            }
+            final String matcherType = TYPE_TO_ARG_MATCHERS.get(param.getType().getCanonicalName());
+            sb.append(matcherType==null?"any()":matcherType); //todo support anyCollection()?
+        }
+        return sb.toString();
+    }
     /**
         @return true - if Field should be mocked
      */
@@ -64,7 +95,7 @@ public class  MockitoUtils {
         return !field.getType().isPrimitive() && !isWrapperType(field) && !field.isStatic() && !field.isOverridden();
     }
 
-    public boolean isWrapperType(Field field) {
+    private boolean isWrapperType(Field field) {
         return WRAPPER_TYPES.contains(field.getType().getCanonicalName());
     }
 

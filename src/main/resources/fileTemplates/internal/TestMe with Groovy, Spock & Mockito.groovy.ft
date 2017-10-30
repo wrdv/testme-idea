@@ -26,6 +26,7 @@ class ${CLASS_NAME}  extends Specification {
 
     def "#renderTestMethodNameAsWords($method.name)"() {
         when:
+        #grRenderMockedReturnedValues($method,$TESTED_CLASS.fields)
         #grRenderMethodCall($method,$TESTED_CLASS.name)
 
         then:

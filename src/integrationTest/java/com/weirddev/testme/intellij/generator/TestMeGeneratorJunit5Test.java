@@ -23,4 +23,8 @@ public class TestMeGeneratorJunit5Test extends TestMeGeneratorTestBase {
     public void testArrays() throws Exception {
         doTest(false, false, true);
     }
+    public void testMockReturned() throws Exception {
+        doTest(true, true, true);
+    }
+
 }

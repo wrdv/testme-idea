@@ -1,5 +1,6 @@
 package com.weirddev.testme.intellij.generator;
 
+import com.weirddev.testme.intellij.template.FileTemplateConfig;
 import com.weirddev.testme.intellij.template.TemplateRegistry;
 import com.weirddev.testme.intellij.template.context.Language;
 
@@ -22,5 +23,8 @@ public class TestMeGeneratorTestNgTest extends TestMeGeneratorTestBase {
     }
     public void testArrays() throws Exception {
         doTest(false, false, true);
+    }
+    public void testMockReturned() throws Exception {
+        doTest(new FileTemplateConfig());
     }
 }

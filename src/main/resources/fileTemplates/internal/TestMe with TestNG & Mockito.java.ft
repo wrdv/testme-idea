@@ -29,6 +29,7 @@ public class ${CLASS_NAME} {
 
     @Test
     public void #renderTestMethodName($method.name)(){
+        #renderMockedReturnedValues($method,$TESTED_CLASS.fields)
         #renderMethodCall($method,$TESTED_CLASS.name)
 #if($method.returnType && $method.returnType.name !="void")        Assert.#renderTestNgAssert($method)#end
     }

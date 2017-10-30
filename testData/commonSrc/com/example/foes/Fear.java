@@ -11,4 +11,9 @@ public class Fear implements Comparable{
     public boolean equals(Object obj) {
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "Fear{}";
+    }
 }

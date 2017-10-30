@@ -77,8 +77,8 @@ public class Method {
         isAbstract = psiMethod.hasModifierProperty(PsiModifier.ABSTRACT);
         isNative = psiMethod.hasModifierProperty(PsiModifier.NATIVE);
         isStatic = psiMethod.hasModifierProperty(PsiModifier.STATIC);
-        this.returnType = typeDictionary.getType(psiMethod.getReturnType(),maxRecursionDepth,true);
         name = psiMethod.getName();
+        this.returnType = typeDictionary.getType(psiMethod.getReturnType(),maxRecursionDepth,true);
         ownerClassCanonicalType = psiMethod.getContainingClass() == null ? null : psiMethod.getContainingClass().getQualifiedName();
         methodParams = extractMethodParams(typeDictionary, maxRecursionDepth,psiMethod);
         isSetter = PropertyUtil.isSimplePropertySetter(psiMethod)||PropertyUtil.isSimpleSetter(psiMethod);
@@ -121,7 +121,9 @@ public class Method {
 
     public static boolean isRelevant(PsiClass psiClass, PsiMethod psiMethod) {
         boolean isRelevant = true;
-        if (psiClass != null && isInheritedFromObject(psiClass.getQualifiedName())) {
+        final PsiClass containingClass = psiMethod.getContainingClass();
+        final PsiClass ownerClass = containingClass == null ? psiClass : containingClass;
+        if (ownerClass != null && isLanguageInherited(ownerClass.getQualifiedName())) {
             isRelevant = false;
         } else {
             final String methodId = formatMethodId(psiMethod);
@@ -129,9 +131,9 @@ public class Method {
                     && (psiMethod.getClass().getCanonicalName().contains("GrGdkMethodImpl") || methodId.endsWith(".invokeMethod(java.lang.String,java.lang.Object)") || methodId.endsWith(".getProperty(java.lang.String)") || methodId
                     .endsWith(".setProperty(java.lang.String,java.lang.Object)"))) {
                 isRelevant = false;
-            } else if(psiClass!=null && psiClass.getQualifiedName()!=null){
-                JavaPsiFacade facade = JavaPsiFacade.getInstance( psiClass.getProject());
-                PsiClass[] possibleClasses = facade.findClasses(psiClass.getQualifiedName(), GlobalSearchScope.projectScope(( psiClass.getProject())));
+            } else if(ownerClass!=null && ownerClass.getQualifiedName()!=null){
+                JavaPsiFacade facade = JavaPsiFacade.getInstance( ownerClass.getProject());
+                PsiClass[] possibleClasses = facade.findClasses(ownerClass.getQualifiedName(), GlobalSearchScope.projectScope(( ownerClass.getProject())));
                 if (possibleClasses.length == 0) {
                     isRelevant = false;
                 }
@@ -141,7 +143,7 @@ public class Method {
     }
 
     public void resolveInternalReferences(PsiMethod psiMethod, TypeDictionary typeDictionary) {
-        if (!isInheritedFromObject(getOwnerClassCanonicalType())) {
+        if (!isLanguageInherited(getOwnerClassCanonicalType())) {
             resolveCalledMethods(psiMethod, typeDictionary);
             resolveReferences(psiMethod,typeDictionary);
             resolveMethodReferences(psiMethod,typeDictionary);
@@ -227,7 +229,7 @@ public class Method {
                     psiField = resolveLeftHandExpressionAsField((PsiExpression) element);
                 }
                 if (psiField != null) {
-                    fields.add(new Field(psiField, psiField.getContainingClass()));
+                    fields.add(new Field(psiField, psiField.getContainingClass(),null, 0));
                 }
             }
         }
@@ -314,11 +316,11 @@ public class Method {
     }
 
     public boolean isTestable(){
-        return !isInheritedFromObject(ownerClassCanonicalType) && !isSetter() && !isGetter() && !isConstructor() &&((isDefault()|| isProtected() ) && !isInherited() || isPublic()) && !isOverridden() && !isInInterface() && !isAbstract();
+        return !isLanguageInherited(ownerClassCanonicalType) && !isSetter() && !isGetter() && !isConstructor() &&((isDefault()|| isProtected() ) && !isInherited() || isPublic()) && !isOverridden() && !isInInterface() && !isAbstract();
     }
 
-    public static boolean isInheritedFromObject(String ownerClassCanonicalType) {
-        return "java.lang.Object".equals(ownerClassCanonicalType) || "groovy.lang.GroovyObjectSupport".equals(ownerClassCanonicalType);
+    public static boolean isLanguageInherited(String ownerClassCanonicalType) {
+        return "java.lang.Object".equals(ownerClassCanonicalType) || "java.lang.Class".equals(ownerClassCanonicalType) || "groovy.lang.GroovyObjectSupport".equals(ownerClassCanonicalType);
     }
 
     public String getPropertyName() {
