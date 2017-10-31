@@ -1,5 +1,5 @@
 #parse("TestMe macros.java")
-#set($hasMocks=$MockitoUtils.hasMockable($TESTED_CLASS.fields))
+#set($hasMocks=$MockitoMockBuilder.hasMockable($TESTED_CLASS.fields))
 #if($PACKAGE_NAME)
 package ${PACKAGE_NAME};
 #end
@@ -29,7 +29,9 @@ public class ${CLASS_NAME} {
 
     @Test
     public void #renderTestMethodName($method.name)(){
-        #renderMockedReturnedValues($method,$TESTED_CLASS.fields)
+#if($MockitoMockBuilder.shouldStub($method,$TESTED_CLASS.fields))
+#renderMockStubs($method,$TESTED_CLASS.fields)
+#end
         #renderMethodCall($method,$TESTED_CLASS.name)
 #if($method.returnType && $method.returnType.name !="void")        Assert.#renderTestNgAssert($method)#end
     }

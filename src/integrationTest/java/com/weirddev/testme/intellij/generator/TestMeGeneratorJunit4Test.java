@@ -27,7 +27,10 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
         doTest("", "Foo", "FooTest", true, false, true, false, 50);
     }
     public void testVariousFieldTypes() throws Exception {
-        doTest();
+        final FileTemplateConfig fileTemplateConfig = new FileTemplateConfig();
+        fileTemplateConfig.setOptimizeImports(false);
+        fileTemplateConfig.setReplaceFqn(false);
+        doTest(fileTemplateConfig);
     }
     public void testWithSetters() throws Exception {
         doTest();
@@ -48,7 +51,11 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
         doTest("", "Foo", "FooTest", true, true, true, false, 50);
     }
     public void testInheritance() throws Exception {
-        doTest();
+        final FileTemplateConfig fileTemplateConfig = new FileTemplateConfig();
+        fileTemplateConfig.setReformatCode(false);
+        fileTemplateConfig.setOptimizeImports(false);
+        fileTemplateConfig.setReplaceFqn(false);
+        doTest(fileTemplateConfig);
     }
     public void testGenerics() throws Exception {
         doTest(false, false, true);
@@ -132,6 +139,9 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
         doTest(true, true, true);
     }
    public void testMockReturned() throws Exception {
+       doTest(new FileTemplateConfig());
+    }
+   public void testAvoidInfiniteRecursionSelfReferences() throws Exception {//todo fix issue with legitimate testable method interpreted as a getter
        doTest(new FileTemplateConfig());
     }
 

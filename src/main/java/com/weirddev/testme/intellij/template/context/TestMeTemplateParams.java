@@ -14,7 +14,7 @@ public interface TestMeTemplateParams {
 
     String TEST_BUILDER = "TestBuilder";
     String STRING_UTILS = "StringUtils";
-    String MOCKITO_UTILS = "MockitoUtils";
+    String MOCKITO_MOCK_BUILDER = "MockitoMockBuilder";
     String TEST_SUBJECT_UTILS = "TestSubjectUtils";
     String MAX_RECURSION_DEPTH = "DEFAULT_MAX_RECURSION_DEPTH";
 

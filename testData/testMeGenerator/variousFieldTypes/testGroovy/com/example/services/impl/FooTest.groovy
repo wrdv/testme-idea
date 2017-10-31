@@ -41,6 +41,17 @@ class FooTest {
 
     @Test
     void testFight() {
+        when(fooFighter.fight(any())).thenReturn("fightResponse")
+        when(fooFighterProtected.fight(any())).thenReturn("fightResponse")
+        when(fooFighterDefault.fight(any())).thenReturn("fightResponse")
+        when(fooFighterPublic.fight(any())).thenReturn("fightResponse")
+        when(fooFighterFinal.fight(any())).thenReturn("fightResponse")
+        when(fooFighterStatic.fight(any())).thenReturn("fightResponse")
+        when(publicInnerClass.methodOfInnerClass()).thenReturn(null)
+        when(innerStaticClass.methodOfInnerClass()).thenReturn(null)
+        when(innerOfPublicInnerClass.methodOfInnerClass()).thenReturn(null)
+        when(innerClass.methodOfInnerClass()).thenReturn(null)
+        when(anonymousPublicInnerClass.methodOfInnerClass()).thenReturn(null)
         java.lang.String result = foo.fight(new com.example.foes.Fire(), "foeName")
         assert result == "replaceMeWithExpectedResult"
     }

@@ -1,5 +1,7 @@
 package com.weirddev.testme.intellij.template.context;
 
+import com.intellij.openapi.diagnostic.Logger;
+
 import java.util.*;
 
 /**
@@ -7,8 +9,8 @@ import java.util.*;
  * @author Yaron Yamin
  */
 
-public class  MockitoUtils {
-
+public class  MockitoMockBuilder {
+    private static final Logger LOG = Logger.getInstance(MockitoMockBuilder.class.getName());
     private static final Map<String, String> TYPE_TO_ARG_MATCHERS;
 
     static {
@@ -46,13 +48,17 @@ public class  MockitoUtils {
      * true when mock-maker-inline option is opted-in on the target test module classpath
      */
     private boolean isMockitoMockMakerInlineOn;
+    private boolean stubMockMethodCallsReturnValues;
 
-    public MockitoUtils(boolean isMockitoMockMakerInlineOn) {
+    public MockitoMockBuilder(boolean isMockitoMockMakerInlineOn, boolean stubMockMethodCallsReturnValues) {
         this.isMockitoMockMakerInlineOn = isMockitoMockMakerInlineOn;
+        this.stubMockMethodCallsReturnValues = stubMockMethodCallsReturnValues;
     }
 
     public boolean isMockable(Field field) {
-        return !field.getType().isPrimitive() && !isWrapperType(field) && (!field.getType().isFinal() || isMockitoMockMakerInlineOn) && !field.isOverridden() && !field.getType().isArray() && !field.getType().isEnum();
+        final boolean isMockable = !field.getType().isPrimitive() && !isWrapperType(field) && (!field.getType().isFinal() || isMockitoMockMakerInlineOn) && !field.isOverridden() && !field.getType().isArray() && !field.getType().isEnum();
+        LOG.debug("field "+field.getType().getCanonicalName()+" "+field.getName()+" is mockable:"+isMockable);
+        return isMockable;
     }
     @SuppressWarnings("unused")
     public boolean hasMockable(List<Field> fields) {
@@ -88,6 +94,26 @@ public class  MockitoUtils {
         }
         return sb.toString();
     }
+    @SuppressWarnings("unused")
+    public boolean shouldStub(Method testMethod, List<Field> testedClassFields) {
+        boolean shouldStub = false;
+        if (stubMockMethodCallsReturnValues) {
+            for (Field testedClassField : testedClassFields) {
+                if (isMockable(testedClassField)) {
+                    LOG.debug("field "+testedClassField.getType().getCanonicalName()+" "+testedClassField+" type methods:"+testedClassField.getType().getMethods().size());
+                    for (Method fieldMethod : testedClassField.getType().getMethods()) {
+                        if (fieldMethod.getReturnType() != null && "void".equals(fieldMethod.getReturnType().getCanonicalName()) && TestSubjectUtils.isMethodCalled(fieldMethod, testMethod.getMethodCalls())) {
+                            shouldStub = true;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        LOG.debug("method "+testMethod.getMethodId()+" should be stabbed:"+shouldStub);
+        return shouldStub;
+    }
+
     /**
         @return true - if Field should be mocked
      */

@@ -23,8 +23,10 @@ class FooTest extends Specification {
     }
 
     def "test fight"() {
-        when:
+        given:
         when(fooFighter.surrender(any(), any(), anyInt())).thenReturn(new ConvertedBean(myString: "myString", someNum: 0, fear: new Fear(), ice: new Ice()))
+
+        when:
         String result = foo.fight(new Fire(), "foeName")
 
         then:

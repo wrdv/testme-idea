@@ -31,7 +31,7 @@ public class Type {
     private final boolean isAbstract;
     private final boolean isStatic;
     private final boolean isFinal;
-    private final List<Method> methods;//resolve Setters/Getters only for now
+    private final List<Method> methods;
     /**
      * in case this is an inner class - the outer class where this type is defined
      */
@@ -87,18 +87,6 @@ public class Type {
         isFinal = isFinalType(psiClass);
     }
 
-    private boolean isFinalType(PsiClass aClass) {
-        return aClass != null &&  aClass.getModifierList()!=null && aClass.getModifierList().hasExplicitModifier(PsiModifier.FINAL);
-    }
-
-    private void resolveFields(@NotNull PsiClass psiClass, TypeDictionary typeDictionary, int maxRecursionDepth) {
-        for (PsiField psiField : psiClass.getAllFields()) {
-            if(!"groovy.lang.MetaClass".equals(psiField.getType().getCanonicalText())){
-                fields.add(new Field(psiField, psiClass,typeDictionary,maxRecursionDepth));
-            }
-        }
-    }
-
     @NotNull
     public static PsiClassType resolveType(PsiClass psiClass) {
         return JavaPsiFacade.getInstance(psiClass.getProject()).getElementFactory().createType(psiClass);
@@ -122,9 +110,21 @@ public class Type {
                     }
 
                 }
-            resolveFields(psiClass,typeDictionary,maxRecursionDepth);
+            resolveFields(psiClass,typeDictionary,maxRecursionDepth - 1);
             dependenciesResolved=true;
         }
+    }
+
+    private void resolveFields(@NotNull PsiClass psiClass, TypeDictionary typeDictionary, int maxRecursionDepth) {
+        for (PsiField psiField : psiClass.getAllFields()) {
+            if(!"groovy.lang.MetaClass".equals(psiField.getType().getCanonicalText())){
+                fields.add(new Field(psiField, psiClass,typeDictionary,maxRecursionDepth));
+            }
+        }
+    }
+
+    private boolean isFinalType(PsiClass aClass) {
+        return aClass != null &&  aClass.getModifierList()!=null && aClass.getModifierList().hasExplicitModifier(PsiModifier.FINAL);
     }
 
     private boolean isGroovyLangProperty(PsiMethod method) {

@@ -11,6 +11,7 @@ public class FileTemplateConfig {
     private boolean reformatCode = true;
     private boolean optimizeImports = true;
     private boolean replaceFqn = true;
+    private boolean stubMockMethodCallsReturnValues = true;
     /**
      * do not invoke setter or getter for a property not used in tested method
      */
@@ -33,7 +34,7 @@ public class FileTemplateConfig {
     public FileTemplateConfig() { }
 
     public FileTemplateConfig(boolean reformatCode, boolean optimizeImports, int maxRecursionDepth, boolean replaceFqn, boolean ignoreUnusedProperties, boolean replaceInterfaceParamsWithConcreteTypes, int
-            minPercentOfExcessiveSettersToPreferMapCtor) {
+            minPercentOfExcessiveSettersToPreferMapCtor,boolean stubMockMethodCallsReturnValues) {
         this.reformatCode = reformatCode;
         this.optimizeImports = optimizeImports;
         this.maxRecursionDepth = maxRecursionDepth;
@@ -41,6 +42,7 @@ public class FileTemplateConfig {
         this.ignoreUnusedProperties = ignoreUnusedProperties;
         this.replaceInterfaceParamsWithConcreteTypes = replaceInterfaceParamsWithConcreteTypes;
         this.minPercentOfExcessiveSettersToPreferMapCtor = minPercentOfExcessiveSettersToPreferMapCtor;
+        this.stubMockMethodCallsReturnValues = stubMockMethodCallsReturnValues;
     }
 
     public boolean isReformatCode() {
@@ -105,5 +107,13 @@ public class FileTemplateConfig {
 
     public void setMinPercentOfInteractionWithPropertiesToTriggerConstructorOptimization(int minPercentOfInteractionWithPropertiesToTriggerConstructorOptimization) {
         this.minPercentOfInteractionWithPropertiesToTriggerConstructorOptimization = minPercentOfInteractionWithPropertiesToTriggerConstructorOptimization;
+    }
+
+    public boolean isStubMockMethodCallsReturnValues() {
+        return stubMockMethodCallsReturnValues;
+    }
+
+    public void setStubMockMethodCallsReturnValues(boolean stubMockMethodCallsReturnValues) {
+        this.stubMockMethodCallsReturnValues = stubMockMethodCallsReturnValues;
     }
 }

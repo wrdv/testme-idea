@@ -1,5 +1,7 @@
 package com.example.services.impl
 
+import com.example.SelfReferringType
+import com.example.dependencies.SelfishService
 import org.junit.Test
 import org.junit.Before
 import org.mockito.InjectMocks
@@ -10,11 +12,9 @@ import static org.mockito.Mockito.*
 /** created by TestMe integration test on MMXVI */
 class FooTest {
     @Mock
-    com.example.warriers.FooFighter fooFighter
-    @Mock
-    com.example.foes.Pokemon pokey
+    SelfishService selfishService
     @InjectMocks
-    com.example.services.impl.Foo foo
+    Foo foo
 
     @Before
     void setUp() {
@@ -22,20 +22,16 @@ class FooTest {
     }
 
     @Test
-    void testFight() {
-        when(fooFighter.fight(any())).thenReturn("fightResponse")
-        java.lang.String result = foo.fight(new com.example.foes.Fire(), "foeName")
+    void testDoSelf() {
+        when(selfishService.getSelfishType()).thenReturn(SelfReferringType.ONE)
+        String result = foo.doSelf()
         assert result == "replaceMeWithExpectedResult"
     }
 
     @Test
-    void testIDefault() {
-        foo.iDefault()
-    }
-
-    @Test
-    void testAsFather() {
-        java.lang.String result = foo.asFather("asSon")
+    void testGet() {
+        when(selfishService.getSelfishType()).thenReturn(SelfReferringType.ONE)
+        String result = foo.doSelf()
         assert result == "replaceMeWithExpectedResult"
     }
 }

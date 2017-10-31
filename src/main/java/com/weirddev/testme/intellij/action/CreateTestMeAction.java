@@ -111,7 +111,7 @@ public class CreateTestMeAction extends CreateTestAction {
             CommandProcessor.getInstance().executeCommand(project, new Runnable() {
                 @Override
                 public void run() {
-                    testMeGenerator.generateTest(new FileTemplateContext(new FileTemplateDescriptor(templateDescriptor.getFilename()),templateDescriptor.getLanguage(),project, classNameSelection.getClassName(), srcPackage, srcModule, finalTestModule,targetDirectory, srcClass, new FileTemplateConfig(true, true, FileTemplateConfig.DEFAULT_MAX_RECURSION_DEPTH, true, true, true, 50)));
+                    testMeGenerator.generateTest(new FileTemplateContext(new FileTemplateDescriptor(templateDescriptor.getFilename()),templateDescriptor.getLanguage(),project, classNameSelection.getClassName(), srcPackage, srcModule, finalTestModule,targetDirectory, srcClass, new FileTemplateConfig(true, true, FileTemplateConfig.DEFAULT_MAX_RECURSION_DEPTH, true, true, true, 50,true)));
                 }
             }, "TestMe Generate Test", this);
         }

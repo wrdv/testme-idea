@@ -45,13 +45,13 @@ public class TestTemplateContextBuilder {
             }
         }
         logger.debug("Resolved internal references in test template context");
-        ctxtParams.put(TestMeTemplateParams.MOCKITO_UTILS, createMockitoUtils(context));
+        ctxtParams.put(TestMeTemplateParams.MOCKITO_MOCK_BUILDER, createMockitoMockBuilder(context));
         logger.debug("Done building Test Template context in "+(new Date().getTime()-start)+" millis");
         return ctxtParams;
     }
 
     @NotNull
-    private MockitoUtils createMockitoUtils(FileTemplateContext context) {
+    private MockitoMockBuilder createMockitoMockBuilder(FileTemplateContext context) {
         boolean found = false;
 //        final VirtualFile mockMakerVFile = ResourceFileUtil.findResourceFileInScope("mockito-extensions/org.mockito.plugins.MockMaker", context.getProject(), context.getTestModule().getModuleWithDependenciesAndLibrariesScope(true));
         final VirtualFile mockMakerVFile = ResourceFileUtil.findResourceFileInDependents(context.getTestModule(), "mockito-extensions/org.mockito.plugins.MockMaker");
@@ -65,7 +65,7 @@ public class TestTemplateContextBuilder {
                 logger.debug("is mock-maker-inline turned on:"+ found);
             }
         }
-        return new MockitoUtils(found);
+        return new MockitoMockBuilder(found,context.getFileTemplateConfig().isStubMockMethodCallsReturnValues());
     }
 
     void populateDateFields(Map<String, Object> ctxtParams, Calendar calendar) {

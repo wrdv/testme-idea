@@ -9,7 +9,6 @@ public class DelegateCtor {
     private Fire youreWilling;
     private String asCold;
     private Ice asIce;
-    private youreWilling Fire;
 
     protected DelegateCtor(String youre,String asCold,Ice asIce, Fire youreWilling ){
         this(asCold, asIce);

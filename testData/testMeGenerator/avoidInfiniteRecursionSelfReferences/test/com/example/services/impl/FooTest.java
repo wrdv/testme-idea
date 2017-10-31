@@ -1,9 +1,7 @@
 package com.example.services.impl;
 
-import com.example.beans.ConvertedBean;
-import com.example.dependencies.Logger;
-import com.example.foes.Fire;
-import com.example.warriers.FooFighter;
+import com.example.SelfReferringType;
+import com.example.dependencies.SelfishService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,9 +16,7 @@ import static org.mockito.Mockito.*;
  */
 public class FooTest {
     @Mock
-    FooFighter fooFighter;
-    @Mock
-    Logger logger;
+    SelfishService selfishService;
     @InjectMocks
     Foo foo;
 
@@ -30,9 +26,16 @@ public class FooTest {
     }
 
     @Test
-    public void testFight() throws Exception {
-        when(fooFighter.surrender(any(), any(), anyInt())).thenReturn(new ConvertedBean());
-        String result = foo.fight(new Fire(), "foeName");
+    public void testDoSelf() throws Exception {
+        when(selfishService.getSelfishType()).thenReturn(SelfReferringType.ONE);
+        String result = foo.doSelf();
+        Assert.assertEquals("replaceMeWithExpectedResult", result);
+    }
+
+    @Test
+    public void testGetSelf() throws Exception {
+        when(selfishService.getSelfishType()).thenReturn(SelfReferringType.ONE);
+        String result = foo.doSelf();
         Assert.assertEquals("replaceMeWithExpectedResult", result);
     }
 }

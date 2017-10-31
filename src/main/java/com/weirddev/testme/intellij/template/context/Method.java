@@ -82,7 +82,7 @@ public class Method {
         ownerClassCanonicalType = psiMethod.getContainingClass() == null ? null : psiMethod.getContainingClass().getQualifiedName();
         methodParams = extractMethodParams(typeDictionary, maxRecursionDepth,psiMethod);
         isSetter = PropertyUtil.isSimplePropertySetter(psiMethod)||PropertyUtil.isSimpleSetter(psiMethod);
-        isGetter = PropertyUtil.isSimplePropertyGetter(psiMethod)||PropertyUtil.isSimpleGetter(psiMethod);
+        isGetter = PropertyUtil.isSimplePropertyGetter(psiMethod)||PropertyUtil.isSimpleGetter(psiMethod);//todo revise ,  consider removing isSimplePropertyGetter/isSimplePropertySetter conditions
 //        final PsiField psiField = PropertyUtil.findPropertyFieldByMember(psiMethod);
 //        propertyName = psiField == null ? null : psiField.getName();
         propertyName = ClassNameUtils.extractTargetPropertyName(name,isSetter,isGetter);

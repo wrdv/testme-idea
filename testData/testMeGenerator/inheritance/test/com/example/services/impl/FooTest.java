@@ -9,9 +9,7 @@ import org.mockito.MockitoAnnotations;
 
 import static org.mockito.Mockito.*;
 
-/**
- * created by TestMe integration test on MMXVI
- */
+/** created by TestMe integration test on MMXVI */
 public class FooTest {
     @Mock
     com.example.warriers.FooFighter fooFighter;
@@ -27,6 +25,7 @@ public class FooTest {
 
     @Test
     public void testFight() throws Exception {
+        when(fooFighter.fight(any())).thenReturn("fightResponse");
         String result = foo.fight(new com.example.foes.Fire(), "foeName");
         Assert.assertEquals("replaceMeWithExpectedResult", result);
     }

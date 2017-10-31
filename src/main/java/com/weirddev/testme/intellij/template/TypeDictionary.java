@@ -36,7 +36,7 @@ public class TypeDictionary {
         if (psiType != null) {
             final String canonicalText = psiType.getCanonicalText();
             type = typeDictionary.get(canonicalText);
-            if (type == null || !type.isDependenciesResolvable()) {
+            if (type == null || !type.isDependenciesResolvable() && maxRecursionDepth>1) {
                 LOG.debug(newTypeCounter.incrementAndGet()+". Creating new type object for:" + canonicalText);
                 type = new Type(psiType, this, maxRecursionDepth);
                 typeDictionary.put(canonicalText, type);
