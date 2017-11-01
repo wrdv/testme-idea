@@ -26,7 +26,7 @@ public class TestMeAdditionalActionJunit4Test extends BaseIJIntegrationTest {
     }
 
     public void testInnerStaticClassWithMember() throws Exception {
-        doTest("InnerStaticClassWithMemberTest", new VisualPosition(30, 28));
+        doTest("InnerStaticClassWithMemberTest", new VisualPosition(32, 28));
     }
     public void testInnerStaticClass() throws Exception {
         doTest("InnerStaticClassTest", new VisualPosition(12, 44));
