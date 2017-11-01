@@ -93,7 +93,7 @@ assertEquals(result, $TestBuilder.renderReturnParam($method,$method.returnType,"
 #foreach($field in $testedClassFields)
 #if($MockitoMockBuilder.isMockable($field))
 #foreach($fieldMethod in $field.type.methods)
-#if($fieldMethod.returnType && $fieldMethod.returnType.name !="void" && $TestSubjectUtils.isMethodCalled($fieldMethod,$method.methodCalls))
+#if($fieldMethod.returnType && $fieldMethod.returnType.name !="void" && $TestSubjectUtils.isMethodCalled($fieldMethod,$method))
         when($field.name.${fieldMethod.name}($MockitoMockBuilder.buildMockArgsMatchers(${fieldMethod.methodParams}))).thenReturn($TestBuilder.renderReturnParam($method,$fieldMethod.returnType,"${fieldMethod.name}Response",$replacementTypes,$defaultTypeValues));
 #end
 #end

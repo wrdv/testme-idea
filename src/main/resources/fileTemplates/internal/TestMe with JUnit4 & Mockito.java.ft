@@ -32,6 +32,7 @@ public class ${CLASS_NAME} {
     public void #renderTestMethodName($method.name)() throws Exception {
 #if($MockitoMockBuilder.shouldStub($method,$TESTED_CLASS.fields))
 #renderMockStubs($method,$TESTED_CLASS.fields)
+
 #end
         #renderMethodCall($method,$TESTED_CLASS.name)
 #if($method.returnType && $method.returnType.name !="void")        Assert.#renderJUnitAssert($method)#end

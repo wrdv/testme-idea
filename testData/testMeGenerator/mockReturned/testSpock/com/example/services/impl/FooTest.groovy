@@ -1,6 +1,7 @@
 package com.example.services.impl
 
 import com.example.beans.ConvertedBean
+import com.example.dependencies.Logger
 import com.example.foes.Fear
 import com.example.foes.Fire
 import com.example.foes.Ice
@@ -15,6 +16,8 @@ import static org.mockito.Mockito.*
 class FooTest extends Specification {
     @Mock
     FooFighter fooFighter
+    @Mock
+    Logger logger
     @InjectMocks
     Foo foo
 

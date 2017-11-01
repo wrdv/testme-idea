@@ -39,7 +39,8 @@ public class Foo{
 
     public class PublicInnerClass {
         public class InnerOfPublicInnerClass {
-            public void methodOfInnerClass() {
+            public InnerOfPublicInnerClass methodOfInnerClass() {
+                return this;
             }
         }
         public void methodOfInnerClass(){
@@ -71,12 +72,12 @@ public class Foo{
         anonymousPublicInnerClass.methodOfInnerClass();
         innerStaticClass.methodOfInnerClass();
         innerClass.methodOfInnerClass();
-        innerOfPublicInnerClass.methodOfInnerClass();
-        fooFighterDefault.fight(withFire);
-        fooFighterFinal.fight(withFire);
-        fooFighterProtected.fight(withFire);
-        fooFighterPublic.fight(withFire);
-        fooFighterStatic.fight(withFire);
+        System.out.println(innerOfPublicInnerClass.methodOfInnerClass().toString());
+        System.out.println(fooFighterDefault.fight(withFire).toString());
+        System.out.println(fooFighterFinal.fight(withFire).toString());
+        System.out.println(fooFighterProtected.fight(withFire).toString());
+        System.out.println(fooFighterPublic.fight(withFire).toString());
+        System.out.println(fooFighterStatic.fight(withFire).toString());
 
         return fooFighter.fight(withFire);
     }

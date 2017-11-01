@@ -24,6 +24,7 @@ class FooTest {
     @Test
     void testFight() {
         when(fooFighter.fight(any())).thenReturn("fightResponse")
+
         java.lang.String result = foo.fight(new com.example.foes.Fire(), "foeName")
         assert result == "replaceMeWithExpectedResult"
     }

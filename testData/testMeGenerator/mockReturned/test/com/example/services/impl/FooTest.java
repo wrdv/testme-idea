@@ -32,6 +32,7 @@ public class FooTest {
     @Test
     public void testFight() throws Exception {
         when(fooFighter.surrender(any(), any(), anyInt())).thenReturn(new ConvertedBean());
+
         String result = foo.fight(new Fire(), "foeName");
         Assert.assertEquals("replaceMeWithExpectedResult", result);
     }

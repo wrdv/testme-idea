@@ -31,7 +31,7 @@ public class Field {
 
     public Type buildType(PsiType type, TypeDictionary typeDictionary, int maxRecursionDepth) {
         if (typeDictionary == null) {
-            return new Type(type, null, 0);
+            return new Type(type, null, 0, false);
         } else {
             return typeDictionary.getType(type, maxRecursionDepth, true);
         }

@@ -22,15 +22,17 @@ class FooTest {
     }
 
     @Test
-    void testDoSelf() {
+    void testGetSelf() {
         when(selfishService.getSelfishType()).thenReturn(SelfReferringType.ONE)
-        String result = foo.doSelf()
+
+        String result = foo.getSelf()
         assert result == "replaceMeWithExpectedResult"
     }
 
     @Test
-    void testGet() {
+    void testDoSelf() {
         when(selfishService.getSelfishType()).thenReturn(SelfReferringType.ONE)
+
         String result = foo.doSelf()
         assert result == "replaceMeWithExpectedResult"
     }

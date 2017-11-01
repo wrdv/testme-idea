@@ -28,7 +28,7 @@ class FooTest {
 
     @Test
     void testSmashing() {
-        String result = foo.smashing(new FooBro(propInSamePackage: "propInSamePackage", iCanBeAccessedDirectly: 0), new JavaBean(fear: new Fear(), fire: new Fire(), ice: new Ice()))
+        String result = foo.smashing(new FooBro(propInSamePackage: "propInSamePackage", antoherDirectlyAccessedInt: 0), new JavaBean(fear: new Fear(), fire: new Fire(), ice: new Ice()))
         assert result == "replaceMeWithExpectedResult"
     }
 

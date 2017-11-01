@@ -36,13 +36,13 @@ public class TypeDictionary {
         if (psiType != null) {
             final String canonicalText = psiType.getCanonicalText();
             type = typeDictionary.get(canonicalText);
-            if (type == null || !type.isDependenciesResolvable() && maxRecursionDepth>1) {
-                LOG.debug(newTypeCounter.incrementAndGet()+". Creating new type object for:" + canonicalText);
-                type = new Type(psiType, this, maxRecursionDepth);
+            if (type == null || !type.isDependenciesResolvable() && shouldResolveAllMethods && maxRecursionDepth>1) {
+                LOG.debug(newTypeCounter.incrementAndGet()+". Creating new type object for:" + canonicalText+" maxRecursionDepth:"+maxRecursionDepth);
+                type = new Type(psiType, this, maxRecursionDepth,shouldResolveAllMethods);
                 typeDictionary.put(canonicalText, type);
                 type.resolveDependencies(this,maxRecursionDepth, psiType,shouldResolveAllMethods);
             } else {
-                LOG.debug(existingTypeHitsCounter.incrementAndGet()+". Found existing type object for:" + canonicalText);
+                LOG.debug(existingTypeHitsCounter.incrementAndGet()+". Found existing type object for:" + canonicalText+" maxRecursionDepth:"+maxRecursionDepth);
             }
         }
         return type;

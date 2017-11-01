@@ -4,7 +4,6 @@ import com.intellij.psi.*;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.LocalSearchScope;
 import com.intellij.psi.search.searches.ReferencesSearch;
-import com.intellij.psi.util.PropertyUtil;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.util.PsiUtil;
 import com.weirddev.testme.intellij.resolvers.groovy.GroovyPsiTreeUtils;
@@ -13,6 +12,7 @@ import com.weirddev.testme.intellij.resolvers.to.ResolvedReference;
 import com.weirddev.testme.intellij.template.TypeDictionary;
 import com.weirddev.testme.intellij.utils.ClassNameUtils;
 import com.weirddev.testme.intellij.utils.JavaPsiTreeUtils;
+import com.weirddev.testme.intellij.utils.PropertyUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -81,8 +81,8 @@ public class Method {
         this.returnType = typeDictionary.getType(psiMethod.getReturnType(),maxRecursionDepth,true);
         ownerClassCanonicalType = psiMethod.getContainingClass() == null ? null : psiMethod.getContainingClass().getQualifiedName();
         methodParams = extractMethodParams(typeDictionary, maxRecursionDepth,psiMethod);
-        isSetter = PropertyUtil.isSimplePropertySetter(psiMethod)||PropertyUtil.isSimpleSetter(psiMethod);
-        isGetter = PropertyUtil.isSimplePropertyGetter(psiMethod)||PropertyUtil.isSimpleGetter(psiMethod);//todo revise ,  consider removing isSimplePropertyGetter/isSimplePropertySetter conditions
+        isSetter = PropertyUtils.isPropertySetter(psiMethod);
+        isGetter = PropertyUtils.isPropertyGetter(psiMethod);
 //        final PsiField psiField = PropertyUtil.findPropertyFieldByMember(psiMethod);
 //        propertyName = psiField == null ? null : psiField.getName();
         propertyName = ClassNameUtils.extractTargetPropertyName(name,isSetter,isGetter);

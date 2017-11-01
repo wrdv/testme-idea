@@ -13,7 +13,8 @@ class Foo {
     Collection<JavaBean> myBeans
 
     String smashing(FooBro fooBro,JavaBean javaBean){
-        println fooBro.iCanBeAccessedDirectly
+//        println fooBro.iCanBeAccessedDirectly //todo - problematic use case, when uncommented, iCanBeAccessedDirectly property should be set in map constructor of generated groovy test, but property access is not identified , probably because groovy compiler generated getiCanBeAccessedDirectly() instead of getICanBeAccessedDirectly()
+        println fooBro.antoherDirectlyAccessedInt
         callMe(fooBro, javaBean)
         javaBean   .   getFire()
         return javaBean  /*comment should be ignored */  .   ice  .  toString()

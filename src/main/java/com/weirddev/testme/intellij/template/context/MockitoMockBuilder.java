@@ -1,6 +1,7 @@
 package com.weirddev.testme.intellij.template.context;
 
 import com.intellij.openapi.diagnostic.Logger;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
@@ -89,20 +90,36 @@ public class  MockitoMockBuilder {
             if (sb.length() > 0) {
                 sb.append(", ");
             }
-            final String matcherType = TYPE_TO_ARG_MATCHERS.get(param.getType().getCanonicalName());
-            sb.append(matcherType==null?"any()":matcherType); //todo support anyCollection()?
+            sb.append(deductMatcherTypeMethod(param));
         }
         return sb.toString();
     }
+
+    @NotNull
+    private String deductMatcherTypeMethod(Param param) {
+        String matcherType;
+        if (param.getType().isVarargs()) {
+            matcherType = "anyVararg()";
+        }
+        else {
+            matcherType = TYPE_TO_ARG_MATCHERS.get(param.getType().getCanonicalName());
+        }
+        if (matcherType == null) {
+            matcherType = "any()";
+        }
+        //todo support anyCollection(),anyMap(),anySet() and consider arrays
+        return matcherType;
+    }
+
     @SuppressWarnings("unused")
     public boolean shouldStub(Method testMethod, List<Field> testedClassFields) {
         boolean shouldStub = false;
         if (stubMockMethodCallsReturnValues) {
             for (Field testedClassField : testedClassFields) {
                 if (isMockable(testedClassField)) {
-                    LOG.debug("field "+testedClassField.getType().getCanonicalName()+" "+testedClassField+" type methods:"+testedClassField.getType().getMethods().size());
+                    LOG.debug("field "+testedClassField.getName()+" type "+testedClassField.getType().getCanonicalName()+" type methods:"+testedClassField.getType().getMethods().size());
                     for (Method fieldMethod : testedClassField.getType().getMethods()) {
-                        if (fieldMethod.getReturnType() != null && "void".equals(fieldMethod.getReturnType().getCanonicalName()) && TestSubjectUtils.isMethodCalled(fieldMethod, testMethod.getMethodCalls())) {
+                        if (fieldMethod.getReturnType() != null && !"void".equals(fieldMethod.getReturnType().getCanonicalName()) && TestSubjectUtils.isMethodCalled(fieldMethod, testMethod)) {
                             shouldStub = true;
                             break;
                         }

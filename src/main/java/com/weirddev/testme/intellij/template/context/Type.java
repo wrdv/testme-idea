@@ -1,10 +1,10 @@
 package com.weirddev.testme.intellij.template.context;
 
 import com.intellij.psi.*;
-import com.intellij.psi.util.PropertyUtil;
 import com.intellij.psi.util.PsiUtil;
 import com.weirddev.testme.intellij.template.TypeDictionary;
 import com.weirddev.testme.intellij.utils.ClassNameUtils;
+import com.weirddev.testme.intellij.utils.PropertyUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -64,7 +64,7 @@ public class Type {
         this(ClassNameUtils.extractContainerType(canonicalName), ClassNameUtils.extractClassName(canonicalName), ClassNameUtils.extractPackageName(canonicalName),false, false,false, ClassNameUtils.isArray(canonicalName),ClassNameUtils.isVarargs(canonicalName),null);
     }
 
-    public Type(PsiType psiType, @Nullable TypeDictionary typeDictionary, int maxRecursionDepth) {
+    public Type(PsiType psiType, @Nullable TypeDictionary typeDictionary, int maxRecursionDepth, boolean shouldResolveAllMethods) {
         String canonicalText = psiType.getCanonicalText();
         array = ClassNameUtils.isArray(canonicalText);
         varargs = ClassNameUtils.isVarargs(canonicalText);
@@ -82,7 +82,7 @@ public class Type {
                 false):null;
         fields = new ArrayList<Field>();
         enumValues = resolveEnumValues(psiType);
-         dependenciesResolvable = maxRecursionDepth > 1;
+         dependenciesResolvable = shouldResolveAllMethods && maxRecursionDepth > 1;
         methods=new ArrayList<Method>();
         isFinal = isFinalType(psiClass);
     }
@@ -101,9 +101,7 @@ public class Type {
             }
             final PsiMethod[] methods = psiClass.getAllMethods();
                 for (PsiMethod psiMethod : methods) {
-                    if (Method.isRelevant(psiClass, psiMethod) &&  (shouldResolveAllMethods || (PropertyUtil.isSimplePropertySetter(psiMethod) || PropertyUtil.isSimplePropertyGetter(psiMethod)
-                            || PropertyUtil.isSimpleSetter(psiMethod)|| PropertyUtil.isSimpleGetter(psiMethod)) && !isGroovyLangProperty(psiMethod) || psiMethod.isConstructor())) {
-
+                    if (Method.isRelevant(psiClass, psiMethod) &&  (shouldResolveAllMethods || ( PropertyUtils.isPropertySetter(psiMethod) || PropertyUtils.isPropertyGetter(psiMethod)) && !isGroovyLangProperty(psiMethod) || psiMethod.isConstructor())){
                         final Method method = new Method(psiMethod, psiClass, maxRecursionDepth - 1, typeDictionary);
                         method.resolveInternalReferences(psiMethod, typeDictionary);
                         this.methods.add(method);

@@ -1,6 +1,7 @@
 package com.example.services.impl;
 
 import com.example.beans.ConvertedBean;
+import com.example.dependencies.Logger;
 import com.example.foes.Fire;
 import com.example.warriers.FooFighter;
 import org.junit.jupiter.api.Assertions;
@@ -18,6 +19,8 @@ import static org.mockito.Mockito.*;
 class FooTest {
     @Mock
     FooFighter fooFighter;
+    @Mock
+    Logger logger;
     @InjectMocks
     Foo foo;
 
@@ -29,6 +32,7 @@ class FooTest {
     @Test
     void testFight() {
         when(fooFighter.surrender(any(), any(), anyInt())).thenReturn(new ConvertedBean());
+
         String result = foo.fight(new Fire(), "foeName");
         Assertions.assertEquals("replaceMeWithExpectedResult", result);
     }

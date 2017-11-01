@@ -48,9 +48,15 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
             if (isNonStaticNestedClass) {
                 final Node<Param> parentContainerNode = new Node<Param>(new SyntheticParam(parentContainerClass, parentContainerClass.getName(), false), null, ownerParamNode.getDepth());
                 buildCallParam(replacementTypes, defaultTypeValues, testBuilder,parentContainerNode);
-                testBuilder.append(",");
+                testBuilder.append(PARAMS_SEPARATOR);
             }
+            final int origLength = testBuilder.length();
             super.buildCallParams(constructor,params, replacementTypes, defaultTypeValues, testBuilder, ownerParamNode);
+            if (isNonStaticNestedClass) {
+                if (origLength == testBuilder.length()) {
+                    testBuilder.delete(testBuilder.length() - PARAMS_SEPARATOR.length(),testBuilder.length());
+                }
+            }
         } else if(ownerParamNode.getData()!=null){
             List<SyntheticParam> syntheticParams = findProperties(ownerParamNode.getData().getType());
             if (syntheticParams.size() > 0) {

@@ -26,6 +26,7 @@ public class FooTest {
     @Test
     public void testFight() throws Exception {
         when(fooFighter.fight(any())).thenReturn("fightResponse");
+
         String result = foo.fight(new com.example.foes.Fire(), "foeName");
         Assert.assertEquals("replaceMeWithExpectedResult", result);
     }

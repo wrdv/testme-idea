@@ -6,6 +6,7 @@ package com.example.services.impl
 class FooBro {
     String propInSamePackage
     int iCanBeAccessedDirectly
+    int antoherDirectlyAccessedInt
     Date anotherProp
 
     Date getAnotherProp() {
@@ -14,13 +15,5 @@ class FooBro {
 
     void setAnotherProp(Date anotherProp) {
         this.anotherProp = anotherProp
-    }
-
-    String getPropInSamePackage() {
-        return propInSamePackage
-    }
-
-    void setPropInSamePackage(String propInSamePackage) {
-        this.propInSamePackage = propInSamePackage
     }
 }

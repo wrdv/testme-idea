@@ -26,15 +26,17 @@ public class FooTest {
     }
 
     @Test
-    public void testDoSelf() throws Exception {
+    public void testGetSelf() throws Exception {
         when(selfishService.getSelfishType()).thenReturn(SelfReferringType.ONE);
-        String result = foo.doSelf();
+
+        String result = foo.getSelf();
         Assert.assertEquals("replaceMeWithExpectedResult", result);
     }
 
     @Test
-    public void testGetSelf() throws Exception {
+    public void testDoSelf() throws Exception {
         when(selfishService.getSelfishType()).thenReturn(SelfReferringType.ONE);
+
         String result = foo.doSelf();
         Assert.assertEquals("replaceMeWithExpectedResult", result);
     }
