@@ -26,6 +26,6 @@ public class TestMeGeneratorSpockTest extends TestMeGeneratorTestBase {
         doTest(true,true,true);
     }
     public void testMockReturned() throws Exception {
-        doTest(new FileTemplateConfig());
+        doTest(FileTemplateConfig.getInstance());
     }
 }

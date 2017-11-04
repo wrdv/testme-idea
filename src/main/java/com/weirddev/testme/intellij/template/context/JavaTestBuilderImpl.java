@@ -34,10 +34,6 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
     private Module srcModule;
     private TypeDictionary typeDictionary;
     protected FileTemplateConfig fileTemplateConfig;
-    /**
-     *  a heuristic number, assuming too many implementations is an indicator to a general interface (i.e. comparator) - so an arbitrary implementation should not be selected in such case
-     */
-    private final int maxChildTypesForConcreteTypesSearchCandidates = 2;
 
     public JavaTestBuilderImpl(Method testedMethod, TestBuilder.ParamRole paramRole, FileTemplateConfig fileTemplateConfig, Module srcModule, TypeDictionary typeDictionary) {
         this.testedMethod = testedMethod;
@@ -156,7 +152,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
         final PsiClass psiClass = findClassInModule(type.getCanonicalName());
         if (psiClass != null) {
             final Object[] childElements = new SubtypesHierarchyTreeStructure(srcModule.getProject(), psiClass, HierarchyBrowserBaseEx.SCOPE_PROJECT/*"All"*/).getChildElements(new TypeHierarchyNodeDescriptor(srcModule.getProject(),null,psiClass,true));
-            if (childElements != null && childElements.length > 0 && childElements.length <= maxChildTypesForConcreteTypesSearchCandidates ) {
+            if (childElements != null && childElements.length > 0 && childElements.length <= fileTemplateConfig.getMaxNumOfConcreteCandidatesToReplaceInterfaceParam()) {
                 for (Object childElement : childElements) {
                     Type childType = null;
                     if (childElement instanceof TypeHierarchyNodeDescriptor) {

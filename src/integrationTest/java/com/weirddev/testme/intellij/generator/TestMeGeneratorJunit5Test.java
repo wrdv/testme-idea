@@ -25,7 +25,7 @@ public class TestMeGeneratorJunit5Test extends TestMeGeneratorTestBase {
         doTest(false, false, true);
     }
     public void testMockReturned() throws Exception {
-        doTest(new FileTemplateConfig());
+        doTest(FileTemplateConfig.getInstance());
     }
 
 }

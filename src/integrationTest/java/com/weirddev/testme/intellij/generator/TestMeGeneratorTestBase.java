@@ -71,8 +71,7 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
     }
 
     protected void doTest(final String packageName, String testSubjectClassName, final String expectedTestClassName, final boolean reformatCode, final boolean optimizeImports, final boolean replaceFqn, final boolean ignoreUnusedProperties, final int minPercentOfExcessiveSettersToPreferDefaultCtor) {
-        doTest(packageName, testSubjectClassName, expectedTestClassName, new FileTemplateConfig(reformatCode, optimizeImports, 4, replaceFqn, ignoreUnusedProperties, true, minPercentOfExcessiveSettersToPreferDefaultCtor,false));
-
+        doTest(packageName, testSubjectClassName, expectedTestClassName, new FileTemplateConfig(4, reformatCode, replaceFqn, optimizeImports, ignoreUnusedProperties, true, false, 2,minPercentOfExcessiveSettersToPreferDefaultCtor,66));
     }
 
     protected void doTest(final String packageName, String testSubjectClassName, final String expectedTestClassName, final FileTemplateConfig fileTemplateConfig) {

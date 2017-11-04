@@ -27,7 +27,7 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
         doTest("", "Foo", "FooTest", true, false, true, false, 50);
     }
     public void testVariousFieldTypes() throws Exception {
-        final FileTemplateConfig fileTemplateConfig = new FileTemplateConfig();
+        final FileTemplateConfig fileTemplateConfig = FileTemplateConfig.getInstance();
         fileTemplateConfig.setOptimizeImports(false);
         fileTemplateConfig.setReplaceFqn(false);
         doTest(fileTemplateConfig);
@@ -51,7 +51,7 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
         doTest("", "Foo", "FooTest", true, true, true, false, 50);
     }
     public void testInheritance() throws Exception {
-        final FileTemplateConfig fileTemplateConfig = new FileTemplateConfig();
+        final FileTemplateConfig fileTemplateConfig = FileTemplateConfig.getInstance();
         fileTemplateConfig.setReformatCode(false);
         fileTemplateConfig.setOptimizeImports(false);
         fileTemplateConfig.setReplaceFqn(false);
@@ -88,7 +88,7 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
         doTest(true, true, false);
     }
     public void testParamsConstructors() throws Exception {
-        final FileTemplateConfig fileTemplateConfig = new FileTemplateConfig();
+        final FileTemplateConfig fileTemplateConfig = FileTemplateConfig.getInstance();
         fileTemplateConfig.setReplaceInterfaceParamsWithConcreteTypes(false);
         doTest(fileTemplateConfig);
     }
@@ -139,10 +139,10 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
         doTest(true, true, true);
     }
    public void testMockReturned() throws Exception {
-       doTest(new FileTemplateConfig());
+       doTest(FileTemplateConfig.getInstance());
     }
    public void testAvoidInfiniteRecursionSelfReferences() throws Exception {//todo fix issue with legitimate testable method interpreted as a getter
-       doTest(new FileTemplateConfig());
+       doTest(FileTemplateConfig.getInstance());
     }
 
 //   public void testWithFinalTypeDependencyMockable() throws Exception {
