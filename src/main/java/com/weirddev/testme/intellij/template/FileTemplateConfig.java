@@ -58,7 +58,7 @@ public class FileTemplateConfig {
      * Valid values:1-100
      * Default:2
      */
-    private int maxNumOfConcreteCandidatesToReplaceInterfaceParam = 2;
+    private int maxNumOfConcreteCandidatesToReplaceInterfaceParam = 5;
     /**
      * Test parameters generator optimization. Relevant for Groovy tests.
      * When the amount of a given type setters exceeds by this percentage value over of the number of arguments in the type's biggest constructor ( constructor that has the maximum number of arguments) - then a map constructor is used to initialize the type.
@@ -85,7 +85,7 @@ public class FileTemplateConfig {
                 Boolean.valueOf(System.getProperties().getProperty("testMe.generator.ignoreUnusedProperties", "true")),
                 Boolean.valueOf(System.getProperties().getProperty("testMe.generator.replaceInterfaceParamsWithConcreteTypes", "true")),
                 Boolean.valueOf(System.getProperties().getProperty("testMe.generator.stubMockMethodCallsReturnValues", "true")),
-                Integer.valueOf(System.getProperties().getProperty("testMe.generator.maxNumOfConcreteCandidatesToReplaceInterfaceParam", "2")),
+                Integer.valueOf(System.getProperties().getProperty("testMe.generator.maxNumOfConcreteCandidatesToReplaceInterfaceParam", "5")),
                 Integer.valueOf(System.getProperties().getProperty("testMe.generator.minPercentOfExcessiveSettersToPreferMapCtor", "50")),
                 Integer.valueOf(System.getProperties().getProperty("testMe.generator.minPercentOfInteractionWithPropertiesToTriggerConstructorOptimization", "66"))
         );
