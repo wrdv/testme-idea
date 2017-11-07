@@ -14,9 +14,9 @@ public class DoneThat {
     private final Many time;
     private final Date now;
     private final BigBean bean;
-    private final String privateProperty;
-    private final String bewareOfTheDog;
-    private final String ifYourInDaHood;
+    private String privateProperty;
+    private String bewareOfTheDog;
+    private String ifYourInDaHood;
 
     public DoneThat(int severalTimes, String aDay, Many time, Date now, BigBean bean) {
         this.severalTimes = severalTimes;

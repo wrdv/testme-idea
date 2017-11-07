@@ -23,14 +23,9 @@ public class FileTemplateContext {
     private final Module testModule;
     private final PsiDirectory targetDirectory;
     private final PsiClass srcClass;
-    private final boolean reformatCode;
-    private final boolean optimizeImports;
-    private final int maxRecursionDepth;
-    private final boolean replaceFqn;
-    private final boolean ignoreUnusedProperties;
-    private final int minPercentOfExcessiveSettersToPreferDefaultCtor;
+    private final FileTemplateConfig fileTemplateConfig;
 
-    public FileTemplateContext(FileTemplateDescriptor fileTemplateDescriptor, Language language, Project project, String targetClass, PsiPackage targetPackage, Module srcModule, Module testModule, PsiDirectory targetDirectory, PsiClass srcClass, boolean reformatCode, boolean optimizeImports, int maxRecursionDepth, boolean replaceFqn, boolean ignoreUnusedProperties, int minPercentOfExcessiveSettersToPreferDefaultCtor) {
+    public FileTemplateContext(FileTemplateDescriptor fileTemplateDescriptor, Language language, Project project, String targetClass, PsiPackage targetPackage, Module srcModule, Module testModule, PsiDirectory targetDirectory, PsiClass srcClass, FileTemplateConfig fileTemplateConfig) {
         this.fileTemplateDescriptor = fileTemplateDescriptor;
         this.language = language;
         this.project = project;
@@ -40,12 +35,7 @@ public class FileTemplateContext {
         this.testModule = testModule;
         this.targetDirectory = targetDirectory;
         this.srcClass = srcClass;
-        this.reformatCode = reformatCode;
-        this.optimizeImports = optimizeImports;
-        this.maxRecursionDepth = maxRecursionDepth;
-        this.replaceFqn = replaceFqn;
-        this.ignoreUnusedProperties = ignoreUnusedProperties;
-        this.minPercentOfExcessiveSettersToPreferDefaultCtor = minPercentOfExcessiveSettersToPreferDefaultCtor;
+        this.fileTemplateConfig = fileTemplateConfig;
     }
 
     public Project getProject() {
@@ -75,36 +65,15 @@ public class FileTemplateContext {
     public FileTemplateDescriptor getFileTemplateDescriptor() {
         return fileTemplateDescriptor;
     }
-
-    public boolean isReformatCode() {
-        return reformatCode;
-    }
-
-    public boolean isOptimizeImports() {
-        return optimizeImports;
-    }
-
-    public int getMaxRecursionDepth() {
-        return maxRecursionDepth;
-    }
-
-    public boolean isReplaceFqn() {
-        return replaceFqn;
-    }
-
-    public boolean isIgnoreUnusedProperties() {
-        return ignoreUnusedProperties;
-    }
-
-    public int getMinPercentOfExcessiveSettersToPreferDefaultCtor() {
-        return minPercentOfExcessiveSettersToPreferDefaultCtor;
-    }
-
     public Language getLanguage() {
         return language;
     }
 
     public Module getTestModule() {
         return testModule;
+    }
+
+    public FileTemplateConfig getFileTemplateConfig() {
+        return fileTemplateConfig;
     }
 }

@@ -5,6 +5,7 @@ import com.intellij.ide.fileTemplates.FileTemplateDescriptor;
 import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.psi.*;
 import com.weirddev.testme.intellij.BaseIJIntegrationTest;
+import com.weirddev.testme.intellij.template.FileTemplateConfig;
 import com.weirddev.testme.intellij.template.FileTemplateContext;
 import com.weirddev.testme.intellij.template.context.Language;
 import org.jetbrains.annotations.NotNull;
@@ -65,12 +66,15 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
     protected void doTest(boolean reformatCode, boolean optimizeImports, boolean replaceFqn, int minPercentOfExcessiveSettersToPreferDefaultCtor, boolean ignoreUnusedProperties) {
         doTest("com.example.services.impl", "Foo", "FooTest", reformatCode, optimizeImports, replaceFqn, ignoreUnusedProperties, minPercentOfExcessiveSettersToPreferDefaultCtor);
     }
-
-    protected void setTestModePropsForUI() {
-        System.setProperty("testme.popoup.center", "true");//WA swing error when popup set relative to fake test editor
+    protected void doTest(FileTemplateConfig fileTemplateConfig) {
+        doTest("com.example.services.impl", "Foo", "FooTest", fileTemplateConfig);
     }
 
     protected void doTest(final String packageName, String testSubjectClassName, final String expectedTestClassName, final boolean reformatCode, final boolean optimizeImports, final boolean replaceFqn, final boolean ignoreUnusedProperties, final int minPercentOfExcessiveSettersToPreferDefaultCtor) {
+        doTest(packageName, testSubjectClassName, expectedTestClassName, new FileTemplateConfig(4, reformatCode, replaceFqn, optimizeImports, ignoreUnusedProperties, true, false, 2,minPercentOfExcessiveSettersToPreferDefaultCtor,66));
+    }
+
+    protected void doTest(final String packageName, String testSubjectClassName, final String expectedTestClassName, final FileTemplateConfig fileTemplateConfig) {
         if (!testEnabled) {
             System.out.println("Groovy idea plugin disabled. Skipping test");
             return;
@@ -83,6 +87,7 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
             @Override
             public void run() {
                 myFixture.openFileInEditor(fooClass.getContainingFile().getVirtualFile());
+
                 PsiElement result = new TestMeGenerator(new TestClassElementsLocator(), testTemplateContextBuilder,new CodeRefactorUtil()).generateTest(new FileTemplateContext(new FileTemplateDescriptor(templateFilename), language, getProject(),
                         expectedTestClassName,
                         targetPackage,
@@ -90,15 +95,13 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
                         myModule,
                         srcDir,
                         fooClass,
-                        reformatCode,
-                        optimizeImports,
-                        4, replaceFqn, ignoreUnusedProperties, minPercentOfExcessiveSettersToPreferDefaultCtor));
+                        fileTemplateConfig));
                 System.out.println("result:"+result);
                 verifyGeneratedTest(packageName, expectedTestClassName);
             }
         }, CodeInsightBundle.message("intention.create.test"), this);
-
     }
+
     protected void verifyGeneratedTest(String packageName, String expectedTestClassName) {
         String expectedTestClassFilePath = (packageName.length() > 0 ? (packageName.replace(".", "/") + "/") : "") + expectedTestClassName + "."+expectedTestClassExtension;
         myFixture.checkResultByFile(/*"src/"+*/expectedTestClassFilePath, testDirectory + "/" +expectedTestClassFilePath, ignoreTrailingWhitespaces);

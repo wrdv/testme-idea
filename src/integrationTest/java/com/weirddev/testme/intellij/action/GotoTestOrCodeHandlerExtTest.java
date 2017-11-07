@@ -24,12 +24,6 @@ public class GotoTestOrCodeHandlerExtTest extends TestMeGeneratorTestBase {
     }
 
     @Override
-    public void setUp() throws Exception {
-        super.setUp();
-        setTestModePropsForUI();
-    }
-
-    @Override
     protected void doTest(final String packageName, final String testSubjectClassName, final String expectedTestClassName, final boolean reformatCode, final boolean optimizeImports, final boolean replaceFqn, final boolean ignoreUnusedProperties, final int minPercentOfExcessiveSettersToPreferDefaultCtor) {
         final PsiClass fooClass = setupSourceFiles(packageName, testSubjectClassName);
         CommandProcessor.getInstance().executeCommand(getProject(), new Runnable() {

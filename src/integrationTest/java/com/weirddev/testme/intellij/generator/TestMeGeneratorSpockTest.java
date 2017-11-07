@@ -1,5 +1,6 @@
 package com.weirddev.testme.intellij.generator;
 
+import com.weirddev.testme.intellij.template.FileTemplateConfig;
 import com.weirddev.testme.intellij.template.TemplateRegistry;
 import com.weirddev.testme.intellij.template.context.Language;
 
@@ -23,5 +24,8 @@ public class TestMeGeneratorSpockTest extends TestMeGeneratorTestBase {
 
     public void testGenerics() throws Exception{
         doTest(true,true,true);
+    }
+    public void testMockReturned() throws Exception {
+        doTest(FileTemplateConfig.getInstance());
     }
 }

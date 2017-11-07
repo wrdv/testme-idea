@@ -1,5 +1,6 @@
 package com.weirddev.testme.intellij.generator;
 
+import com.weirddev.testme.intellij.template.FileTemplateConfig;
 import com.weirddev.testme.intellij.template.TemplateRegistry;
 import com.weirddev.testme.intellij.template.context.Language;
 
@@ -8,6 +9,8 @@ import com.weirddev.testme.intellij.template.context.Language;
  * @author Yaron Yamin
  */
 public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
+
+    public static final int MIN_PERCENT_OF_EXCESSIVE_SETTERS_TO_PREFER_DEFAULT_CTOR = 67;
 
     public TestMeGeneratorJunit4Test() {
         this(TemplateRegistry.JUNIT4_MOCKITO_JAVA_TEMPLATE, "test", Language.Java);
@@ -24,7 +27,10 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
         doTest("", "Foo", "FooTest", true, false, true, false, 50);
     }
     public void testVariousFieldTypes() throws Exception {
-        doTest();
+        final FileTemplateConfig fileTemplateConfig = FileTemplateConfig.getInstance();
+        fileTemplateConfig.setOptimizeImports(false);
+        fileTemplateConfig.setReplaceFqn(false);
+        doTest(fileTemplateConfig);
     }
     public void testWithSetters() throws Exception {
         doTest();
@@ -45,7 +51,11 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
         doTest("", "Foo", "FooTest", true, true, true, false, 50);
     }
     public void testInheritance() throws Exception {
-        doTest();
+        final FileTemplateConfig fileTemplateConfig = FileTemplateConfig.getInstance();
+        fileTemplateConfig.setReformatCode(false);
+        fileTemplateConfig.setOptimizeImports(false);
+        fileTemplateConfig.setReplaceFqn(false);
+        doTest(fileTemplateConfig);
     }
     public void testGenerics() throws Exception {
         doTest(false, false, true);
@@ -78,7 +88,9 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
         doTest(true, true, false);
     }
     public void testParamsConstructors() throws Exception {
-        doTest(true, true, true);
+        final FileTemplateConfig fileTemplateConfig = FileTemplateConfig.getInstance();
+        fileTemplateConfig.setReplaceInterfaceParamsWithConcreteTypes(false);
+        doTest(fileTemplateConfig);
     }
     public void testMiscReplacementTypes() throws Exception {
         doTest(true, true, true);
@@ -98,15 +110,15 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
     }
     public void testIgnoreUnusedCtorArguments() throws Exception{
         skipTestIfGroovyPluginDisabled();//this tested feature does not require Groovy IJ plugin but the test cases use Groovy objects
-        doTest(true,true,true,67, true);
+        doTest(true,true,true, MIN_PERCENT_OF_EXCESSIVE_SETTERS_TO_PREFER_DEFAULT_CTOR, true);
     }
     public void testIgnoreUnusedCtorArgumentsIdentifyMethodReference() throws Exception{
         skipTestIfGroovyPluginDisabled();//this tested feature does not require Groovy IJ plugin but the test cases use Groovy objects
-        doTest(true,true,true,67, true);
+        doTest(true,true,true, MIN_PERCENT_OF_EXCESSIVE_SETTERS_TO_PREFER_DEFAULT_CTOR, true);
     }
     public void testIgnoreUnusedCtorArgumentsWhenDelegatedCalls() throws Exception{
         skipTestIfGroovyPluginDisabled();//this tested feature does not require Groovy IJ plugin but the test cases use Groovy objects
-        doTest(true,true,true,67, true);
+        doTest(true,true,true, MIN_PERCENT_OF_EXCESSIVE_SETTERS_TO_PREFER_DEFAULT_CTOR, true);
     }
 //    public void testIgnoreUnusedCtorArgumentsWhenDelegatedCallsInGroovy() throws Exception{  //todo fix different handling of array field  - BeanByCtor#myBeans - compared to testIgnoreUnusedCtorArgumentsWhenDelegatedCalls test
 //        doTest(true,true,true,67, true);
@@ -118,11 +130,21 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
         skipTestIfGroovyPluginDisabled();
         //note: 2nd ctor arg passed to BeanByCtor should actually be 'new Ice()' - rather than 'null' as currently set in excepted test outcome.
         // For some reason manual tests match the expected behaviour but the UT fails. expected test has been adapted to the 'wrong' UT runtime behaviour
-        doTest(true,true,true,67, true);
+        doTest(true,true,true, MIN_PERCENT_OF_EXCESSIVE_SETTERS_TO_PREFER_DEFAULT_CTOR, true);
     }
     public void testWithFinalTypeDependency() throws Exception {
         doTest(true, true, true);
     }
+    public void testReplacedInterface() throws Exception {
+        doTest(true, true, true);
+    }
+   public void testMockReturned() throws Exception {
+       doTest(FileTemplateConfig.getInstance());
+    }
+   public void testAvoidInfiniteRecursionSelfReferences() throws Exception {//todo fix issue with legitimate testable method interpreted as a getter
+       doTest(FileTemplateConfig.getInstance());
+    }
+
 //   public void testWithFinalTypeDependencyMockable() throws Exception {
 //       myFixture.copyDirectoryToProject("resources", "resources"); //issue with setting up a resource folder
 //        doTest(true, true, true);
