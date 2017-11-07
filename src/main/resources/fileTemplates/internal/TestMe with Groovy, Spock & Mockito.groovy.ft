@@ -1,5 +1,5 @@
 #parse("TestMe macros.groovy")
-#set($hasMocks=$MockitoUtils.hasMockable($TESTED_CLASS.fields))
+#set($hasMocks=$MockitoMockBuilder.hasMockable($TESTED_CLASS.fields))
 #if($PACKAGE_NAME)
 package ${PACKAGE_NAME}
 #end
@@ -25,6 +25,11 @@ class ${CLASS_NAME}  extends Specification {
 #if($method.isTestable())
 
     def "#renderTestMethodNameAsWords($method.name)"() {
+#if($MockitoMockBuilder.shouldStub($method,$TESTED_CLASS.fields))
+        given:
+#grRenderMockStubs($method,$TESTED_CLASS.fields)
+
+#end
         when:
         #grRenderMethodCall($method,$TESTED_CLASS.name)
 

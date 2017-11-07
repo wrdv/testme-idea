@@ -24,12 +24,6 @@ public class TestMeActionTest extends TestMeGeneratorTestBase {
         super(null, "test", Language.Java);
     }
 
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-        setTestModePropsForUI();
-    }
-
     public void testSimpleClass() throws Exception {
         doTest();
     }

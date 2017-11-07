@@ -14,9 +14,9 @@ public interface TestMeTemplateParams {
 
     String TEST_BUILDER = "TestBuilder";
     String STRING_UTILS = "StringUtils";
-    String MOCKITO_UTILS = "MockitoUtils";
+    String MOCKITO_MOCK_BUILDER = "MockitoMockBuilder";
     String TEST_SUBJECT_UTILS = "TestSubjectUtils";
-    String MAX_RECURSION_DEPTH = "MAX_RECURSION_DEPTH";
+    String MAX_RECURSION_DEPTH = "DEFAULT_MAX_RECURSION_DEPTH";
 
     String MONTH_NAME_EN = "MONTH_NAME_EN";
     String DAY_NUMERIC = "DAY_NUMERIC"; //Current Day of month for numeric calculations. i.e. if today is January the 2nd - DAY_NUMERIC = 2. DAY = 02

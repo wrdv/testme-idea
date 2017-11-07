@@ -12,7 +12,6 @@ public class BeanDependsOnInterface {
         this.master = master;
     }
 
-    @Override
     public String BeanDependsOnInterface() {
         return "BeanDependsOnInterface{" +
                 "master=" + master +

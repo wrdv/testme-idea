@@ -29,15 +29,15 @@ public class TestTemplateContextBuilder {
         populateDateFields(ctxtParams, Calendar.getInstance());
         ctxtParams.put(TestMeTemplateParams.CLASS_NAME, context.getTargetClass());
         ctxtParams.put(TestMeTemplateParams.PACKAGE_NAME, context.getTargetPackage().getQualifiedName());
-        int maxRecursionDepth = context.getMaxRecursionDepth();
+        int maxRecursionDepth = context.getFileTemplateConfig().getMaxRecursionDepth();
         ctxtParams.put(TestMeTemplateParams.MAX_RECURSION_DEPTH, maxRecursionDepth);
-        ctxtParams.put(TestMeTemplateParams.TEST_BUILDER, new TestBuilderImpl(context.getLanguage(),maxRecursionDepth, context.isIgnoreUnusedProperties(), context.getMinPercentOfExcessiveSettersToPreferDefaultCtor()));
         ctxtParams.put(TestMeTemplateParams.STRING_UTILS, new StringUtils());
         ctxtParams.put(TestMeTemplateParams.TEST_SUBJECT_UTILS,new TestSubjectUtils());
+        final TypeDictionary typeDictionary = new TypeDictionary(context.getSrcClass(), context.getTargetPackage());
+        ctxtParams.put(TestMeTemplateParams.TEST_BUILDER, new TestBuilderImpl(context.getLanguage(), context.getSrcModule(), typeDictionary, context.getFileTemplateConfig()));
         final PsiClass targetClass = context.getSrcClass();
         if (targetClass != null && targetClass.isValid()) {
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_LANGUAGE, targetClass.getLanguage().getID());
-            final TypeDictionary typeDictionary = new TypeDictionary(context.getSrcClass(), context.getTargetPackage());
             final Type type = typeDictionary.getType(Type.resolveType(targetClass), maxRecursionDepth, true);
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS, type);
             if (type != null) {
@@ -45,13 +45,13 @@ public class TestTemplateContextBuilder {
             }
         }
         logger.debug("Resolved internal references in test template context");
-        ctxtParams.put(TestMeTemplateParams.MOCKITO_UTILS, createMockitoUtils(context));
+        ctxtParams.put(TestMeTemplateParams.MOCKITO_MOCK_BUILDER, createMockitoMockBuilder(context));
         logger.debug("Done building Test Template context in "+(new Date().getTime()-start)+" millis");
         return ctxtParams;
     }
 
     @NotNull
-    private MockitoUtils createMockitoUtils(FileTemplateContext context) {
+    private MockitoMockBuilder createMockitoMockBuilder(FileTemplateContext context) {
         boolean found = false;
 //        final VirtualFile mockMakerVFile = ResourceFileUtil.findResourceFileInScope("mockito-extensions/org.mockito.plugins.MockMaker", context.getProject(), context.getTestModule().getModuleWithDependenciesAndLibrariesScope(true));
         final VirtualFile mockMakerVFile = ResourceFileUtil.findResourceFileInDependents(context.getTestModule(), "mockito-extensions/org.mockito.plugins.MockMaker");
@@ -65,7 +65,7 @@ public class TestTemplateContextBuilder {
                 logger.debug("is mock-maker-inline turned on:"+ found);
             }
         }
-        return new MockitoUtils(found);
+        return new MockitoMockBuilder(found,context.getFileTemplateConfig().isStubMockMethodCallsReturnValues());
     }
 
     void populateDateFields(Map<String, Object> ctxtParams, Calendar calendar) {

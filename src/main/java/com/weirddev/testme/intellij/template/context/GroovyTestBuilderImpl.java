@@ -1,6 +1,9 @@
 package com.weirddev.testme.intellij.template.context;
 
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.module.Module;
+import com.weirddev.testme.intellij.template.FileTemplateConfig;
+import com.weirddev.testme.intellij.template.TypeDictionary;
 import com.weirddev.testme.intellij.utils.Node;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -17,16 +20,9 @@ import java.util.Map;
  */
 public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
     private static final Logger LOG = Logger.getInstance(GroovyTestBuilderImpl.class.getName());
-    /**
-     * If constructed type has more than this minimum percentage of setters over number of arguments in biggest constructor and default constructor is accessible
-     * then initialize the type with default constructor and setters (map constructor) instead of biggest constructor
-     */
-    private final int minPercentOfExcessiveSettersToPreferDefaultCtor;
 
-    public GroovyTestBuilderImpl(int maxRecursionDepth, Method method, boolean shouldIgnoreUnusedProperties, TestBuilder.ParamRole paramRole, int minPercentOfExcessiveSettersToPreferDefaultCtor, int
-            minPercentOfInteractionWithPropertiesToTriggerConstructorOptimization) {
-        super(maxRecursionDepth, method,shouldIgnoreUnusedProperties,paramRole,minPercentOfInteractionWithPropertiesToTriggerConstructorOptimization);
-        this.minPercentOfExcessiveSettersToPreferDefaultCtor = minPercentOfExcessiveSettersToPreferDefaultCtor;
+    public GroovyTestBuilderImpl(Method method, TestBuilder.ParamRole paramRole, FileTemplateConfig fileTemplateConfig, Module srcModule, TypeDictionary typeDictionary) {
+        super(method, paramRole, fileTemplateConfig, srcModule, typeDictionary);
     }
 
     @Override
@@ -52,9 +48,15 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
             if (isNonStaticNestedClass) {
                 final Node<Param> parentContainerNode = new Node<Param>(new SyntheticParam(parentContainerClass, parentContainerClass.getName(), false), null, ownerParamNode.getDepth());
                 buildCallParam(replacementTypes, defaultTypeValues, testBuilder,parentContainerNode);
-                testBuilder.append(",");
+                testBuilder.append(PARAMS_SEPARATOR);
             }
+            final int origLength = testBuilder.length();
             super.buildCallParams(constructor,params, replacementTypes, defaultTypeValues, testBuilder, ownerParamNode);
+            if (isNonStaticNestedClass) {
+                if (origLength == testBuilder.length()) {
+                    testBuilder.delete(testBuilder.length() - PARAMS_SEPARATOR.length(),testBuilder.length());
+                }
+            }
         } else if(ownerParamNode.getData()!=null){
             List<SyntheticParam> syntheticParams = findProperties(ownerParamNode.getData().getType());
             if (syntheticParams.size() > 0) {
@@ -118,7 +120,7 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
     }
 
     boolean shouldPreferSettersOverCtor(int noOfCtorArgs, int noOfSetters) {
-        return 0 < noOfSetters && (noOfCtorArgs * ((minPercentOfExcessiveSettersToPreferDefaultCtor + 100f) / 100f) <= ((float)noOfSetters) );
+        return 0 < noOfSetters && (noOfCtorArgs * ((fileTemplateConfig.getMinPercentOfExcessiveSettersToPreferMapCtor() + 100f) / 100f) <= ((float)noOfSetters) );
     }
 
     private int countSetters(Type type) {

@@ -8,7 +8,6 @@ import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.ide.fileTemplates.FileTemplateUtil;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.ex.IdeDocumentHistory;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
@@ -120,14 +119,14 @@ public class TestMeGenerator {
             if (resolvedPsiElement instanceof PsiClass) {
                 PsiClass psiClass = (PsiClass) resolvedPsiElement;
                 JavaCodeStyleManager codeStyleManager = JavaCodeStyleManager.getInstance(targetDirectory.getProject());
-                if (context.isOptimizeImports()) {
+                if (context.getFileTemplateConfig().isOptimizeImports()) {
                     codeStyleManager.optimizeImports(psiClass.getContainingFile());
                 }
                 codeRefactorUtil.uncommentImports(psiClass, context.getProject());
-                if (context.isReplaceFqn()) {
+                if (context.getFileTemplateConfig().isReplaceFqn()) {
                     codeStyleManager.shortenClassReferences(psiClass);
                 }
-                if (context.isReformatCode()) {
+                if (context.getFileTemplateConfig().isReformatCode()) {
                     final PsiFile containingFile = psiClass.getContainingFile();
                     final TextRange textRange = containingFile.getTextRange();
                     CodeStyleManager.getInstance(context.getProject()).reformatText(containingFile, textRange.getStartOffset(), textRange.getEndOffset());

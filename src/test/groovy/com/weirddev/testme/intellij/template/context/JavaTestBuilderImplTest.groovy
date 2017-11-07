@@ -1,5 +1,6 @@
 package com.weirddev.testme.intellij.template.context
 
+import com.weirddev.testme.intellij.template.FileTemplateConfig
 import com.weirddev.testme.intellij.utils.ClassNameUtils
 import spock.lang.Specification
 
@@ -17,7 +18,7 @@ class JavaTestBuilderImplTest extends Specification {
                                        "java.util.NavigableMap": "new java.util.TreeMap<TYPES>(new java.util.HashMap<TYPES>(){{put(<VAL>,<VAL>);}})",
                                        "java.util.List"        : "java.util.Arrays.<TYPES>asList(<VAL>)"
     ]
-    def testBuilder = new JavaTestBuilderImpl(5,null,false,TestBuilder.ParamRole.Input,66)
+    def testBuilder = new JavaTestBuilderImpl(null, TestBuilder.ParamRole.Input, FileTemplateConfig.getInstance(), null, null)
 
     def "stripGenerics"() {
 
@@ -45,7 +46,7 @@ class JavaTestBuilderImplTest extends Specification {
 
     def "resolveType"() {
         expect:
-        result == testBuilder.resolveType(new Type(canonicalName, "Set", "java.util", false, false, false, false, false, []), replacementMap as HashMap)
+        result == testBuilder.resolveTypeName(new Type(canonicalName, "Set", "java.util", false, false, false, false, false, []), replacementMap as HashMap)
 
         where:
         result                          | canonicalName               | replacementMap

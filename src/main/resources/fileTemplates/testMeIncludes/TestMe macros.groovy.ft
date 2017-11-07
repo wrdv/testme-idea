@@ -62,20 +62,31 @@
 ##
 #macro(grRenderMockedFields $testedClassFields)
 #foreach($field in $testedClassFields)
-#if($MockitoUtils.isMockable($field))
+#if($MockitoMockBuilder.isMockable($field))
     @Mock
     $field.type.canonicalName $field.name
-#elseif($MockitoUtils.isMockExpected($field))
-    $MockitoUtils.getImmockabiliyReason("//",$field)
+#elseif($MockitoMockBuilder.isMockExpected($field))
+    $MockitoMockBuilder.getImmockabiliyReason("//",$field)
 #end
 #end
 #end
 ##
 #macro(grRenderAssert $method)
-result == $TestBuilder.renderReturnParam($method,"replaceMeWithExpectedResult",$grReplacementTypes,$grDefaultTypeValues)
+result == $TestBuilder.renderReturnParam($method,$method.returnType,"replaceMeWithExpectedResult",$grReplacementTypes,$grDefaultTypeValues)
 #end
 ##
 #macro(grRenderMethodCall $method,$testedClassName)
 #renderJavaReturnVar($method.returnType)#if($method.static)$testedClassName#{else}$StringUtils.deCapitalizeFirstLetter($testedClassName)#end.${method.name}($TestBuilder.renderMethodParams($method,$grReplacementTypes,$grDefaultTypeValues))
 #end
 ##
+#macro(grRenderMockStubs $method $testedClassFields)
+#foreach($field in $testedClassFields)
+#if($MockitoMockBuilder.isMockable($field))
+#foreach($fieldMethod in $field.type.methods)
+#if($fieldMethod.returnType && $fieldMethod.returnType.name !="void" && $TestSubjectUtils.isMethodCalled($fieldMethod,$method))
+        when($field.name.${fieldMethod.name}($MockitoMockBuilder.buildMockArgsMatchers(${fieldMethod.methodParams}))).thenReturn($TestBuilder.renderReturnParam($method,$fieldMethod.returnType,"${fieldMethod.name}Response",$grReplacementTypes,$grDefaultTypeValues))
+#end
+#end
+#end
+#end
+#end

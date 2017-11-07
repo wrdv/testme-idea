@@ -3,6 +3,8 @@ package com.weirddev.testme.intellij.template.context;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiModifier;
+import com.intellij.psi.PsiType;
+import com.weirddev.testme.intellij.template.TypeDictionary;
 import com.weirddev.testme.intellij.utils.ClassNameUtils;
 
 /**
@@ -17,15 +19,24 @@ public class Field {
     private final String ownerClassCanonicalName;
     private String name;
 
-    public Field(PsiField psiField, PsiClass srcClass) {
+    public Field(PsiField psiField, PsiClass srcClass, TypeDictionary typeDictionary, int maxRecursionDepth) {
         this.name = psiField.getName();
-        type = new Type(psiField.getType(), null, 0);
+        type= buildType(psiField.getType(), typeDictionary, maxRecursionDepth);
         String canonicalText = srcClass.getQualifiedName();
         ownerClassCanonicalName = ClassNameUtils.stripArrayVarargsDesignator(canonicalText);
         overridden = isOverriddenInChild(psiField, srcClass);
         isFinal = psiField.getModifierList() != null && psiField.getModifierList().hasExplicitModifier(PsiModifier.FINAL);
         isStatic = psiField.getModifierList() != null && psiField.getModifierList().hasExplicitModifier(PsiModifier.STATIC);
     }
+
+    public Type buildType(PsiType type, TypeDictionary typeDictionary, int maxRecursionDepth) {
+        if (typeDictionary == null) {
+            return new Type(type, null, 0, false);
+        } else {
+            return typeDictionary.getType(type, maxRecursionDepth, true);
+        }
+    }
+
     private boolean isOverriddenInChild(PsiField psiField, PsiClass srcClass) {
         String srcQualifiedName = srcClass.getQualifiedName();
         String fieldClsQualifiedName = psiField.getContainingClass()==null?null:psiField.getContainingClass().getQualifiedName();

@@ -18,8 +18,8 @@ public class Reference {
 
     public Reference(String referenceName, PsiType refType, PsiType psiOwnerType, TypeDictionary typeDictionary) {
         this.referenceName = referenceName;
-        referenceType = new Type(refType, typeDictionary, 1);
-        ownerType = new Type(psiOwnerType, typeDictionary, 1);
+        referenceType = new Type(refType, typeDictionary, 1, false);
+        ownerType = new Type(psiOwnerType, typeDictionary, 1, false);
         referenceId = ownerType.getCanonicalName() + referenceName + referenceType.getCanonicalName();
     }
 

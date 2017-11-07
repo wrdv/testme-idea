@@ -1,10 +1,10 @@
 package com.weirddev.testme.intellij.template.context;
 
 import com.intellij.psi.*;
-import com.intellij.psi.util.PropertyUtil;
 import com.intellij.psi.util.PsiUtil;
 import com.weirddev.testme.intellij.template.TypeDictionary;
 import com.weirddev.testme.intellij.utils.ClassNameUtils;
+import com.weirddev.testme.intellij.utils.PropertyUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,7 +31,7 @@ public class Type {
     private final boolean isAbstract;
     private final boolean isStatic;
     private final boolean isFinal;
-    private final List<Method> methods;//resolve Setters/Getters only for now
+    private final List<Method> methods;
     /**
      * in case this is an inner class - the outer class where this type is defined
      */
@@ -64,7 +64,7 @@ public class Type {
         this(ClassNameUtils.extractContainerType(canonicalName), ClassNameUtils.extractClassName(canonicalName), ClassNameUtils.extractPackageName(canonicalName),false, false,false, ClassNameUtils.isArray(canonicalName),ClassNameUtils.isVarargs(canonicalName),null);
     }
 
-    public Type(PsiType psiType, @Nullable TypeDictionary typeDictionary, int maxRecursionDepth) {
+    public Type(PsiType psiType, @Nullable TypeDictionary typeDictionary, int maxRecursionDepth, boolean shouldResolveAllMethods) {
         String canonicalText = psiType.getCanonicalText();
         array = ClassNameUtils.isArray(canonicalText);
         varargs = ClassNameUtils.isVarargs(canonicalText);
@@ -82,21 +82,9 @@ public class Type {
                 false):null;
         fields = new ArrayList<Field>();
         enumValues = resolveEnumValues(psiType);
-        dependenciesResolvable = maxRecursionDepth > 0;
+         dependenciesResolvable = shouldResolveAllMethods && maxRecursionDepth > 1;
         methods=new ArrayList<Method>();
-        isFinal = isFinalType(PsiUtil.resolveClassInType(psiType));
-    }
-
-    private boolean isFinalType(PsiClass aClass) {
-        return aClass != null &&  aClass.getModifierList()!=null && aClass.getModifierList().hasExplicitModifier(PsiModifier.FINAL);
-    }
-
-    private void resolveFields(@NotNull PsiClass psiClass) {
-        for (PsiField psiField : psiClass.getAllFields()) {
-            if(!"groovy.lang.MetaClass".equals(psiField.getType().getCanonicalText())){
-                fields.add(new Field(psiField, psiClass));
-            }
-        }
+        isFinal = isFinalType(psiClass);
     }
 
     @NotNull
@@ -113,18 +101,28 @@ public class Type {
             }
             final PsiMethod[] methods = psiClass.getAllMethods();
                 for (PsiMethod psiMethod : methods) {
-                    if (Method.isRelevant(psiClass, psiMethod) &&  (shouldResolveAllMethods || (PropertyUtil.isSimplePropertySetter(psiMethod) || PropertyUtil.isSimplePropertyGetter(psiMethod)
-                            || PropertyUtil.isSimpleSetter(psiMethod)|| PropertyUtil.isSimpleGetter(psiMethod)) && !isGroovyLangProperty(psiMethod) || psiMethod.isConstructor())) {
-
+                    if (Method.isRelevant(psiClass, psiMethod) &&  (shouldResolveAllMethods || ( PropertyUtils.isPropertySetter(psiMethod) || PropertyUtils.isPropertyGetter(psiMethod)) && !isGroovyLangProperty(psiMethod) || psiMethod.isConstructor())){
                         final Method method = new Method(psiMethod, psiClass, maxRecursionDepth - 1, typeDictionary);
                         method.resolveInternalReferences(psiMethod, typeDictionary);
                         this.methods.add(method);
                     }
 
                 }
-            resolveFields(psiClass);
+            resolveFields(psiClass,typeDictionary,maxRecursionDepth - 1);
             dependenciesResolved=true;
         }
+    }
+
+    private void resolveFields(@NotNull PsiClass psiClass, TypeDictionary typeDictionary, int maxRecursionDepth) {
+        for (PsiField psiField : psiClass.getAllFields()) {
+            if(!"groovy.lang.MetaClass".equals(psiField.getType().getCanonicalText())){
+                fields.add(new Field(psiField, psiClass,typeDictionary,maxRecursionDepth));
+            }
+        }
+    }
+
+    private boolean isFinalType(PsiClass aClass) {
+        return aClass != null &&  aClass.getModifierList()!=null && aClass.getModifierList().hasExplicitModifier(PsiModifier.FINAL);
     }
 
     private boolean isGroovyLangProperty(PsiMethod method) {

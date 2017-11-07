@@ -60,11 +60,11 @@
 ##
 #macro(renderMockedFields $testedClassFields)
 #foreach($field in $testedClassFields)
-#if($MockitoUtils.isMockable($field))
+#if($MockitoMockBuilder.isMockable($field))
     @Mock
     $field.type.canonicalName $field.name;
-#elseif($MockitoUtils.isMockExpected($field))
-    $MockitoUtils.getImmockabiliyReason("//",$field)
+#elseif($MockitoMockBuilder.isMockExpected($field))
+    $MockitoMockBuilder.getImmockabiliyReason("//",$field)
 #end
 #end
 #end
@@ -74,11 +74,11 @@
 #end
 ##
 #macro(renderJUnitAssert $method)
-#renderJunitAssertMethod($method.returnType)($TestBuilder.renderReturnParam($method,"replaceMeWithExpectedResult",$replacementTypes,$defaultTypeValues), result);
+#renderJunitAssertMethod($method.returnType)($TestBuilder.renderReturnParam($method,$method.returnType,"replaceMeWithExpectedResult",$replacementTypes,$defaultTypeValues), result);
 #end
 ##
 #macro(renderTestNgAssert $method)
-assertEquals(result, $TestBuilder.renderReturnParam($method,"replaceMeWithExpectedResult",$replacementTypes,$defaultTypeValues));
+assertEquals(result, $TestBuilder.renderReturnParam($method,$method.returnType,"replaceMeWithExpectedResult",$replacementTypes,$defaultTypeValues));
 #end
 ##
 #macro(renderJunitAssertMethod $type)
@@ -87,4 +87,16 @@ assertEquals(result, $TestBuilder.renderReturnParam($method,"replaceMeWithExpect
 ##
 #macro(renderMethodCall $method,$testedClassName)
 #renderJavaReturnVar($method.returnType)#if($method.static)$testedClassName#{else}$StringUtils.deCapitalizeFirstLetter($testedClassName)#end.${method.name}($TestBuilder.renderMethodParams($method,$replacementTypes,$defaultTypeValues));
+#end
+##
+#macro(renderMockStubs $method $testedClassFields)
+#foreach($field in $testedClassFields)
+#if($MockitoMockBuilder.isMockable($field))
+#foreach($fieldMethod in $field.type.methods)
+#if($fieldMethod.returnType && $fieldMethod.returnType.name !="void" && $TestSubjectUtils.isMethodCalled($fieldMethod,$method))
+        when($field.name.${fieldMethod.name}($MockitoMockBuilder.buildMockArgsMatchers(${fieldMethod.methodParams}))).thenReturn($TestBuilder.renderReturnParam($method,$fieldMethod.returnType,"${fieldMethod.name}Response",$replacementTypes,$defaultTypeValues));
+#end
+#end
+#end
+#end
 #end
