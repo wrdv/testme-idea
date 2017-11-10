@@ -1,5 +1,7 @@
 package com.example.services.impl;
 
+import com.example.beans.ConvertedBean;
+import com.example.foes.Fear;
 import com.example.foes.Fire;
 import com.example.foes.Ice;
 import com.example.foes.Pokemon;
@@ -20,6 +22,11 @@ public class Foo{
         @Override
         public String fight(Fire withFire) {
             return "unknown soldier";
+        }
+
+        @Override
+        public ConvertedBean surrender(Fear fear, Ice ice, int times) {
+            return null;
         }
     };
 
