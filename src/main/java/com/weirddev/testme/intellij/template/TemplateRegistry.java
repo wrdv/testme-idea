@@ -35,7 +35,7 @@ public class TemplateRegistry {
         templateDescriptors.add(new TemplateDescriptor("<html>with <i>TestNG </i></html><TestNG><html>& <i>Mockito</i></html><Mockito>", TESTNG_MOCKITO_JAVA_TEMPLATE, Language.Java));
         templateDescriptors.add(new TemplateDescriptor("<html>with <i>Groovy</i></html><Groovy><html><i>JUnit4</i></html><JUnit4><html>& <i>Mockito</i></html><Mockito>", JUNIT4_GROOVY_MOCKITO_JAVA_TEMPLATE, Language.Groovy));
         templateDescriptors.add(new TemplateDescriptor("<html>with <i>Spock</i></html><Groovy><html> & <i>Mockito</i></html><Mockito>", SPOCK_GROOVY_MOCKITO_JAVA_TEMPLATE, Language.Groovy));
-        templateDescriptors.add(new TemplateDescriptor("<html>with <i>Spock<b> Parameterized</b></i></html><Groovy><html> & <i>Mockito</i></html><Mockito>", SPOCK_PARAMETERIZED_GROOVY_MOCKITO_JAVA_TEMPLATE, Language.Groovy));
+        templateDescriptors.add(new TemplateDescriptor("<html>with <i>Spock Parameterized</i></html><Groovy><html> & <i>Mockito</i></html><Mockito> (Experimental)", SPOCK_PARAMETERIZED_GROOVY_MOCKITO_JAVA_TEMPLATE, Language.Groovy));
     }
     public List<TemplateDescriptor> getTemplateDescriptors(){
         return templateDescriptors;

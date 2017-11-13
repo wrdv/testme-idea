@@ -24,7 +24,7 @@ class ${CLASS_NAME}  extends Specification {
 #foreach($method in $TESTED_CLASS.methods)
 #if($method.isTestable())
 
-    def "#renderTestMethodNameAsWords($method.name)"() {
+    def "test #renderTestMethodNameAsWords($method.name)"() {
 #if($MockitoMockBuilder.shouldStub($method,$TESTED_CLASS.fields))
         given:
 #grRenderMockStubs($method,$TESTED_CLASS.fields)
@@ -34,7 +34,7 @@ class ${CLASS_NAME}  extends Specification {
         #grRenderMethodCall($method,$TESTED_CLASS.name)
 
         then:
-#if($method.returnType && $method.returnType.name !="void")        #grRenderAssert($method)#{else}false//todo - validate something
+#if($method.hasReturn())        #grRenderAssert($method)#{else}false//todo - validate something
 #end
     }
 #end

@@ -28,7 +28,6 @@ import java.util.Map;
 public class JavaTestBuilderImpl implements LangTestBuilder {
     private static final Logger LOG = Logger.getInstance(JavaTestBuilderImpl.class.getName());
     private static Type DEFAULT_TYPE = new Type("java.lang.String", "String", "java.lang", false, false, false, false, false, new ArrayList<Type>());
-    protected static final String PARAMS_SEPARATOR = ", ";
     private final TestBuilder.ParamRole paramRole; //todo consider removing. not used anymore
     private final Method testedMethod;
     private Module srcModule;

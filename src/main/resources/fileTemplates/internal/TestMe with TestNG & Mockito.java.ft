@@ -34,7 +34,7 @@ public class ${CLASS_NAME} {
 
 #end
         #renderMethodCall($method,$TESTED_CLASS.name)
-#if($method.returnType && $method.returnType.name !="void")        Assert.#renderTestNgAssert($method)#end
+#if($method.hasReturn())        Assert.#renderTestNgAssert($method)#end
     }
 #end
 #end

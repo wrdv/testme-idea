@@ -374,4 +374,8 @@ public class Method {
     public Set<Method> getMethodRefereneces() {
         return methodRefereneces;
     }
+
+    public boolean hasReturn(){
+        return returnType != null && !"void".equals(returnType.getName());
+    }
 }
