@@ -34,7 +34,7 @@ class ${CLASS_NAME} {
 
 #end
         #renderMethodCall($method,$TESTED_CLASS.name)
-#if($method.returnType && $method.returnType.name !="void")        Assertions.#renderJUnitAssert($method)#end
+#if($method.hasReturn())        Assertions.#renderJUnitAssert($method)#end
     }
 #end
 #end

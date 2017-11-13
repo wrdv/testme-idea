@@ -23,19 +23,20 @@ class ${CLASS_NAME}  extends Specification {
 #end
 #foreach($method in $TESTED_CLASS.methods)
 #if($method.isTestable())
+#set($paraTestComponents=$TestBuilder.buildPrameterizedTestComponents($method,$grReplacementTypes,$grDefaultTypeValues))
 
-    def "#renderTestMethodNameAsWords($method.name)"() {
+    @Unroll
+    def "#renderTestMethodNameAsWords($method.name)$TestSubjectUtils.formatSpockParamNamesTitle($paraTestComponents.paramsMap, $method.hasReturn())"() {
 #if($MockitoMockBuilder.shouldStub($method,$TESTED_CLASS.fields))
         given:
 #grRenderMockStubs($method,$TESTED_CLASS.fields)
 
 #end
-        when:
-        #grRenderMethodCall($method,$TESTED_CLASS.name)
+        expect:
+        #grRenderParameterizedMethodCall($method, $TESTED_CLASS.name, $paraTestComponents.methodClassParamsStr) == expectedResult
 
-        then:
-#if($method.returnType && $method.returnType.name !="void")        #grRenderAssert($method)#{else}false//todo - validate something
-#end
+        where:
+        $TestSubjectUtils.formatSpockDataParameters($paraTestComponents.paramsMap, "        ","expectedResult << false")
     }
 #end
 #end

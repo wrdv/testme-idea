@@ -24,26 +24,24 @@ class FooTest extends Specification {
     def setup() {
         MockitoAnnotations.initMocks(this)
     }
-    @Unroll
-    def "test fight where withFire=#withFire and foeName=#foeName then expect: #result"() {
-        given:
-        when(fooFighter.fight(any())).thenReturn("fightResponse")
 
+    @Unroll
+    def "fight where withFire=#withFire and foeName=#foeName then expect: #expectedResult"() {
         expect:
-        foo.fight(withFire, foeName) == result
+        foo.fight(withFire, foeName) == expectedResult
 
         where:
-        withFire     | foeName   || result
-        [new Fire()] | "foeName" || "replaceMeWithExpectedResult"
-        [null]       | null      || null
+        withFire     | foeName   || expectedResult
+        [new Fire()] | "foeName" || "expectedResult"
     }
 
-    def "test into The Void"() {
-        when:
-        foo.intoTheVoid()
+    @Unroll
+    def "into The Void"() {
+        expect:
+        foo.intoTheVoid() == expectedResult
 
-        then:
-        false//todo - validate something
+        where:
+        expectedResult << false
     }
 }
 

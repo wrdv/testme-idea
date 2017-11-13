@@ -79,6 +79,10 @@ result == $TestBuilder.renderReturnParam($method,$method.returnType,"replaceMeWi
 #renderJavaReturnVar($method.returnType)#if($method.static)$testedClassName#{else}$StringUtils.deCapitalizeFirstLetter($testedClassName)#end.${method.name}($TestBuilder.renderMethodParams($method,$grReplacementTypes,$grDefaultTypeValues))
 #end
 ##
+#macro(grRenderParameterizedMethodCall $method,$testedClassName $methodClassParamsStr)
+#if($method.static)$testedClassName#{else}$StringUtils.deCapitalizeFirstLetter($testedClassName)#end.${method.name}($methodClassParamsStr)##
+#end
+##
 #macro(grRenderMockStubs $method $testedClassFields)
 #foreach($field in $testedClassFields)
 #if($MockitoMockBuilder.isMockable($field))
