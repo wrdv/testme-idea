@@ -36,7 +36,7 @@ public class TestMeActionHandlerTest extends TestMeGeneratorTestBase {
             public void run() {
                 myFixture.openFileInEditor(fooClass.getContainingFile().getVirtualFile());
                 final TestMeActionHandler actionHandler = new TestMeActionHandler();
-                Assert.assertEquals("<html><body>Test Class <b>Foo</b></body></html>", actionHandler.getChooserTitle(getEditor(), getFile(), fooClass));
+                Assert.assertEquals("<html><body>Test Class <b>Foo</b> with:</body></html>", actionHandler.getChooserTitle(getEditor(), getFile(), fooClass));
                 Assert.assertEquals("No test subjects found", actionHandler.getNotFoundMessage(getProject(), getEditor(), getFile()));
                 final TestMePopUpHandler.GotoData sourceAndTargetElements = actionHandler.getSourceAndTargetElements(getEditor(), getFile());
                 Assert.assertNotNull(sourceAndTargetElements);
@@ -44,7 +44,7 @@ public class TestMeActionHandlerTest extends TestMeGeneratorTestBase {
                 Assert.assertEquals(countEnabledTemplates(templateDescriptors),sourceAndTargetElements.additionalActions.size());
                 final PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
                 propertiesComponent.setValue("create.test.in.the.same.root",String.valueOf(true));
-                Assert.assertEquals("<html>with <i>JUnit4</i></html><JUnit4><html>& <i>Mockito</i></html><Mockito>",sourceAndTargetElements.additionalActions.get(0).getText());
+                Assert.assertEquals("<html><i>JUnit4</i></html><JUnit4><html>& <i>Mockito</i></html><Mockito>",sourceAndTargetElements.additionalActions.get(0).getText());
                 sourceAndTargetElements.additionalActions.get(0).execute();
                 verifyGeneratedTest(packageName, expectedTestClassName);
             }

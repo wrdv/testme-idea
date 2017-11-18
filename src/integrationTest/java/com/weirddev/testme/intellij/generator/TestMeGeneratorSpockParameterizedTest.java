@@ -11,7 +11,7 @@ import com.weirddev.testme.intellij.template.context.Language;
 public class TestMeGeneratorSpockParameterizedTest extends TestMeGeneratorTestBase  {
 
     public TestMeGeneratorSpockParameterizedTest() {
-        super(TemplateRegistry.SPOCK_PARAMETERIZED_GROOVY_MOCKITO_JAVA_TEMPLATE, "testSpockParameterized", Language.Groovy);
+        super(TemplateRegistry.SPOCK_PARAMETERIZED_MOCKITO_GROOVY_TEMPLATE, "testSpockParameterized", Language.Groovy);
         expectedTestClassExtension = "groovy";
         skipTestIfGroovyPluginDisabled();
     }

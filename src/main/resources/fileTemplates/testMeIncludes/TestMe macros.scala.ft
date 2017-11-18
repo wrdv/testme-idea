@@ -1,0 +1,125 @@
+#parse("TestMe common macros.java")
+################## Global vars ###############
+#set($scReplacementTypes = {
+    "java.util.Collection": "[<VAL>]",
+    "java.util.Deque": "new LinkedList([<VAL>])",
+    "java.util.List": "[<VAL>]",
+    "java.util.Map": "[<VAL>:<VAL>]",
+    "java.util.NavigableMap": "new java.util.TreeMap([<VAL>:<VAL>])",
+    "java.util.NavigableSet": "new java.util.TreeSet([<VAL>])",
+    "java.util.Queue": "new java.util.LinkedList<TYPES>([<VAL>])",
+    "java.util.RandomAccess": "new java.util.Vector([<VAL>])",
+    "java.util.Set": "[<VAL>] as java.util.Set<TYPES>",
+    "java.util.SortedSet": "[<VAL>] as java.util.SortedSet<TYPES>",
+    "java.util.LinkedList": "new java.util.LinkedList<TYPES>([<VAL>])",
+    "java.util.ArrayList": "[<VAL>]",
+    "java.util.HashMap": "[<VAL>:<VAL>]",
+    "java.util.TreeMap": "new java.util.TreeMap<TYPES>([<VAL>:<VAL>])",
+    "java.util.LinkedList": "new java.util.LinkedList<TYPES>([<VAL>])",
+    "java.util.Vector": "new java.util.Vector([<VAL>])",
+    "java.util.HashSet": "[<VAL>] as java.util.HashSet",
+    "java.util.Stack": "new java.util.Stack<TYPES>(){{push(<VAL>)}}",
+    "java.util.LinkedHashMap": "[<VAL>:<VAL>]",
+    "java.util.TreeSet": "[<VAL>] as java.util.TreeSet",
+
+    "scala.Option": "Some(<VAL>)",
+    "scala.collection.immutable.List": "List(<VAL>)",
+    "scala.collection.Seq": "List(<VAL>)",
+    "scala.Tuple1": "(<VAL>)",
+    "scala.Tuple2": "(<VAL>,<VAL>)",
+    "scala.Tuple3": "(<VAL>,<VAL>,<VAL>)",
+    "scala.Tuple4": "(<VAL>,<VAL>,<VAL>,<VAL>)",
+    "scala.Tuple5": "(<VAL>,<VAL>,<VAL>,<VAL>,<VAL>)",
+    "scala.Tuple6": "(<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>)",
+    "scala.Tuple7": "(<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>)",
+    "scala.Tuple8": "(<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>)",
+    "scala.Tuple9": "(<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>)",
+    "scala.Tuple10": "(<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>)",
+    "scala.Tuple11": "(<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>)",
+    "scala.Tuple12": "(<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>)",
+    "scala.Tuple13": "(<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>)"
+})
+#set($scDefaultTypeValues = {
+    "byte": "(byte)0",
+    "short": "(short)0",
+    "int": "1",
+    "long": "0l",
+    "float": "0f",
+    "double": "0d",
+    "char": "(char)'a'",
+    "boolean": "true",
+    "java.lang.Byte": """00110"" as Byte",
+    "java.lang.Short": "(short)0",
+    "java.lang.Integer": "0",
+    "java.lang.Long": "1l",
+    "java.lang.Float": "1.1f",
+    "java.lang.Double": "0d",
+    "java.lang.Character": "'a' as Character",
+    "java.lang.Boolean": "Boolean.TRUE",
+    "java.math.BigDecimal": "0 as java.math.BigDecimal",
+    "java.math.BigInteger": "0g",
+    "java.util.Date": "new java.util.GregorianCalendar($YEAR, java.util.Calendar.$MONTH_NAME_EN.toUpperCase(), $DAY_NUMERIC, $HOUR_NUMERIC, $MINUTE_NUMERIC).getTime()",
+    "java.time.LocalDate": "java.time.LocalDate.of($YEAR, java.time.Month.$MONTH_NAME_EN.toUpperCase(), $DAY_NUMERIC)",
+    "java.time.LocalDateTime": "java.time.LocalDateTime.of($YEAR, java.time.Month.$MONTH_NAME_EN.toUpperCase(), $DAY_NUMERIC, $HOUR_NUMERIC, $MINUTE_NUMERIC, $SECOND_NUMERIC)",
+    "java.time.LocalTime": "java.time.LocalTime.of($HOUR_NUMERIC, $MINUTE_NUMERIC, $SECOND_NUMERIC)",
+    "java.io.File": "new File(getClass().getResource(""/$PACKAGE_NAME.replace('.','/')/PleaseReplaceMeWithTestFile.txt"").getFile())",
+    "java.lang.Class": "Class.forName(""$TESTED_CLASS.canonicalName"")",
+
+    "scala.Byte": """00110"" as Byte",
+    "scala.Short": "2",
+    "scala.Int": "1",
+    "scala.Long": "123456789",
+    "scala.Float": "1.1",
+    "scala.Double": "11223344",
+    "scala.Char": "a",
+    "scala.Boolean": "true",
+    "scala.math.BigDecimal": "2.44"
+
+})
+##
+##
+################## Macros #####################
+#macro(scRenderTestSubjectInit $testedClass $hasTestableInstanceMethod $hasMocks)
+#if($hasMocks)
+    @InjectMocks
+    val $StringUtils.deCapitalizeFirstLetter($testedClass.name)
+#elseif($hasTestableInstanceMethod)
+    val $StringUtils.deCapitalizeFirstLetter($testedClass.name)= $TestBuilder.renderInitType($testedClass,"$testedClass.name",$scReplacementTypes,$scDefaultTypeValues)
+#end
+#end
+##
+#macro(scRenderMockedFields $testedClassFields)
+#foreach($field in $testedClassFields)
+#if($MockitoMockBuilder.isMockable($field))
+    @Mock
+    $field.type.canonicalName $field.name
+#elseif($MockitoMockBuilder.isMockExpected($field))
+    $MockitoMockBuilder.getImmockabiliyReason("//",$field)
+#end
+#end
+#end
+##
+#macro(scRenderAssert $method)
+result === $TestBuilder.renderReturnParam($method,$method.returnType,"replaceMeWithExpectedResult",$scReplacementTypes,$scDefaultTypeValues)
+#end
+##
+#macro(scRenderMethodCall $method,$testedClassName)
+val result = #if($method.static)$testedClassName#{else}$StringUtils.deCapitalizeFirstLetter($testedClassName)#end.${method.name}#if($method.methodParams.size()>0)($TestBuilder.renderMethodParams($method,$scReplacementTypes,$scDefaultTypeValues))#end
+
+#end
+##
+#macro(scRenderParameterizedMethodCall $method,$testedClassName $methodClassParamsStr)
+#if($method.static)$testedClassName#{else}$StringUtils.deCapitalizeFirstLetter($testedClassName)#end.${method.name}($methodClassParamsStr)##
+#end
+##
+#macro(scRenderMockStubs $method $testedClassFields)
+#foreach($field in $testedClassFields)
+#if($MockitoMockBuilder.isMockable($field))
+#foreach($fieldMethod in $field.type.methods)
+#if($fieldMethod.returnType && $fieldMethod.returnType.name !="void" && $TestSubjectUtils.isMethodCalled($fieldMethod,$method))
+        when($field.name.${fieldMethod.name}($MockitoMockBuilder.buildMockArgsMatchers(${fieldMethod.methodParams}))).thenReturn($TestBuilder.renderReturnParam($method,$fieldMethod.returnType,"${fieldMethod.name}Response",$scReplacementTypes,$scDefaultTypeValues))
+#end
+#end
+#end
+#end
+#end

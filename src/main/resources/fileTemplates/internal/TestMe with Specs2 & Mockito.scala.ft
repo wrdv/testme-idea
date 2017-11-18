@@ -1,0 +1,40 @@
+#parse("TestMe macros.scala")
+#set($hasMocks=$MockitoMockBuilder.hasMockable($TESTED_CLASS.fields))
+#if($PACKAGE_NAME)
+package ${PACKAGE_NAME}
+#end
+import org.specs2.mutable.Specification
+#if($hasMocks)
+import org.specs2.mock.Mockito
+#end
+
+#parse("File Header.java")
+class ${CLASS_NAME} extends Specification #if($hasMocks) with Mockito#end{
+#scRenderMockedFields($TESTED_CLASS.fields)
+#scRenderTestSubjectInit($TESTED_CLASS,$TestSubjectUtils.hasTestableInstanceMethod($TESTED_CLASS.methods),$hasMocks)
+#if($hasMocks)
+
+    def setup() {
+        MockitoAnnotations.initMocks(this)
+    }
+#end
+
+  "$TESTED_CLASS.name" should {
+#foreach($method in $TESTED_CLASS.methods)
+#if($method.isTestable())
+
+      "#renderTestMethodNameAsWords($method.name)" in {
+#if($MockitoMockBuilder.shouldStub($method,$TESTED_CLASS.fields))
+#scRenderMockStubs($method,$TESTED_CLASS.fields)
+#end
+        #scRenderMethodCall($method,$TESTED_CLASS.name)
+#if($method.hasReturn())        #scRenderAssert($method)#{else}false//todo - validate something
+#end
+      }
+#end
+#end
+
+  }
+}
+
+#parse("TestMe Footer.java")

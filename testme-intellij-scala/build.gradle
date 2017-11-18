@@ -4,23 +4,18 @@ buildscript {
     }
 }
 
-//id "org.jetbrains.intellij" version "0.2.7"
-//plugins {
-//    id "org.jetbrains.intellij" version "0.2.7"
-//}
 apply plugin: 'java'
 apply plugin: 'org.jetbrains.intellij'
 
 repositories {
     mavenCentral()
 }
-//sourceCompatibility = jvmTargetVersion
-//targetCompatibility = jvmTargetVersion
 
 sourceCompatibility = 1.6
 targetCompatibility = 1.6
 
 def ideaVersion = (rootProject.hasProperty('ideaVersion') && rootProject.ideaVersion) ? rootProject.ideaVersion : '14.1.2'
+def scalaPluginVersion = (rootProject.hasProperty('scalaPluginVersion') && rootProject.scalaPluginVersion) ? rootProject.scalaPluginVersion : '1.5.4'
 def ideaType = (rootProject.hasProperty('ideaType') && rootProject.ideaType) ? rootProject.ideaType : 'IC'
 
 intellij {
@@ -31,7 +26,7 @@ intellij {
     downloadSources true
     sameSinceUntilBuild false
     updateSinceUntilBuild false
-    plugins = ['junit','properties','Groovy']
+    plugins = ['junit','properties',"org.intellij.scala:$scalaPluginVersion"]
 }
 
 tasks.withType(JavaCompile) {

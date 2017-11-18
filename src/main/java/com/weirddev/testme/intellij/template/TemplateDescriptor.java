@@ -4,8 +4,6 @@ import com.weirddev.testme.intellij.icon.IconTokensReplacerImpl;
 import com.weirddev.testme.intellij.resolvers.groovy.LanguageUtils;
 import com.weirddev.testme.intellij.template.context.Language;
 
-import static com.weirddev.testme.intellij.resolvers.groovy.LanguageUtils.GROOVY_PLUGIN_ID;
-
 /**
  * Date: 10/12/2016
  *
@@ -24,7 +22,9 @@ public class TemplateDescriptor {
         this.filename = filename;
         this.language = language;
         if (language == Language.Groovy) {
-            this.dependantPlugins = new String[]{GROOVY_PLUGIN_ID};
+            this.dependantPlugins = new String[]{LanguageUtils.GROOVY_PLUGIN_ID};
+        } else if (language == Language.Scala) {
+            this.dependantPlugins = new String[]{LanguageUtils.SCALA_PLUGIN_ID};
         }
     }
 
@@ -43,7 +43,8 @@ public class TemplateDescriptor {
     public String getTestClassFormat() {
         return "%sTest";
     }
-    public boolean isEnabled(){
+
+    public boolean isEnabled() {
         if (dependantPlugins != null) {
             for (String pluginId : dependantPlugins) {
                 if (!LanguageUtils.isPluginEnabled(pluginId)) {

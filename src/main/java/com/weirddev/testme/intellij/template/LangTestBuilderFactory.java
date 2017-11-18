@@ -20,8 +20,11 @@ public class LangTestBuilderFactory {
     @NotNull
     public LangTestBuilder createTestBuilder(Method method, TestBuilder.ParamRole paramRole) throws Exception {
         LangTestBuilder langTestBuilder;
-        if ( language==Language.Groovy) {
-            //todo add replacementTypes, defaultTypeValues and testBuilder as members
+        //todo add replacementTypes, defaultTypeValues and testBuilder as members
+        if ( language==Language.Scala) {
+            langTestBuilder = new ScalaTestBuilder(method, paramRole,fileTemplateConfig, srcModule,typeDictionary);
+        }
+        else if ( language==Language.Groovy) {
             langTestBuilder = new GroovyTestBuilderImpl(method, paramRole,fileTemplateConfig, srcModule,typeDictionary);
         } else{
             langTestBuilder = new JavaTestBuilderImpl(method, paramRole, fileTemplateConfig, srcModule,typeDictionary);

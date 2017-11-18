@@ -1,5 +1,6 @@
 package com.weirddev.testme.intellij.template.context;
 
+import com.google.common.collect.ImmutableSet;
 import com.intellij.ide.hierarchy.HierarchyBrowserBaseEx;
 import com.intellij.ide.hierarchy.type.SubtypesHierarchyTreeStructure;
 import com.intellij.ide.hierarchy.type.TypeHierarchyNodeDescriptor;
@@ -19,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Date: 2/16/2017
@@ -27,9 +29,11 @@ import java.util.Map;
  */
 public class JavaTestBuilderImpl implements LangTestBuilder {
     private static final Logger LOG = Logger.getInstance(JavaTestBuilderImpl.class.getName());
+    private static final Set<String> STRING_TYPES = ImmutableSet.of("java.lang.String", "java.lang.Object");
     private static Type DEFAULT_TYPE = new Type("java.lang.String", "String", "java.lang", false, false, false, false, false, new ArrayList<Type>());
     private final TestBuilder.ParamRole paramRole; //todo consider removing. not used anymore
     private final Method testedMethod;
+    protected final String NEW_INITIALIZER = "new ";
     private Module srcModule;
     private TypeDictionary typeDictionary;
     protected FileTemplateConfig fileTemplateConfig;
@@ -60,7 +64,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
     protected void buildCallParam(Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Param> paramNode) {
         final Type type = paramNode.getData().getType();
         if (type.isArray()) {
-            testBuilder.append("new ").append(type.getCanonicalName()).append("[]{");
+            testBuilder.append(NEW_INITIALIZER).append(type.getCanonicalName()).append("[]{");
         }
         final Type parentContainerClass = type.getParentContainerClass();
         if (parentContainerClass != null && !type.isStatic()) {
@@ -79,7 +83,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
         if (defaultTypeValues.get(canonicalName) != null) {
 
             testBuilder.append(defaultTypeValues.get(canonicalName));
-        } else if (canonicalName.equals("java.lang.String")) {
+        } else if (STRING_TYPES.contains(canonicalName)) {
             testBuilder.append("\"").append(paramNode.getData().getName()).append("\"");
         } else if (type.getEnumValues().size() > 0) {
             testBuilder.append(canonicalName).append(".").append(type.getEnumValues().get(0));
@@ -115,7 +119,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
                 if (foundCtor == null && !hasEmptyConstructor || !resolvedType.isDependenciesResolved()) {
                     testBuilder.append("null");
                 } else {
-                    testBuilder.append("new ");
+                    testBuilder.append(resolveInitializerKeyword( type,foundCtor));
                     if (resolvedType.getParentContainerClass() != null && !resolvedType.isStatic()) {
                         typeName = resolveNestedClassTypeName(typeName);
                     }
@@ -128,6 +132,11 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
                 testBuilder.append("null");
             }
         }
+    }
+
+    @NotNull
+    protected String resolveInitializerKeyword(Type type, Method foundCtor) {
+        return NEW_INITIALIZER;
     }
 
     private Type resolveChildTypeIfNeeded(Type type, int maxRecursionDepth) {
