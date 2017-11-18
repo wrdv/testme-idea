@@ -3,7 +3,7 @@ package com.weirddev.testme.intellij.utils;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.util.PropertyUtil;
 import com.weirddev.testme.intellij.resolvers.groovy.GroovyPropertyUtil;
-import com.weirddev.testme.intellij.resolvers.groovy.GroovyPsiTreeUtils;
+import com.weirddev.testme.intellij.resolvers.groovy.LanguageUtils;
 
 /**
  * Created with IntelliJ IDEA.
@@ -14,7 +14,7 @@ import com.weirddev.testme.intellij.resolvers.groovy.GroovyPsiTreeUtils;
 public class PropertyUtils
 {
     public static boolean isPropertySetter(PsiMethod psiMethod) {
-        if (GroovyPsiTreeUtils.isGroovy(psiMethod.getLanguage())) {
+        if (LanguageUtils.isGroovy(psiMethod.getLanguage())) {
             return GroovyPropertyUtil.isPropertySetter(psiMethod);
         }
         else {
@@ -22,7 +22,7 @@ public class PropertyUtils
         }
     }
     public static boolean isPropertyGetter(PsiMethod psiMethod) {
-        if (GroovyPsiTreeUtils.isGroovy(psiMethod.getLanguage())) {
+        if (LanguageUtils.isGroovy(psiMethod.getLanguage())) {
             return GroovyPropertyUtil.isPropertyGetter(psiMethod);
         }
         else {

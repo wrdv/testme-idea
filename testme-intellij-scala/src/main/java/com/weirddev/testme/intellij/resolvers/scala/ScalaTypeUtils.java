@@ -1,0 +1,18 @@
+package com.weirddev.testme.intellij.resolvers.scala;
+
+import com.intellij.psi.PsiClass;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass;
+
+/**
+ * Date: 18/11/2017
+ *
+ * @author Yaron Yamin
+ */
+public class ScalaTypeUtils {
+    public static boolean isCaseClass(PsiClass psiClass) {
+        if (psiClass instanceof ScClass) {
+            return ((ScClass) psiClass).isCase();
+        }
+        return false;
+    }
+}

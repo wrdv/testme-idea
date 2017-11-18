@@ -7,6 +7,7 @@ import com.intellij.psi.search.searches.ReferencesSearch;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.util.PsiUtil;
 import com.weirddev.testme.intellij.resolvers.groovy.GroovyPsiTreeUtils;
+import com.weirddev.testme.intellij.resolvers.groovy.LanguageUtils;
 import com.weirddev.testme.intellij.resolvers.to.ResolvedMethodCall;
 import com.weirddev.testme.intellij.resolvers.to.ResolvedReference;
 import com.weirddev.testme.intellij.template.TypeDictionary;
@@ -49,6 +50,10 @@ public class Method {
      */
     private final boolean accessible;
     /**
+     * true - is Primary Constructor (relevant for Scala)
+     */
+    private final boolean primaryConstructor;
+    /**
      * methods called directly from this method
      */
     private Set<MethodCall> directMethodCalls = new HashSet<MethodCall>();
@@ -87,6 +92,7 @@ public class Method {
 //        propertyName = psiField == null ? null : psiField.getName();
         propertyName = ClassNameUtils.extractTargetPropertyName(name,isSetter,isGetter);
         constructor = psiMethod.isConstructor();
+        primaryConstructor = constructor && psiMethod.getClass().getSimpleName().contains("PrimaryConstructor");
         if (srcClass != null) {
             overridden = isOverriddenInChild(psiMethod, srcClass);
             inherited = isInherited(psiMethod, srcClass);
@@ -127,7 +133,7 @@ public class Method {
             isRelevant = false;
         } else {
             final String methodId = formatMethodId(psiMethod);
-            if (GroovyPsiTreeUtils.isGroovy(psiMethod.getLanguage())
+            if (LanguageUtils.isGroovy(psiMethod.getLanguage())
                     && (psiMethod.getClass().getCanonicalName().contains("GrGdkMethodImpl") || methodId.endsWith(".invokeMethod(java.lang.String,java.lang.Object)") || methodId.endsWith(".getProperty(java.lang.String)") || methodId
                     .endsWith(".setProperty(java.lang.String,java.lang.Object)"))) {
                 isRelevant = false;
@@ -151,7 +157,7 @@ public class Method {
     }
 
     private void resolveReferences(PsiMethod psiMethod, TypeDictionary typeDictionary) {
-        if (GroovyPsiTreeUtils.isGroovy(psiMethod.getLanguage())) {
+        if (LanguageUtils.isGroovy(psiMethod.getLanguage())) {
             for (ResolvedReference resolvedReference : GroovyPsiTreeUtils.findReferences(psiMethod)) {
                 internalReferences.add(new Reference(resolvedReference.getReferenceName(), resolvedReference.getRefType(), resolvedReference.getPsiOwnerType(), typeDictionary));
             }
@@ -170,7 +176,7 @@ public class Method {
         }
     }
     private void resolveCalledMethods(PsiMethod psiMethod, TypeDictionary typeDictionary) {
-        if (GroovyPsiTreeUtils.isGroovy(psiMethod.getLanguage())) {
+        if (LanguageUtils.isGroovy(psiMethod.getLanguage())) {
             for (ResolvedMethodCall resolvedMethodCall : GroovyPsiTreeUtils.findMethodCalls(psiMethod)) {
                 if (isRelevant(resolvedMethodCall.getPsiMethod().getContainingClass(), resolvedMethodCall.getPsiMethod())) {
                     this.directMethodCalls.add(new MethodCall(new Method(resolvedMethodCall.getPsiMethod(), null, 1, typeDictionary),convertArgs(resolvedMethodCall.getMethodCallArguments())));
@@ -222,7 +228,7 @@ public class Method {
             for (PsiReference reference : ReferencesSearch.search(psiParameter, new LocalSearchScope(new PsiMethod[]{psiMethod}))) {
                 final PsiElement element = reference.getElement();
                 PsiField psiField = null;
-                if (GroovyPsiTreeUtils.isGroovy(element.getLanguage())) {
+                if (LanguageUtils.isGroovy(element.getLanguage())) {
                     psiField = GroovyPsiTreeUtils.resolveGrLeftHandExpressionAsField(element);
                 }
                 else if (element instanceof PsiExpression && !PsiUtil.isOnAssignmentLeftHand((PsiExpression) element)) {
@@ -377,5 +383,9 @@ public class Method {
 
     public boolean hasReturn(){
         return returnType != null && !"void".equals(returnType.getName());
+    }
+
+    public boolean isPrimaryConstructor() {
+        return primaryConstructor;
     }
 }

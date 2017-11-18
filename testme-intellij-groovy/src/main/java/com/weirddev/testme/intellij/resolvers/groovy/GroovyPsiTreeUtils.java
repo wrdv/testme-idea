@@ -1,6 +1,5 @@
 package com.weirddev.testme.intellij.resolvers.groovy;
 
-import com.intellij.lang.Language;
 import com.intellij.psi.*;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.weirddev.testme.intellij.resolvers.to.ResolvedMethodCall;
@@ -22,12 +21,6 @@ import java.util.*;
  */
 public class GroovyPsiTreeUtils {
 
-    public static final String GROOVY_LANGUAGE_ID = "Groovy";
-
-    public static boolean isGroovy(Language language) {
-        return language == com.intellij.lang.Language.findLanguageByID(GROOVY_LANGUAGE_ID) && LanguageUtils.isPluginEnabled(LanguageUtils.GROOVY_PLUGIN_ID);
-    }
-
     public static PsiType resolveType(PsiElement prevSibling) {
         return prevSibling instanceof GrReferenceExpression ?((GrReferenceExpression) prevSibling).getType():null;
     }
@@ -39,7 +32,7 @@ public class GroovyPsiTreeUtils {
         for (GrReferenceExpression grReferenceExpression : grReferenceExpressions) {
             final PsiType refType = grReferenceExpression.getType();
             final PsiElement psiElement = grReferenceExpression.resolve();
-            if (refType != null && !(psiElement instanceof GrMethod) && (psiElement==null || isGroovy(psiElement.getLanguage()) || !(psiElement instanceof PsiMethod))) {
+            if (refType != null && !(psiElement instanceof GrMethod) && (psiElement==null || LanguageUtils.isGroovy(psiElement.getLanguage()) || !(psiElement instanceof PsiMethod))) {
                 final PsiType psiOwnerType = grReferenceExpression.getLastChild()==null?null:resolveOwnerType(grReferenceExpression.getLastChild());
                 if (psiOwnerType != null) {
                     resolvedReferences.add(new ResolvedReference(grReferenceExpression.getReferenceName() , refType, psiOwnerType));
@@ -79,7 +72,7 @@ public class GroovyPsiTreeUtils {
         final Collection<GrReferenceExpression> grReferenceExpressions = PsiTreeUtil.findChildrenOfType(psiMethod, GrReferenceExpression.class);
         for (GrReferenceExpression grReferenceExpression : grReferenceExpressions) {
             final PsiElement psiElement = grReferenceExpression.resolve();
-            if (psiElement!= null && (isGroovy(psiElement.getLanguage()) && psiElement instanceof GrMethod  || !isGroovy(psiElement.getLanguage())  && psiElement instanceof PsiMethod) ) {
+            if (psiElement!= null && (LanguageUtils.isGroovy(psiElement.getLanguage()) && psiElement instanceof GrMethod  || !LanguageUtils.isGroovy(psiElement.getLanguage())  && psiElement instanceof PsiMethod) ) {
                 methodCalls.add(new ResolvedMethodCall((PsiMethod) psiElement,null));//todo resolve args
             }
         }

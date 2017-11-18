@@ -13,7 +13,7 @@ public class TestClassElementsLocator {
     }
 
     public PsiElement findOptimalCursorLocation(PsiClass targetClass) {
-        PsiElement defaultLocation = targetClass.getLBrace()==null?null:targetClass.getLBrace().getNextSibling();
+        PsiElement defaultLocation = targetClass.getLBrace()==null?targetClass.getFirstChild():targetClass.getLBrace().getNextSibling();
         try {
             PsiMethod testMethod = findTestMethod(targetClass);
             if (testMethod == null) {
@@ -21,7 +21,7 @@ public class TestClassElementsLocator {
             }
             PsiElement assertExpression = findLastElement(testMethod, PsiExpressionStatement.class);
             if (assertExpression == null) {
-                return defaultLocation;
+                return testMethod;
             } else if (assertExpression.getFirstChild() == null || assertExpression.getFirstChild().getLastChild() == null || assertExpression.getFirstChild().getLastChild().getFirstChild() == null || assertExpression.getFirstChild()
                     .getLastChild().getFirstChild().getNextSibling() == null) {
                 return defaultLocation;

@@ -6,5 +6,5 @@ package com.weirddev.testme.intellij.template.context;
  * @author Yaron Yamin
  */
 public enum Language {
-    Groovy,Java
+    Scala,Groovy,Java
 }

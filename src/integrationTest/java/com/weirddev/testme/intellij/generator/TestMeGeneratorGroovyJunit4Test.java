@@ -10,7 +10,7 @@ import com.weirddev.testme.intellij.template.context.Language;
  */
 public class TestMeGeneratorGroovyJunit4Test extends TestMeGeneratorJunit4Test {
     public TestMeGeneratorGroovyJunit4Test() {
-        super(TemplateRegistry.JUNIT4_GROOVY_MOCKITO_JAVA_TEMPLATE, "testGroovy", Language.Groovy);
+        super(TemplateRegistry.JUNIT4_MOCKITO_GROOVY_TEMPLATE, "testGroovy", Language.Groovy);
         expectedTestClassExtension = "groovy";
         skipTestIfGroovyPluginDisabled();
     }

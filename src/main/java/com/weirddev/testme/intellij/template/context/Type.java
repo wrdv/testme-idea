@@ -2,6 +2,8 @@ package com.weirddev.testme.intellij.template.context;
 
 import com.intellij.psi.*;
 import com.intellij.psi.util.PsiUtil;
+import com.weirddev.testme.intellij.resolvers.groovy.LanguageUtils;
+import com.weirddev.testme.intellij.resolvers.scala.ScalaTypeUtils;
 import com.weirddev.testme.intellij.template.TypeDictionary;
 import com.weirddev.testme.intellij.utils.ClassNameUtils;
 import com.weirddev.testme.intellij.utils.PropertyUtils;
@@ -40,6 +42,10 @@ public class Type {
     private boolean dependenciesResolved =false;
     private boolean dependenciesResolvable =false;
     private boolean hasDefaultConstructor=false;
+    /**
+     * true - if this is a scala case class
+     */
+    private final boolean caseClass;
 
     Type(String canonicalName, String name, String packageName, boolean isPrimitive, boolean isInterface, boolean isAbstract, boolean array, boolean varargs, List<Type> composedTypes) {
         this.canonicalName = canonicalName;
@@ -58,6 +64,7 @@ public class Type {
         parentContainerClass = null;
         isStatic = false;
         isFinal = false;
+        caseClass = false;
     }
 
     Type(String canonicalName) {
@@ -83,8 +90,13 @@ public class Type {
         fields = new ArrayList<Field>();
         enumValues = resolveEnumValues(psiType);
          dependenciesResolvable = shouldResolveAllMethods && maxRecursionDepth > 1;
-        methods=new ArrayList<Method>();
+        methods = new ArrayList<Method>();
         isFinal = isFinalType(psiClass);
+        if (psiClass != null && LanguageUtils.isScala(psiClass.getLanguage())) {
+            caseClass = ScalaTypeUtils.isCaseClass(psiClass);
+        } else {
+            caseClass = false;
+        }
     }
 
     @NotNull
@@ -273,5 +285,9 @@ public class Type {
     @Override
     public String toString() {
         return "Type{" + "canonicalName='" + canonicalName + '\'' + '}';
+    }
+
+    public boolean isCaseClass() {
+        return caseClass;
     }
 }

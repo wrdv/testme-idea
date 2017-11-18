@@ -33,6 +33,7 @@
   <depends>com.intellij.modules.java</depends>
   <depends>JUnit</depends>
   <depends optional="true">org.intellij.groovy</depends>
+  <depends optional="true">org.intellij.scala</depends>
   <extensions defaultExtensionNs="com.intellij">
   </extensions>
 
