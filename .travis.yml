@@ -17,7 +17,7 @@ matrix:
     - env: IDEA_VERSION=LATEST-EAP-SNAPSHOT SCALA_PLUGIN_VERSION=LATEST-EAP-SNAPSHOT ENABLE_IDEA_GROOVY_PLUGIN=false ENABLE_IDEA_SCALA_PLUGIN=false
   fast_finish: true
 script:
- - ./gradlew check -PideaVersion=$IDEA_VERSION -PenableIdeaGroovyPlugin=$ENABLE_IDEA_GROOVY_PLUGIN -PenableIdeaScalaPlugin=$ENABLE_IDEA_SCALA_PLUGIN jacocoTestReport
+ - ./gradlew check -PideaVersion=$IDEA_VERSION  -PscalaPluginVersion=$SCALA_PLUGIN_VERSION -PenableIdeaGroovyPlugin=$ENABLE_IDEA_GROOVY_PLUGIN -PenableIdeaScalaPlugin=$ENABLE_IDEA_SCALA_PLUGIN jacocoTestReport
 after_failure: ./print_surefire_reports.sh
 after_success:
   - ./gradlew coveralls
