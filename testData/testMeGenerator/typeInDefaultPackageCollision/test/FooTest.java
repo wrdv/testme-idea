@@ -1,10 +1,6 @@
-import com.example.foes.*;
-import com.example.foes.Fire;
-import com.example.hole.*;
-import com.example.warriers.FooFighter;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.Before;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -16,7 +12,7 @@ import static org.mockito.Mockito.*;
  */
 public class FooTest {
     @Mock
-    FooFighter fooFighter;
+    com.example.warriers.FooFighter fooFighter;
     @Mock
     com.example.foes.Fire fireOfFoe;
     @InjectMocks
