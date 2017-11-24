@@ -24,7 +24,7 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
         doTest();
     }
     public void testDefaultPackage() throws Exception {
-        doTest("", "Foo", "FooTest", true, false, true, false, 50);
+        doTest("", "Foo", "FooTest", true, false, false, false, 50);
     }
     public void testVariousFieldTypes() throws Exception {
         final FileTemplateConfig fileTemplateConfig = FileTemplateConfig.getInstance();
@@ -48,7 +48,7 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
         doTest(false,false,true);
     }
     public void testTypeInDefaultPackageCollision() throws Exception {
-        doTest("", "Foo", "FooTest", true, true, true, false, 50);
+        doTest("", "Foo", "FooTest", true, false, false, false, 50);
     }
     public void testInheritance() throws Exception {
         final FileTemplateConfig fileTemplateConfig = FileTemplateConfig.getInstance();
