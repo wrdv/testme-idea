@@ -54,11 +54,11 @@ public class TestSubjectUtils {
         }
         return sb.toString();
     }
-    public String formatSpockDataParameters(Map<String,String> paramsMap, String linePrefix, String defaultData){//todo - should accept Map<String,List<String>> paramsMap instead
+    public String formatSpockDataParameters(Map<String,String> paramsMap, String linePrefix){//todo - should accept Map<String,List<String>> paramsMap instead
         StringBuilder sb = new StringBuilder();
         final Set<String> paramNameKeys = paramsMap.keySet();
-        final String[] paramNames = paramNameKeys.toArray(new String[]{});
-        for (String param : paramNames) {
+        final boolean hasInputParams = hasInputParams(paramNameKeys);
+        for (String param : paramNameKeys) {
             if (!TestBuilder.RESULT_VARIABLE_NAME.equals(param)) {
                 if (sb.length() > 0) {
                     sb.append(" | ");
@@ -66,17 +66,14 @@ public class TestSubjectUtils {
                 sb.append(param);
             }
         }
-        if (paramNameKeys.contains(TestBuilder.RESULT_VARIABLE_NAME)) {
-            if (sb.length() > 0) {
-                sb.append(" || ");
-            }
-            sb.append(TestBuilder.RESULT_VARIABLE_NAME);
+        if (hasInputParams) {
+            sb.append(" || ").append(TestBuilder.RESULT_VARIABLE_NAME).append("\n");
         }
-        if (sb.length() > 0) {
-            sb.append("\n").append(linePrefix);
+        else {
+            sb.append(TestBuilder.RESULT_VARIABLE_NAME).append(" << ");
         }
         final int headerLength = sb.length();
-        for (String param : paramNames) {
+        for (String param : paramNameKeys) {
             if (!TestBuilder.RESULT_VARIABLE_NAME.equals(param)) {
                 if (headerLength < sb.length()) {
                     sb.append(" | ");
@@ -84,17 +81,16 @@ public class TestSubjectUtils {
                 sb.append(paramsMap.get(param));
             }
         }
-        if (paramNameKeys.contains(TestBuilder.RESULT_VARIABLE_NAME)) {
-            if (sb.length() > 0) {
-                sb.append(" || ");
-            }
-            sb.append(paramsMap.get(TestBuilder.RESULT_VARIABLE_NAME));
+        String resultVal = paramsMap.get(TestBuilder.RESULT_VARIABLE_NAME);
+        resultVal = resultVal == null ? "true" : resultVal;
+        if (hasInputParams) {
+            sb.append(" || ");
         }
-        if (sb.length() > 0) {
-            return sb.toString();
-        } else {
-            return defaultData;
-        }
+        sb.append(resultVal);
+        return sb.toString();
+    }
 
+    private boolean hasInputParams(Set<String> paramNameKeys) {
+        return paramNameKeys.size() > 1 || paramNameKeys.size() == 1 && !paramNameKeys.contains(TestBuilder.RESULT_VARIABLE_NAME);
     }
 }

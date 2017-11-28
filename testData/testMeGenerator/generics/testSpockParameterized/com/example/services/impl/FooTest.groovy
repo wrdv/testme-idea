@@ -38,10 +38,11 @@ class FooTest extends Specification {
     @Unroll
     def "into The Void"() {
         expect:
-        foo.intoTheVoid() == expectedResult
+        foo.intoTheVoid()
+        assert expectedResult == false //todo - validate something
 
         where:
-        expectedResult << false
+        expectedResult << true
     }
 }
 
