@@ -33,10 +33,15 @@ class ${CLASS_NAME}  extends Specification {
 
 #end
         expect:
-        #grRenderParameterizedMethodCall($method, $TESTED_CLASS.name, $paraTestComponents.methodClassParamsStr) == expectedResult
+        #grRenderParameterizedMethodCall($method, $TESTED_CLASS.name, $paraTestComponents.methodClassParamsStr)#if($method.hasReturn()) == expectedResult
+#end
+#if(!$method.hasReturn())
+
+        assert expectedResult == false //todo - validate something
+#end
 
         where:
-        $TestSubjectUtils.formatSpockDataParameters($paraTestComponents.paramsMap, "        ","expectedResult << false")
+        $TestSubjectUtils.formatSpockDataParameters($paraTestComponents.paramsMap, "        ")
     }
 #end
 #end
