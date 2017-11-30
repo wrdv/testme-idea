@@ -12,7 +12,7 @@ public interface TestBuilder {
     String RESULT_VARIABLE_NAME = "expectedResult";
     String renderMethodParams(Method method, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues) throws Exception;
 
-    ParameterizedTestComponents buildPrameterizedTestComponents(Method method, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues) throws Exception;
+    ParameterizedTestComponents buildPrameterizedTestComponents(Method method, Map<String, String> replacementTypesForReturn, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues) throws Exception;
 
     String renderReturnParam(Method testedMethod, Type type, String defaultName, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues) throws Exception;
 

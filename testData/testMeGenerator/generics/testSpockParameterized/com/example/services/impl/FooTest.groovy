@@ -8,6 +8,9 @@ import spock.lang.*
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
+
+import java.util.concurrent.CompletableFuture
+
 import static org.mockito.Mockito.*
 
 /** created by TestMe integration test on MMXVI */
@@ -43,6 +46,26 @@ class FooTest extends Specification {
 
         where:
         expectedResult << true
+    }
+
+    @Unroll
+    def "look Into where backTo=#backTo and theFuture=#theFuture then expect: #expectedResult"() {
+        expect:
+        foo.lookInto(backTo, theFuture).get() == expectedResult
+
+        where:
+        backTo                                      | theFuture                                   || expectedResult
+        CompletableFuture.completedFuture("String") | CompletableFuture.completedFuture("String") || "String"
+    }
+
+    @Unroll
+    def "warm where up=#up and coolDown=#coolDown then expect: #expectedResult"() {
+        expect:
+        foo.warm(up, coolDown).get() == expectedResult
+
+        where:
+        up                                            | coolDown                                     || expectedResult
+        CompletableFuture.completedFuture(new Fire()) | CompletableFuture.completedFuture(new Ice()) || 0
     }
 }
 

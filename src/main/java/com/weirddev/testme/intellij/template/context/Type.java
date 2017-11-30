@@ -42,6 +42,7 @@ public class Type {
     private boolean dependenciesResolved =false;
     private boolean dependenciesResolvable =false;
     private boolean hasDefaultConstructor=false;
+    private List<Type> implementedInterfaces = new ArrayList<Type>();
     /**
      * true - if this is a scala case class
      */
@@ -89,7 +90,7 @@ public class Type {
                 false):null;
         fields = new ArrayList<Field>();
         enumValues = resolveEnumValues(psiType);
-         dependenciesResolvable = shouldResolveAllMethods && maxRecursionDepth > 1;
+        dependenciesResolvable = shouldResolveAllMethods && maxRecursionDepth > 1;
         methods = new ArrayList<Method>();
         isFinal = isFinalType(psiClass);
         if (psiClass != null && LanguageUtils.isScala(psiClass.getLanguage())) {
@@ -121,6 +122,7 @@ public class Type {
 
                 }
             resolveFields(psiClass,typeDictionary,maxRecursionDepth - 1);
+            resolveImplementedInterfaces(psiClass,typeDictionary,shouldResolveAllMethods,maxRecursionDepth - 1);
             dependenciesResolved=true;
         }
     }
@@ -130,6 +132,11 @@ public class Type {
             if(!"groovy.lang.MetaClass".equals(psiField.getType().getCanonicalText())){
                 fields.add(new Field(psiField, psiClass,typeDictionary,maxRecursionDepth));
             }
+        }
+    }
+    private void resolveImplementedInterfaces(@NotNull PsiClass psiClass, TypeDictionary typeDictionary, boolean shouldResolveAllMethods, int maxRecursionDepth) {
+        for (PsiClassType psiClassType : psiClass.getImplementsListTypes()) {
+            implementedInterfaces.add(new Type(psiClassType, typeDictionary, maxRecursionDepth, shouldResolveAllMethods));
         }
     }
 
@@ -289,5 +296,9 @@ public class Type {
 
     public boolean isCaseClass() {
         return caseClass;
+    }
+
+    public List<Type> getImplementedInterfaces() {
+        return implementedInterfaces;
     }
 }

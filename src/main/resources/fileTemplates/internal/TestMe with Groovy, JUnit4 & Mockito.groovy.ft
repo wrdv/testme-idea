@@ -34,7 +34,8 @@ class ${CLASS_NAME} {
 
 #end
         #grRenderMethodCall($method,$TESTED_CLASS.name)
-#if($method.hasReturn())        assert #grRenderAssert($method)#end
+#if($method.hasReturn())        assert #grRenderAssert($method)
+#end
     }
 #end
 #end

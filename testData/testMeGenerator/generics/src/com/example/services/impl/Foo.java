@@ -10,7 +10,10 @@ import com.example.warriers.FooFighter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Set
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.FutureTask
+import java.util.concurrent.Future;
 
 public class Foo{
 
@@ -36,5 +39,11 @@ public class Foo{
 
     public void intoTheVoid(){
         System.out.println("Solitude");
+    }
+    public Future lookInto(Future backTo,CompletableFuture theFuture){
+        return CompletableFuture.completedFuture("the flux capacitor")
+    }
+    public CompletableFuture<Integer> warm(Future<Fire> up,FutureTask<Ice> coolDown){
+        return CompletableFuture.completedFuture(666)
     }
 }

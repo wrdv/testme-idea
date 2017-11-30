@@ -30,7 +30,7 @@ import java.util.Set;
 public class JavaTestBuilderImpl implements LangTestBuilder {
     private static final Logger LOG = Logger.getInstance(JavaTestBuilderImpl.class.getName());
     private static final Set<String> STRING_TYPES = ImmutableSet.of("java.lang.String", "java.lang.Object");
-    private static Type DEFAULT_TYPE = new Type("java.lang.String", "String", "java.lang", false, false, false, false, false, new ArrayList<Type>());
+    private static Type DEFAULT_STRING_TYPE = new Type("java.lang.String", "String", "java.lang", false, false, false, false, false, new ArrayList<Type>());
     private final TestBuilder.ParamRole paramRole; //todo consider removing. not used anymore
     private final Method testedMethod;
     protected final String NEW_INITIALIZER = "new ";
@@ -95,22 +95,23 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
             String typeName = resolveTypeName(resolvedType, replacementTypes);
             if (!resolvedType.getCanonicalName().equals(typeName)) {
                 final String[] typeInitExp = typeName.split("<VAL>");
-                testBuilder.append(typeInitExp[0]);
-                for (int i = 1; i < typeInitExp.length; i++) {
-                    Type genericTypeParam;
-                    if (resolvedType.getComposedTypes().size() >= i) {
-                        genericTypeParam = resolvedType.getComposedTypes().get(i - 1);
-                    } else {
-                        genericTypeParam = DEFAULT_TYPE;
+                if (typeInitExp.length == 0) {
+                    Type genericTypeParam = safeGetComposedTypeAtIndex(resolvedType, 0);
+                    buildCallParam(replacementTypes, defaultTypeValues, testBuilder, new Node<Param>(new SyntheticParam(genericTypeParam, genericTypeParam.getName(), false), paramNode, paramNode.getDepth()));
+                }
+                else {
+                    testBuilder.append(typeInitExp[0]);
+                    for (int i = 1; i < typeInitExp.length; i++) {
+                        Type genericTypeParam = safeGetComposedTypeAtIndex(resolvedType, i-1);
+                        if (TestBuilderUtil.looksLikeObjectKeyInGroovyMap(typeInitExp[i], genericTypeParam.getCanonicalName())) {
+                            testBuilder.append("(");
+                        }
+                        buildCallParam(replacementTypes, defaultTypeValues, testBuilder, new Node<Param>(new SyntheticParam(genericTypeParam, genericTypeParam.getName(), false),paramNode,paramNode.getDepth()));
+                        if (TestBuilderUtil.looksLikeObjectKeyInGroovyMap(typeInitExp[i], genericTypeParam.getCanonicalName())) {
+                            testBuilder.append(")");
+                        }
+                        testBuilder.append(typeInitExp[i]);
                     }
-                    if (TestBuilderUtil.looksLikeObjectKeyInGroovyMap(typeInitExp[i], genericTypeParam.getCanonicalName())) {
-                        testBuilder.append("(");
-                    }
-                    buildCallParam(replacementTypes, defaultTypeValues, testBuilder, new Node<Param>(new SyntheticParam(genericTypeParam, genericTypeParam.getName(), false),paramNode,paramNode.getDepth()));
-                    if (TestBuilderUtil.looksLikeObjectKeyInGroovyMap(typeInitExp[i], genericTypeParam.getCanonicalName())) {
-                        testBuilder.append(")");
-                    }
-                    testBuilder.append(typeInitExp[i]);
                 }
             }
             else if (shouldContinueRecursion(paramNode)) {
@@ -132,6 +133,16 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
                 testBuilder.append("null");
             }
         }
+    }
+
+    private Type safeGetComposedTypeAtIndex(Type resolvedType, int i) {
+        Type genericTypeParam;
+        if (resolvedType.getComposedTypes().size() > i) {
+            genericTypeParam = resolvedType.getComposedTypes().get(i);
+        } else {
+            genericTypeParam = DEFAULT_STRING_TYPE;
+        }
+        return genericTypeParam;
     }
 
     @NotNull
