@@ -26,7 +26,7 @@ public class TestBuilderImpl implements TestBuilder{
     }
 
     @Override
-    public ParameterizedTestComponents buildPrameterizedTestComponents(Method method, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues) throws Exception {
+    public ParameterizedTestComponents buildPrameterizedTestComponents(Method method, Map<String, String> replacementTypesForReturn, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues) throws Exception {
         //a temp solution for single dimmension parameters
         final LangTestBuilder testBuilder = langTestBuilderFactory.createTestBuilder(method, ParamRole.Input);
         final ParameterizedTestComponents parameterizedTestComponents = new ParameterizedTestComponents();
@@ -41,7 +41,7 @@ public class TestBuilderImpl implements TestBuilder{
         }
 
         if (method.hasReturn()) {
-            final String value = testBuilder.renderJavaCallParam(method.getReturnType(), RESULT_VARIABLE_NAME, replacementTypes, defaultTypeValues);
+            final String value = testBuilder.renderJavaCallParam(method.getReturnType(), RESULT_VARIABLE_NAME, replacementTypesForReturn, defaultTypeValues);
             parameterizedTestComponents.getParamsMap().put(RESULT_VARIABLE_NAME, value);
         }
         parameterizedTestComponents.setMethodClassParamsStr(sb.toString());

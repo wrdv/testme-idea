@@ -8,6 +8,10 @@ import spock.lang.*
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
+
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Future
+
 import static org.mockito.Mockito.*
 
 /** created by TestMe integration test on MMXVI */
@@ -39,6 +43,22 @@ class FooTest extends Specification {
 
         then:
         false//todo - validate something
+    }
+
+    def "test look Into"() {
+        when:
+        Future result = foo.lookInto(CompletableFuture.completedFuture("String"), CompletableFuture.completedFuture("String"))
+
+        then:
+        result.get() == CompletableFuture.completedFuture("String").get()
+    }
+
+    def "test warm"() {
+        when:
+        CompletableFuture<Integer> result = foo.warm(CompletableFuture.completedFuture(new Fire()), CompletableFuture.completedFuture(new Ice()))
+
+        then:
+        result.get() == CompletableFuture.completedFuture(0).get()
     }
 }
 

@@ -39,6 +39,15 @@
     "scala.Tuple12": "(<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>)",
     "scala.Tuple13": "(<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>)"
 })
+#set($scReplacementTypes = $scReplacementTypesStatic.clone())
+#set($scReplacementTypesForReturn = $scReplacementTypesStatic.clone())
+#foreach($javaFutureType in $TestSubjectUtils.javaFutureTypes)
+#evaluate(${scReplacementTypes.put($javaFutureType,"java.util.concurrent.CompletableFuture.completedFuture(<VAL>)")})
+#end
+#foreach($javaFutureType in $TestSubjectUtils.javaFutureTypes)
+#evaluate(${scReplacementTypesForReturn.put($javaFutureType,"<VAL>")})
+#end
+
 #set($scDefaultTypeValues = {
     "byte": "(byte)0",
     "short": "(short)0",
@@ -100,7 +109,7 @@
 #end
 ##
 #macro(scRenderAssert $method)
-result === $TestBuilder.renderReturnParam($method,$method.returnType,"replaceMeWithExpectedResult",$scReplacementTypes,$scDefaultTypeValues)
+result#if($TestSubjectUtils.isJavaFuture($method.returnType)).get()#end === $TestBuilder.renderReturnParam($method,$method.returnType,"replaceMeWithExpectedResult",$scReplacementTypesForReturn,$scDefaultTypeValues)
 #end
 ##
 #macro(scRenderMethodCall $method,$testedClassName)

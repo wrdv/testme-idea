@@ -1,10 +1,9 @@
 package com.weirddev.testme.intellij.template.context;
 
 import com.intellij.openapi.diagnostic.Logger;
+import com.weirddev.testme.intellij.utils.ClassNameUtils;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Date: 31/03/2017
@@ -12,9 +11,17 @@ import java.util.Set;
  * @author Yaron Yamin
  */
 @SuppressWarnings("unused")
-public class TestSubjectUtils {
+public class TestSubjectUtils
+{
     private static final Logger LOG = Logger.getInstance(TestSubjectUtils.class.getName());
-    public static boolean hasTestableInstanceMethod(List<Method> methods){
+
+    private static final Set<String> JAVA_FUTURE_TYPES = new HashSet<String>(Arrays.asList("java.util.concurrent.Future", "java.util.concurrent.CompletableFuture", "java.util.concurrent.RunnableFuture",
+            "java.util.concurrent.ForkJoinTask.AdaptedRunnableAction", "java.util.concurrent.RunnableScheduledFuture", "java.util.concurrent.ScheduledThreadPoolExecutor.ScheduledFutureTask", "java.util.concurrent.FutureTask",
+            "java.util.concurrent.ExecutorCompletionService.QueueingFuture", "java.util.concurrent.ForkJoinTask.AdaptedRunnable", "java.util.concurrent.ForkJoinTask.AdaptedCallable","java.util.concurrent.ForkJoinTask",
+            "java.util.concurrent.ForkJoinTask.AdaptedRunnableAction", "java.util.concurrent.CountedCompleter","java.util.concurrent.RecursiveTask", "java.util.concurrent.ForkJoinTask.RunnableExecuteAction",
+            "java.util.concurrent.CompletableFuture.AsyncSupply","java.util.concurrent.RecursiveAction","java.util.concurrent.CompletableFuture.Completion","java.util.concurrent.ScheduledFuture", "java.util.concurrent.RunnableScheduledFuture"));
+
+    public static boolean hasTestableInstanceMethod(List<Method> methods) {
         for (Method method : methods) {
             if (method.isTestable() && !method.isStatic()) {
                 return true;
@@ -22,7 +29,8 @@ public class TestSubjectUtils {
         }
         return false;
     }
-    public static boolean isMethodCalled(Method method, Method byTestedMethod){
+
+    public static boolean isMethodCalled(Method method, Method byTestedMethod) {
         Set<MethodCall> methodCalls = byTestedMethod.getMethodCalls();
         boolean isMethodCalled = false;
         for (MethodCall methodCall : methodCalls) {
@@ -31,10 +39,11 @@ public class TestSubjectUtils {
                 break;
             }
         }
-        LOG.debug("method "+method.getMethodId()+" searched in "+methodCalls.size()+" method calls by tested method "+byTestedMethod.getMethodId()+" - is found:"+isMethodCalled);
+        LOG.debug("method " + method.getMethodId() + " searched in " + methodCalls.size() + " method calls by tested method " + byTestedMethod.getMethodId() + " - is found:" + isMethodCalled);
         return isMethodCalled;
     }
-    public String formatSpockParamNamesTitle(Map<String,String> paramsMap, boolean methodHasReturn){
+
+    public String formatSpockParamNamesTitle(Map<String, String> paramsMap, boolean methodHasReturn) {
         StringBuilder sb = new StringBuilder();
         final Set<String> paramNameKeys = paramsMap.keySet();
         final String[] paramNames = paramNameKeys.toArray(new String[]{});
@@ -54,7 +63,8 @@ public class TestSubjectUtils {
         }
         return sb.toString();
     }
-    public String formatSpockDataParameters(Map<String,String> paramsMap, String linePrefix){//todo - should accept Map<String,List<String>> paramsMap instead
+
+    public String formatSpockDataParameters(Map<String, String> paramsMap, String linePrefix) {//todo - should accept Map<String,List<String>> paramsMap instead
         StringBuilder sb = new StringBuilder();
         final Set<String> paramNameKeys = paramsMap.keySet();
         final boolean hasInputParams = hasInputParams(paramNameKeys);
@@ -90,7 +100,33 @@ public class TestSubjectUtils {
         return sb.toString();
     }
 
+    public boolean isJavaFuture(Type type) {
+        for (String javaFutureType : JAVA_FUTURE_TYPES) {
+            if (isSameGenericType(type, javaFutureType)) {
+                return true;
+            }
+        }
+        return isImplements(type, "java.util.concurrent.Future");
+    }
+
+    private boolean isImplements(Type type, String classCanonicalName) {
+        for (Type interfaceType : type.getImplementedInterfaces()) {
+            if (isSameGenericType(interfaceType, classCanonicalName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isSameGenericType(Type type, String classCanonicalName) {
+        return classCanonicalName.equals(ClassNameUtils.stripGenerics(type.getCanonicalName()));
+    }
+
     private boolean hasInputParams(Set<String> paramNameKeys) {
         return paramNameKeys.size() > 1 || paramNameKeys.size() == 1 && !paramNameKeys.contains(TestBuilder.RESULT_VARIABLE_NAME);
+    }
+
+    public static Set<String> getJavaFutureTypes() {
+        return JAVA_FUTURE_TYPES;
     }
 }

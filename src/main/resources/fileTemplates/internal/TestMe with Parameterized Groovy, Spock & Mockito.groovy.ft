@@ -23,7 +23,7 @@ class ${CLASS_NAME}  extends Specification {
 #end
 #foreach($method in $TESTED_CLASS.methods)
 #if($method.isTestable())
-#set($paraTestComponents=$TestBuilder.buildPrameterizedTestComponents($method,$grReplacementTypes,$grDefaultTypeValues))
+#set($paraTestComponents=$TestBuilder.buildPrameterizedTestComponents($method,$grReplacementTypesForReturn,$grReplacementTypes,$grDefaultTypeValues))
 
     @Unroll
     def "#renderTestMethodNameAsWords($method.name)$TestSubjectUtils.formatSpockParamNamesTitle($paraTestComponents.paramsMap, $method.hasReturn())"() {
@@ -33,7 +33,7 @@ class ${CLASS_NAME}  extends Specification {
 
 #end
         expect:
-        #grRenderParameterizedMethodCall($method, $TESTED_CLASS.name, $paraTestComponents.methodClassParamsStr)#if($method.hasReturn()) == expectedResult
+        #grRenderParameterizedMethodCall($method, $TESTED_CLASS.name, $paraTestComponents.methodClassParamsStr)#{if}($TestSubjectUtils.isJavaFuture($method.returnType)).get()#{end}#if($method.hasReturn()) == expectedResult
 #end
 #if(!$method.hasReturn())
 
