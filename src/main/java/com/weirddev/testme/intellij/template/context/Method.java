@@ -10,6 +10,7 @@ import com.weirddev.testme.intellij.resolvers.groovy.GroovyPsiTreeUtils;
 import com.weirddev.testme.intellij.resolvers.groovy.LanguageUtils;
 import com.weirddev.testme.intellij.resolvers.to.ResolvedMethodCall;
 import com.weirddev.testme.intellij.resolvers.to.ResolvedReference;
+import com.weirddev.testme.intellij.scala.resolvers.ScalaPsiTreeUtils;
 import com.weirddev.testme.intellij.template.TypeDictionary;
 import com.weirddev.testme.intellij.utils.ClassNameUtils;
 import com.weirddev.testme.intellij.utils.JavaPsiTreeUtils;
@@ -83,7 +84,7 @@ public class Method {
         isNative = psiMethod.hasModifierProperty(PsiModifier.NATIVE);
         isStatic = psiMethod.hasModifierProperty(PsiModifier.STATIC);
         name = psiMethod.getName();
-        this.returnType = typeDictionary.getType(psiMethod.getReturnType(),maxRecursionDepth,true);
+        this.returnType = psiMethod.getReturnType() ==null? null:typeDictionary.getType(psiMethod.getReturnType(),maxRecursionDepth,true);
         ownerClassCanonicalType = psiMethod.getContainingClass() == null ? null : psiMethod.getContainingClass().getQualifiedName();
         methodParams = extractMethodParams(typeDictionary, maxRecursionDepth,psiMethod);
         isSetter = PropertyUtils.isPropertySetter(psiMethod);
@@ -216,7 +217,13 @@ public class Method {
 
     private List<Param> extractMethodParams(TypeDictionary typeDictionary, int maxRecursionDepth, PsiMethod psiMethod) {
         ArrayList<Param> params = new ArrayList<Param>();
-        for (PsiParameter psiParameter : psiMethod.getParameterList().getParameters()) {
+        final PsiParameter[] parameters;
+        if (LanguageUtils.isScala(psiMethod.getLanguage())) {
+            parameters = ScalaPsiTreeUtils.resolveParameters(psiMethod);
+        } else {
+            parameters = psiMethod.getParameterList().getParameters();
+        }
+        for (PsiParameter psiParameter : parameters) {
             final ArrayList<Field> assignedToFields = findMatchingFields(psiParameter, psiMethod);
             params.add(new Param(psiParameter,typeDictionary,maxRecursionDepth,assignedToFields));
         }
