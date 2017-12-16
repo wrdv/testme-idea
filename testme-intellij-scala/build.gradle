@@ -17,7 +17,7 @@ targetCompatibility = 1.6
 def ideaVersion = (rootProject.hasProperty('ideaVersion') && rootProject.ideaVersion) ? rootProject.ideaVersion : '14.1.2'
 def scalaPluginVersion = (rootProject.hasProperty('scalaPluginVersion') && rootProject.scalaPluginVersion) ? rootProject.scalaPluginVersion : '1.5.4'
 def ideaType = (rootProject.hasProperty('ideaType') && rootProject.ideaType) ? rootProject.ideaType : 'IC'
-
+def spockVersion = ideaVersion.startsWith("14.")? "1.0-groovy-2.3" : "1.0-groovy-2.4"
 intellij {
     pluginName 'TestMe'
     instrumentCode = true
@@ -28,7 +28,11 @@ intellij {
     updateSinceUntilBuild false
     plugins = ['junit','properties',"org.intellij.scala:$scalaPluginVersion"]
 }
-
+dependencies {
+    testCompile("org.spockframework:spock-core:$spockVersion"){
+        exclude group: 'org.codehaus.groovy'
+    }
+}
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
     if (!javaHome) {

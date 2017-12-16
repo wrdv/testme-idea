@@ -1,4 +1,4 @@
-package com.weirddev.testme.intellij.resolvers.scala;
+package com.weirddev.testme.intellij.scala.resolvers;
 
 import com.intellij.psi.PsiClass;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass;

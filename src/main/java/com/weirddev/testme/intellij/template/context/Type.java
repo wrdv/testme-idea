@@ -3,9 +3,11 @@ package com.weirddev.testme.intellij.template.context;
 import com.intellij.psi.*;
 import com.intellij.psi.util.PsiUtil;
 import com.weirddev.testme.intellij.resolvers.groovy.LanguageUtils;
-import com.weirddev.testme.intellij.resolvers.scala.ScalaTypeUtils;
+import com.weirddev.testme.intellij.scala.resolvers.ScalaPsiTreeUtils;
+import com.weirddev.testme.intellij.scala.resolvers.ScalaTypeUtils;
 import com.weirddev.testme.intellij.template.TypeDictionary;
 import com.weirddev.testme.intellij.utils.ClassNameUtils;
+import com.weirddev.testme.intellij.utils.JavaTypeUtils;
 import com.weirddev.testme.intellij.utils.PropertyUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -90,7 +92,7 @@ public class Type {
                 false):null;
         fields = new ArrayList<Field>();
         enumValues = resolveEnumValues(psiType);
-        dependenciesResolvable = shouldResolveAllMethods && maxRecursionDepth > 1;
+         dependenciesResolvable = shouldResolveAllMethods && maxRecursionDepth > 1;
         methods = new ArrayList<Method>();
         isFinal = isFinalType(psiClass);
         if (psiClass != null && LanguageUtils.isScala(psiClass.getLanguage())) {
