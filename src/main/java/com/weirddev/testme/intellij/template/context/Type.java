@@ -74,32 +74,52 @@ public class Type {
         this(ClassNameUtils.extractContainerType(canonicalName), ClassNameUtils.extractClassName(canonicalName), ClassNameUtils.extractPackageName(canonicalName),false, false,false, ClassNameUtils.isArray(canonicalName),ClassNameUtils.isVarargs(canonicalName),null);
     }
 
-    public Type(PsiType psiType, @Nullable TypeDictionary typeDictionary, int maxRecursionDepth, boolean shouldResolveAllMethods) {
-        String canonicalText = psiType.getCanonicalText();
+    public Type(PsiType psiType, PsiElement typePsiElement, @Nullable TypeDictionary typeDictionary, int maxRecursionDepth, boolean shouldResolveAllMethods) {
+        String canonicalText = JavaTypeUtils.resolveCanonicalName(psiType,typePsiElement);
         array = ClassNameUtils.isArray(canonicalText);
         varargs = ClassNameUtils.isVarargs(canonicalText);
         canonicalName = ClassNameUtils.stripArrayVarargsDesignator(canonicalText);
         name = ClassNameUtils.extractClassName(ClassNameUtils.stripArrayVarargsDesignator(psiType.getPresentableText()));
         packageName = ClassNameUtils.extractPackageName(canonicalName);
         isPrimitive = psiType instanceof PsiPrimitiveType;
-        composedTypes = resolveTypes(psiType,typeDictionary,maxRecursionDepth);
+        composedTypes = resolveTypes(psiType, typePsiElement,typeDictionary, maxRecursionDepth);
         PsiClass psiClass = PsiUtil.resolveClassInType(psiType);
         isEnum = psiClass != null && psiClass.isEnum();
         isInterface = psiClass != null && psiClass.isInterface();
-        isAbstract = psiClass != null && psiClass.getModifierList()!=null &&  psiClass.getModifierList().hasModifierProperty(PsiModifier.ABSTRACT);
+        isAbstract = psiClass != null && psiClass.getModifierList() != null && psiClass.getModifierList().hasModifierProperty(PsiModifier.ABSTRACT);
         isStatic = psiClass != null && psiClass.getModifierList() != null && psiClass.getModifierList().hasExplicitModifier(PsiModifier.STATIC);
-        parentContainerClass = psiClass != null && psiClass.getParent()!=null && psiClass.getParent() instanceof PsiClass && typeDictionary!=null ? typeDictionary.getType(resolveType((PsiClass) psiClass.getParent()), maxRecursionDepth,
-                false):null;
+        parentContainerClass = psiClass != null && psiClass.getParent() != null && psiClass.getParent() instanceof PsiClass && typeDictionary != null ? typeDictionary.getType(resolveType((PsiClass) psiClass.getParent()), maxRecursionDepth,
+                false) : null;
         fields = new ArrayList<Field>();
-        enumValues = resolveEnumValues(psiType);
-         dependenciesResolvable = shouldResolveAllMethods && maxRecursionDepth > 1;
+        enumValues = resolveEnumValues(psiClass);
+        dependenciesResolvable = shouldResolveAllMethods && maxRecursionDepth > 1;
         methods = new ArrayList<Method>();
         isFinal = isFinalType(psiClass);
-        if (psiClass != null && LanguageUtils.isScala(psiClass.getLanguage())) {
-            caseClass = ScalaTypeUtils.isCaseClass(psiClass);
-        } else {
-            caseClass = false;
-        }
+        caseClass = psiClass != null && LanguageUtils.isScala(psiClass.getLanguage()) && ScalaTypeUtils.isCaseClass(psiClass);
+    }
+
+    public Type(PsiClass psiClass, TypeDictionary typeDictionary, int maxRecursionDepth, boolean shouldResolveAllMethods) {
+        String canonicalText = JavaTypeUtils.resolveCanonicalName(psiClass, null);
+        array = ClassNameUtils.isArray(canonicalText);
+        varargs = ClassNameUtils.isVarargs(canonicalText);
+        canonicalName = ClassNameUtils.stripArrayVarargsDesignator(canonicalText);
+        name = ClassNameUtils.extractClassName(ClassNameUtils.stripArrayVarargsDesignator(psiClass.getQualifiedName()));
+        packageName = ClassNameUtils.extractPackageName(canonicalName);
+        isPrimitive = psiClass instanceof PsiPrimitiveType;
+        composedTypes = new ArrayList<Type>();
+        isEnum = psiClass.isEnum();
+        isInterface = psiClass.isInterface();
+        isAbstract = psiClass.getModifierList() != null && psiClass.getModifierList().hasModifierProperty(PsiModifier.ABSTRACT);
+        isStatic = psiClass.getModifierList() != null && psiClass.getModifierList().hasExplicitModifier(PsiModifier.STATIC);
+        parentContainerClass = psiClass.getParent() != null && psiClass.getParent() instanceof PsiClass && typeDictionary != null ? typeDictionary.getType(resolveType((PsiClass) psiClass.getParent()), maxRecursionDepth,
+                false) : null;
+        fields = new ArrayList<Field>();
+        enumValues = resolveEnumValues(psiClass);
+        dependenciesResolvable = shouldResolveAllMethods && maxRecursionDepth > 1;
+        methods = new ArrayList<Method>();
+        isFinal = isFinalType(psiClass);
+        caseClass = LanguageUtils.isScala(psiClass.getLanguage()) && ScalaTypeUtils.isCaseClass(psiClass);
+
     }
 
     @NotNull
@@ -108,9 +128,11 @@ public class Type {
     }
 
     public void resolveDependencies(@Nullable TypeDictionary typeDictionary, int maxRecursionDepth, PsiType psiType, boolean shouldResolveAllMethods) {
-        String canonicalText = psiType.getCanonicalText();
-        PsiClass psiClass = PsiUtil.resolveClassInType(psiType);
-        if (psiClass != null && maxRecursionDepth>0 && !canonicalText.startsWith("java.") /*todo consider replacing with just java.util.* || java.lang.*  */&& typeDictionary!=null) {
+        resolveDependencies(typeDictionary, maxRecursionDepth, PsiUtil.resolveClassInType(psiType), psiType.getCanonicalText(), shouldResolveAllMethods);
+    }
+
+    public void resolveDependencies(@Nullable TypeDictionary typeDictionary, int maxRecursionDepth, PsiClass psiClass, String canonicalText, boolean shouldResolveAllMethods) {
+        if (psiClass != null && maxRecursionDepth>0 && !canonicalText.startsWith("java.") && !canonicalText.startsWith("scala.") /*todo consider replacing with just java.util.* || java.lang.*  */&& typeDictionary!=null) {
             if (psiClass.getConstructors().length == 0) {
                  hasDefaultConstructor=true; //todo check if parent ctors are also retrieved by getConstructors()
             }
@@ -138,7 +160,7 @@ public class Type {
     }
     private void resolveImplementedInterfaces(@NotNull PsiClass psiClass, TypeDictionary typeDictionary, boolean shouldResolveAllMethods, int maxRecursionDepth) {
         for (PsiClassType psiClassType : psiClass.getImplementsListTypes()) {
-            implementedInterfaces.add(new Type(psiClassType, typeDictionary, maxRecursionDepth, shouldResolveAllMethods));
+            implementedInterfaces.add(new Type(psiClassType, null,typeDictionary, maxRecursionDepth, shouldResolveAllMethods));
         }
     }
 
@@ -155,8 +177,7 @@ public class Type {
         return "groovy.lang.MetaClass".equals(psiParameter.getType().getCanonicalText()) && "metaClass".equals(psiParameter.getName());
     }
 
-    private static List<String> resolveEnumValues(PsiType psiType) {
-        PsiClass psiClass = PsiUtil.resolveClassInType(psiType);
+    private static List<String> resolveEnumValues(PsiClass psiClass) {
         List<String> enumValues = new ArrayList<String>();
         if (psiClass != null && psiClass.isEnum()) {
             for (PsiField field : psiClass.getFields()) {
@@ -172,14 +193,24 @@ public class Type {
         return enumValues;
     }
 
-    private List<Type> resolveTypes(PsiType psiType, TypeDictionary typeDictionary, int maxRecursionDepth) {
+    private List<Type> resolveTypes(PsiType psiType, PsiElement typePsiElement, TypeDictionary typeDictionary, int maxRecursionDepth) {
         ArrayList<Type> types = new ArrayList<Type>();
         if (typeDictionary!=null && psiType instanceof PsiClassType) {
             PsiClassType psiClassType = (PsiClassType) psiType;
             PsiType[] parameters = psiClassType.getParameters();
             if (parameters.length > 0) {
-                for (PsiType parameter : parameters) {
-                    types.add(typeDictionary.getType(parameter,maxRecursionDepth, false));
+                ArrayList<PsiClass> psiClasses = null;
+                if (typePsiElement!=null &&  LanguageUtils.isScala(typePsiElement.getLanguage())) {
+                    psiClasses = ScalaPsiTreeUtils.resolveComposedTypes(psiType, typePsiElement);
+                }
+                if (psiClasses == null || psiClasses.isEmpty()) {
+                    for (PsiType parameter : parameters) {
+                        types.add(typeDictionary.getType(parameter, maxRecursionDepth, false));
+                    }
+                } else {
+                    for (PsiClass psiClass : psiClasses) {
+                        types.add(typeDictionary.getType(psiClass, maxRecursionDepth, false));
+                    }
                 }
             }
         }

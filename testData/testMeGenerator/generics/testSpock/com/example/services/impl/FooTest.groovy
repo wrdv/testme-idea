@@ -50,7 +50,7 @@ class FooTest extends Specification {
         Future result = foo.lookInto(CompletableFuture.completedFuture("String"), CompletableFuture.completedFuture("String"))
 
         then:
-        result.get() == CompletableFuture.completedFuture("String").get()
+        result.get() == "String"
     }
 
     def "test warm"() {
@@ -58,7 +58,7 @@ class FooTest extends Specification {
         CompletableFuture<Integer> result = foo.warm(CompletableFuture.completedFuture(new Fire()), CompletableFuture.completedFuture(new Ice()))
 
         then:
-        result.get() == CompletableFuture.completedFuture(0).get()
+        result.get() == 0
     }
 }
 
