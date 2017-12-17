@@ -26,7 +26,7 @@ apply plugin: 'groovy'
 apply plugin: 'idea'
 apply plugin: 'org.jetbrains.intellij'
 
-def spockVersion = ideaVersion.startsWith("14.")? "1.0-groovy-2.3" : "1.0-groovy-2.4"
+def spockVersion = ideaVersion.startsWith("14.") || ideaVersion.startsWith("15.") ? "1.0-groovy-2.3" : "1.0-groovy-2.4"
 
 jacoco {
     toolVersion = "0.7.6.201602180812"

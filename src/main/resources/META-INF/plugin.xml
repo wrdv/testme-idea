@@ -1,7 +1,7 @@
 <idea-plugin version="2">
   <id>com.weirddev.testme</id>
   <name>TestMe</name>
-  <version>1.7</version>
+  <version>2.0.0</version>
   <vendor email="testme@weirddev.com" url="http://weirddev.com">WeirdDev</vendor>
 
   <description><![CDATA[
@@ -18,18 +18,18 @@
     ]]></description>
 
   <change-notes><![CDATA[
-        <i>Main Changes in v1.7:</i>
+        <i>Main Changes in v2.0.0:</i>
           <ul>
-            <li>Generate mocked return values for method calls of mocked dependencies in tested class</li>
-            <li>Test params generator: locate and initialize concrete types found in project source instead of passing null for interface/abstract parameter types</li>
-            <li>Get configuration from system properties (a temporary solution to support runtime configuration control via the built in IDE Scripting Console - on the Tools menu). Note: Some of these configuration properties may not be supported in future releases. <a href="http://weirddev.com/blog/testme/testme-configuration-hacks">More info and usage instructions here</a></li>
+            <li>Generate test code in Scala with Spec2 test framework</li>
+            <li>Generate Spock Parameterized tests</li>
+            <li>Test Scala classes</li>
+            <li>Properly Assert methods returning Java futures</li>
           </ul>
         <a href="http://weirddev.com/testme/release-notes">Complete Changelog</a>
     ]]>
   </change-notes>
   <!-- please see https://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
-  <!--<idea-version since-build="139"/> --><!--14 -->
-  <idea-version since-build="141"/> <!--14.1-->
+  <idea-version since-build="163"/>
   <depends>com.intellij.modules.java</depends>
   <depends>JUnit</depends>
   <depends optional="true">org.intellij.groovy</depends>
