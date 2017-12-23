@@ -25,4 +25,8 @@ public class LanguageUtils {//todo move to a common module
     public static boolean isScala(Language language) {
         return language == Language.findLanguageByID(SCALA_LANGUAGE_ID) && isPluginEnabled(SCALA_PLUGIN_ID);
     }
+
+    public static boolean isScalaPluginObject(Object typeElement) {
+        return typeElement.getClass().getCanonicalName().startsWith("org.jetbrains.plugins.scala.");
+    }
 }

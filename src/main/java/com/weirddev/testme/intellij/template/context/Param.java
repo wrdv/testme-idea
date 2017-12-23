@@ -1,6 +1,5 @@
 package com.weirddev.testme.intellij.template.context;
 
-import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiParameter;
 import com.weirddev.testme.intellij.resolvers.groovy.LanguageUtils;
 import com.weirddev.testme.intellij.scala.resolvers.ScalaPsiTreeUtils;
@@ -23,11 +22,11 @@ public class Param {
 
     private static Type resolveType(PsiParameter psiParameter, TypeDictionary typeDictionary, int maxRecursionDepth) {
 
-        PsiElement psiElement = null;
+        Object element = null;
         if (LanguageUtils.isScala(psiParameter.getLanguage())) {
-            psiElement = ScalaPsiTreeUtils.resolveRelatedTypeElement(psiParameter);
+            element = ScalaPsiTreeUtils.resolveRelatedTypeElement(psiParameter);
         }
-        return typeDictionary.getType(psiParameter.getType(), maxRecursionDepth, false,psiElement);
+        return typeDictionary.getType(psiParameter.getType(), maxRecursionDepth, false,element);
     }
 
     public Param(Type type, String name, ArrayList<Field> assignedToFields) {

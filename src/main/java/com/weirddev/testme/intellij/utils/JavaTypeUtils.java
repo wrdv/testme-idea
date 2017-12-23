@@ -13,21 +13,29 @@ import com.weirddev.testme.intellij.scala.resolvers.ScalaPsiTreeUtils;
  */
 public class JavaTypeUtils {
 
-    public static String resolveCanonicalName(Object psiElement, PsiElement typePsiElement) {
+    public static String resolveCanonicalName(Object psiElement, Object typeElement) {
         String canonicalName = null;
-        String scalaParameterizedCanonicalName = null;
-        if (typePsiElement!=null &&  LanguageUtils.isScala(typePsiElement.getLanguage())) {
-            scalaParameterizedCanonicalName = ScalaPsiTreeUtils.resolveParameterizedCanonicalName(typePsiElement);
+        String scalaCanonicalName = null;
+        if (typeElement instanceof PsiElement) {
+            final PsiElement psiTypeElement = (PsiElement) typeElement;
+            if (LanguageUtils.isScala(psiTypeElement.getLanguage())) {
+                scalaCanonicalName = ScalaPsiTreeUtils.resolveParameterizedCanonicalName(psiTypeElement);
+            }
         }
-        if (scalaParameterizedCanonicalName == null) {
+        else if (typeElement != null && LanguageUtils.isScalaPluginObject(typeElement)) {
+            scalaCanonicalName = ScalaPsiTreeUtils.resolveCanonicalNameOfObject(typeElement);
+        }
+        if (scalaCanonicalName == null) {
             if (psiElement instanceof PsiType) {
                 canonicalName = ((PsiType) psiElement).getCanonicalText();
             } else if (psiElement instanceof PsiClass) {
                 canonicalName = ((PsiClass) psiElement).getQualifiedName();
             }
         } else {
-            canonicalName = scalaParameterizedCanonicalName;
+            canonicalName = scalaCanonicalName;
         }
+
         return canonicalName;
     }
+
 }

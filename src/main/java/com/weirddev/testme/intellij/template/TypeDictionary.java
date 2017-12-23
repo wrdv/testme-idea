@@ -1,7 +1,10 @@
 package com.weirddev.testme.intellij.template;
 
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.psi.*;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiMethod;
+import com.intellij.psi.PsiPackage;
+import com.intellij.psi.PsiType;
 import com.intellij.psi.util.PsiUtil;
 import com.weirddev.testme.intellij.template.context.Type;
 import com.weirddev.testme.intellij.utils.JavaTypeUtils;
@@ -39,25 +42,25 @@ public class TypeDictionary {
         return getTypeInternal(psiClass, maxRecursionDepth, shouldResolveAllMethods, null);
     }
 
-    public Type getType(PsiType type, int maxRecursionDepth, boolean shouldResolveAllMethods, PsiElement psiElement) {
-        return getTypeInternal(type, maxRecursionDepth, shouldResolveAllMethods, psiElement);
+    public Type getType(PsiType type, int maxRecursionDepth, boolean shouldResolveAllMethods, Object element) {
+        return getTypeInternal(type, maxRecursionDepth, shouldResolveAllMethods, element);
     }
 
     @Nullable
-    private Type getTypeInternal(Object psiElement, int maxRecursionDepth, boolean shouldResolveAllMethods, PsiElement typePsiElement) {
+    private Type getTypeInternal(Object element, int maxRecursionDepth, boolean shouldResolveAllMethods, Object typeElement) {
         Type type = null;
-        String canonicalText = JavaTypeUtils.resolveCanonicalName(psiElement, typePsiElement);
-        if (canonicalText != null) {
+        String canonicalText = JavaTypeUtils.resolveCanonicalName(element, typeElement);
+        if  (canonicalText != null) {
             type = typeDictionary.get(canonicalText);
             if (type == null || !type.isDependenciesResolvable() && shouldResolveAllMethods && maxRecursionDepth > 1) {
                 LOG.debug(newTypeCounter.incrementAndGet() + ". Creating new type object for:" + canonicalText + " maxRecursionDepth:" + maxRecursionDepth);
-                if (psiElement instanceof PsiType) {
-                    final PsiType psiType = (PsiType) psiElement;
-                    type = new Type(psiType, typePsiElement, this, maxRecursionDepth, shouldResolveAllMethods);
+                if (element instanceof PsiType) {
+                    final PsiType psiType = (PsiType) element;
+                    type = new Type(psiType, typeElement, this, maxRecursionDepth, shouldResolveAllMethods);
                     typeDictionary.put(canonicalText, type);
                     type.resolveDependencies(this, maxRecursionDepth, psiType, shouldResolveAllMethods);
-                } else if (psiElement instanceof PsiClass) {
-                    final PsiClass psiClass = (PsiClass) psiElement;
+                } else if (element instanceof PsiClass) {
+                    final PsiClass psiClass = (PsiClass) element;
                     type = new Type(psiClass, this, maxRecursionDepth, shouldResolveAllMethods);
                     typeDictionary.put(canonicalText, type);
                 }
