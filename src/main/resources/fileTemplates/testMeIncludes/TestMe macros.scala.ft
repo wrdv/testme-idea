@@ -1,6 +1,6 @@
 #parse("TestMe common macros.java")
 ################## Global vars ###############
-#set($scReplacementTypes = {
+#set($scReplacementTypesStatic = {
     "java.util.Collection": "[<VAL>]",
     "java.util.Deque": "new LinkedList([<VAL>])",
     "java.util.List": "[<VAL>]",
@@ -24,13 +24,24 @@
 
     "scala.Option": "Some(<VAL>)",
     "scala.collection.immutable.Map": "Map(<VAL> -> <VAL>)",
+    "scala.Map": "Map(<VAL> -> <VAL>)",
     "scala.collection.immutable.Set": "Set(<VAL>)",
+    "scala.Set": "Set(<VAL>)",
     "scala.collection.immutable.List": "List(<VAL>)",
-    "scala.collection.immutable.Seq": "List(<VAL>)",
+    "scala.collection.Traversable": "List(<VAL>)",
+    "scala.collection.TraversableOnce": "List(<VAL>)",
+    "scala.collection.Iterable": "List(<VAL>)",
     "scala.collection.Seq": "List(<VAL>)",
     "scala.collection.mutable.Seq": "mutable.ArrayBuffer(<VAL>)",
     "scala.collection.mutable.Set": "mutable.Set(<VAL>)",
     "scala.collection.mutable.Map": "mutable.Map(<VAL> -> <VAL>)",
+    "scala.util.Either": "Left(<VAL>)",
+    "scala.util.Left": "Left(<VAL>)",
+    "scala.util.Right": "Right(<VAL>)",
+    "scala.List": "List(<VAL>)",
+    "scala.Traversable": "List(<VAL>)",
+    "scala.TraversableOnce": "List(<VAL>)",
+    "scala.Iterable": "List(<VAL>)",
     "scala.Tuple1": "(<VAL>)",
     "scala.Tuple2": "(<VAL>,<VAL>)",
     "scala.Tuple3": "(<VAL>,<VAL>,<VAL>)",
@@ -69,7 +80,7 @@
     "java.lang.Long": "1l",
     "java.lang.Float": "1.1f",
     "java.lang.Double": "0d",
-    "java.lang.Character": "'a' as Character",
+    "java.lang.Character": "'a'",
     "java.lang.Boolean": "Boolean.TRUE",
     "java.math.BigDecimal": "0 as java.math.BigDecimal",
     "java.math.BigInteger": "0g",

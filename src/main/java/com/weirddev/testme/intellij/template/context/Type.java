@@ -1,5 +1,6 @@
 package com.weirddev.testme.intellij.template.context;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
 import com.intellij.psi.util.PsiUtil;
 import com.weirddev.testme.intellij.resolvers.groovy.LanguageUtils;
@@ -74,7 +75,7 @@ public class Type {
         this(ClassNameUtils.extractContainerType(canonicalName), ClassNameUtils.extractClassName(canonicalName), ClassNameUtils.extractPackageName(canonicalName),false, false,false, ClassNameUtils.isArray(canonicalName),ClassNameUtils.isVarargs(canonicalName),null);
     }
 
-    public Type(PsiType psiType, PsiElement typePsiElement, @Nullable TypeDictionary typeDictionary, int maxRecursionDepth, boolean shouldResolveAllMethods) {
+    public Type(PsiType psiType, Object typePsiElement, @Nullable TypeDictionary typeDictionary, int maxRecursionDepth, boolean shouldResolveAllMethods) {
         String canonicalText = JavaTypeUtils.resolveCanonicalName(psiType,typePsiElement);
         array = ClassNameUtils.isArray(canonicalText);
         varargs = ClassNameUtils.isVarargs(canonicalText);
@@ -193,25 +194,61 @@ public class Type {
         return enumValues;
     }
 
-    private List<Type> resolveTypes(PsiType psiType, PsiElement typePsiElement, TypeDictionary typeDictionary, int maxRecursionDepth) {
-        ArrayList<Type> types = new ArrayList<Type>();
+    private List<Type> resolveTypes(PsiType psiType, Object typeElement, TypeDictionary typeDictionary, int maxRecursionDepth) {
+        List<Type> types = new ArrayList<Type>();
         if (typeDictionary!=null && psiType instanceof PsiClassType) {
             PsiClassType psiClassType = (PsiClassType) psiType;
             PsiType[] parameters = psiClassType.getParameters();
             if (parameters.length > 0) {
-                ArrayList<PsiClass> psiClasses = null;
-                if (typePsiElement!=null &&  LanguageUtils.isScala(typePsiElement.getLanguage())) {
-                    psiClasses = ScalaPsiTreeUtils.resolveComposedTypes(psiType, typePsiElement);
-                }
-                if (psiClasses == null || psiClasses.isEmpty()) {
-                    for (PsiType parameter : parameters) {
-                        types.add(typeDictionary.getType(parameter, maxRecursionDepth, false));
+//                List<PsiClass> psiClasses = null;
+//                if (typeElement!=null &&  typeElement instanceof PsiElement &&  LanguageUtils.isScala(((PsiElement)typeElement).getLanguage())) {
+//                    final PsiElement typePsiElement = (PsiElement) typeElement;
+//                    psiClasses = ScalaPsiTreeUtils.resolveComposedTypes(psiType, typePsiElement);
+//                    if (psiClasses != null && psiClasses.size() != parameters.length) {
+//                        psiClasses = null;
+//                    }
+//                }
+//                else
+                List<Object> composedTypeElements = null;
+                if(typeElement!=null && LanguageUtils.isScalaPluginObject(typeElement)){
+                    composedTypeElements = ScalaPsiTreeUtils.resolveComposedTypeElementsForObject(psiType, typeElement);
+                    if (composedTypeElements != null && composedTypeElements.size() != parameters.length) {
+                        composedTypeElements = null;
                     }
-                } else {
-                    for (PsiClass psiClass : psiClasses) {
-                        types.add(typeDictionary.getType(psiClass, maxRecursionDepth, false));
-                    }
                 }
+//                if (psiClasses == null || psiClasses.isEmpty()) {
+                    for (int i = 0; i < parameters.length; i++) {
+                        PsiClass psiClass = null;
+                        final PsiType psiTypeArg = parameters[i];
+                        final Object composedElement = composedTypeElements == null ? null : composedTypeElements.get(i);
+                        if (composedTypeElements !=null && "java.lang.Object".equals(psiTypeArg.getCanonicalText())/* && !"Object".equals(psiClasses.get(i).getQualifiedName())*/) {
+//                            types.add(typeDictionary.getType(psiClasses.get(i), maxRecursionDepth, false));
+/*
+                            if (composedElement instanceof ScClass) {
+                                final ScClass scClass = (ScClass) composedElement;
+                                final TypeResult<ScType> typeWithProjections = scClass.getTypeWithProjections(((ScClass) composedElement).getType$default$1(), true);
+                                if (!typeWithProjections.isEmpty()) {
+                                    typeWithProjections.get().canonicalText();
+                                }
+//                                ((ScClassImpl) composedElement).getTypeWithProjections(((ScClassImpl) composedElement).getType$default$1(),true).get()
+                            }
+*/
+                            String canonicalText = JavaTypeUtils.resolveCanonicalName(psiTypeArg, composedElement);
+                            final Project project = psiType.getResolveScope()==null?null:psiType.getResolveScope().getProject();
+                            psiClass = ScalaPsiTreeUtils.resolvePsiClass(canonicalText,project,null);
+                        }
+                        if (psiClass == null) {
+//                        else{
+                            types.add(typeDictionary.getType(psiTypeArg, maxRecursionDepth, false, composedElement));
+                        } else {
+                            types.add(typeDictionary.getType(psiClass, maxRecursionDepth, false));
+                        }
+                    }
+//                } else {
+//                    for (PsiClass psiClass : psiClasses) {
+//                        types.add(typeDictionary.getType(psiClass, maxRecursionDepth, false));
+//                    }
+//                }
             }
         }
         return types;
