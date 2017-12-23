@@ -51,11 +51,14 @@ public class ScalaPsiTreeUtils {
             }
         }
         else if (psiMethod instanceof ScFunctionWrapper) {
-            final ScFunction function = ((ScFunctionWrapper) psiMethod).function();
-            final int length = function.parameters().length();
-            psiParameters = new PsiParameter[length];
-            for (int i = 0; i < length; i++) {
-                psiParameters[i] = function.parameters().apply(i);
+//            final ScFunction function = ((ScFunctionWrapper) psiMethod).function();
+            final ScFunction function = resolveFunction(((ScFunctionWrapper) psiMethod));
+            if (function != null) {
+                final int length = function.parameters().length();
+                psiParameters = new PsiParameter[length];
+                for (int i = 0; i < length; i++) {
+                    psiParameters[i] = function.parameters().apply(i);
+                }
             }
         }
         if(psiParameters==null){
@@ -68,34 +71,40 @@ public class ScalaPsiTreeUtils {
      * get ScPrimaryConstructor from ScPrimaryConstructorWrapper by reflection since method constr() has been renamed in succeeding versions to delegate()
      */
     @Nullable
-    private static ScPrimaryConstructor resolvePrimaryConstructor(ScPrimaryConstructorWrapper scPrimaryConstructorWrapper) {
+    private static ScPrimaryConstructor resolvePrimaryConstructor(ScPrimaryConstructorWrapper object) {
+        return getReturnTypeReflective(object, ScPrimaryConstructorWrapper.class, ScPrimaryConstructor.class);
+    }
+    @Nullable
+    private static ScFunction resolveFunction(ScFunctionWrapper object) {
+        return getReturnTypeReflective(object, ScFunctionWrapper.class, ScFunction.class);
+    }
 
-        ScPrimaryConstructor scPrimaryConstructor = null;
+    @Nullable
+    private static <U,T> T  getReturnTypeReflective(Object object, Class<U> ownerClass, Class<T> returnClass) {
+        T returnInstance = null;
         try {
             Method delegateMethod = null;
-            for (Method method : ScPrimaryConstructorWrapper.class.getDeclaredMethods()) {
+            for (Method method : ownerClass.getDeclaredMethods()) {
                 final Class<?>[] parameters = method.getParameterTypes();
-                if (method.getReturnType()!=null && ScPrimaryConstructor.class.isAssignableFrom( method.getReturnType()) && (parameters == null || parameters.length == 0)) {
+                if (method.getReturnType()!=null && returnClass.isAssignableFrom( method.getReturnType()) && (parameters == null || parameters.length == 0)) {
                     delegateMethod = method;
                 }
             }
             if (delegateMethod != null) {
                 delegateMethod.setAccessible(true);
-                try {
-                    final Object obj = delegateMethod.invoke(scPrimaryConstructorWrapper);
-                    if (obj != null && obj instanceof ScPrimaryConstructor) {
-
-                        scPrimaryConstructor = (ScPrimaryConstructor) obj;
-                    }
-                } catch (Exception e) {
-                    LOG.debug("error extracting ScPrimaryConstructor through reflection", e);
+                final Object obj = delegateMethod.invoke(object);
+                if (obj != null && returnClass.isInstance(obj)) {
+                    returnInstance = (T) obj;
                 }
             }
 
         } catch (Exception e) {
-            LOG.debug("delegate() or constr() Method mot found.", e);
+            LOG.error("Failed to invoke a method returning "+ returnClass.getSimpleName()+" on type "+ownerClass.getSimpleName(), e);
         }
-        return scPrimaryConstructor;
+        if (returnInstance == null) {
+            LOG.warn("Method returning "+ returnClass.getSimpleName()+" not found on type "+ownerClass.getSimpleName());
+        }
+        return returnInstance;
     }
 
     public static Object resolveRelatedTypeElement(PsiParameter psiParameter) {
@@ -107,6 +116,7 @@ public class ScalaPsiTreeUtils {
             }
         } else if (psiParameter instanceof ScParameter) {
             final ScParameter scParameter = (ScParameter) psiParameter;
+//            final TypeResult<ScType> typeResult = scParameter.getRealParameterType(scParameter.getRealParameterType$default$1());
             final TypeResult<ScType> typeResult = scParameter.getType(scParameter.getRealParameterType$default$1());
             if(!typeResult.isEmpty()){
                 final ScType scType = typeResult.get();
