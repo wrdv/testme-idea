@@ -36,21 +36,27 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
         this.language = language;
     }
     protected void skipTestIfGroovyPluginDisabled() {
-        testEnabled = groovyPluginShouldBeEnabled();
-        Assert.assertEquals(testEnabled, isGroovyPluginEnabled());
+        skipTestIfPluginDisabled(OptionalPluginTestDependency.Groovy);
+    }
+    protected void skipTestIfScalaPluginDisabled() {
+        skipTestIfPluginDisabled(OptionalPluginTestDependency.Scala);
+    }
+    private void skipTestIfPluginDisabled(OptionalPluginTestDependency optionalPluginTestDependency) {
+        testEnabled = pluginShouldBeEnabled(optionalPluginTestDependency);
+        Assert.assertEquals(testEnabled, isPluginEnabled(optionalPluginTestDependency));
     }
 
-    private boolean isGroovyPluginEnabled() {
-        boolean groovyPluginEnabled = false;
+    private boolean isPluginEnabled(OptionalPluginTestDependency optionalPluginTestDependency) {
+        boolean pluginEnabled = false;
         try {
-            Class.forName("org.jetbrains.plugins.groovy.GroovyLanguage");
-            groovyPluginEnabled = true;
+            Class.forName(optionalPluginTestDependency.getClassId());
+            pluginEnabled = true;
         } catch (ClassNotFoundException e) { }
-        return groovyPluginEnabled;
+        return pluginEnabled;
     }
 
-    protected Boolean groovyPluginShouldBeEnabled() {
-        return Boolean.valueOf(System.getProperty("enableIdeaGroovyPlugin","true"));
+    protected Boolean pluginShouldBeEnabled(OptionalPluginTestDependency optionalPluginTestDependency) {
+        return Boolean.valueOf(System.getProperty(optionalPluginTestDependency.getBuildProperty(),"true"));
     }
 
     protected void doTest() {

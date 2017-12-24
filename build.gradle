@@ -128,6 +128,7 @@ dependencies {
     testCompile("org.spockframework:spock-core:$spockVersion"){
         exclude group: 'org.codehaus.groovy'
     }
+    testCompileOnly group: 'org.scala-lang', name: 'scala-library', version: '2.10.6'
 }
 //subprojects{
 //    ideaVersion=ideaVersion
