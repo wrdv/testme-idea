@@ -1,5 +1,6 @@
 package com.weirddev.testme.intellij.utils
 
+import com.weirddev.testme.intellij.scala.utils.GenericsExpressionParser
 import spock.lang.Specification
 import spock.lang.Unroll
 

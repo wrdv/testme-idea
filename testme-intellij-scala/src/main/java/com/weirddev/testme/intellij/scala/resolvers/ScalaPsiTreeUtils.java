@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScParameterizedType;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdType;
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult;
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable;
 import scala.Option;
 import scala.collection.Seq;
 
@@ -117,11 +118,7 @@ public class ScalaPsiTreeUtils {
         } else if (psiParameter instanceof ScParameter) {
             final ScParameter scParameter = (ScParameter) psiParameter;
 //            final TypeResult<ScType> typeResult = scParameter.getRealParameterType(scParameter.getRealParameterType$default$1());
-            final TypeResult<ScType> typeResult = scParameter.getType(scParameter.getRealParameterType$default$1());
-            if(!typeResult.isEmpty()){
-                final ScType scType = typeResult.get();
-                return scType;
-            }
+            return extractScType(scParameter);
         }
         return null;
     }
@@ -171,7 +168,7 @@ public class ScalaPsiTreeUtils {
         String canonicalText = null;
         if (typePsiElement instanceof ScParameterizedTypeElement) {
             final ScParameterizedTypeElement parameterizedTypeElement = (ScParameterizedTypeElement) typePsiElement; //todo find alternative solution - no supported in future scala plugin versions
-            final ScType scType = parameterizedTypeElement.getType(parameterizedTypeElement.getType$default$1()).get();
+            final ScType scType = extractScType(parameterizedTypeElement);
             if (scType == null) {
                 return null;
             } else {
@@ -234,12 +231,9 @@ public class ScalaPsiTreeUtils {
         }
         else if(typeElement instanceof ScParameterizedTypeElement){
             final ScParameterizedTypeElement scParameterizedTypeElement = (ScParameterizedTypeElement) typeElement;
-            final TypeResult<ScType> typeResult = scParameterizedTypeElement.getType(scParameterizedTypeElement.getType$default$1());
-            if (!typeResult.isEmpty()) {
-                final ScType scType = typeResult.get();
-                if (scType instanceof ScParameterizedType) {
-                    scTypeSeq = ((ScParameterizedType) scType).typeArguments();
-                }
+            ScType scType = extractScType(scParameterizedTypeElement);
+            if (scType instanceof ScParameterizedType) {
+                scTypeSeq = ((ScParameterizedType) scType).typeArguments();
             }
         }
         if (scTypeSeq != null) {
@@ -255,5 +249,15 @@ public class ScalaPsiTreeUtils {
             typeElements = objects;
         }
         return typeElements;
+    }
+
+    @Nullable
+    private static ScType extractScType(Typeable typeable) {
+        ScType scType = null;
+        final TypeResult<ScType> typeResult = typeable.getType(typeable.getType$default$1());
+        if (!typeResult.isEmpty()) {
+            scType = typeResult.get();
+        }
+        return scType;
     }
 }

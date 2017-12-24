@@ -64,7 +64,6 @@
 #foreach($javaFutureType in $TestSubjectUtils.javaFutureTypes)
 #evaluate(${scReplacementTypesForReturn.put($javaFutureType,"<VAL>")})
 #end
-
 #set($scDefaultTypeValues = {
     "byte": "(byte)0",
     "short": "(short)0",
