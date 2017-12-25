@@ -75,6 +75,11 @@ public class TestMeGeneratorSpecs2Test extends TestMeGeneratorTestBase   {
                     System.err.println("error configuring scala library for test module");
                     e.printStackTrace();
                 }
+                finally {
+                    if (modifiableModel != null) {
+                        modifiableModel.commit();
+                    }
+                }
             }
         };
     }
@@ -94,7 +99,6 @@ public class TestMeGeneratorSpecs2Test extends TestMeGeneratorTestBase   {
     }
 
     private static String getGradleCachePath() {
-//        $HOME/.gradle/caches/
         String userHomePath = System.getProperty("user.home");
         String homeEnvPath = System.getenv("HOME");
         String result = (userHomePath != null ? userHomePath : homeEnvPath)+"/.gradle/caches/modules-2/files-2.1/";
