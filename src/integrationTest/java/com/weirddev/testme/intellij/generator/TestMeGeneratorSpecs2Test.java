@@ -19,6 +19,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Date: 24/12/2017
@@ -26,6 +28,8 @@ import java.io.File;
  * @author Yaron Yamin
  */
 public class TestMeGeneratorSpecs2Test extends TestMeGeneratorTestBase   {
+    public static final String SCALA_LIB_SUB_PATH = "org.scala-lang/scala-library/2.10.6/";
+    public static final String SCALA_LIB_NAME = "scala-library-2.10.6";
 
     public TestMeGeneratorSpecs2Test() {
         super(TemplateRegistry.SPECS2_MOCKITO_SCALA_TEMPLATE, "testSpecs2", Language.Scala);
@@ -58,31 +62,81 @@ public class TestMeGeneratorSpecs2Test extends TestMeGeneratorTestBase   {
 
             @Override
             protected void configureModule(@NotNull Module module, @NotNull ModifiableRootModel model, @NotNull ContentEntry contentEntry) {
-                final Library.ModifiableModel modifiableModel = model.getModuleLibraryTable().createLibrary("SCALA").getModifiableModel();
-                String scalaLib = getScalaLibraryPath() + "!/";
-                VirtualFile scalaJar = JarFileSystem.getInstance().refreshAndFindFileByPath(scalaLib);
-                modifiableModel.addRoot(scalaJar, OrderRootType.CLASSES);
-                File srcRoot = new File(getScalaLibrarySrc());
-                modifiableModel.addRoot(VfsUtil.getUrlForLibraryRoot(srcRoot), OrderRootType.SOURCES);
-                // do not forget to commit a model!
-                modifiableModel.commit();
+                Library.ModifiableModel modifiableModel = null;
+                try {
+                    modifiableModel = model.getModuleLibraryTable().createLibrary("SCALA").getModifiableModel();
+                    String scalaLib = getScalaLibraryJarPath() + "!/";
+                    VirtualFile scalaJar = JarFileSystem.getInstance().refreshAndFindFileByPath(scalaLib);
+                    assert scalaJar != null : "library not found: " + scalaLib;
+                    modifiableModel.addRoot(scalaJar, OrderRootType.CLASSES);
+                    File srcRoot = new File(getScalaLibrarySrc());
+                    modifiableModel.addRoot(VfsUtil.getUrlForLibraryRoot(srcRoot), OrderRootType.SOURCES);
+                } catch (Exception e) {
+                    System.err.println("error configuring scala library for test module");
+                    e.printStackTrace();
+                }
             }
         };
     }
-    private static String getScalaLibrarySrc() {
-        return getIvyCachePath() + "/org.scala-lang/scala-library/srcs/scala-library-2.10.6-sources.jar";
+    private String getScalaLibrarySrc() {
+        final String sourceFilepath = findGradleCachedFile(SCALA_LIB_NAME + "-sources.jar");
+        System.out.println("scala source file path:"+sourceFilepath);
+        return sourceFilepath;
     }
 
-    private static String getIvyCachePath() {
-        String homePath = System.getProperty("user.home") + "/.ivy2/cache";
-        String ivyCachePath = System.getProperty("sbt.ivy.home");
-        String result = ivyCachePath != null ? ivyCachePath + "/cache" : homePath;
+    private static String findGradleCachedFile(String scalaLibFilename) {
+        final String scalaLibPath = getGradleCachePath() + SCALA_LIB_SUB_PATH;
+        final File scalaLibDir = new File(scalaLibPath);
+        assert scalaLibDir.exists() : "scala lib dir in gradle cache not found "+scalaLibPath;
+        final List<String> results = searchDirectory(scalaLibDir, scalaLibFilename);
+        assert results.size()>0 : "scala source dir not found "+scalaLibPath;
+        return results.get(0);
+    }
+
+    private static String getGradleCachePath() {
+//        $HOME/.gradle/caches/
+        String userHomePath = System.getProperty("user.home");
+        String homeEnvPath = System.getenv("HOME");
+        String result = (userHomePath != null ? userHomePath : homeEnvPath)+"/.gradle/caches/modules-2/files-2.1/";
         return result.replace("\\", "/");
     }
 
-    private static String getScalaLibraryPath() {
-        final String scalaLibPath = getIvyCachePath() + "/org.scala-lang/scala-library/jars/scala-library-2.10.6.jar";
+    private static String getScalaLibraryJarPath() {
+        final String scalaLibPath = findGradleCachedFile(SCALA_LIB_NAME + ".jar");
         System.out.println("scalaLibPath:"+scalaLibPath);
         return scalaLibPath;
+    }
+
+    private static List<String> searchDirectory(File directory, String fileNameToSearch) {
+        List<String> result = new ArrayList<>();
+        if (directory.isDirectory()) {
+            search(directory,fileNameToSearch,result);
+        } else {
+            System.out.println(directory.getAbsoluteFile() + " is not a directory!");
+        }
+        return result;
+    }
+
+    private static void search(File file, String fileNameToSearch, List<String> result) {
+
+        if (file.isDirectory()) {
+            System.out.println("Searching directory ... " + file.getAbsoluteFile());
+            if (file.canRead()) {
+                final File[] files = file.listFiles();
+                if (files != null) {
+                    for (File temp : files) {
+                        if (temp.isDirectory()) {
+                            search(temp, fileNameToSearch, result);
+                        } else {
+                            if (fileNameToSearch.equals(temp.getName().toLowerCase())) {
+                                result.add(temp.getAbsoluteFile().toString());
+                            }
+                        }
+                    }
+                }
+            } else {
+                System.out.println(file.getAbsoluteFile() + "Permission Denied");
+            }
+        }
     }
 }
