@@ -1,6 +1,6 @@
 package com.example.services.impl
 
-/** created by TestMe integration test on MMXVI */ //todo fail intentionaly
+/** created by TestMe integration test on MMXVI */
 class FooTest extends Specification {
   val foo = new com.example.services.impl.Foo()
 
