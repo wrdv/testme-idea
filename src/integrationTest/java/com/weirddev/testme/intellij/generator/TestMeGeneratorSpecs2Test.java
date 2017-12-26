@@ -69,8 +69,11 @@ public class TestMeGeneratorSpecs2Test extends TestMeGeneratorTestBase   {
                     VirtualFile scalaJar = JarFileSystem.getInstance().refreshAndFindFileByPath(scalaLib);
                     assert scalaJar != null : "library not found: " + scalaLib;
                     modifiableModel.addRoot(scalaJar, OrderRootType.CLASSES);
-                    File srcRoot = new File(getScalaLibrarySrc());
-                    modifiableModel.addRoot(VfsUtil.getUrlForLibraryRoot(srcRoot), OrderRootType.SOURCES);
+                    final String scalaLibrarySrc = getScalaLibrarySrc();
+                    if (scalaLibrarySrc!=null) {
+                        File srcRoot = new File(scalaLibrarySrc);
+                        modifiableModel.addRoot(VfsUtil.getUrlForLibraryRoot(srcRoot), OrderRootType.SOURCES);
+                    }
                 } catch (Exception e) {
                     System.err.println("error configuring scala library for test module");
                     e.printStackTrace();
@@ -94,8 +97,7 @@ public class TestMeGeneratorSpecs2Test extends TestMeGeneratorTestBase   {
         final File scalaLibDir = new File(scalaLibPath);
         assert scalaLibDir.exists() : "scala lib dir in gradle cache not found "+scalaLibPath;
         final List<String> results = searchDirectory(scalaLibDir, scalaLibFilename);
-        assert results.size()>0 : "scala source dir not found "+scalaLibPath;
-        return results.get(0);
+        return results.size()>0?results.get(0):null;
     }
 
     private static String getGradleCachePath() {
@@ -107,6 +109,7 @@ public class TestMeGeneratorSpecs2Test extends TestMeGeneratorTestBase   {
 
     private static String getScalaLibraryJarPath() {
         final String scalaLibPath = findGradleCachedFile(SCALA_LIB_NAME + ".jar");
+        assert scalaLibPath!=null : "scala source dir not found ";
         System.out.println("scalaLibPath:"+scalaLibPath);
         return scalaLibPath;
     }
