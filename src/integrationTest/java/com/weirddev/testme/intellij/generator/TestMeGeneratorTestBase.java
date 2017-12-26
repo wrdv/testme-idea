@@ -82,7 +82,7 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
 
     protected void doTest(final String packageName, String testSubjectClassName, final String expectedTestClassName, final FileTemplateConfig fileTemplateConfig) {
         if (!testEnabled) {
-            System.out.println("Groovy idea plugin disabled. Skipping test");
+            System.out.println(expectedTestClassExtension+ " idea plugin disabled. Skipping test");
             return;
         }
         final PsiClass fooClass = setupSourceFiles(packageName, testSubjectClassName);
