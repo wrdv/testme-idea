@@ -1,3 +1,6 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
+
 buildscript {
   repositories {
     maven { url 'http://dl.bintray.com/jetbrains/intellij-plugin-service' }
@@ -45,11 +48,6 @@ testSets {
 test {
     afterTest { desc, result ->
         println "Executing test [${desc.className}].${desc.name} with result: ${result.resultType}"
-    }
-    testLogging {
-        exceptionFormat = 'full'
-        events "failed"
-        showStandardStreams = true
     }
     reports.html.enabled = !isRunInCI
 }
@@ -145,6 +143,11 @@ tasks.withType(Test) {
     systemProperty 'enableIdeaGroovyPlugin', enableIdeaGroovyPlugin
     systemProperty 'enableIdeaScalaPlugin', enableIdeaScalaPlugin
     reports.html.destination = file("${reporting.baseDir}/${name}")
+    testLogging {
+        exceptionFormat = TestExceptionFormat.FULL
+        events TestLogEvent.FAILED, TestLogEvent.STANDARD_OUT, TestLogEvent.STANDARD_ERROR
+        showStandardStreams = true
+    }
 }
 check.dependsOn integrationTest
 integrationTest.mustRunAfter test
