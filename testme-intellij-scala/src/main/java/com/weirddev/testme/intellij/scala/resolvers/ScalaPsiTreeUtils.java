@@ -20,10 +20,10 @@ import org.jetbrains.plugins.scala.lang.psi.light.ScPrimaryConstructorWrapper;
 import org.jetbrains.plugins.scala.lang.psi.types.ScParameterizedType;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdType;
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult;
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable;
 import scala.Option;
 import scala.collection.Seq;
+import scala.util.Either;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -179,9 +179,9 @@ public class ScalaPsiTreeUtils {
             }
         } else if (typePsiElement instanceof ScClass) {
             final ScClass scClass = (ScClass) typePsiElement;
-            final TypeResult<ScType> typeWithProjections = scClass.getTypeWithProjections((scClass).getType$default$1(), true);
-            if (!typeWithProjections.isEmpty()) {
-                canonicalText = typeWithProjections.get().canonicalText();
+            final ScType scType = extractScType(scClass);
+            if (scType!=null) {
+                canonicalText = scType.canonicalText();
             }
         }
         if (null != canonicalText) {
@@ -253,11 +253,46 @@ public class ScalaPsiTreeUtils {
 
     @Nullable
     private static ScType extractScType(Typeable typeable) {
-        ScType scType = null;
-        final TypeResult<ScType> typeResult = typeable.getType(typeable.getType$default$1());
-        if (!typeResult.isEmpty()) {
-            scType = typeResult.get();
+        try {
+            final Class<?> typingContextClass = Class.forName("org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext");
+            final Object typingContext = getReturnTypeReflective(typeable, Typeable.class, typingContextClass);
+            if (typingContext != null) {
+                final Method getTypeMethod = typeable.getClass().getMethod("getType", typingContextClass);
+                final Object result = getTypeMethod.invoke(typeable, typingContext);
+                if (result != null && result.getClass().getCanonicalName().equals("org.jetbrains.plugins.scala.lang.psi.types.result.Success")) {
+                    final Method getMethod = result.getClass().getMethod("get");
+                    if (getMethod != null) {
+                        final Object type = getMethod.invoke(result);
+                        if (type instanceof ScType) {
+                            return (ScType) type;
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LOG.info("could not find Typeable.getType(TypingContext) method. this seams to be an advanced installation of idea scala plugin", e);
         }
-        return scType;
+
+        try {
+            final Object returnTypeReflective = getReturnTypeReflective(typeable, Typeable.class, Class.forName("scala.util.Either"));
+            if (returnTypeReflective instanceof Either) {
+                final Either returnTypeReflectiveEither = (Either) returnTypeReflective;
+                if (((Either) returnTypeReflective).isRight()) {
+                    final Object scTypeObj = returnTypeReflectiveEither.right().get();
+                    if (scTypeObj instanceof ScType) {
+                        return (ScType) scTypeObj;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LOG.info("could not find Typeable.type(Either) method. this seams to be an an old installation of idea scala plugin", e);
+            e.printStackTrace();
+        }
+        //Deprecated api since 2017.x:
+//        final org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult<ScType> typeResult = typeable.getType(typeable.getType$default$1());
+//        if (!typeResult.isEmpty()) {
+//            scType = typeResult.get();
+//        }
+        return null;
     }
 }
