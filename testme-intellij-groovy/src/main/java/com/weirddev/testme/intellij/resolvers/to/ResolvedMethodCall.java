@@ -1,7 +1,7 @@
 package com.weirddev.testme.intellij.resolvers.to;
 
 import com.intellij.psi.PsiMethod;
-import com.intellij.psi.PsiParameter;
+import com.weirddev.testme.intellij.common.utils.PsiMethodUtils;
 
 import java.util.ArrayList;
 
@@ -18,7 +18,7 @@ public class ResolvedMethodCall { //todo move to a common module
     public ResolvedMethodCall(PsiMethod psiMethod, ArrayList<String> methodCallArguments) {
         this.psiMethod = psiMethod;
         this.methodCallArguments = methodCallArguments;
-        methodId = formatMethodId(psiMethod);
+        methodId = PsiMethodUtils.formatMethodId(psiMethod);
     }
 
     public PsiMethod getPsiMethod() {
@@ -42,26 +42,6 @@ public class ResolvedMethodCall { //todo move to a common module
     @Override
     public int hashCode() {
         return methodId.hashCode();
-    }
-
-    static String formatMethodId(PsiMethod psiMethod) {//todo move to a new common module (copied from com.weirddev.testme.intellij.template.context.Method)
-        String name = psiMethod.getName();
-        String ownerClassCanonicalType = psiMethod.getContainingClass() == null ? null : psiMethod.getContainingClass().getQualifiedName();
-        return ownerClassCanonicalType + "." + name + "(" + formatMethodParams(psiMethod.getParameterList().getParameters()) + ")";
-
-    }
-
-    static String formatMethodParams(PsiParameter[] parameters) { //todo move to a new common module (copied from com.weirddev.testme.intellij.template.context.Method)
-        final StringBuilder sb = new StringBuilder();
-        if (parameters != null) {
-            for (PsiParameter parameter : parameters) {
-                sb.append(parameter.getType().getCanonicalText()).append(",");
-            }
-        }
-        if (sb.length() > 0) {
-            sb.deleteCharAt(sb.length() - 1);
-        }
-        return sb.toString();
     }
 
 
