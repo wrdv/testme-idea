@@ -6,6 +6,7 @@ import com.intellij.psi.search.LocalSearchScope;
 import com.intellij.psi.search.searches.ReferencesSearch;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.util.PsiUtil;
+import com.weirddev.testme.intellij.common.utils.PsiMethodUtils;
 import com.weirddev.testme.intellij.resolvers.groovy.GroovyPsiTreeUtils;
 import com.weirddev.testme.intellij.resolvers.groovy.LanguageUtils;
 import com.weirddev.testme.intellij.resolvers.to.ResolvedMethodCall;
@@ -102,28 +103,8 @@ public class Method {
             inherited = false;
         }
         isInInterface = psiMethod.getContainingClass() != null && psiMethod.getContainingClass().isInterface();
-        methodId = formatMethodId(psiMethod);
+        methodId = PsiMethodUtils.formatMethodId(psiMethod);
         accessible = typeDictionary.isAccessible(psiMethod);
-    }
-
-    static String formatMethodId(PsiMethod psiMethod) {
-        String name = psiMethod.getName();
-        String ownerClassCanonicalType = psiMethod.getContainingClass() == null ? null : psiMethod.getContainingClass().getQualifiedName();
-        return ownerClassCanonicalType + "." + name + "(" + formatMethodParams(psiMethod.getParameterList().getParameters()) +")";
-
-    }
-
-    static String formatMethodParams(PsiParameter[] parameters) {
-        final StringBuilder sb = new StringBuilder();
-        if (parameters != null) {
-            for (PsiParameter parameter : parameters) {
-                sb.append(parameter.getType().getCanonicalText()).append(",");
-            }
-        }
-        if (sb.length() > 0) {
-            sb.deleteCharAt(sb.length() - 1);
-        }
-        return sb.toString();
     }
 
     public static boolean isRelevant(PsiClass psiClass, PsiMethod psiMethod) {
@@ -133,7 +114,7 @@ public class Method {
         if (ownerClass != null && isLanguageInherited(ownerClass.getQualifiedName())) {
             isRelevant = false;
         } else {
-            final String methodId = formatMethodId(psiMethod);
+            final String methodId = PsiMethodUtils.formatMethodId(psiMethod);
             if (LanguageUtils.isGroovy(psiMethod.getLanguage())
                     && (psiMethod.getClass().getCanonicalName().contains("GrGdkMethodImpl") || methodId.endsWith(".invokeMethod(java.lang.String,java.lang.Object)") || methodId.endsWith(".getProperty(java.lang.String)") || methodId
                     .endsWith(".setProperty(java.lang.String,java.lang.Object)"))) {

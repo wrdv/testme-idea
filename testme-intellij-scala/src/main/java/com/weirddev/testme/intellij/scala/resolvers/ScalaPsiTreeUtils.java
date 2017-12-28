@@ -286,7 +286,6 @@ public class ScalaPsiTreeUtils {
             }
         } catch (Exception e) {
             LOG.info("could not find Typeable.type(Either) method. this seams to be an an old installation of idea scala plugin", e);
-            e.printStackTrace();
         }
         //Deprecated api since 2017.x:
 //        final org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult<ScType> typeResult = typeable.getType(typeable.getType$default$1());
