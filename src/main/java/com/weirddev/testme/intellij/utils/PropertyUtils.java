@@ -2,7 +2,7 @@ package com.weirddev.testme.intellij.utils;
 
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.util.PropertyUtil;
-import com.weirddev.testme.intellij.resolvers.groovy.GroovyPropertyUtil;
+import com.weirddev.testme.intellij.groovy.resolvers.GroovyPropertyUtil;
 import com.weirddev.testme.intellij.common.utils.LanguageUtils;
 
 /**

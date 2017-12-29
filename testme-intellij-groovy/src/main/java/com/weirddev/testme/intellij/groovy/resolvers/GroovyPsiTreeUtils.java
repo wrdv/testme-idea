@@ -1,4 +1,4 @@
-package com.weirddev.testme.intellij.resolvers.groovy;
+package com.weirddev.testme.intellij.groovy.resolvers;
 
 import com.intellij.psi.*;
 import com.intellij.psi.util.PsiTreeUtil;

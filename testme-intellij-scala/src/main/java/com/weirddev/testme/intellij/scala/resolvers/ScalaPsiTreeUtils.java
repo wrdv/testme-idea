@@ -110,7 +110,6 @@ public class ScalaPsiTreeUtils {
 
     public static Object resolveRelatedTypeElement(PsiParameter psiParameter) {
         if (psiParameter instanceof ScClassParameter) {
-            final PsiType type = psiParameter.getType();
             final Option<ScTypeElement> scTypeElementOption = ((ScClassParameter) psiParameter).typeElement();
             if (!scTypeElementOption.isEmpty()) {
                 return scTypeElementOption.get();
@@ -217,13 +216,13 @@ public class ScalaPsiTreeUtils {
         return normalizeGenericsRepresentation(canonicalText);
     }
 
-    public static String stripRootPrefixFromScalaCanonicalName(String canonicalText) {
+    private static String stripRootPrefixFromScalaCanonicalName(String canonicalText) {
         return canonicalText.replaceAll("_root_.", "");
     }
 
 
     public static List<Object> resolveComposedTypeElementsForObject(PsiType psiType, Object typeElement) {
-        ArrayList<Object> typeElements= new ArrayList<Object>();
+        ArrayList<Object> typeElements= new ArrayList<>();
         Seq<ScType> scTypeSeq = null;
         if (typeElement instanceof ScParameterizedType) {
             final ScParameterizedType scParameterizedType = (ScParameterizedType) typeElement;
