@@ -3,7 +3,7 @@ package com.weirddev.testme.intellij.utils;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiType;
-import com.weirddev.testme.intellij.resolvers.groovy.LanguageUtils;
+import com.weirddev.testme.intellij.common.utils.LanguageUtils;
 import com.weirddev.testme.intellij.scala.resolvers.ScalaPsiTreeUtils;
 
 /**

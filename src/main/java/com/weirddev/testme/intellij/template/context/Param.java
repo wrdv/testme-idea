@@ -1,7 +1,7 @@
 package com.weirddev.testme.intellij.template.context;
 
 import com.intellij.psi.PsiParameter;
-import com.weirddev.testme.intellij.resolvers.groovy.LanguageUtils;
+import com.weirddev.testme.intellij.common.utils.LanguageUtils;
 import com.weirddev.testme.intellij.scala.resolvers.ScalaPsiTreeUtils;
 import com.weirddev.testme.intellij.template.TypeDictionary;
 

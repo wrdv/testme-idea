@@ -1,4 +1,4 @@
-package com.weirddev.testme.intellij.resolvers.groovy;
+package com.weirddev.testme.intellij.common.utils;
 
 import com.intellij.ide.plugins.PluginManager;
 import com.intellij.lang.Language;
@@ -9,7 +9,7 @@ import com.intellij.openapi.extensions.PluginId;
  *
  * @author Yaron Yamin
  */
-public class LanguageUtils {//todo move to a common module
+public class LanguageUtils {
     public static final String GROOVY_PLUGIN_ID = "org.intellij.groovy";
     public static final String SCALA_PLUGIN_ID = "org.intellij.scala";
     private static final String GROOVY_LANGUAGE_ID = "Groovy";

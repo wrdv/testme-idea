@@ -1,23 +1,12 @@
-buildscript {
-    repositories {
-        maven { url 'http://dl.bintray.com/jetbrains/intellij-plugin-service' }
-    }
-}
 
 apply plugin: 'java'
 apply plugin: 'org.jetbrains.intellij'
-
-repositories {
-    mavenCentral()
-}
-
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
 
 def ideaVersion = (rootProject.hasProperty('ideaVersion') && rootProject.ideaVersion) ? rootProject.ideaVersion : '2016.3'
 def scalaPluginVersion = (rootProject.hasProperty('scalaPluginVersion') && rootProject.scalaPluginVersion) ? rootProject.scalaPluginVersion : '2016.3.9'
 def ideaType = (rootProject.hasProperty('ideaType') && rootProject.ideaType) ? rootProject.ideaType : 'IC'
 def spockVersion = ideaVersion.startsWith("14.") || ideaVersion.startsWith("15.")? "1.0-groovy-2.3" : "1.0-groovy-2.4"
+
 intellij {
     pluginName 'TestMe'
     instrumentCode = true
@@ -39,17 +28,3 @@ dependencies {
         exclude group: 'org.codehaus.groovy'
     }
 }
-tasks.withType(JavaCompile) {
-    options.encoding = 'UTF-8'
-    if (!javaHome) {
-        javaHome =  System.env.JAVA_HOME
-    }
-    options.bootClasspath = "$javaHome/jre/lib/rt.jar"
-}
-
-//dependencies {
-//    compileOnly 'org.jetbrains.plugins:Groovy:${ideaVersion}'
-//    compile 'org.jetbrains.plugins:Groovy:${ideaVersion}'
-//    compile 'com.jetbrains:ideaIC:${ideaVersion}'
-//    compile 'com.jetbrains:ideaIC:14.1.2'
-//}

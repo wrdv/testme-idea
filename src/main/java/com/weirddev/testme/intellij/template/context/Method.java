@@ -8,7 +8,7 @@ import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.util.PsiUtil;
 import com.weirddev.testme.intellij.common.utils.PsiMethodUtils;
 import com.weirddev.testme.intellij.resolvers.groovy.GroovyPsiTreeUtils;
-import com.weirddev.testme.intellij.resolvers.groovy.LanguageUtils;
+import com.weirddev.testme.intellij.common.utils.LanguageUtils;
 import com.weirddev.testme.intellij.resolvers.to.ResolvedMethodCall;
 import com.weirddev.testme.intellij.resolvers.to.ResolvedReference;
 import com.weirddev.testme.intellij.scala.resolvers.ScalaPsiTreeUtils;

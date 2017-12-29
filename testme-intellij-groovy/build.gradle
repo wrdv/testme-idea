@@ -1,24 +1,6 @@
-buildscript {
-    repositories {
-        maven { url 'http://dl.bintray.com/jetbrains/intellij-plugin-service' }
-    }
-}
-
-//id "org.jetbrains.intellij" version "0.2.7"
-//plugins {
-//    id "org.jetbrains.intellij" version "0.2.7"
-//}
 apply plugin: 'java'
 apply plugin: 'org.jetbrains.intellij'
 
-repositories {
-    mavenCentral()
-}
-//sourceCompatibility = jvmTargetVersion
-//targetCompatibility = jvmTargetVersion
-
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
 
 def ideaVersion = (rootProject.hasProperty('ideaVersion') && rootProject.ideaVersion) ? rootProject.ideaVersion : '2016.3'
 def ideaType = (rootProject.hasProperty('ideaType') && rootProject.ideaType) ? rootProject.ideaType : 'IC'
@@ -34,13 +16,6 @@ intellij {
     plugins = ['junit','properties','Groovy']
 }
 
-tasks.withType(JavaCompile) {
-    options.encoding = 'UTF-8'
-    if (!javaHome) {
-        javaHome =  System.env.JAVA_HOME
-    }
-    options.bootClasspath = "$javaHome/jre/lib/rt.jar"
-}
 
 dependencies {
     compile(project(':testme-intellij-common')){
