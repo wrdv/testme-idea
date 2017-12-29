@@ -187,10 +187,9 @@ coveralls {
     sourceDirs = inspectedProjects.sourceSets.main.allSource.srcDirs.flatten()
     jacocoReportPath = "${buildDir}/reports/jacoco/jacocoRootReport/jacocoRootReport.xml"
 }
-/*
 tasks.coveralls {
-    group = 'Coverage reports'
-    description = 'Uploads the aggregated coverage report to Coveralls'
-dependsOn jacocoRootReport
+//    group = 'Coverage reports'
+//    description = 'Uploads the aggregated coverage report to Coveralls'
+//dependsOn jacocoRootReport
     onlyIf { isRunInCI}
-}*/
+}
