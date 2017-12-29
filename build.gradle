@@ -183,6 +183,10 @@ dependencies {
 check.dependsOn integrationTest
 integrationTest.mustRunAfter test
 tasks.build.dependsOn(jacocoTestReport)
+coveralls {
+    sourceDirs = inspectedProjects.sourceSets.main.allSource.srcDirs.flatten()
+    jacocoReportPath = "${buildDir}/reports/jacoco/jacocoRootReport/jacocoRootReport.xml"
+}
 /*
 tasks.coveralls {
     group = 'Coverage reports'
