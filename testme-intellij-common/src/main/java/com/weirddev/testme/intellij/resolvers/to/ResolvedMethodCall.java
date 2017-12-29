@@ -3,19 +3,19 @@ package com.weirddev.testme.intellij.resolvers.to;
 import com.intellij.psi.PsiMethod;
 import com.weirddev.testme.intellij.common.utils.PsiMethodUtils;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Date: 16/09/2017
  *
  * @author Yaron Yamin
  */
-public class ResolvedMethodCall { //todo move to a common module
+public class ResolvedMethodCall {
     private final PsiMethod psiMethod;
-    private final ArrayList<String> methodCallArguments;
+    private final List<MethodCallArg> methodCallArguments;
     private final String methodId;
 
-    public ResolvedMethodCall(PsiMethod psiMethod, ArrayList<String> methodCallArguments) {
+    public ResolvedMethodCall(PsiMethod psiMethod, List<MethodCallArg> methodCallArguments) {
         this.psiMethod = psiMethod;
         this.methodCallArguments = methodCallArguments;
         methodId = PsiMethodUtils.formatMethodId(psiMethod);
@@ -25,7 +25,7 @@ public class ResolvedMethodCall { //todo move to a common module
         return psiMethod;
     }
 
-    public ArrayList<String> getMethodCallArguments() {
+    public List<MethodCallArg> getMethodCallArguments() {
         return methodCallArguments;
     }
 

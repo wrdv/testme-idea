@@ -3,6 +3,7 @@ package com.weirddev.testme.intellij.resolvers.groovy;
 import com.intellij.psi.*;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.weirddev.testme.intellij.common.utils.LanguageUtils;
+import com.weirddev.testme.intellij.resolvers.to.MethodCallArg;
 import com.weirddev.testme.intellij.resolvers.to.ResolvedMethodCall;
 import com.weirddev.testme.intellij.resolvers.to.ResolvedReference;
 import org.jetbrains.plugins.groovy.lang.psi.api.statements.arguments.GrArgumentList;
@@ -48,13 +49,13 @@ public class GroovyPsiTreeUtils {
         final Collection<GrCall> grMethodCallExpressions = PsiTreeUtil.findChildrenOfType(psiMethod, GrCall.class);
         for (GrCall grMethodCallExpression : grMethodCallExpressions) {
             final GrArgumentList argumentList = grMethodCallExpression.getArgumentList();
-            final ArrayList<String> methodCallArguments = new ArrayList<String>();
+            final ArrayList<MethodCallArg> methodCallArguments = new ArrayList<>();
             if (argumentList != null) {
                 for (PsiElement psiElement : argumentList.getChildren()) {
                     if (psiElement instanceof PsiJavaToken) {
                         continue;
                     }
-                    methodCallArguments.add(psiElement.getText()==null?"":psiElement.getText().trim());
+                    methodCallArguments.add(new MethodCallArg(psiElement.getText()==null?"":psiElement.getText().trim()));
                 }
             }
             final PsiMethod psiMethodResolved  = grMethodCallExpression.resolveMethod();//todo fix issue with methods not resolved in old idea versions
