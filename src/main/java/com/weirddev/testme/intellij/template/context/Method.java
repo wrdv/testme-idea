@@ -9,6 +9,7 @@ import com.intellij.psi.util.PsiUtil;
 import com.weirddev.testme.intellij.common.utils.PsiMethodUtils;
 import com.weirddev.testme.intellij.resolvers.groovy.GroovyPsiTreeUtils;
 import com.weirddev.testme.intellij.common.utils.LanguageUtils;
+import com.weirddev.testme.intellij.resolvers.to.MethodCallArg;
 import com.weirddev.testme.intellij.resolvers.to.ResolvedMethodCall;
 import com.weirddev.testme.intellij.resolvers.to.ResolvedReference;
 import com.weirddev.testme.intellij.scala.resolvers.ScalaPsiTreeUtils;
@@ -165,21 +166,20 @@ public class Method {
                 }
             }
         } else {
-            for (JavaPsiTreeUtils.MethodCalled methodCalled : JavaPsiTreeUtils.findMethodCalls(psiMethod)) {
+            for (ResolvedMethodCall methodCalled : JavaPsiTreeUtils.findMethodCalls(psiMethod)) {
                 if (isRelevant(methodCalled.getPsiMethod().getContainingClass(), methodCalled.getPsiMethod())) {
-                    this.directMethodCalls.add(new MethodCall(new Method(methodCalled.getPsiMethod(), methodCalled.getPsiMethod().getContainingClass(), 1, typeDictionary),methodCalled.getMethodCallArguments()));
+                    this.directMethodCalls.add(new MethodCall(new Method(methodCalled.getPsiMethod(), methodCalled.getPsiMethod().getContainingClass(), 1, typeDictionary),convertArgs(methodCalled.getMethodCallArguments())));
                 }
             }
-
         }
         methodCalls = this.directMethodCalls;
     }
 
-    private List<MethodCallArgument> convertArgs(List<String> methodCallArguments) {
+    private List<MethodCallArgument> convertArgs(List<MethodCallArg> methodCallArguments) {
         final ArrayList<MethodCallArgument> methodCallArgs = new ArrayList<MethodCallArgument>();
         if (methodCallArguments != null) {
-            for (String methodCallArgument : methodCallArguments) {
-                methodCallArgs.add(new MethodCallArgument(methodCallArgument));
+            for (MethodCallArg methodCallArgument : methodCallArguments) {
+                methodCallArgs.add(new MethodCallArgument(methodCallArgument.getText()));
             }
         }
         return methodCallArgs;
