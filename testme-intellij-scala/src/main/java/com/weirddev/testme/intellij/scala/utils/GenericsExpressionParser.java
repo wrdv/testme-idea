@@ -11,10 +11,10 @@ import java.util.regex.Pattern;
  *
  * @author Yaron Yamin
  */
-public class GenericsExpressionParser { // todo consolidate with other generics util methods and move to common module
+public class GenericsExpressionParser {
     public static final char GENERICS_START = '<';
     public static final char GENERICS_END = '>';
-    private static final Pattern SCALA_GENERICS_CONTENT_PATTERN = Pattern.compile(GENERICS_START + "(.*)" + GENERICS_END);
+    private static final Pattern GENERICS_CONTENT_PATTERN = Pattern.compile(GENERICS_START + "(.*)" + GENERICS_END);
 
     public static ArrayList<String> extractGenericTypes(String canonicalName) {
             final ArrayList<String> types = new ArrayList<String>();
@@ -60,7 +60,7 @@ public class GenericsExpressionParser { // todo consolidate with other generics 
     }
 
     private static String extractGenericTypesContent(String canonicalName) {
-                Matcher matcher = SCALA_GENERICS_CONTENT_PATTERN.matcher(canonicalName);
+                Matcher matcher = GENERICS_CONTENT_PATTERN.matcher(canonicalName);
                 if (matcher.find()) {
                     return matcher.group(1);
                 } else {
