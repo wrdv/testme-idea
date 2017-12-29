@@ -29,28 +29,11 @@ apply plugin: 'groovy'
 apply plugin: 'idea'
 apply plugin: 'org.jetbrains.intellij'
 
-def spockVersion = ideaVersion.startsWith("14.") || ideaVersion.startsWith("15.") ? "1.0-groovy-2.3" : "1.0-groovy-2.4"
+def spockVersion = ideaVersion.startsWith("14.") || ideaVersion.startsWith("15.")? "1.0-groovy-2.3" : "1.0-groovy-2.4"
 
 jacoco {
     toolVersion = "0.7.6.201602180812"
 }
-
-
-allprojects{
-    sourceCompatibility = jvmTargetVersion
-    targetCompatibility = jvmTargetVersion
-    repositories {
-        mavenCentral()
-    }
-    tasks.withType(JavaCompile) {
-        options.encoding = 'UTF-8'
-        if (!javaHome) {
-            javaHome =  System.env.JAVA_HOME
-        }
-        options.bootClasspath = "$javaHome/jre/lib/rt.jar"
-    }
-}
-
 
 testSets {
     integrationTest
@@ -90,6 +73,23 @@ intellij {
         password ideaPublishPassword
         channels = [ideaPublishChannel]
     }
+}
+
+allprojects{
+    sourceCompatibility = jvmTargetVersion
+    targetCompatibility = jvmTargetVersion
+    repositories {
+        mavenCentral()
+    }
+
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
+        if (!javaHome) {
+            javaHome =  System.getenv().JAVA_HOME
+        }
+        options.bootClasspath = "$javaHome/jre/lib/rt.jar"
+    }
+
 }
 idea {
     project {
@@ -144,9 +144,6 @@ dependencies {
     }
     testCompileOnly group: 'org.scala-lang', name: 'scala-library', version: '2.10.6'
 }
-//subprojects{
-//    ideaVersion=ideaVersion
-//}
 
 tasks.withType(Test) {
     systemProperty 'enableIdeaGroovyPlugin', enableIdeaGroovyPlugin
