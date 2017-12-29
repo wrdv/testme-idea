@@ -31,6 +31,10 @@ apply plugin: 'org.jetbrains.intellij'
 
 def isRunInCI=Boolean.valueOf(System.getenv('CI'))
 def spockVersion = ideaVersion.startsWith("14.") || ideaVersion.startsWith("15.")? "1.0-groovy-2.3" : "1.0-groovy-2.4"
+
+jacoco {
+    toolVersion = "0.7.6.201602180812"
+}
 allprojects{
     sourceCompatibility = jvmTargetVersion
     targetCompatibility = jvmTargetVersion
@@ -45,10 +49,6 @@ allprojects{
         }
         options.bootClasspath = "$javaHome/jre/lib/rt.jar"
     }
-    jacoco {
-        toolVersion = "0.7.6.201602180812"
-    }
-
     testSets {
         integrationTest
     }
@@ -65,7 +65,8 @@ allprojects{
         reports.html.destination = file("${reporting.baseDir}/${name}")
         testLogging {
             exceptionFormat = TestExceptionFormat.FULL
-            events TestLogEvent.FAILED, TestLogEvent.STANDARD_OUT, TestLogEvent.STANDARD_ERROR
+//            events TestLogEvent.FAILED, TestLogEvent.STANDARD_OUT, TestLogEvent.STANDARD_ERROR
+            events TestLogEvent.values()
             showStandardStreams = true
         }
     }
@@ -79,11 +80,41 @@ allprojects{
 
 subprojects{
     apply plugin: 'java'
+    apply plugin: 'groovy'
     apply plugin: 'idea'
     apply plugin: 'jacoco'
     dependencies {
         testCompile("org.spockframework:spock-core:$spockVersion"){
             exclude group: 'org.codehaus.groovy'
+        }
+    }
+}
+
+def inspectedProjects = subprojects + rootProject
+task jacocoMerge(type: JacocoMerge) {
+    inspectedProjects.each { subproject ->
+        executionData subproject.tasks.withType(Test)
+    }
+    doFirst {
+        executionData = files(executionData.findAll { it.exists() })
+    }
+}
+
+task jacocoRootReport(type: JacocoReport, group: 'Coverage reports') {
+    description = 'Generates an aggregate report from all subprojects'
+    dependsOn inspectedProjects.test, jacocoMerge
+
+    additionalSourceDirs = files(inspectedProjects.sourceSets.main.allSource.srcDirs)
+    sourceDirectories = files(inspectedProjects.sourceSets.main.allSource.srcDirs)
+    classDirectories = files(inspectedProjects.sourceSets.main.output)
+    executionData jacocoMerge.destinationFile
+
+    reports {
+        xml.enabled isRunInCI
+        csv.enabled isRunInCI
+        html{
+            enabled !isRunInCI
+            destination "${buildDir}/reports/jacoco"
         }
     }
 }
@@ -121,24 +152,6 @@ idea {
     }
 }
 
-jacocoTestReport {
-    reports {
-        xml.enabled isRunInCI
-        csv.enabled isRunInCI
-        html{
-            enabled !isRunInCI
-            destination "${buildDir}/reports/jacoco"
-        }
-    }
-    executionData(test, integrationTest)
-    afterEvaluate {
-        classDirectories = files(classDirectories.files.collect {
-            fileTree(dir: it,
-//                    exclude: ['com/weirddev/testme/intellij/ui/**']
-            )
-        })
-    }
-}
 
 dependencies {
     compile(project(':testme-intellij-common')){
@@ -170,3 +183,10 @@ dependencies {
 check.dependsOn integrationTest
 integrationTest.mustRunAfter test
 tasks.build.dependsOn(jacocoTestReport)
+/*
+tasks.coveralls {
+    group = 'Coverage reports'
+    description = 'Uploads the aggregated coverage report to Coveralls'
+dependsOn jacocoRootReport
+    onlyIf { isRunInCI}
+}*/
