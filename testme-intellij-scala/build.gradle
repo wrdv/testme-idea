@@ -1,15 +1,14 @@
-
-apply plugin: 'java'
 apply plugin: 'org.jetbrains.intellij'
 
 def ideaVersion = (rootProject.hasProperty('ideaVersion') && rootProject.ideaVersion) ? rootProject.ideaVersion : '2016.3'
 def scalaPluginVersion = (rootProject.hasProperty('scalaPluginVersion') && rootProject.scalaPluginVersion) ? rootProject.scalaPluginVersion : '2016.3.9'
 def ideaType = (rootProject.hasProperty('ideaType') && rootProject.ideaType) ? rootProject.ideaType : 'IC'
-def spockVersion = ideaVersion.startsWith("14.") || ideaVersion.startsWith("15.")? "1.0-groovy-2.3" : "1.0-groovy-2.4"
+def shouldInstrumentCode = (rootProject.hasProperty('shouldInstrumentCode') && rootProject.shouldInstrumentCode) ? rootProject.shouldInstrumentCode : true
+//def spockVersion = ideaVersion.startsWith("14.") || ideaVersion.startsWith("15.")? "1.0-groovy-2.3" : "1.0-groovy-2.4"
 
 intellij {
     pluginName 'TestMe'
-    instrumentCode = true
+    instrumentCode = shouldInstrumentCode
     version ideaVersion
     type ideaType
     downloadSources true
@@ -23,8 +22,5 @@ dependencies {
         exclude group:'org.jetbrains.plugins', module: 'junit'
         exclude group:'org.jetbrains.plugins', module: 'properties'
         exclude group:'org.jetbrains.plugins', module: 'Groovy'
-    }
-    testCompile("org.spockframework:spock-core:$spockVersion"){
-        exclude group: 'org.codehaus.groovy'
     }
 }

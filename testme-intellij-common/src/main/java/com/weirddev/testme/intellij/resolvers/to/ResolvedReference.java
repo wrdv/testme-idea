@@ -7,7 +7,7 @@ import com.intellij.psi.PsiType;
  *
  * @author Yaron Yamin
  */
-public class ResolvedReference { //todo move to a common module
+public class ResolvedReference {
     private final String referenceName;
     private final PsiType refType;
     private final PsiType psiOwnerType;

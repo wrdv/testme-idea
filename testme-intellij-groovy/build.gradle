@@ -1,13 +1,12 @@
-apply plugin: 'java'
 apply plugin: 'org.jetbrains.intellij'
-
 
 def ideaVersion = (rootProject.hasProperty('ideaVersion') && rootProject.ideaVersion) ? rootProject.ideaVersion : '2016.3'
 def ideaType = (rootProject.hasProperty('ideaType') && rootProject.ideaType) ? rootProject.ideaType : 'IC'
+def shouldInstrumentCode = (rootProject.hasProperty('shouldInstrumentCode') && rootProject.shouldInstrumentCode) ? rootProject.shouldInstrumentCode : true
 
 intellij {
     pluginName 'TestMe'
-    instrumentCode = true
+    instrumentCode = shouldInstrumentCode
     version ideaVersion
     type ideaType
     downloadSources true
