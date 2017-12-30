@@ -37,9 +37,12 @@ public class TestMeGeneratorSpecs2Test extends TestMeGeneratorTestBase   {
         skipTestIfScalaPluginDisabled();
     }
 
-    public void testBasicScala() throws Exception{
-        doTest(true,true,true);  //todo add method that returns a tuple for assertion
+    public void testScalaGenerics() throws Exception{
+        doTest(true,true,true);
     }
+//    public void testScalaFuture() throws Exception{
+//        doTest(true,true,true);
+//    }
 
 
     /**

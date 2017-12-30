@@ -6,6 +6,7 @@ import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
 import com.intellij.psi.search.GlobalSearchScope;
+import com.weirddev.testme.intellij.common.reflection.MethodReflectionUtils;
 import com.weirddev.testme.intellij.scala.utils.GenericsExpressionParser;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor;
@@ -20,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.light.ScPrimaryConstructorWrapper;
 import org.jetbrains.plugins.scala.lang.psi.types.ScParameterizedType;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdType;
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult;
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable;
 import scala.Option;
 import scala.collection.Seq;
@@ -73,39 +75,11 @@ public class ScalaPsiTreeUtils {
      */
     @Nullable
     private static ScPrimaryConstructor resolvePrimaryConstructor(ScPrimaryConstructorWrapper object) {
-        return getReturnTypeReflective(object, ScPrimaryConstructorWrapper.class, ScPrimaryConstructor.class);
+        return MethodReflectionUtils.getReturnTypeReflectively(object, ScPrimaryConstructorWrapper.class, ScPrimaryConstructor.class,null);
     }
     @Nullable
     private static ScFunction resolveFunction(ScFunctionWrapper object) {
-        return getReturnTypeReflective(object, ScFunctionWrapper.class, ScFunction.class);
-    }
-
-    @Nullable
-    private static <U,T> T  getReturnTypeReflective(Object object, Class<U> ownerClass, Class<T> returnClass) {
-        T returnInstance = null;
-        try {
-            Method delegateMethod = null;
-            for (Method method : ownerClass.getDeclaredMethods()) {
-                final Class<?>[] parameters = method.getParameterTypes();
-                if (method.getReturnType()!=null && returnClass.isAssignableFrom( method.getReturnType()) && (parameters == null || parameters.length == 0)) {
-                    delegateMethod = method;
-                }
-            }
-            if (delegateMethod != null) {
-                delegateMethod.setAccessible(true);
-                final Object obj = delegateMethod.invoke(object);
-                if (obj != null && returnClass.isInstance(obj)) {
-                    returnInstance = (T) obj;
-                }
-            }
-
-        } catch (Exception e) {
-            LOG.error("Failed to invoke a method returning "+ returnClass.getSimpleName()+" on type "+ownerClass.getSimpleName(), e);
-        }
-        if (returnInstance == null) {
-            LOG.warn("Method returning "+ returnClass.getSimpleName()+" not found on type "+ownerClass.getSimpleName());
-        }
-        return returnInstance;
+        return MethodReflectionUtils.getReturnTypeReflectively(object, ScFunctionWrapper.class, ScFunction.class,null);
     }
 
     public static Object resolveRelatedTypeElement(PsiParameter psiParameter) {
@@ -202,7 +176,7 @@ public class ScalaPsiTreeUtils {
             canonicalText = scParameterizedType.canonicalText();
             final String designatorCanonicalText = scParameterizedType.designator().canonicalText();
             if (canonicalText.startsWith("(") && canonicalText.endsWith(")")) {
-                canonicalText = designatorCanonicalText + ("<"+canonicalText.substring(1, canonicalText.length() - 2)+">");
+                canonicalText = designatorCanonicalText + ("<"+canonicalText.substring(1, canonicalText.length() - 1)+">");
             }
         } else if(typeElement instanceof ScType){
             final ScType scType = (ScType) typeElement;
@@ -252,9 +226,24 @@ public class ScalaPsiTreeUtils {
 
     @Nullable
     private static ScType extractScType(Typeable typeable) {
+        ScType scType;
+        scType = getEitherReturnValueReflectively(typeable, Typeable.class, ScType.class, null);
+        if (scType == null) {
+            //Deprecated api since 2017.x:
+//        final org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult<ScType> typeResult = typeable.getType(typeable.getType$default$1());
+//        if (!typeResult.isEmpty()) {
+//            scType = typeResult.get();
+//        }
+            scType = getTypingContextReturnValueReflectively(typeable);
+        }
+        return scType;
+    }
+
+    @Nullable
+    private static ScType getTypingContextReturnValueReflectively(Typeable typeable) {
         try {
             final Class<?> typingContextClass = Class.forName("org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext");
-            final Object typingContext = getReturnTypeReflective(typeable, Typeable.class, typingContextClass);
+            final Object typingContext = MethodReflectionUtils.getReturnTypeReflectively(typeable, Typeable.class, typingContextClass,null);
             if (typingContext != null) {
                 final Method getTypeMethod = typeable.getClass().getMethod("getType", typingContextClass);
                 final Object result = getTypeMethod.invoke(typeable, typingContext);
@@ -269,28 +258,46 @@ public class ScalaPsiTreeUtils {
                 }
             }
         } catch (Exception e) {
-            LOG.info("could not find Typeable.getType(TypingContext) method. this seams to be an advanced installation of idea scala plugin", e);
+            LOG.info("could not find Typeable.getType(TypingContext) method. this seams to be an up to date version of idea scala plugin", e);
         }
+        return null;
+    }
 
+    @Nullable
+    private static <U,T> T getEitherReturnValueReflectively(U owner, Class<U> ownerClass, Class<T> returnClass, String methodName) {
         try {
-            final Object returnTypeReflective = getReturnTypeReflective(typeable, Typeable.class, Class.forName("scala.util.Either"));
-            if (returnTypeReflective instanceof Either) {
-                final Either returnTypeReflectiveEither = (Either) returnTypeReflective;
-                if (((Either) returnTypeReflective).isRight()) {
-                    final Object scTypeObj = returnTypeReflectiveEither.right().get();
-                    if (scTypeObj instanceof ScType) {
-                        return (ScType) scTypeObj;
+            final Either returnTypeReflective = MethodReflectionUtils.getReturnTypeReflectively(owner, ownerClass, Either.class, methodName);
+            if (returnTypeReflective != null) {
+                if (returnTypeReflective.isRight()) {
+                    final Object obj = returnTypeReflective.right().get();
+                    if (obj != null && returnClass.isInstance(obj)) {
+                        return (T) obj;
                     }
                 }
             }
         } catch (Exception e) {
-            LOG.info("could not find Typeable.type(Either) method. this seams to be an an old installation of idea scala plugin", e);
+            LOG.info("could not find method "+ (methodName==null?"":methodName) +" that returns type of "+returnClass.getCanonicalName()+ " wrapped in Either. this seams to be an outdated idea scala plugin", e);
         }
-        //Deprecated api since 2017.x:
-//        final org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult<ScType> typeResult = typeable.getType(typeable.getType$default$1());
-//        if (!typeResult.isEmpty()) {
-//            scType = typeResult.get();
-//        }
         return null;
     }
+
+    public static ScType resolveReturnType(PsiMethod psiMethod) {
+        ScType scType = null;
+
+        if (psiMethod instanceof ScFunctionWrapper) {
+            final ScFunction function = resolveFunction(((ScFunctionWrapper) psiMethod)); //            final ScFunction function = ((ScFunctionWrapper) psiMethod).function();
+            if (function != null) {
+                TypeResult resultObj = MethodReflectionUtils.invokeMethodReflectivelyWithFallback(function, TypeResult.class, "returnTypeInner", "returnType");
+                if (resultObj != null) {
+                    scType = (ScType) resultObj.get();
+                }
+//                final org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult<ScType> scTypeTypeResult = function.returnType();
+//                if (scTypeTypeResult != null && !scTypeTypeResult.isEmpty()) {
+//                    scType = scTypeTypeResult.get();
+//                }
+            }
+        }
+        return scType;
+    }
+
 }

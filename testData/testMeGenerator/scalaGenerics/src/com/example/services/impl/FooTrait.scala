@@ -12,4 +12,8 @@ class Foo extends FooTrait {
         "something"
     }
 
+    def tupleMaker(someInt:Option[Int])={
+        ("someString",12.55,23)
+    }
+
 }

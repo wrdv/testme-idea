@@ -27,6 +27,6 @@ public class LanguageUtils {
     }
 
     public static boolean isScalaPluginObject(Object typeElement) {
-        return typeElement.getClass().getCanonicalName().startsWith("org.jetbrains.plugins.scala.");
+        return typeElement.getClass().getName().startsWith("org.jetbrains.plugins.scala.");
     }
 }
