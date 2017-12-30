@@ -7,7 +7,7 @@ import java.lang.reflect.Modifier;
  *
  * @author Yaron Yamin
  */
-public class ReflectionUtil {
+public class AccessLevelReflectionUtils {
     public static void replaceFinalStatic(Field field, Object newValue) throws Exception {
         field.setAccessible(true);
         Field modifiersField = Field.class.getDeclaredField("modifiers");

@@ -29,7 +29,7 @@ import java.util.Set;
  */
 public class JavaTestBuilderImpl implements LangTestBuilder {
     private static final Logger LOG = Logger.getInstance(JavaTestBuilderImpl.class.getName());
-    private static final Set<String> STRING_TYPES = ImmutableSet.of("java.lang.String", "java.lang.Object");
+    private static final Set<String> STRING_TYPES = ImmutableSet.of("java.lang.String", "java.lang.Object","scala.Nothing");
     private static Type DEFAULT_STRING_TYPE = new Type("java.lang.String", "String", "java.lang", false, false, false, false, false, new ArrayList<Type>());
     private final TestBuilder.ParamRole paramRole; //todo consider removing. not used anymore
     private final Method testedMethod;

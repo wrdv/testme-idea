@@ -86,7 +86,7 @@ public class Method {
         isNative = psiMethod.hasModifierProperty(PsiModifier.NATIVE);
         isStatic = psiMethod.hasModifierProperty(PsiModifier.STATIC);
         name = psiMethod.getName();
-        this.returnType = psiMethod.getReturnType() ==null? null:typeDictionary.getType(psiMethod.getReturnType(),maxRecursionDepth,true);
+        this.returnType = resolveReturnType(psiMethod, maxRecursionDepth, typeDictionary);
         ownerClassCanonicalType = psiMethod.getContainingClass() == null ? null : psiMethod.getContainingClass().getQualifiedName();
         methodParams = extractMethodParams(typeDictionary, maxRecursionDepth,psiMethod);
         isSetter = PropertyUtils.isPropertySetter(psiMethod);
@@ -106,6 +106,20 @@ public class Method {
         isInInterface = psiMethod.getContainingClass() != null && psiMethod.getContainingClass().isInterface();
         methodId = PsiMethodUtils.formatMethodId(psiMethod);
         accessible = typeDictionary.isAccessible(psiMethod);
+    }
+
+    @Nullable
+    public Type resolveReturnType(PsiMethod psiMethod, int maxRecursionDepth, TypeDictionary typeDictionary) {
+        final PsiType psiType = psiMethod.getReturnType();
+        if (psiType == null) {
+            return null;
+        } else {
+            Object typeElement = null;
+            if (LanguageUtils.isScala(psiMethod.getLanguage())) {
+                typeElement = ScalaPsiTreeUtils.resolveReturnType(psiMethod);
+            }
+            return typeDictionary.getType(psiType, maxRecursionDepth, true,typeElement);
+        }
     }
 
     public static boolean isRelevant(PsiClass psiClass, PsiMethod psiMethod) {

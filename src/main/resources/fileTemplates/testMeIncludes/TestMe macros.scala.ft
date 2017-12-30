@@ -95,7 +95,7 @@
     "scala.Int": "1",
     "scala.Long": "123456789",
     "scala.Float": "1.1",
-    "scala.Double": "11223344",
+    "scala.Double": "11223344.53",
     "scala.Char": "a",
     "scala.Boolean": "true",
     "scala.math.BigDecimal": "2.44"
