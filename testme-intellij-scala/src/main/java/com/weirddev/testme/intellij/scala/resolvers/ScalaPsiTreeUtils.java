@@ -281,15 +281,15 @@ public class ScalaPsiTreeUtils {
         return null;
     }
 
-    public static ScType resolveReturnType(PsiMethod psiMethod) {
-        ScType scType = null;
+    static public Object resolveReturnType(PsiMethod psiMethod) {
+        Object scType = null;
 
         if (psiMethod instanceof ScFunctionWrapper) {
             final ScFunction function = resolveFunction(((ScFunctionWrapper) psiMethod)); //            final ScFunction function = ((ScFunctionWrapper) psiMethod).function();
             if (function != null) {
                 TypeResult resultObj = MethodReflectionUtils.invokeMethodReflectivelyWithFallback(function, TypeResult.class, "returnTypeInner", "returnType");
                 if (resultObj != null) {
-                    scType = (ScType) resultObj.get();
+                    scType = resultObj.get();
                 }
 //                final org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult<ScType> scTypeTypeResult = function.returnType();
 //                if (scTypeTypeResult != null && !scTypeTypeResult.isEmpty()) {
@@ -299,5 +299,4 @@ public class ScalaPsiTreeUtils {
         }
         return scType;
     }
-
 }
