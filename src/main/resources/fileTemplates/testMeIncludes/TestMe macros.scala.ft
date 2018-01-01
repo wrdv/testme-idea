@@ -61,8 +61,14 @@
 #foreach($javaFutureType in $TestSubjectUtils.javaFutureTypes)
 #evaluate(${scReplacementTypes.put($javaFutureType,"java.util.concurrent.CompletableFuture.completedFuture(<VAL>)")})
 #end
+#foreach($scalaFutureType in $TestSubjectUtils.scalaFutureTypes)
+#evaluate(${scReplacementTypes.put($scalaFutureType,"scala.concurrent.Future(<VAL>)")})
+#end
 #foreach($javaFutureType in $TestSubjectUtils.javaFutureTypes)
 #evaluate(${scReplacementTypesForReturn.put($javaFutureType,"<VAL>")})
+#end
+#foreach($scalaFutureType in $TestSubjectUtils.scalaFutureTypes)
+#evaluate(${scReplacementTypesForReturn.put($scalaFutureType,"<VAL>")})
 #end
 #set($scDefaultTypeValues = {
     "byte": "(byte)0",
@@ -94,7 +100,7 @@
     "scala.Short": "2",
     "scala.Int": "1",
     "scala.Long": "123456789",
-    "scala.Float": "1.1",
+    "scala.Float": "1.1f",
     "scala.Double": "11223344.53",
     "scala.Char": "a",
     "scala.Boolean": "true",
@@ -125,7 +131,7 @@
 #end
 ##
 #macro(scRenderAssert $method)
-result#if($TestSubjectUtils.isJavaFuture($method.returnType)).get()#end === $TestBuilder.renderReturnParam($method,$method.returnType,"replaceMeWithExpectedResult",$scReplacementTypesForReturn,$scDefaultTypeValues)
+#if($TestSubjectUtils.isJavaFuture($method.returnType))result.get()#elseif($TestSubjectUtils.isScalaFuture($method.returnType))scala.concurrent.Await.result(result, 10.seconds)#{else}result#end === $TestBuilder.renderReturnParam($method,$method.returnType,"replaceMeWithExpectedResult",$scReplacementTypesForReturn,$scDefaultTypeValues)
 #end
 ##
 #macro(scRenderMethodCall $method,$testedClassName)
