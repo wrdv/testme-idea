@@ -20,6 +20,7 @@ public class TestSubjectUtils
             "java.util.concurrent.ExecutorCompletionService.QueueingFuture", "java.util.concurrent.ForkJoinTask.AdaptedRunnable", "java.util.concurrent.ForkJoinTask.AdaptedCallable","java.util.concurrent.ForkJoinTask",
             "java.util.concurrent.ForkJoinTask.AdaptedRunnableAction", "java.util.concurrent.CountedCompleter","java.util.concurrent.RecursiveTask", "java.util.concurrent.ForkJoinTask.RunnableExecuteAction",
             "java.util.concurrent.CompletableFuture.AsyncSupply","java.util.concurrent.RecursiveAction","java.util.concurrent.CompletableFuture.Completion","java.util.concurrent.ScheduledFuture", "java.util.concurrent.RunnableScheduledFuture"));
+    private static final Set<String> SCALA_FUTURE_TYPES = new HashSet<String>(Arrays.asList("scala.concurrent.Future","scala.concurrent.impl.Promise"));
 
     public static boolean hasTestableInstanceMethod(List<Method> methods) {
         for (Method method : methods) {
@@ -108,6 +109,22 @@ public class TestSubjectUtils
         }
         return isImplements(type, "java.util.concurrent.Future");
     }
+    public boolean isScalaFuture(Type type) {
+        for (String javaFutureType : SCALA_FUTURE_TYPES) {
+            if (isSameGenericType(type, javaFutureType)) {
+                return true;
+            }
+        }
+        return isImplements(type, "scala.concurrent.Future");
+    }
+    public boolean hasScalaFutureReturn(List<Method> methods) {
+        for (Method method : methods) {
+            if (method.isTestable() && method.hasReturn() && isScalaFuture(method.getReturnType())) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     private boolean isImplements(Type type, String classCanonicalName) {
         for (Type interfaceType : type.getImplementedInterfaces()) {
@@ -128,5 +145,8 @@ public class TestSubjectUtils
 
     public static Set<String> getJavaFutureTypes() {
         return JAVA_FUTURE_TYPES;
+    }
+    public static Set<String> getScalaFutureTypes() {
+        return SCALA_FUTURE_TYPES;
     }
 }

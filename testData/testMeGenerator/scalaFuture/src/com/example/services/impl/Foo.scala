@@ -4,7 +4,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 
-class Foo2 {
+class Foo {
   //  <caret>
   def findMeABetterFuture(hopes:Option[String]): Future[String] ={
     Future{
@@ -12,6 +12,6 @@ class Foo2 {
     }
   }
   def lookIntoTheFuture(hopes:Future[Int]): Future[Float] ={
-    Future(12.2211f)
+    Future(1.1f)
   }
 }

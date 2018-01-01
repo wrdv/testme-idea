@@ -4,6 +4,9 @@
 package ${PACKAGE_NAME}
 #end
 import org.specs2.mutable.Specification
+#if($TestSubjectUtils.hasScalaFutureReturn($TESTED_CLASS.methods))
+import scala.concurrent.duration._
+#end
 #if($hasMocks)
 import org.specs2.mock.Mockito
 #end

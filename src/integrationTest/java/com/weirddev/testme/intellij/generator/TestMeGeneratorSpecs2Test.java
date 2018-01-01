@@ -40,9 +40,9 @@ public class TestMeGeneratorSpecs2Test extends TestMeGeneratorTestBase   {
     public void testScalaGenerics() throws Exception{
         doTest(true,true,true);
     }
-//    public void testScalaFuture() throws Exception{
-//        doTest(true,true,true);
-//    }
+    public void testScalaFuture() throws Exception{
+        doTest(true,true,true);
+    }
 
 
     /**
