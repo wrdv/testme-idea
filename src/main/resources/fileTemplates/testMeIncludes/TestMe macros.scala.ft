@@ -111,27 +111,32 @@
 ##
 ################## Macros #####################
 #macro(scRenderTestSubjectInit $testedClass $hasTestableInstanceMethod $hasMocks)
-#if($hasMocks)
-    @InjectMocks
-    val $StringUtils.deCapitalizeFirstLetter($testedClass.name)
-#elseif($hasTestableInstanceMethod)
-    val $StringUtils.deCapitalizeFirstLetter($testedClass.name)= $TestBuilder.renderInitType($testedClass,"$testedClass.name",$scReplacementTypes,$scDefaultTypeValues)
+#if($hasTestableInstanceMethod)
+    val $StringUtils.deCapitalizeFirstLetter($testedClass.name) = new ${testedClass.name}(#scRenderCtorParams($testedClass))
 #end
 #end
 ##
-#macro(scRenderMockedFields $testedClassFields)
-#foreach($field in $testedClassFields)
-#if($MockitoMockBuilder.isMockable($field))
-    @Mock
-    $field.type.canonicalName $field.name
-#elseif($MockitoMockBuilder.isMockExpected($field))
-    $MockitoMockBuilder.getImmockabiliyReason("//",$field)
+#macro(scRenderMockedParams $testedClassCtorParams)
+#foreach($param in $testedClassCtorParams)
+#if($MockitoMockBuilder.isMockable($param))
+    val $param.name: $param.type.canonicalName = mock[$param.type.canonicalName]
+##elseif($MockitoMockBuilder.isMockExpected($field))
+##    $MockitoMockBuilder.getImmockabiliyReason("//",$param) //not supported yet for scala
 #end
 #end
 #end
 ##
+#macro(scRenderCtorParams $testedClass)
+#set($primaryCtorVar = $TestSubjectUtils.getPrimaryConstructor($TESTED_CLASS))
+#if($primaryCtorVar)
+#foreach($param in $primaryCtorVar.methodParams)
+#if($foreach.count>1), #end
+#if($MockitoMockBuilder.isMockable($param))$param.name#{else}$TestBuilder.renderInitType($param.type,"$param..name",$scReplacementTypes,$scDefaultTypeValues)#end
+#end
+#end
+#end
 #macro(scRenderAssert $method)
-#if($TestSubjectUtils.isJavaFuture($method.returnType))result.get()#elseif($TestSubjectUtils.isScalaFuture($method.returnType))scala.concurrent.Await.result(result, 10.seconds)#{else}result#end === $TestBuilder.renderReturnParam($method,$method.returnType,"replaceMeWithExpectedResult",$scReplacementTypesForReturn,$scDefaultTypeValues)
+#if($TestSubjectUtils.isJavaFuture($method.returnType))result.get()#elseif($TestSubjectUtils.isScalaFuture($method.returnType))Await.result(result, 10.seconds)#{else}result#end === $TestBuilder.renderReturnParam($method,$method.returnType,"replaceMeWithExpectedResult",$scReplacementTypesForReturn,$scDefaultTypeValues)
 #end
 ##
 #macro(scRenderMethodCall $method,$testedClassName)

@@ -125,7 +125,14 @@ public class TestSubjectUtils
         }
         return false;
     }
-
+    public Method getPrimaryConstructor(Type type){
+        for (Method method : type.getMethods()) {
+            if (method.isPrimaryConstructor()) {
+                return method;
+            }
+        }
+        return null;
+    }
     private boolean isImplements(Type type, String classCanonicalName) {
         for (Type interfaceType : type.getImplementedInterfaces()) {
             if (isSameGenericType(interfaceType, classCanonicalName)) {

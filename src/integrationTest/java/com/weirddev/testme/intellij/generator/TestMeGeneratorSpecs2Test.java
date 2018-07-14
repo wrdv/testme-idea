@@ -43,7 +43,9 @@ public class TestMeGeneratorSpecs2Test extends TestMeGeneratorTestBase   {
     public void testScalaFuture() throws Exception{
         doTest(true,true,true);
     }
-
+    public void testScalaWithDependencies() throws Exception{
+        doTest(true,true,true);
+    }
 
     /**
      * @link https://github.com/JetBrains/intellij-scala/blob/9198f8fb5b93d2ff142a65e320b812fc92cc0830/scala/scala-impl/test/org/jetbrains/plugins/scala/LightScalaTestCase.scala
