@@ -1,26 +1,30 @@
 #parse("TestMe macros.scala")
-#set($hasMocks=$MockitoMockBuilder.hasMockable($TESTED_CLASS.fields))
+#set($primaryCtor = $TestSubjectUtils.getPrimaryConstructor($TESTED_CLASS))
+#set($hasMocks = $MockitoMockBuilder.hasMocks($primaryCtor) )
+#if($primaryCtor)
+#set($primaryCtorParams = ${primaryCtor.methodParams})
+#end
 #if($PACKAGE_NAME)
 package ${PACKAGE_NAME}
 #end
 import org.specs2.mutable.Specification
-#if($TestSubjectUtils.hasScalaFutureReturn($TESTED_CLASS.methods))
-import scala.concurrent.duration._
-#end
 #if($hasMocks)
 import org.specs2.mock.Mockito
 #end
-
+#if($TestSubjectUtils.hasScalaFutureReturn($TESTED_CLASS.methods))
+import scala.concurrent.duration._
+import scala.concurrent.{Await, Future}
+import scala.concurrent.ExecutionContext.Implicits.global
+#end
 #parse("File Header.java")
 class ${CLASS_NAME} extends Specification #if($hasMocks) with Mockito#end{
-#scRenderMockedFields($TESTED_CLASS.fields)
-#scRenderTestSubjectInit($TESTED_CLASS,$TestSubjectUtils.hasTestableInstanceMethod($TESTED_CLASS.methods),$hasMocks)
 #if($hasMocks)
-
-    def setup() {
-        MockitoAnnotations.initMocks(this)
-    }
+    isolated
+#if($primaryCtorParams)
+#scRenderMockedParams($primaryCtorParams)
 #end
+#end
+#scRenderTestSubjectInit($TESTED_CLASS,$TestSubjectUtils.hasTestableInstanceMethod($TESTED_CLASS.methods),$hasMocks)
 
   "$TESTED_CLASS.name" should {
 #foreach($method in $TESTED_CLASS.methods)

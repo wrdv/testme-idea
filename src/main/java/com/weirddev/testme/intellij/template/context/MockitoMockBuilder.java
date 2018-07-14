@@ -55,16 +55,32 @@ public class  MockitoMockBuilder {
         this.isMockitoMockMakerInlineOn = isMockitoMockMakerInlineOn;
         this.stubMockMethodCallsReturnValues = stubMockMethodCallsReturnValues;
     }
-
+    @SuppressWarnings("unused")
     public boolean isMockable(Field field) {
-        final boolean isMockable = !field.getType().isPrimitive() && !isWrapperType(field) && (!field.getType().isFinal() || isMockitoMockMakerInlineOn) && !field.isOverridden() && !field.getType().isArray() && !field.getType().isEnum();
+        final boolean isMockable = !field.getType().isPrimitive() && !isWrapperType(field.getType()) && (!field.getType().isFinal() || isMockitoMockMakerInlineOn) && !field.isOverridden() && !field.getType().isArray() && !field.getType().isEnum();
         LOG.debug("field "+field.getType().getCanonicalName()+" "+field.getName()+" is mockable:"+isMockable);
+        return isMockable;
+    }
+    @SuppressWarnings("unused")
+    public boolean isMockable(Param param) {
+        final boolean isMockable = !param.getType().isPrimitive() && !isWrapperType(param.getType()) && (!param.getType().isFinal() || isMockitoMockMakerInlineOn) && !param.getType().isArray() && !param.getType().isEnum();
+        LOG.debug("param "+param.getType().getCanonicalName()+" "+param.getName()+" is mockable:"+isMockable);
         return isMockable;
     }
     @SuppressWarnings("unused")
     public boolean hasMockable(List<Field> fields) {
         for (Field field : fields) {
             if (isMockable(field)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    @SuppressWarnings("unused")
+    public boolean hasMocks(Method ctor) {
+        List<Param> params = ctor.getMethodParams();
+        for (Param param : params) {
+            if (isMockable(param)) {
                 return true;
             }
         }
@@ -135,11 +151,11 @@ public class  MockitoMockBuilder {
         @return true - if Field should be mocked
      */
     public boolean isMockExpected(Field field) {
-        return !field.getType().isPrimitive() && !isWrapperType(field) && !field.isStatic() && !field.isOverridden();
+        return !field.getType().isPrimitive() && !isWrapperType(field.getType()) && !field.isStatic() && !field.isOverridden();
     }
 
-    private boolean isWrapperType(Field field) {
-        return WRAPPER_TYPES.contains(field.getType().getCanonicalName());
+    private boolean isWrapperType(Type type) {
+        return WRAPPER_TYPES.contains(type.getCanonicalName());
     }
 
 }
