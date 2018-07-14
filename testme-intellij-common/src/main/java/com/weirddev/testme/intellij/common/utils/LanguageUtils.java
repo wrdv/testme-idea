@@ -23,7 +23,11 @@ public class LanguageUtils {
         return language == Language.findLanguageByID(GROOVY_LANGUAGE_ID) && isPluginEnabled(GROOVY_PLUGIN_ID);
     }
     public static boolean isScala(Language language) {
-        return language == Language.findLanguageByID(SCALA_LANGUAGE_ID) && isPluginEnabled(SCALA_PLUGIN_ID);
+        return language == getScalaLang() && isPluginEnabled(SCALA_PLUGIN_ID);
+    }
+
+    public static Language getScalaLang() {
+        return Language.findLanguageByID(SCALA_LANGUAGE_ID);
     }
 
     public static boolean isScalaPluginObject(Object typeElement) {

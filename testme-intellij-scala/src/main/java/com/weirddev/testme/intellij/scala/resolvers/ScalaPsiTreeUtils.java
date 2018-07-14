@@ -21,7 +21,6 @@ import org.jetbrains.plugins.scala.lang.psi.light.ScPrimaryConstructorWrapper;
 import org.jetbrains.plugins.scala.lang.psi.types.ScParameterizedType;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdType;
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult;
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable;
 import scala.Option;
 import scala.collection.Seq;
@@ -287,10 +286,11 @@ public class ScalaPsiTreeUtils {
         if (psiMethod instanceof ScFunctionWrapper) {
             final ScFunction function = resolveFunction(((ScFunctionWrapper) psiMethod)); //            final ScFunction function = ((ScFunctionWrapper) psiMethod).function();
             if (function != null) {
-                TypeResult resultObj = MethodReflectionUtils.invokeMethodReflectivelyWithFallback(function, TypeResult.class, "returnTypeInner", "returnType");
+                Object resultObj = MethodReflectionUtils.invokeMethodReflectivelyWithFallback(function, Object.class /*TypeResult.class*/, "returnTypeInner", "returnType");
                 if (resultObj != null) {
-                    scType = resultObj.get();
+                    scType = MethodReflectionUtils.invokeMethodReflectivelyWithFallback(resultObj, Object.class, "get", null);
                 }
+                //Non reflective version #1
 //                final org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult<ScType> scTypeTypeResult = function.returnType();
 //                if (scTypeTypeResult != null && !scTypeTypeResult.isEmpty()) {
 //                    scType = scTypeTypeResult.get();
