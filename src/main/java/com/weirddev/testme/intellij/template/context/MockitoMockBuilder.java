@@ -78,6 +78,9 @@ public class  MockitoMockBuilder {
     }
     @SuppressWarnings("unused")
     public boolean hasMocks(Method ctor) {
+        if (ctor == null) {
+            return false;
+        }
         List<Param> params = ctor.getMethodParams();
         for (Param param : params) {
             if (isMockable(param)) {
