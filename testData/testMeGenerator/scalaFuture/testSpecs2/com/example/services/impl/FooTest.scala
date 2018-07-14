@@ -18,7 +18,7 @@ class FooTest extends Specification {
 
     "find Me A Better Future" in {
       val result = foo.findMeABetterFuture(Some("hopes"))
-      Await.result(result, 10.seconds) === "result"
+      Await.result(result, 10.seconds) === "replaceMeWithExpectedResult"
     }
 
   }
