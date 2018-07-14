@@ -10,7 +10,7 @@ class FooTest extends Specification {
 
     "tuple Maker" in {
       val result = foo.tupleMaker(Some(1))
-      result === ("Object", 11223344.53, 1)
+      result === ("replaceMeWithExpectedResult", 11223344.53, 1)
     }
 
     "example" in {

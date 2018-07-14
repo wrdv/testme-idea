@@ -29,7 +29,7 @@ import java.util.Set;
  */
 public class JavaTestBuilderImpl implements LangTestBuilder {
     private static final Logger LOG = Logger.getInstance(JavaTestBuilderImpl.class.getName());
-    private static final Set<String> STRING_TYPES = ImmutableSet.of("java.lang.String", "java.lang.Object","scala.Nothing");
+    private static final Set<String> STRING_TYPES = ImmutableSet.of("java.lang.String", "java.lang.Object","scala.Nothing","scala.Predef.String");
     private static Type DEFAULT_STRING_TYPE = new Type("java.lang.String", "String", "java.lang", false, false, false, false, false, new ArrayList<Type>());
     private final TestBuilder.ParamRole paramRole; //todo consider removing. not used anymore
     private final Method testedMethod;
@@ -84,7 +84,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
 
             testBuilder.append(defaultTypeValues.get(canonicalName));
         } else if (STRING_TYPES.contains(canonicalName)) {
-            testBuilder.append("\"").append(paramNode.getData().getName()).append("\"");
+            testBuilder.append("\"").append(resolveStringValue(paramNode)).append("\"");
         } else if (type.getEnumValues().size() > 0) {
             testBuilder.append(canonicalName).append(".").append(type.getEnumValues().get(0));
         } else {
@@ -133,6 +133,11 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
                 testBuilder.append("null");
             }
         }
+    }
+
+    private String resolveStringValue(Node<Param> paramNode) {
+        final Param data = paramNode.getData();
+        return "Object".equals(data.getName())&& paramNode.getParent()!=null ?paramNode.getParent().getData().getName():data.getName();
     }
 
     private Type safeGetComposedTypeAtIndex(Type resolvedType, int i) {
