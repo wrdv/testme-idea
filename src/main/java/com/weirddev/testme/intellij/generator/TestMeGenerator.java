@@ -124,10 +124,10 @@ public class TestMeGenerator {
                 if (context.getFileTemplateConfig().isOptimizeImports()) {
                     codeStyleManager.optimizeImports(psiClass.getContainingFile());
                 }
-                codeRefactorUtil.uncommentImports(psiClass, context.getProject());
                 if (context.getFileTemplateConfig().isReplaceFqn()) {
                     codeStyleManager.shortenClassReferences(psiClass);
                 }
+                codeRefactorUtil.uncommentImports(psiClass, context.getProject());
                 if (context.getFileTemplateConfig().isReformatCode()) {
                     final PsiFile containingFile = psiClass.getContainingFile();
                     final TextRange textRange = containingFile.getTextRange();

@@ -12,7 +12,6 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.Month
-
 import static org.mockito.Mockito.*
 
 /** created by TestMe integration test on MMXVI */

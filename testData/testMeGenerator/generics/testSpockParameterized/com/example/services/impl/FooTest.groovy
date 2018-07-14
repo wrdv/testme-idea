@@ -10,7 +10,6 @@ import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 
 import java.util.concurrent.CompletableFuture
-
 import static org.mockito.Mockito.*
 
 /** created by TestMe integration test on MMXVI */

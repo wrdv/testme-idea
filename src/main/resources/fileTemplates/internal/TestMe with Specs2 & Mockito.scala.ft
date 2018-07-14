@@ -7,9 +7,9 @@
 #if($PACKAGE_NAME)
 package ${PACKAGE_NAME}
 #end
-import org.specs2.mutable.Specification
+//import org.specs2.mutable.Specification
 #if($hasMocks)
-import org.specs2.mock.Mockito
+//import org.specs2.mock.Mockito
 #end
 #if($TestSubjectUtils.hasScalaFutureReturn($TESTED_CLASS.methods))
 import scala.concurrent.duration._
