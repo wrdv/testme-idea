@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass;
+import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper;
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper;
 import org.jetbrains.plugins.scala.lang.psi.light.ScPrimaryConstructorWrapper;
 import org.jetbrains.plugins.scala.lang.psi.types.ScParameterizedType;
@@ -298,5 +299,9 @@ public class ScalaPsiTreeUtils {
             }
         }
         return scType;
+    }
+
+    public static boolean isSyntheticMethod(PsiMethod psiMethod) {
+        return psiMethod instanceof PsiTypedDefinitionWrapper;
     }
 }
