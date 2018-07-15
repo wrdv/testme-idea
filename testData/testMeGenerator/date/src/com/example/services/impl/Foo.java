@@ -6,6 +6,7 @@ import com.example.foes.Fire;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.Instant;
 import java.util.Date;
 
 public class Foo{
@@ -27,5 +28,9 @@ public class Foo{
     public LocalDateTime fightAnyDate(Fire withFire, LocalDateTime when) {
         fooFighter.fight(withFire);
         return when;
+    }
+    public Instant maybe(Instant later,Fire fire) {
+        fooFighter.fight(fire);
+        return later;
     }
 }
