@@ -5,8 +5,7 @@ import org.specs2.mock.Mockito
 import com.example.warriers.FooFighter
 
 import scala.concurrent.duration._
-import scala.concurrent.{Await, Future}
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Await
 
 /** created by TestMe integration test on MMXVI */
 class FooTest extends Specification with Mockito {

@@ -62,7 +62,7 @@
 #evaluate(${scReplacementTypes.put($javaFutureType,"java.util.concurrent.CompletableFuture.completedFuture(<VAL>)")})
 #end
 #foreach($scalaFutureType in $TestSubjectUtils.scalaFutureTypes)
-#evaluate(${scReplacementTypes.put($scalaFutureType,"scala.concurrent.Future(<VAL>)")})
+#evaluate(${scReplacementTypes.put($scalaFutureType,"scala.concurrent.Future.successful(<VAL>)")})
 #end
 #foreach($javaFutureType in $TestSubjectUtils.javaFutureTypes)
 #evaluate(${scReplacementTypesForReturn.put($javaFutureType,"<VAL>")})

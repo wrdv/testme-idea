@@ -13,8 +13,7 @@ package ${PACKAGE_NAME}
 #end
 #if($TestSubjectUtils.hasScalaFutureReturn($TESTED_CLASS.methods))
 import scala.concurrent.duration._
-import scala.concurrent.{Await, Future}
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Await
 #end
 #parse("File Header.java")
 class ${CLASS_NAME} extends Specification #if($hasMocks) with Mockito#end{
