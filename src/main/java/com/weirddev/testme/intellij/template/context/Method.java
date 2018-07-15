@@ -47,6 +47,10 @@ public class Method {
     private final boolean overridden;
     private final boolean inherited;
     private final boolean isInInterface;
+    /**
+     * true, if method is synthetically generated. currently only relevant for scala methods
+     */
+    private final boolean isSynthetic;
     private final String propertyName;
     /**
      *true - when accessible from class under test
@@ -67,7 +71,7 @@ public class Method {
     /**
      * methods referenced from this method. i.e.  SomeClassName::someMethodName
      */
-    private Set<Method> methodRefereneces = new HashSet<Method>();
+    private Set<Method> methodReferences = new HashSet<Method>();
     /**
      *  method calls of methods in this owner's class type or one of it's ancestor type. including indirectly called methods up to max method call search depth. ResolvedMethodCall objects of the class under test are deeply resolved
      *  @deprecated not used. might be removed
@@ -106,6 +110,15 @@ public class Method {
         isInInterface = psiMethod.getContainingClass() != null && psiMethod.getContainingClass().isInterface();
         methodId = PsiMethodUtils.formatMethodId(psiMethod);
         accessible = typeDictionary.isAccessible(psiMethod);
+        isSynthetic = isSyntheticMethod(psiMethod);
+    }
+
+    private boolean isSyntheticMethod(PsiMethod psiMethod) {
+        if (LanguageUtils.isScala(psiMethod.getLanguage())) {
+            return ScalaPsiTreeUtils.isSyntheticMethod(psiMethod);
+        } else {
+            return false;
+        }
     }
 
     @Nullable
@@ -168,7 +181,7 @@ public class Method {
     private void resolveMethodReferences(PsiMethod psiMethod, TypeDictionary typeDictionary) {
         for (PsiMethod resolvedMethodReference : JavaPsiTreeUtils.findMethodReferences(psiMethod)) {
             if (isRelevant(resolvedMethodReference.getContainingClass(), resolvedMethodReference)) {
-                this.methodRefereneces.add(new Method(resolvedMethodReference, resolvedMethodReference.getContainingClass(), 1, typeDictionary));
+                this.methodReferences.add(new Method(resolvedMethodReference, resolvedMethodReference.getContainingClass(), 1, typeDictionary));
             }
         }
     }
@@ -324,7 +337,7 @@ public class Method {
     }
 
     public boolean isTestable(){
-        return !isLanguageInherited(ownerClassCanonicalType) && !isSetter() && !isGetter() && !isConstructor() &&((isDefault()|| isProtected() ) && !isInherited() || isPublic()) && !isOverridden() && !isInInterface() && !isAbstract();
+        return !isLanguageInherited(ownerClassCanonicalType) && !isSetter() && !isGetter() && !isConstructor() &&((isDefault()|| isProtected() ) && !isInherited() || isPublic()) && !isOverridden() && !isInInterface() && !isAbstract() && !isSynthetic();
     }
 
     public static boolean isLanguageInherited(String ownerClassCanonicalType) {
@@ -379,8 +392,8 @@ public class Method {
         return accessible;
     }
 
-    public Set<Method> getMethodRefereneces() {
-        return methodRefereneces;
+    public Set<Method> getMethodReferences() {
+        return methodReferences;
     }
 
     public boolean hasReturn(){
@@ -389,5 +402,9 @@ public class Method {
 
     public boolean isPrimaryConstructor() {
         return primaryConstructor;
+    }
+
+    public boolean isSynthetic() {
+        return isSynthetic;
     }
 }

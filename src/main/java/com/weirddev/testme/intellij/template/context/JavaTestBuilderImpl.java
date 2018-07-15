@@ -326,7 +326,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
                 return true;
             }
         }
-        for (Method methodRef : method.getMethodRefereneces()) {
+        for (Method methodRef : method.getMethodReferences()) {
             if (isSharedType(paramOwner, methodRef) && (isGetterUsed(propertyParam, methodRef) || isSetterUsed(propertyParam, methodRef) )) {
                 LOG.debug("getter or setter are used in method ref "+paramOwnerCanonicalName+" - "+propertyParam+" in methodCall "+methodRef);
                 return true;
