@@ -22,6 +22,7 @@
     "java.util.LinkedHashMap": "[<VAL>:<VAL>]",
     "java.util.TreeSet": "[<VAL>] as java.util.TreeSet",
 
+    "scala.concurrent.ExecutionContext": "scala.concurrent.ExecutionContext.Implicits.global",
     "scala.Option": "Some(<VAL>)",
     "scala.collection.immutable.Map": "Map(<VAL> -> <VAL>)",
     "scala.Map": "Map(<VAL> -> <VAL>)",

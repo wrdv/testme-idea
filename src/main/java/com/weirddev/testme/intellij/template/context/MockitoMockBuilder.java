@@ -76,8 +76,9 @@ public class  MockitoMockBuilder {
     }
     @SuppressWarnings("unused")
     public boolean isMockable(Param param) {
-        final boolean isMockable = !param.getType().isPrimitive() && !isWrapperType(param.getType()) && (!param.getType().isFinal() || isMockitoMockMakerInlineOn) && !param.getType().isArray() && !param.getType().isEnum();
-        LOG.debug("param "+param.getType().getCanonicalName()+" "+param.getName()+" is mockable:"+isMockable);
+        final Type type = param.getType();
+        final boolean isMockable = !type.isPrimitive() && !isWrapperType(type) && (!type.isFinal() || isMockitoMockMakerInlineOn) && !type.isArray() && !type.isEnum() && ! "scala.concurrent.ExecutionContext".equals(type.getCanonicalName());
+        LOG.debug("param "+ type.getCanonicalName()+" "+param.getName()+" is mockable:"+isMockable);
         return isMockable;
     }
     @SuppressWarnings("unused")
