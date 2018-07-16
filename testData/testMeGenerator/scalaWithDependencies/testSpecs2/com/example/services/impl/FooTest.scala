@@ -16,6 +16,7 @@ class FooTest extends Specification with Mockito {
   "Foo" should {
 
     "fight" in {
+      fooFighter.fight(any) returns "fightResponse"
       val result = foo.fight(Some("optFire"))
       Await.result(result, 10.seconds) === "replaceMeWithExpectedResult"
     }

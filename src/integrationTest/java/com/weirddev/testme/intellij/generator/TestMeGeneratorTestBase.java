@@ -63,21 +63,21 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
         doTest(true, false, false);
     }
     protected void doTest(final boolean ignoreUnusedProperties) {
-        doTest(true, true, true, 50, ignoreUnusedProperties);
+        doTest(true, true, true, 50, ignoreUnusedProperties, false);
     }
 
     protected void doTest(boolean reformatCode, boolean optimizeImports, boolean replaceFqn) {
-        doTest(reformatCode, optimizeImports, replaceFqn, 50, false);
+        doTest(reformatCode, optimizeImports, replaceFqn, 50, false, false);
     }
-    protected void doTest(boolean reformatCode, boolean optimizeImports, boolean replaceFqn, int minPercentOfExcessiveSettersToPreferDefaultCtor, boolean ignoreUnusedProperties) {
-        doTest("com.example.services.impl", "Foo", "FooTest", reformatCode, optimizeImports, replaceFqn, ignoreUnusedProperties, minPercentOfExcessiveSettersToPreferDefaultCtor);
+    protected void doTest(boolean reformatCode, boolean optimizeImports, boolean replaceFqn, int minPercentOfExcessiveSettersToPreferDefaultCtor, boolean ignoreUnusedProperties, boolean stubMockMethodCallsReturnValues) {
+        doTest("com.example.services.impl", "Foo", "FooTest", reformatCode, optimizeImports, replaceFqn, ignoreUnusedProperties, minPercentOfExcessiveSettersToPreferDefaultCtor, stubMockMethodCallsReturnValues);
     }
     protected void doTest(FileTemplateConfig fileTemplateConfig) {
         doTest("com.example.services.impl", "Foo", "FooTest", fileTemplateConfig);
     }
 
-    protected void doTest(final String packageName, String testSubjectClassName, final String expectedTestClassName, final boolean reformatCode, final boolean optimizeImports, final boolean replaceFqn, final boolean ignoreUnusedProperties, final int minPercentOfExcessiveSettersToPreferDefaultCtor) {
-        doTest(packageName, testSubjectClassName, expectedTestClassName, new FileTemplateConfig(4, reformatCode, replaceFqn, optimizeImports, ignoreUnusedProperties, true, false, 2,minPercentOfExcessiveSettersToPreferDefaultCtor,66));
+    protected void doTest(final String packageName, String testSubjectClassName, final String expectedTestClassName, final boolean reformatCode, final boolean optimizeImports, final boolean replaceFqn, final boolean ignoreUnusedProperties, final int minPercentOfExcessiveSettersToPreferDefaultCtor, boolean stubMockMethodCallsReturnValues) {
+        doTest(packageName, testSubjectClassName, expectedTestClassName, new FileTemplateConfig(4, reformatCode, replaceFqn, optimizeImports, ignoreUnusedProperties, true, stubMockMethodCallsReturnValues, 2,minPercentOfExcessiveSettersToPreferDefaultCtor,66));
     }
 
     protected void doTest(final String packageName, String testSubjectClassName, final String expectedTestClassName, final FileTemplateConfig fileTemplateConfig) {

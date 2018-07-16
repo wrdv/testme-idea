@@ -139,7 +139,7 @@ public class Type {
             }
             final PsiMethod[] methods = psiClass.getAllMethods();
                 for (PsiMethod psiMethod : methods) {
-                    if (Method.isRelevant(psiClass, psiMethod) &&  (shouldResolveAllMethods || ( PropertyUtils.isPropertySetter(psiMethod) || PropertyUtils.isPropertyGetter(psiMethod)) && !isGroovyLangProperty(psiMethod) || psiMethod.isConstructor())){
+                    if ( (shouldResolveAllMethods || ( PropertyUtils.isPropertySetter(psiMethod) || PropertyUtils.isPropertyGetter(psiMethod)) && !isGroovyLangProperty(psiMethod) || psiMethod.isConstructor()) && Method.isRelevant(psiClass, psiMethod)){
                         final Method method = new Method(psiMethod, psiClass, maxRecursionDepth - 1, typeDictionary);
                         method.resolveInternalReferences(psiMethod, typeDictionary);
                         this.methods.add(method);

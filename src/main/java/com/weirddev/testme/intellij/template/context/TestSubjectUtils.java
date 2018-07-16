@@ -109,7 +109,7 @@ public class TestSubjectUtils
         }
         return isImplements(type, "java.util.concurrent.Future");
     }
-    public boolean isScalaFuture(Type type) {
+    public static boolean isScalaFuture(Type type) {
         for (String javaFutureType : SCALA_FUTURE_TYPES) {
             if (isSameGenericType(type, javaFutureType)) {
                 return true;
@@ -125,7 +125,7 @@ public class TestSubjectUtils
         }
         return false;
     }
-    public Method getPrimaryConstructor(Type type){
+    public static Method getPrimaryConstructor(Type type){
         for (Method method : type.getMethods()) {
             if (method.isPrimaryConstructor()) {
                 return method;
@@ -133,7 +133,7 @@ public class TestSubjectUtils
         }
         return null;
     }
-    private boolean isImplements(Type type, String classCanonicalName) {
+    private static boolean isImplements(Type type, String classCanonicalName) {
         for (Type interfaceType : type.getImplementedInterfaces()) {
             if (isSameGenericType(interfaceType, classCanonicalName)) {
                 return true;
@@ -142,7 +142,7 @@ public class TestSubjectUtils
         return false;
     }
 
-    private boolean isSameGenericType(Type type, String classCanonicalName) {
+    private static boolean isSameGenericType(Type type, String classCanonicalName) {
         return classCanonicalName.equals(ClassNameUtils.stripGenerics(type.getCanonicalName()));
     }
 

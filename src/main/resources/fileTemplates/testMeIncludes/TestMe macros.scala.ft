@@ -149,12 +149,14 @@ val result = #if($method.static)$testedClassName#{else}$StringUtils.deCapitalize
 #if($method.static)$testedClassName#{else}$StringUtils.deCapitalizeFirstLetter($testedClassName)#end.${method.name}($methodClassParamsStr)##
 #end
 ##
-#macro(scRenderMockStubs $method $testedClassFields)
-#foreach($field in $testedClassFields)
-#if($MockitoMockBuilder.isMockable($field))
-#foreach($fieldMethod in $field.type.methods)
-#if($fieldMethod.returnType && $fieldMethod.returnType.name !="void" && $TestSubjectUtils.isMethodCalled($fieldMethod,$method))
-        when($field.name.${fieldMethod.name}($MockitoMockBuilder.buildMockArgsMatchers(${fieldMethod.methodParams}))).thenReturn($TestBuilder.renderReturnParam($method,$fieldMethod.returnType,"${fieldMethod.name}Response",$scReplacementTypes,$scDefaultTypeValues))
+#macro(scRenderMockStubs $method $primaryCtor)
+#if($primaryCtor)
+#foreach($param in $primaryCtor.methodParams)
+#if($MockitoMockBuilder.isMockable($param))
+#foreach($paramMethod in $param.type.methods)
+#if($paramMethod.returnType && $paramMethod.returnType.name !="void" && $TestSubjectUtils.isMethodCalled($paramMethod,$method))
+        $param.name.${paramMethod.name}($MockitoMockBuilder.buildMockArgsMatchers(${paramMethod.methodParams},"Scala")) returns $TestBuilder.renderReturnParam($method,$paramMethod.returnType,"${paramMethod.name}Response",$scReplacementTypes,$scDefaultTypeValues)
+#end
 #end
 #end
 #end

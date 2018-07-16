@@ -24,7 +24,7 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
         doTest();
     }
     public void testDefaultPackage() throws Exception {
-        doTest("", "Foo", "FooTest", true, false, false, false, 50);
+        doTest("", "Foo", "FooTest", true, false, false, false, 50, false);
     }
     public void testVariousFieldTypes() throws Exception {
         final FileTemplateConfig fileTemplateConfig = FileTemplateConfig.getInstance();
@@ -48,7 +48,7 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
         doTest(false,false,true);
     }
     public void testTypeInDefaultPackageCollision() throws Exception {
-        doTest("", "Foo", "FooTest", true, false, false, false, 50);
+        doTest("", "Foo", "FooTest", true, false, false, false, 50, false);
     }
     public void testInheritance() throws Exception {
         final FileTemplateConfig fileTemplateConfig = FileTemplateConfig.getInstance();
@@ -106,19 +106,19 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
     }
     public void testGroovy() throws Exception {
         skipTestIfGroovyPluginDisabled();
-        doTest("com.example.services.impl", "Foovy", "FoovyTest", true, true, true, false, 50);
+        doTest("com.example.services.impl", "Foovy", "FoovyTest", true, true, true, false, 50, false);
     }
     public void testIgnoreUnusedCtorArguments() throws Exception{
         skipTestIfGroovyPluginDisabled();//this tested feature does not require Groovy IJ plugin but the test cases use Groovy objects
-        doTest(true,true,true, MIN_PERCENT_OF_EXCESSIVE_SETTERS_TO_PREFER_DEFAULT_CTOR, true);
+        doTest(true,true,true, MIN_PERCENT_OF_EXCESSIVE_SETTERS_TO_PREFER_DEFAULT_CTOR, true, false);
     }
     public void testIgnoreUnusedCtorArgumentsIdentifyMethodReference() throws Exception{
         skipTestIfGroovyPluginDisabled();//this tested feature does not require Groovy IJ plugin but the test cases use Groovy objects
-        doTest(true,true,true, MIN_PERCENT_OF_EXCESSIVE_SETTERS_TO_PREFER_DEFAULT_CTOR, true);
+        doTest(true,true,true, MIN_PERCENT_OF_EXCESSIVE_SETTERS_TO_PREFER_DEFAULT_CTOR, true, false);
     }
     public void testIgnoreUnusedCtorArgumentsWhenDelegatedCalls() throws Exception{
         skipTestIfGroovyPluginDisabled();//this tested feature does not require Groovy IJ plugin but the test cases use Groovy objects
-        doTest(true,true,true, MIN_PERCENT_OF_EXCESSIVE_SETTERS_TO_PREFER_DEFAULT_CTOR, true);
+        doTest(true,true,true, MIN_PERCENT_OF_EXCESSIVE_SETTERS_TO_PREFER_DEFAULT_CTOR, true, false);
     }
 //    public void testIgnoreUnusedCtorArgumentsWhenDelegatedCallsInGroovy() throws Exception{  //todo fix different handling of array field  - BeanByCtor#myBeans - compared to testIgnoreUnusedCtorArgumentsWhenDelegatedCalls test
 //        doTest(true,true,true,67, true);
@@ -130,7 +130,7 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
         skipTestIfGroovyPluginDisabled();
         //note: 2nd ctor arg passed to BeanByCtor should actually be 'new Ice()' - rather than 'null' as currently set in excepted test outcome.
         // For some reason manual tests match the expected behaviour but the UT fails. expected test has been adapted to the 'wrong' UT runtime behaviour
-        doTest(true,true,true, MIN_PERCENT_OF_EXCESSIVE_SETTERS_TO_PREFER_DEFAULT_CTOR, true);
+        doTest(true,true,true, MIN_PERCENT_OF_EXCESSIVE_SETTERS_TO_PREFER_DEFAULT_CTOR, true, false);
     }
     public void testWithFinalTypeDependency() throws Exception {
         doTest(true, true, true);

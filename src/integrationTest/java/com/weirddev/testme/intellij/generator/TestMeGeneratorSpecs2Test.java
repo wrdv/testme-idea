@@ -44,7 +44,7 @@ public class TestMeGeneratorSpecs2Test extends TestMeGeneratorTestBase   {
         doTest(true,true,true);
     }
     public void testScalaWithDependencies() throws Exception{
-        doTest(true,true,true);
+        doTest(true,true,true, TestMeGeneratorJunit4Test.MIN_PERCENT_OF_EXCESSIVE_SETTERS_TO_PREFER_DEFAULT_CTOR, true, true);
     }
 
     /**

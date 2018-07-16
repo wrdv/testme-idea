@@ -16,22 +16,35 @@ public class  MockitoMockBuilder {
 
     static {
         TYPE_TO_ARG_MATCHERS = new HashMap<String, String>();
-        TYPE_TO_ARG_MATCHERS.put("byte", "anyByte()");
-        TYPE_TO_ARG_MATCHERS.put("short", "anyShort()");
-        TYPE_TO_ARG_MATCHERS.put("int", "anyInt()");
-        TYPE_TO_ARG_MATCHERS.put("long", "anyLong()");
-        TYPE_TO_ARG_MATCHERS.put("float", "anyFloat()");
-        TYPE_TO_ARG_MATCHERS.put("double", "anyDouble()");
-        TYPE_TO_ARG_MATCHERS.put("char", "anyChar()");
-        TYPE_TO_ARG_MATCHERS.put("boolean", "anyBoolean()");
-        TYPE_TO_ARG_MATCHERS.put("java.lang.Byte", "anyByte()");
-        TYPE_TO_ARG_MATCHERS.put("java.lang.Short", "anyShort()");
-        TYPE_TO_ARG_MATCHERS.put("java.lang.Integer", "anyInt()");
-        TYPE_TO_ARG_MATCHERS.put("java.lang.Long", "anyLong()");
-        TYPE_TO_ARG_MATCHERS.put("java.lang.Float", "anyFloat()");
-        TYPE_TO_ARG_MATCHERS.put("java.lang.Double", "anyDouble()");
-        TYPE_TO_ARG_MATCHERS.put("java.lang.Character", "anyChar()");
-        TYPE_TO_ARG_MATCHERS.put("java.lang.Boolean", "anyBoolean()");
+        TYPE_TO_ARG_MATCHERS.put("byte", "anyByte");
+        TYPE_TO_ARG_MATCHERS.put("short", "anyShort");
+        TYPE_TO_ARG_MATCHERS.put("int", "anyInt");
+        TYPE_TO_ARG_MATCHERS.put("long", "anyLong");
+        TYPE_TO_ARG_MATCHERS.put("float", "anyFloat");
+        TYPE_TO_ARG_MATCHERS.put("double", "anyDouble");
+        TYPE_TO_ARG_MATCHERS.put("char", "anyChar");
+        TYPE_TO_ARG_MATCHERS.put("boolean", "anyBoolean");
+
+        TYPE_TO_ARG_MATCHERS.put("java.lang.Byte", "anyByte");
+        TYPE_TO_ARG_MATCHERS.put("java.lang.Short", "anyShort");
+        TYPE_TO_ARG_MATCHERS.put("java.lang.Integer", "anyInt");
+        TYPE_TO_ARG_MATCHERS.put("java.lang.Long", "anyLong");
+        TYPE_TO_ARG_MATCHERS.put("java.lang.Float", "anyFloat");
+        TYPE_TO_ARG_MATCHERS.put("java.lang.Double", "anyDouble");
+        TYPE_TO_ARG_MATCHERS.put("java.lang.Character", "anyChar");
+        TYPE_TO_ARG_MATCHERS.put("java.lang.Boolean", "anyBoolean");
+        TYPE_TO_ARG_MATCHERS.put("java.lang.String", "anyString");
+
+        TYPE_TO_ARG_MATCHERS.put("scala.Byte", "anyByte");
+        TYPE_TO_ARG_MATCHERS.put("scala.Short", "anyShort");
+        TYPE_TO_ARG_MATCHERS.put("scala.Int", "anyInt");
+        TYPE_TO_ARG_MATCHERS.put("scala.Long", "anyLong");
+        TYPE_TO_ARG_MATCHERS.put("scala.Float", "anyFloat");
+        TYPE_TO_ARG_MATCHERS.put("scala.Double", "anyDouble");
+        TYPE_TO_ARG_MATCHERS.put("scala.Char", "anyChar");
+        TYPE_TO_ARG_MATCHERS.put("scala.Boolean", "anyBoolean");
+        TYPE_TO_ARG_MATCHERS.put("scala.Predef.String", "anyString");
+
     }
 
     private static final Set<String> WRAPPER_TYPES = new HashSet<String>(Arrays.asList(
@@ -102,31 +115,42 @@ public class  MockitoMockBuilder {
             return "";
         }
     }
+
+    /**
+     *
+     * @param params
+     * @param language String representation of com.weirddev.testme.intellij.template.context.Language
+     * @return
+     * @see Language
+     */
     @SuppressWarnings("unused")
-    public String buildMockArgsMatchers(List<Param> params) {
+    public String buildMockArgsMatchers(List<Param> params,String language) {
         final StringBuilder sb = new StringBuilder();
         for (Param param : params) {
             if (sb.length() > 0) {
                 sb.append(", ");
             }
-            sb.append(deductMatcherTypeMethod(param));
+            sb.append(deductMatcherTypeMethod(param, Language.safeValueOf(language)));
         }
         return sb.toString();
     }
 
     @NotNull
-    private String deductMatcherTypeMethod(Param param) {
+    private String deductMatcherTypeMethod(Param param, Language language) {
         String matcherType;
         if (param.getType().isVarargs()) {
-            matcherType = "anyVararg()";
+            matcherType = "anyVararg";
         }
         else {
             matcherType = TYPE_TO_ARG_MATCHERS.get(param.getType().getCanonicalName());
         }
         if (matcherType == null) {
-            matcherType = "any()";
+            matcherType = "any";
         }
         //todo support anyCollection(),anyMap(),anySet() and consider arrays
+        if (language != Language.Scala) {
+            matcherType += "()";
+        }
         return matcherType;
     }
 
@@ -149,7 +173,47 @@ public class  MockitoMockBuilder {
         LOG.debug("method "+testMethod.getMethodId()+" should be stabbed:"+shouldStub);
         return shouldStub;
     }
-
+    @SuppressWarnings("unused")
+    public boolean shouldStub(Method testMethod, Method ctor) {
+        boolean shouldStub = false;
+        if (ctor == null || !stubMockMethodCallsReturnValues) {
+            return false;
+        }
+        List<Param> ctorParams = ctor.getMethodParams();
+        for (Param param : ctorParams) {
+            if (isMockable(param)) {
+                LOG.debug("ctor param "+param.getName()+" type "+param.getType().getCanonicalName()+" type methods:"+param.getType().getMethods().size());
+                for (Method method : param.getType().getMethods()) {
+                    if (method.getReturnType() != null && !"void".equals(method.getReturnType().getCanonicalName()) && TestSubjectUtils.isMethodCalled(method, testMethod)) {
+                        shouldStub = true;
+                        break;
+                    }
+                }
+            }
+        }
+        LOG.debug("method "+testMethod.getMethodId()+" should be stabbed:"+shouldStub);
+        return shouldStub;
+    }
+    @SuppressWarnings("unused")
+    public boolean hasStubsReturningScalaFuture(Type testedClass) {
+        Method ctor = TestSubjectUtils.getPrimaryConstructor(testedClass);
+        if (ctor == null) {
+            return false;
+        }
+        for (Method method : testedClass.getMethods()) {
+            if (method.isTestable()) {
+                for (Param param : ctor.getMethodParams()) {
+                    isMockable(param);
+                    for (Method methodOfDependency : param.getType().getMethods()) {
+                        if (TestSubjectUtils.isMethodCalled(methodOfDependency, method) && methodOfDependency.getReturnType() != null && TestSubjectUtils.isScalaFuture(methodOfDependency.getReturnType())) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
     /**
         @return true - if Field should be mocked
      */
