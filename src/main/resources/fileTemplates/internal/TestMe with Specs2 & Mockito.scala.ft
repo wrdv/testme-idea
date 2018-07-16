@@ -15,6 +15,9 @@ package ${PACKAGE_NAME}
 import scala.concurrent.duration._
 import scala.concurrent.Await
 #end
+#if($MockitoMockBuilder.hasStubsReturningScalaFuture($TESTED_CLASS))
+import scala.concurrent.ExecutionContext.Implicits.global
+#end
 #parse("File Header.java")
 class ${CLASS_NAME} extends Specification #if($hasMocks) with Mockito#end{
 #if($hasMocks)
@@ -30,8 +33,8 @@ class ${CLASS_NAME} extends Specification #if($hasMocks) with Mockito#end{
 #if($method.isTestable())
 
       "#renderTestMethodNameAsWords($method.name)" in {
-#if($MockitoMockBuilder.shouldStub($method,$TESTED_CLASS.fields))
-#scRenderMockStubs($method,$TESTED_CLASS.fields)
+#if($MockitoMockBuilder.shouldStub($method,$primaryCtor))
+#scRenderMockStubs($method, $primaryCtor)
 #end
         #scRenderMethodCall($method,$TESTED_CLASS.name)
 #if($method.hasReturn())        #scRenderAssert($method)#{else}false//todo - validate something

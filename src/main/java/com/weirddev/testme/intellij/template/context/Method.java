@@ -92,14 +92,14 @@ public class Method {
         name = psiMethod.getName();
         this.returnType = resolveReturnType(psiMethod, maxRecursionDepth, typeDictionary);
         ownerClassCanonicalType = psiMethod.getContainingClass() == null ? null : psiMethod.getContainingClass().getQualifiedName();
-        methodParams = extractMethodParams(typeDictionary, maxRecursionDepth,psiMethod);
+        constructor = psiMethod.isConstructor();
+        primaryConstructor = constructor && psiMethod.getClass().getSimpleName().contains("PrimaryConstructor");
+        methodParams = extractMethodParams(typeDictionary, maxRecursionDepth,psiMethod,primaryConstructor);
         isSetter = PropertyUtils.isPropertySetter(psiMethod);
         isGetter = PropertyUtils.isPropertyGetter(psiMethod);
 //        final PsiField psiField = PropertyUtil.findPropertyFieldByMember(psiMethod);
 //        propertyName = psiField == null ? null : psiField.getName();
         propertyName = ClassNameUtils.extractTargetPropertyName(name,isSetter,isGetter);
-        constructor = psiMethod.isConstructor();
-        primaryConstructor = constructor && psiMethod.getClass().getSimpleName().contains("PrimaryConstructor");
         if (srcClass != null) {
             overridden = isOverriddenInChild(psiMethod, srcClass);
             inherited = isInherited(psiMethod, srcClass);
@@ -186,20 +186,29 @@ public class Method {
         }
     }
     private void resolveCalledMethods(PsiMethod psiMethod, TypeDictionary typeDictionary) {
+        //todo try to pass/support src class in scala/groovy as well. if successful, consider re-implementing with a factory method call
         if (LanguageUtils.isGroovy(psiMethod.getLanguage())) {
             for (ResolvedMethodCall resolvedMethodCall : GroovyPsiTreeUtils.findMethodCalls(psiMethod)) {
-                if (isRelevant(resolvedMethodCall.getPsiMethod().getContainingClass(), resolvedMethodCall.getPsiMethod())) {
-                    this.directMethodCalls.add(new MethodCall(new Method(resolvedMethodCall.getPsiMethod(), null, 1, typeDictionary),convertArgs(resolvedMethodCall.getMethodCallArguments())));
-                }
+                addDirectMethodCallIfRelevant(typeDictionary, resolvedMethodCall, null);
             }
-        } else {
+        }
+        else if (LanguageUtils.isScala(psiMethod.getLanguage())) {
+            for (ResolvedMethodCall resolvedMethodCall : ScalaPsiTreeUtils.findMethodCalls(psiMethod)) {
+                addDirectMethodCallIfRelevant(typeDictionary, resolvedMethodCall, null);
+            }
+        }
+        else {
             for (ResolvedMethodCall methodCalled : JavaPsiTreeUtils.findMethodCalls(psiMethod)) {
-                if (isRelevant(methodCalled.getPsiMethod().getContainingClass(), methodCalled.getPsiMethod())) {
-                    this.directMethodCalls.add(new MethodCall(new Method(methodCalled.getPsiMethod(), methodCalled.getPsiMethod().getContainingClass(), 1, typeDictionary),convertArgs(methodCalled.getMethodCallArguments())));
-                }
+                addDirectMethodCallIfRelevant(typeDictionary, methodCalled, methodCalled.getPsiMethod().getContainingClass());
             }
         }
         methodCalls = this.directMethodCalls;
+    }
+
+    private void addDirectMethodCallIfRelevant(TypeDictionary typeDictionary, ResolvedMethodCall methodCalled, PsiClass srcClass) {
+        if (isRelevant(methodCalled.getPsiMethod().getContainingClass(), methodCalled.getPsiMethod())) {
+            this.directMethodCalls.add(new MethodCall(new Method(methodCalled.getPsiMethod(), srcClass, 1, typeDictionary),convertArgs(methodCalled.getMethodCallArguments())));
+        }
     }
 
     private List<MethodCallArgument> convertArgs(List<MethodCallArg> methodCallArguments) {
@@ -223,7 +232,7 @@ public class Method {
         return (srcQualifiedName!=null && methodClsQualifiedName!=null &&  !srcQualifiedName.equals(methodClsQualifiedName));
     }
 
-    private List<Param> extractMethodParams(TypeDictionary typeDictionary, int maxRecursionDepth, PsiMethod psiMethod) {
+    private List<Param> extractMethodParams(TypeDictionary typeDictionary, int maxRecursionDepth, PsiMethod psiMethod, boolean shouldResolveAllMethods) {
         ArrayList<Param> params = new ArrayList<Param>();
         final PsiParameter[] parameters;
         if (LanguageUtils.isScala(psiMethod.getLanguage())) {
@@ -233,7 +242,7 @@ public class Method {
         }
         for (PsiParameter psiParameter : parameters) {
             final ArrayList<Field> assignedToFields = findMatchingFields(psiParameter, psiMethod);
-            params.add(new Param(psiParameter,typeDictionary,maxRecursionDepth,assignedToFields));
+            params.add(new Param(psiParameter,typeDictionary,maxRecursionDepth,assignedToFields,shouldResolveAllMethods));
         }
         return params;
     }

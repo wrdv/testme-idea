@@ -16,17 +16,17 @@ public class Param {
     private String name;
     private final ArrayList<Field> assignedToFields;
 
-    public Param(PsiParameter psiParameter, TypeDictionary typeDictionary, int maxRecursionDepth, ArrayList<Field> assignedToFields) {
-        this(resolveType(psiParameter, typeDictionary, maxRecursionDepth), psiParameter.getName(),assignedToFields);
+    public Param(PsiParameter psiParameter, TypeDictionary typeDictionary, int maxRecursionDepth, ArrayList<Field> assignedToFields, boolean shouldResolveAllMethods) {
+        this(resolveType(psiParameter, shouldResolveAllMethods, typeDictionary, maxRecursionDepth), psiParameter.getName(),assignedToFields);
     }
 
-    private static Type resolveType(PsiParameter psiParameter, TypeDictionary typeDictionary, int maxRecursionDepth) {
+    private static Type resolveType(PsiParameter psiParameter, boolean shouldResolveAllMethods, TypeDictionary typeDictionary, int maxRecursionDepth) {
 
         Object element = null;
         if (LanguageUtils.isScala(psiParameter.getLanguage())) {
             element = ScalaPsiTreeUtils.resolveRelatedTypeElement(psiParameter);
         }
-        return typeDictionary.getType(psiParameter.getType(), maxRecursionDepth, false,element);
+        return typeDictionary.getType(psiParameter.getType(), maxRecursionDepth, shouldResolveAllMethods,element);
     }
 
     public Param(Type type, String name, ArrayList<Field> assignedToFields) {

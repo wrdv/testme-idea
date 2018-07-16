@@ -6,16 +6,24 @@ import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
 import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.psi.util.PsiTreeUtil;
 import com.weirddev.testme.intellij.common.reflection.MethodReflectionUtils;
+import com.weirddev.testme.intellij.resolvers.to.MethodCallArg;
+import com.weirddev.testme.intellij.resolvers.to.ResolvedMethodCall;
 import com.weirddev.testme.intellij.scala.utils.GenericsExpressionParser;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor;
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement;
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement;
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScArgumentExprList;
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass;
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceExpressionImpl;
 import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper;
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper;
 import org.jetbrains.plugins.scala.lang.psi.light.ScPrimaryConstructorWrapper;
@@ -29,6 +37,7 @@ import scala.util.Either;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -70,18 +79,6 @@ public class ScalaPsiTreeUtils {
         return psiParameters;
     }
 
-    /**
-     * get ScPrimaryConstructor from ScPrimaryConstructorWrapper by reflection since method constr() has been renamed in succeeding versions to delegate()
-     */
-    @Nullable
-    private static ScPrimaryConstructor resolvePrimaryConstructor(ScPrimaryConstructorWrapper object) {
-        return MethodReflectionUtils.getReturnTypeReflectively(object, ScPrimaryConstructorWrapper.class, ScPrimaryConstructor.class,null);
-    }
-    @Nullable
-    private static ScFunction resolveFunction(ScFunctionWrapper object) {
-        return MethodReflectionUtils.getReturnTypeReflectively(object, ScFunctionWrapper.class, ScFunction.class,null);
-    }
-
     public static Object resolveRelatedTypeElement(PsiParameter psiParameter) {
         if (psiParameter instanceof ScClassParameter) {
             final Option<ScTypeElement> scTypeElementOption = ((ScClassParameter) psiParameter).typeElement();
@@ -96,36 +93,6 @@ public class ScalaPsiTreeUtils {
         return null;
     }
 
-    private static PsiClass findClass(String qualifiedName, Module module, Project project) {
-        PsiClass aClass;
-        if (module != null) {
-            aClass = JavaPsiFacade.getInstance(project).findClass(qualifiedName, GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module));
-        } else {
-            aClass = JavaPsiFacade.getInstance(project).findClass(qualifiedName, GlobalSearchScope.everythingScope(project));
-        }
-        return aClass;
-    }
-
-    private static List<PsiClass> resolveComposedTypes(PsiType psiType, PsiElement typePsiElement) {
-        final List<PsiClass> psiClasses = new ArrayList<PsiClass>();
-        if (typePsiElement instanceof ScParameterizedTypeElement) {
-            String canonicalName = resolveParameterizedCanonicalName(typePsiElement);
-            final ArrayList<String> genericTypes = GenericsExpressionParser.extractGenericTypes(canonicalName);
-            for (String genericType : genericTypes) {
-                if (genericType.length() > 0) {
-                    PsiClass aClass = resolvePsiClass(typePsiElement, genericType);
-                    if (aClass != null) {
-                        psiClasses.add(aClass);
-                    }
-                }
-            }
-        }
-        return psiClasses;
-    }
-
-    private static PsiClass resolvePsiClass(PsiElement typePsiElement, String genericType) {
-        return resolvePsiClass(genericType, typePsiElement.getProject(), ModuleUtilCore.findModuleForPsiElement(typePsiElement));
-    }
 
     @Nullable
     public static PsiClass resolvePsiClass(String qualifiedName, Project project, Module module) {
@@ -165,10 +132,6 @@ public class ScalaPsiTreeUtils {
         }
     }
 
-    public static String normalizeGenericsRepresentation(String sanitizedRoot) {
-        return sanitizedRoot.replaceAll("\\[", "<").replaceAll("]", ">");
-    }
-
     public static String resolveCanonicalNameOfObject(Object typeElement) {
         String canonicalText = null;
         if (typeElement instanceof ScParameterizedType) {
@@ -189,11 +152,6 @@ public class ScalaPsiTreeUtils {
         canonicalText = stripRootPrefixFromScalaCanonicalName(canonicalText);
         return normalizeGenericsRepresentation(canonicalText);
     }
-
-    private static String stripRootPrefixFromScalaCanonicalName(String canonicalText) {
-        return canonicalText.replaceAll("_root_.", "");
-    }
-
 
     public static List<Object> resolveComposedTypeElementsForObject(PsiType psiType, Object typeElement) {
         ArrayList<Object> typeElements= new ArrayList<>();
@@ -222,6 +180,108 @@ public class ScalaPsiTreeUtils {
             typeElements = objects;
         }
         return typeElements;
+    }
+
+    public static  Object resolveReturnType(PsiMethod psiMethod) {
+        Object scType = null;
+
+        if (psiMethod instanceof ScFunctionWrapper) {
+            final ScFunction function = resolveFunction(((ScFunctionWrapper) psiMethod)); //            final ScFunction function = ((ScFunctionWrapper) psiMethod).function();
+            if (function != null) {
+                Object resultObj = MethodReflectionUtils.invokeMethodReflectivelyWithFallback(function, Object.class /*TypeResult.class*/, "returnTypeInner", "returnType");
+                if (resultObj != null) {
+                    scType = MethodReflectionUtils.invokeMethodReflectivelyWithFallback(resultObj, Object.class, "get", null);
+                }
+                //Non reflective version #1
+//                final org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult<ScType> scTypeTypeResult = function.returnType();
+//                if (scTypeTypeResult != null && !scTypeTypeResult.isEmpty()) {
+//                    scType = scTypeTypeResult.get();
+//                }
+            }
+        }
+        return scType;
+    }
+
+    public static boolean isSyntheticMethod(PsiMethod psiMethod) {
+        return psiMethod instanceof PsiTypedDefinitionWrapper;
+    }
+
+    @NotNull
+    public static List<ResolvedMethodCall> findMethodCalls(PsiMethod psiMethod) {
+        List<ResolvedMethodCall > methodCalled= new ArrayList<>();
+        if (psiMethod instanceof ScFunctionWrapper) {
+            final ScFunction function = resolveFunction(((ScFunctionWrapper) psiMethod));
+            if (function != null) {
+                final Collection<ScMethodCall> scMethodCall = PsiTreeUtil.findChildrenOfType(function, ScMethodCall.class);
+                for (ScMethodCall methodCall : scMethodCall) {
+                    final ScExpression scExpression = methodCall.deepestInvokedExpr();
+                    if (scExpression instanceof ScReferenceExpressionImpl) {
+                        final PsiElement resolvedElement = ((ScReferenceExpressionImpl) scExpression).resolve();
+                        if (resolvedElement instanceof PsiMethod) {
+                            final PsiMethod psiMethodResolved = (PsiMethod) resolvedElement;
+                            final ScArgumentExprList args = methodCall.args();
+                            final ArrayList<MethodCallArg> methodCallArguments = new ArrayList<>();
+                            if(args!=null && args.exprs()!=null){
+                                final Seq<ScExpression> argSeq = args.exprs().seq();
+                                for (int i = 0; i <argSeq.length(); i++) {
+                                    methodCallArguments.add(new MethodCallArg(argSeq.apply(i).getText().trim()));
+                                }
+                            }
+                            methodCalled.add(new ResolvedMethodCall(psiMethodResolved,methodCallArguments));
+                        }
+                    }
+                }
+            }
+        }
+        return methodCalled;
+    }
+
+    private static String normalizeGenericsRepresentation(String sanitizedRoot) {
+        return sanitizedRoot.replaceAll("\\[", "<").replaceAll("]", ">");
+    }
+    private static String stripRootPrefixFromScalaCanonicalName(String canonicalText) {
+        return canonicalText.replaceAll("_root_.", "");
+    }
+    /**
+     * get ScPrimaryConstructor from ScPrimaryConstructorWrapper by reflection since method constr() has been renamed in succeeding versions to delegate()
+     */
+    @Nullable
+    private static ScPrimaryConstructor resolvePrimaryConstructor(ScPrimaryConstructorWrapper object) {
+        return MethodReflectionUtils.getReturnTypeReflectively(object, ScPrimaryConstructorWrapper.class, ScPrimaryConstructor.class,null);
+    }
+    @Nullable
+    private static ScFunction resolveFunction(ScFunctionWrapper object) {
+        return MethodReflectionUtils.getReturnTypeReflectively(object, ScFunctionWrapper.class, ScFunction.class,null);
+    }
+    private static PsiClass findClass(String qualifiedName, Module module, Project project) {
+        PsiClass aClass;
+        if (module != null) {
+            aClass = JavaPsiFacade.getInstance(project).findClass(qualifiedName, GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module));
+        } else {
+            aClass = JavaPsiFacade.getInstance(project).findClass(qualifiedName, GlobalSearchScope.everythingScope(project));
+        }
+        return aClass;
+    }
+
+    private static List<PsiClass> resolveComposedTypes(PsiType psiType, PsiElement typePsiElement) {
+        final List<PsiClass> psiClasses = new ArrayList<PsiClass>();
+        if (typePsiElement instanceof ScParameterizedTypeElement) {
+            String canonicalName = resolveParameterizedCanonicalName(typePsiElement);
+            final ArrayList<String> genericTypes = GenericsExpressionParser.extractGenericTypes(canonicalName);
+            for (String genericType : genericTypes) {
+                if (genericType.length() > 0) {
+                    PsiClass aClass = resolvePsiClass(typePsiElement, genericType);
+                    if (aClass != null) {
+                        psiClasses.add(aClass);
+                    }
+                }
+            }
+        }
+        return psiClasses;
+    }
+
+    private static PsiClass resolvePsiClass(PsiElement typePsiElement, String genericType) {
+        return resolvePsiClass(genericType, typePsiElement.getProject(), ModuleUtilCore.findModuleForPsiElement(typePsiElement));
     }
 
     @Nullable
@@ -281,27 +341,4 @@ public class ScalaPsiTreeUtils {
         return null;
     }
 
-    static public Object resolveReturnType(PsiMethod psiMethod) {
-        Object scType = null;
-
-        if (psiMethod instanceof ScFunctionWrapper) {
-            final ScFunction function = resolveFunction(((ScFunctionWrapper) psiMethod)); //            final ScFunction function = ((ScFunctionWrapper) psiMethod).function();
-            if (function != null) {
-                Object resultObj = MethodReflectionUtils.invokeMethodReflectivelyWithFallback(function, Object.class /*TypeResult.class*/, "returnTypeInner", "returnType");
-                if (resultObj != null) {
-                    scType = MethodReflectionUtils.invokeMethodReflectivelyWithFallback(resultObj, Object.class, "get", null);
-                }
-                //Non reflective version #1
-//                final org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult<ScType> scTypeTypeResult = function.returnType();
-//                if (scTypeTypeResult != null && !scTypeTypeResult.isEmpty()) {
-//                    scType = scTypeTypeResult.get();
-//                }
-            }
-        }
-        return scType;
-    }
-
-    public static boolean isSyntheticMethod(PsiMethod psiMethod) {
-        return psiMethod instanceof PsiTypedDefinitionWrapper;
-    }
 }

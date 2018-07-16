@@ -29,7 +29,7 @@ public class TestMeActionHandlerTest extends TestMeGeneratorTestBase {
     }
 
     @Override
-    protected void doTest(final String packageName, final String testSubjectClassName, final String expectedTestClassName, final boolean reformatCode, final boolean optimizeImports, final boolean replaceFqn, final boolean ignoreUnusedProperties, final int minPercentOfExcessiveSettersToPreferDefaultCtor) {
+    protected void doTest(final String packageName, final String testSubjectClassName, final String expectedTestClassName, final boolean reformatCode, final boolean optimizeImports, final boolean replaceFqn, final boolean ignoreUnusedProperties, final int minPercentOfExcessiveSettersToPreferDefaultCtor, boolean stubMockMethodCallsReturnValues) {
         final PsiClass fooClass = setupSourceFiles(packageName, testSubjectClassName);
         CommandProcessor.getInstance().executeCommand(getProject(), new Runnable() {
             @Override
