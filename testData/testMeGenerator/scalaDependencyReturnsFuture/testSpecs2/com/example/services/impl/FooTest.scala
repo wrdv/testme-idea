@@ -1,23 +1,24 @@
 package com.example.services.impl
 
 import org.specs2.mutable.Specification
+import org.specs2.mock.Mockito
+import com.example.dependencies.TimeMachine
+
 import scala.concurrent.duration._
 import scala.concurrent.Await
 
 /** created by TestMe integration test on MMXVI */
-class FooTest extends Specification {
-  val foo = new Foo()
+class FooTest extends Specification with Mockito {
+  isolated
+  val timeMachine: TimeMachine = mock[TimeMachine]
+  val foo = new Foo(timeMachine)
 
   "Foo" should {
 
-    "look Into The Future" in {
-      val result = foo.lookIntoTheFuture(scala.concurrent.Future.successful(1))
-      Await.result(result, 10.seconds) === 1.1f
-    }
-
-    "find Me A Better Future" in {
-      val result = foo.findMeABetterFuture(Some("hopes"))
-      Await.result(result, 10.seconds) === "replaceMeWithExpectedResult"
+    "fight" in {
+      timeMachine.lookInto() returns scala.concurrent.Future.successful(11223344.53)
+      val result = foo.fight(Some("optFire"))
+      Await.result(result, 10.seconds) === 11223344.53
     }
 
   }
