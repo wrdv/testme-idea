@@ -46,6 +46,9 @@ public class TestMeGeneratorSpecs2Test extends TestMeGeneratorTestBase   {
     public void testScalaWithDependencies() throws Exception{
         doTest(true,true,true, TestMeGeneratorJunit4Test.MIN_PERCENT_OF_EXCESSIVE_SETTERS_TO_PREFER_DEFAULT_CTOR, true, true);
     }
+    public void testScalaDependencyReturnsFuture() throws Exception{
+        doTest(true,true,true, TestMeGeneratorJunit4Test.MIN_PERCENT_OF_EXCESSIVE_SETTERS_TO_PREFER_DEFAULT_CTOR, true, true);
+    }
 
     /**
      * @link https://github.com/JetBrains/intellij-scala/blob/9198f8fb5b93d2ff142a65e320b812fc92cc0830/scala/scala-impl/test/org/jetbrains/plugins/scala/LightScalaTestCase.scala
