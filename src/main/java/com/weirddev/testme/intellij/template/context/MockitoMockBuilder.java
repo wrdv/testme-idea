@@ -194,8 +194,7 @@ public class  MockitoMockBuilder {
         LOG.debug("method "+testMethod.getMethodId()+" should be stabbed:"+shouldStub);
         return shouldStub;
     }
-    @SuppressWarnings("unused")
-    public boolean hasStubsReturningScalaFuture(Type testedClass) {
+    public boolean hasStubsReturningScalaFuture(Type testedClass) { //todo - probably will not be needed and can be removed
         Method ctor = TestSubjectUtils.getPrimaryConstructor(testedClass);
         if (ctor == null) {
             return false;

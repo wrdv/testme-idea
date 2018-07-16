@@ -15,9 +15,9 @@ package ${PACKAGE_NAME}
 import scala.concurrent.duration._
 import scala.concurrent.Await
 #end
-#if($MockitoMockBuilder.hasStubsReturningScalaFuture($TESTED_CLASS))
-import scala.concurrent.ExecutionContext.Implicits.global
-#end
+##if($MockitoMockBuilder.requiresExecutionContext($primaryCtor))
+##import scala.concurrent.ExecutionContext.Implicits.global
+##end
 #parse("File Header.java")
 class ${CLASS_NAME} extends Specification #if($hasMocks) with Mockito#end{
 #if($hasMocks)
