@@ -15,7 +15,7 @@ public class  MockitoMockBuilder {
     private static final Map<String, String> TYPE_TO_ARG_MATCHERS;
 
     static {
-        TYPE_TO_ARG_MATCHERS = new HashMap<String, String>();
+        TYPE_TO_ARG_MATCHERS = new HashMap<>();
         TYPE_TO_ARG_MATCHERS.put("byte", "anyByte");
         TYPE_TO_ARG_MATCHERS.put("short", "anyShort");
         TYPE_TO_ARG_MATCHERS.put("int", "anyInt");
@@ -47,7 +47,7 @@ public class  MockitoMockBuilder {
 
     }
 
-    private static final Set<String> WRAPPER_TYPES = new HashSet<String>(Arrays.asList(
+    private static final Set<String> WRAPPER_TYPES = new HashSet<>(Arrays.asList(
             Class.class.getCanonicalName(),
             Boolean.class.getCanonicalName(),
             Byte.class.getCanonicalName(),
@@ -75,9 +75,9 @@ public class  MockitoMockBuilder {
         return isMockable;
     }
     @SuppressWarnings("unused")
-    public boolean isMockable(Param param) {
+    public boolean isMockable(Param param, Map<String,String> defaultTypes) {
         final Type type = param.getType();
-        final boolean isMockable = !type.isPrimitive() && !isWrapperType(type) && (!type.isFinal() || isMockitoMockMakerInlineOn) && !type.isArray() && !type.isEnum() && ! "scala.concurrent.ExecutionContext".equals(type.getCanonicalName());
+        final boolean isMockable = !type.isPrimitive() && !isWrapperType(type) && (!type.isFinal() || isMockitoMockMakerInlineOn) && !type.isArray() && !type.isEnum() &&  defaultTypes.get(type.getCanonicalName()) == null;
         LOG.debug("param "+ type.getCanonicalName()+" "+param.getName()+" is mockable:"+isMockable);
         return isMockable;
     }
@@ -91,13 +91,13 @@ public class  MockitoMockBuilder {
         return false;
     }
     @SuppressWarnings("unused")
-    public boolean hasMocks(Method ctor) {
+    public boolean hasMocks(Method ctor, Map<String,String> defaultTypes) {
         if (ctor == null) {
             return false;
         }
         List<Param> params = ctor.getMethodParams();
         for (Param param : params) {
-            if (isMockable(param)) {
+            if (isMockable(param, defaultTypes)) {
                 return true;
             }
         }
@@ -175,14 +175,14 @@ public class  MockitoMockBuilder {
         return shouldStub;
     }
     @SuppressWarnings("unused")
-    public boolean shouldStub(Method testMethod, Method ctor) {
+    public boolean shouldStub(Method testMethod, Method ctor, Map<String,String> defaultTypes) {
         boolean shouldStub = false;
         if (ctor == null || !stubMockMethodCallsReturnValues) {
             return false;
         }
         List<Param> ctorParams = ctor.getMethodParams();
         for (Param param : ctorParams) {
-            if (isMockable(param)) {
+            if (isMockable(param, defaultTypes)) {
                 LOG.debug("ctor param "+param.getName()+" type "+param.getType().getCanonicalName()+" type methods:"+param.getType().getMethods().size());
                 for (Method method : param.getType().getMethods()) {
                     if (method.getReturnType() != null && !"void".equals(method.getReturnType().getCanonicalName()) && TestSubjectUtils.isMethodCalled(method, testMethod)) {
@@ -195,7 +195,7 @@ public class  MockitoMockBuilder {
         LOG.debug("method "+testMethod.getMethodId()+" should be stabbed:"+shouldStub);
         return shouldStub;
     }
-    public boolean hasStubsReturningScalaFuture(Type testedClass) { //todo - probably will not be needed and can be removed
+    public boolean hasStubsReturningScalaFuture(Type testedClass, Map<String,String> defaultTypes) { //todo - probably will not be needed and can be removed
         Method ctor = TestSubjectUtils.getPrimaryConstructor(testedClass);
         if (ctor == null) {
             return false;
@@ -203,7 +203,7 @@ public class  MockitoMockBuilder {
         for (Method method : testedClass.getMethods()) {
             if (method.isTestable()) {
                 for (Param param : ctor.getMethodParams()) {
-                    isMockable(param);
+                    isMockable(param, defaultTypes);
                     for (Method methodOfDependency : param.getType().getMethods()) {
                         if (TestSubjectUtils.isMethodCalled(methodOfDependency, method) && methodOfDependency.getReturnType() != null && TestSubjectUtils.isScalaFuture(methodOfDependency.getReturnType())) {
                             return true;
