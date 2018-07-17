@@ -12,9 +12,17 @@ class Foo(fooFighter:FooFighter) extends LogSupport{
   val withFire: Fire = new Fire()
 
   def fight(optFire:Option[String]): Future[String] ={
-    logger.info("it's started...")
+    logger.info("invoking method of dependency directly...")
     Future{
       fooFighter.fight(withFire)
+    }
+  }
+  def fightWithMap(optFire:Option[String]): Future[String] ={
+    logger.info("using method of dependency as a passed refences...")
+    Future{
+      Some(withFire) map {
+        fooFighter.fight
+      }
     }
   }
 }

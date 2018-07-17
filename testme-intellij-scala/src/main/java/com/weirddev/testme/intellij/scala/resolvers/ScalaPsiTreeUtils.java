@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScArgumentExprList;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall;
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter;
@@ -229,6 +230,16 @@ public class ScalaPsiTreeUtils {
                             }
                             methodCalled.add(new ResolvedMethodCall(psiMethodResolved,methodCallArguments));
                         }
+                    }
+                }
+                //find used method refs
+                final Collection<ScReferenceExpression> scReferenceExpressions = PsiTreeUtil.findChildrenOfType(function, ScReferenceExpression.class);
+                for (ScReferenceExpression scReferenceExpression : scReferenceExpressions) {
+                    final PsiElement resolvedPsiElement = scReferenceExpression.resolve();
+                    LOG.debug("for method "+psiMethod.getText()+" found expression: "+scReferenceExpression.getText()+". which resolves to "+resolvedPsiElement+". that is "+(resolvedPsiElement==null?"null":resolvedPsiElement.getText()));
+                    if (resolvedPsiElement instanceof PsiMethod) {
+                        final PsiMethod resolvedMethod = (PsiMethod) resolvedPsiElement;
+                        methodCalled.add(new ResolvedMethodCall(resolvedMethod, null));
                     }
                 }
             }

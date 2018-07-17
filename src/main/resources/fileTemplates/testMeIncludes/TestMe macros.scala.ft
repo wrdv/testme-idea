@@ -22,7 +22,6 @@
     "java.util.LinkedHashMap": "[<VAL>:<VAL>]",
     "java.util.TreeSet": "[<VAL>] as java.util.TreeSet",
 
-    "scala.concurrent.ExecutionContext": "scala.concurrent.ExecutionContext.Implicits.global",
     "scala.Option": "Some(<VAL>)",
     "scala.collection.immutable.Map": "Map(<VAL> -> <VAL>)",
     "scala.Map": "Map(<VAL> -> <VAL>)",
@@ -106,8 +105,8 @@
     "scala.Double": "11223344.53",
     "scala.Char": "a",
     "scala.Boolean": "true",
-    "scala.math.BigDecimal": "2.44"
-
+    "scala.math.BigDecimal": "2.44",
+    "scala.concurrent.ExecutionContext": "scala.concurrent.ExecutionContext.Implicits.global"
 })
 ##
 ##
@@ -120,7 +119,7 @@
 ##
 #macro(scRenderMockedParams $testedClassCtorParams)
 #foreach($param in $testedClassCtorParams)
-#if($MockitoMockBuilder.isMockable($param))
+#if($MockitoMockBuilder.isMockable($param, $scDefaultTypeValues))
     val $param.name: $param.type.canonicalName = mock[$param.type.canonicalName]
 ##elseif($MockitoMockBuilder.isMockExpected($field))
 ##    $MockitoMockBuilder.getImmockabiliyReason("//",$param) //not supported yet for scala
@@ -133,7 +132,7 @@
 #if($primaryCtorVar)
 #foreach($param in $primaryCtorVar.methodParams)
 #if($foreach.count>1), #end
-#if($MockitoMockBuilder.isMockable($param))$param.name#{else}$TestBuilder.renderInitType($param.type,"$param..name",$scReplacementTypes,$scDefaultTypeValues)#end
+#if($MockitoMockBuilder.isMockable($param, $scDefaultTypeValues))$param.name#{else}$TestBuilder.renderInitType($param.type,"$param..name",$scReplacementTypes,$scDefaultTypeValues)#end
 #end
 #end
 #end
@@ -153,7 +152,7 @@ val result = #if($method.static)$testedClassName#{else}$StringUtils.deCapitalize
 #macro(scRenderMockStubs $method $primaryCtor)
 #if($primaryCtor)
 #foreach($param in $primaryCtor.methodParams)
-#if($MockitoMockBuilder.isMockable($param))
+#if($MockitoMockBuilder.isMockable($param, $scDefaultTypeValues))
 #foreach($paramMethod in $param.type.methods)
 #if($paramMethod.returnType && $paramMethod.returnType.name !="void" && $TestSubjectUtils.isMethodCalled($paramMethod,$method))
         $param.name.${paramMethod.name}($MockitoMockBuilder.buildMockArgsMatchers(${paramMethod.methodParams},"Scala")) returns $TestBuilder.renderReturnParam($method,$paramMethod.returnType,"${paramMethod.name}Response",$scReplacementTypes,$scDefaultTypeValues)

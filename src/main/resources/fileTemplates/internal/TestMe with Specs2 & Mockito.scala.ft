@@ -1,6 +1,6 @@
 #parse("TestMe macros.scala")
 #set($primaryCtor = $TestSubjectUtils.getPrimaryConstructor($TESTED_CLASS))
-#set($hasMocks = $MockitoMockBuilder.hasMocks($primaryCtor) )
+#set($hasMocks = $MockitoMockBuilder.hasMocks($primaryCtor, $scDefaultTypeValues) )
 #if($primaryCtor)
 #set($primaryCtorParams = ${primaryCtor.methodParams})
 #end
@@ -33,7 +33,7 @@ class ${CLASS_NAME} extends Specification #if($hasMocks) with Mockito#end{
 #if($method.isTestable())
 
       "#renderTestMethodNameAsWords($method.name)" in {
-#if($MockitoMockBuilder.shouldStub($method,$primaryCtor))
+#if($MockitoMockBuilder.shouldStub($method,$primaryCtor,$scDefaultTypeValues))
 #scRenderMockStubs($method, $primaryCtor)
 #end
         #scRenderMethodCall($method,$TESTED_CLASS.name)
