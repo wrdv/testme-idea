@@ -2,6 +2,7 @@ package com.weirddev.testme.intellij.template.context;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.weirddev.testme.intellij.utils.ClassNameUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -125,14 +126,15 @@ public class TestSubjectUtils
         }
         return false;
     }
-    public static Method findOptimalConstructor(Type type){//todo pass alt. ctor if primary ctor not exists ( in java test subjects)
-        for (Method method : type.getMethods()) {
-            if (method.isPrimaryConstructor()) {
-                return method;
-            }
-        }
-        return null;
+    public static @Nullable Method findOptimalConstructor(Type type){
+        final Optional<Method> optPrimaryCtor = Optional.of(type.getMethods()).flatMap(methods -> methods.stream().filter(Method::isPrimaryConstructor).findAny());
+        return optPrimaryCtor.orElse(findBiggestValidConstructor(type));
     }
+
+    private static @Nullable Method findBiggestValidConstructor(Type type) {
+        return type.findConstructors().stream().filter(Method::isAccessible).findFirst().orElse(null);
+    }
+
     private static boolean isImplements(Type type, String classCanonicalName) {
         for (Type interfaceType : type.getImplementedInterfaces()) {
             if (isSameGenericType(interfaceType, classCanonicalName)) {

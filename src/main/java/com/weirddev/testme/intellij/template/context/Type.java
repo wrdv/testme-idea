@@ -303,6 +303,9 @@ public class Type {
         return varargs;
     }
 
+    /**
+     * @return Type's constructors sorted in revers order by no. of constructor params
+     */
     public List<Method> findConstructors() {
         List<Method> constructors = new ArrayList<Method>();
         for (Method method : methods) {
@@ -310,11 +313,8 @@ public class Type {
                 constructors.add(method);
             }
         }
-        Collections.sort(constructors, new Comparator<Method>() {
-            @Override
-            public int compare(Method o1, Method o2) { //sort in reverse order by #no of c'tor params
-                return o2.getMethodParams().size()-o1.getMethodParams().size();
-            }
+        constructors.sort((o1, o2) -> { //sort in reverse order by #no of c'tor params
+            return o2.getMethodParams().size() - o1.getMethodParams().size();
         });
         return constructors;
     }

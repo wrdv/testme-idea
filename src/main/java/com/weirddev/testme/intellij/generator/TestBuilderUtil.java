@@ -1,5 +1,6 @@
 package com.weirddev.testme.intellij.generator;
 
+import com.google.common.collect.ImmutableSet;
 import com.weirddev.testme.intellij.template.context.Method;
 import com.weirddev.testme.intellij.template.context.Param;
 import com.weirddev.testme.intellij.template.context.Type;
@@ -7,6 +8,7 @@ import com.weirddev.testme.intellij.utils.ClassNameUtils;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Date: 16/09/2017
@@ -14,6 +16,8 @@ import java.util.Map;
  * @author Yaron Yamin
  */
 public class TestBuilderUtil {
+
+    private static final Set<String> STRING_TYPES = ImmutableSet.of("java.lang.String", "java.lang.Object","scala.Nothing","scala.Predef.String","String");
 
     public static boolean looksLikeObjectKeyInGroovyMap(String expFragment, String canonicalTypeName) {
         return ":".equals(expFragment) && !"java.lang.String".equals(canonicalTypeName);
@@ -48,6 +52,10 @@ public class TestBuilderUtil {
             }
         }
         return true;
+    }
+
+    public static boolean isStringType(String canonicalName) {
+        return STRING_TYPES.contains(canonicalName);
     }
 
 }

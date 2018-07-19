@@ -1,6 +1,7 @@
 package com.weirddev.testme.intellij.template.context;
 
 import com.intellij.openapi.diagnostic.Logger;
+import com.weirddev.testme.intellij.generator.TestBuilderUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -77,7 +78,7 @@ public class  MockitoMockBuilder {
     @SuppressWarnings("unused")
     public boolean isMockable(Param param, Map<String,String> defaultTypes) {
         final Type type = param.getType();
-        final boolean isMockable = !type.isPrimitive() && !isWrapperType(type) && (!type.isFinal() || isMockitoMockMakerInlineOn) && !type.isArray() && !type.isEnum() &&  defaultTypes.get(type.getCanonicalName()) == null;
+        final boolean isMockable = !type.isPrimitive() && !TestBuilderUtil.isStringType(type.getCanonicalName()) && !isWrapperType(type) && (!type.isFinal() || isMockitoMockMakerInlineOn) && !type.isArray() && !type.isEnum() &&  defaultTypes.get(type.getCanonicalName()) == null;
         LOG.debug("param "+ type.getCanonicalName()+" "+param.getName()+" is mockable:"+isMockable);
         return isMockable;
     }

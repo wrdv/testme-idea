@@ -1,6 +1,5 @@
 package com.weirddev.testme.intellij.template.context;
 
-import com.google.common.collect.ImmutableSet;
 import com.intellij.ide.hierarchy.HierarchyBrowserBaseEx;
 import com.intellij.ide.hierarchy.type.SubtypesHierarchyTreeStructure;
 import com.intellij.ide.hierarchy.type.TypeHierarchyNodeDescriptor;
@@ -20,7 +19,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Date: 2/16/2017
@@ -29,7 +27,6 @@ import java.util.Set;
  */
 public class JavaTestBuilderImpl implements LangTestBuilder {
     private static final Logger LOG = Logger.getInstance(JavaTestBuilderImpl.class.getName());
-    private static final Set<String> STRING_TYPES = ImmutableSet.of("java.lang.String", "java.lang.Object","scala.Nothing","scala.Predef.String","String");
     private static Type DEFAULT_STRING_TYPE = new Type("java.lang.String", "String", "java.lang", false, false, false, false, false, new ArrayList<Type>());
     private final TestBuilder.ParamRole paramRole; //todo consider removing. not used anymore
     private final Method testedMethod;
@@ -83,7 +80,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
         if (defaultTypeValues.get(canonicalName) != null) {
 
             testBuilder.append(defaultTypeValues.get(canonicalName));
-        } else if (STRING_TYPES.contains(canonicalName)) {
+        } else if (TestBuilderUtil.isStringType(canonicalName)) {
             testBuilder.append("\"").append(resolveStringValue(paramNode)).append("\"");
         } else if (type.getEnumValues().size() > 0) {
             testBuilder.append(canonicalName).append(".").append(type.getEnumValues().get(0));

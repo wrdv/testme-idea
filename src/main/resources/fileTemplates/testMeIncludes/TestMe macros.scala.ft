@@ -134,7 +134,7 @@
 #macro(scRenderCtorParams $ctorParams)
 #foreach($param in $ctorParams)
 #if($foreach.count>1), #end
-#if($MockitoMockBuilder.isMockable($param, $scDefaultTypeValues))$param.name#{else}$TestBuilder.renderInitType($param.type,"$param..name",$scReplacementTypes,$scDefaultTypeValues)#end
+#if($MockitoMockBuilder.isMockable($param, $scDefaultTypeValues))$param.name#{else}$TestBuilder.renderInitType($param.type,"$param.name",$scReplacementTypes,$scDefaultTypeValues)#end
 #end
 #end
 ##
