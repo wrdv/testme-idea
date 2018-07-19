@@ -128,7 +128,7 @@
 #end
 ##
 #macro(scRenderCtorParams $testedClass)
-#set($primaryCtorVar = $TestSubjectUtils.getPrimaryConstructor($TESTED_CLASS))
+#set($primaryCtorVar = $TestSubjectUtils.getPrimaryConstructor($testedClass))
 #if($primaryCtorVar)
 #foreach($param in $primaryCtorVar.methodParams)
 #if($foreach.count>1), #end
