@@ -111,31 +111,33 @@
 ##
 ##
 ################## Macros #####################
-#macro(scRenderTestSubjectInit $testedClass $hasTestableInstanceMethod $hasMocks)
-#if($hasTestableInstanceMethod)
-    val $StringUtils.deCapitalizeFirstLetter($testedClass.name) = new ${testedClass.name}(#scRenderCtorParams($testedClass))
+#macro(scRenderTestSubjectInit $testedClass $hasMocks $constructor)
+#if($constructor)
+    #set($ctorParams = ${constructor.methodParams})
 #end
+    val $StringUtils.deCapitalizeFirstLetter($testedClass.name) = new ${testedClass.name}(#scRenderCtorParams($ctorParams))
 #end
 ##
-#macro(scRenderMockedParams $testedClassCtorParams)
-#foreach($param in $testedClassCtorParams)
-#if($MockitoMockBuilder.isMockable($param, $scDefaultTypeValues))
+#macro(scRenderMockedParams $constructor)
+#if($constructor)
+#set($ctorParams = ${constructor.methodParams})
+#foreach($param in $ctorParams)
+    #if($MockitoMockBuilder.isMockable($param, $scDefaultTypeValues))
     val $param.name: $param.type.canonicalName = mock[$param.type.canonicalName]
-##elseif($MockitoMockBuilder.isMockExpected($field))
-##    $MockitoMockBuilder.getImmockabiliyReason("//",$param) //not supported yet for scala
+    ##elseif($MockitoMockBuilder.isMockExpected($field))
+    ##    $MockitoMockBuilder.getImmockabiliyReason("//",$param) //not supported yet for scala
+    #end
 #end
 #end
 #end
 ##
-#macro(scRenderCtorParams $testedClass)
-#set($primaryCtorVar = $TestSubjectUtils.getPrimaryConstructor($testedClass))
-#if($primaryCtorVar)
-#foreach($param in $primaryCtorVar.methodParams)
+#macro(scRenderCtorParams $ctorParams)
+#foreach($param in $ctorParams)
 #if($foreach.count>1), #end
 #if($MockitoMockBuilder.isMockable($param, $scDefaultTypeValues))$param.name#{else}$TestBuilder.renderInitType($param.type,"$param..name",$scReplacementTypes,$scDefaultTypeValues)#end
 #end
 #end
-#end
+##
 #macro(scRenderAssert $method)
 #if($TestSubjectUtils.isJavaFuture($method.returnType))result.get()#elseif($TestSubjectUtils.isScalaFuture($method.returnType))Await.result(result, 10.seconds)#{else}result#end === $TestBuilder.renderReturnParam($method,$method.returnType,"replaceMeWithExpectedResult",$scReplacementTypesForReturn,$scDefaultTypeValues)
 #end

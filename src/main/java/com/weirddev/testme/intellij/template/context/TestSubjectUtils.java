@@ -125,7 +125,7 @@ public class TestSubjectUtils
         }
         return false;
     }
-    public static Method getPrimaryConstructor(Type type){
+    public static Method findOptimalConstructor(Type type){//todo pass alt. ctor if primary ctor not exists ( in java test subjects)
         for (Method method : type.getMethods()) {
             if (method.isPrimaryConstructor()) {
                 return method;
