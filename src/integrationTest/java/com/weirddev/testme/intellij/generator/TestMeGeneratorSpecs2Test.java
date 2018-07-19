@@ -36,20 +36,42 @@ public class TestMeGeneratorSpecs2Test extends TestMeGeneratorTestBase   {
         expectedTestClassExtension = "scala";
         skipTestIfScalaPluginDisabled();
     }
+    public void testSimpleClass() {
+        doTest();
+    }
+    public void testArrays() {
+        doTest(false, false, true);
+    }
 
-    public void testScalaGenerics() throws Exception{
-        doTest(true,true,true);
+    public void testVariousFieldTypes() {
+        doTestWithDefaults();
     }
-    public void testScalaFuture() throws Exception{
-        doTest(true,true,true);
+    public void testMockReturned() {
+        doTestWithDefaults();
     }
-    public void testScalaWithDependencies() throws Exception{
-        doTest(true,true,true, TestMeGeneratorJunit4Test.MIN_PERCENT_OF_EXCESSIVE_SETTERS_TO_PREFER_DEFAULT_CTOR, true, true);
+
+    public void testBean() {
+        doTestWithDefaults();
     }
-    public void testScalaDependencyReturnsFuture() throws Exception{
-        doTest(true,true,true, TestMeGeneratorJunit4Test.MIN_PERCENT_OF_EXCESSIVE_SETTERS_TO_PREFER_DEFAULT_CTOR, true, true);
+    public void testConstants() {
+        doTestWithDefaults();
     }
-    public void testScalaRequireExecutionContext() throws Exception{
+    public void testScalaGenerics() {
+        doTestWithDefaults();
+    }
+    public void testScalaFuture() {
+        doTestWithDefaults();
+    }
+    public void testScalaWithDependencies() {
+        doTestWithDefaults();
+    }
+    public void testScalaDependencyReturnsFuture() {
+        doTestWithDefaults();
+    }
+    public void testScalaRequireExecutionContext() {
+        doTestWithDefaults();
+    }
+    private void doTestWithDefaults() {
         doTest(true,true,true, TestMeGeneratorJunit4Test.MIN_PERCENT_OF_EXCESSIVE_SETTERS_TO_PREFER_DEFAULT_CTOR, true, true);
     }
 

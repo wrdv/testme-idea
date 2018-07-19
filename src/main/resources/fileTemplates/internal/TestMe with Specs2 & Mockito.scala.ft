@@ -23,7 +23,7 @@ class ${CLASS_NAME} extends Specification #if($hasMocks) with Mockito#end{
 #if($hasMocks)
     isolated
 #if($primaryCtorParams)
-#scRenderMockedParams($primaryCtorParams)
+#scRenderMockedParams($primaryCtorParams)##todo pass alt. ctor if primary ctor not exists ( in java test subjects)
 #end
 #end
 #scRenderTestSubjectInit($TESTED_CLASS,$TestSubjectUtils.hasTestableInstanceMethod($TESTED_CLASS.methods),$hasMocks)
