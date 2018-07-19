@@ -1,9 +1,6 @@
 #parse("TestMe macros.scala")
-#set($primaryCtor = $TestSubjectUtils.getPrimaryConstructor($TESTED_CLASS))
-#set($hasMocks = $MockitoMockBuilder.hasMocks($primaryCtor, $scDefaultTypeValues) )
-#if($primaryCtor)
-#set($primaryCtorParams = ${primaryCtor.methodParams})
-#end
+#set($constructor = $TestSubjectUtils.findOptimalConstructor($TESTED_CLASS))
+#set($hasMocks = $MockitoMockBuilder.hasMocks($constructor, $scDefaultTypeValues) )
 #if($PACKAGE_NAME)
 package ${PACKAGE_NAME}
 #end
@@ -15,26 +12,26 @@ package ${PACKAGE_NAME}
 import scala.concurrent.duration._
 import scala.concurrent.Await
 #end
-##if($MockitoMockBuilder.requiresExecutionContext($primaryCtor))
+##if($MockitoMockBuilder.requiresExecutionContext($constructor))
 ##import scala.concurrent.ExecutionContext.Implicits.global
 ##end
 #parse("File Header.java")
 class ${CLASS_NAME} extends Specification #if($hasMocks) with Mockito#end{
 #if($hasMocks)
     isolated
-#if($primaryCtorParams)
-#scRenderMockedParams($primaryCtorParams)##todo pass alt. ctor if primary ctor not exists ( in java test subjects)
+#scRenderMockedParams($constructor)
 #end
+#if($TestSubjectUtils.hasTestableInstanceMethod($TESTED_CLASS.methods))
+#scRenderTestSubjectInit($TESTED_CLASS,$hasMocks,$constructor)
 #end
-#scRenderTestSubjectInit($TESTED_CLASS,$TestSubjectUtils.hasTestableInstanceMethod($TESTED_CLASS.methods),$hasMocks)
 
   "$TESTED_CLASS.name" should {
 #foreach($method in $TESTED_CLASS.methods)
 #if($method.isTestable())
 
       "#renderTestMethodNameAsWords($method.name)" in {
-#if($MockitoMockBuilder.shouldStub($method,$primaryCtor,$scDefaultTypeValues))
-#scRenderMockStubs($method, $primaryCtor)
+#if($MockitoMockBuilder.shouldStub($method,$constructor,$scDefaultTypeValues))
+#scRenderMockStubs($method, $constructor)
 #end
         #scRenderMethodCall($method,$TESTED_CLASS.name)
 #if($method.hasReturn())        #scRenderAssert($method)#{else}false//todo - validate something

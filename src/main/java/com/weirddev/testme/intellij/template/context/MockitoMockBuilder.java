@@ -196,7 +196,7 @@ public class  MockitoMockBuilder {
         return shouldStub;
     }
     public boolean hasStubsReturningScalaFuture(Type testedClass, Map<String,String> defaultTypes) { //todo - probably will not be needed and can be removed
-        Method ctor = TestSubjectUtils.getPrimaryConstructor(testedClass);
+        Method ctor = TestSubjectUtils.findOptimalConstructor(testedClass);
         if (ctor == null) {
             return false;
         }
