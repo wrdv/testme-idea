@@ -107,10 +107,17 @@ public class Method {
             overridden = false;
             inherited = false;
         }
-        isInInterface = psiMethod.getContainingClass() != null && psiMethod.getContainingClass().isInterface();
+        isInInterface = isInterface(psiMethod);
         methodId = PsiMethodUtils.formatMethodId(psiMethod);
         accessible = typeDictionary.isAccessible(psiMethod);
         isSynthetic = isSyntheticMethod(psiMethod);
+    }
+
+    private boolean isInterface(PsiMethod psiMethod) {
+//            //method inherited from an interface but implemented on the interface should not be considered as interface method
+//            return psiMethod.hasModifierProperty("abstract") || psiMethod.getContainingClass() != null && psiMethod.getContainingClass().isInterface();
+
+        return psiMethod.hasModifierProperty("abstract");
     }
 
     private boolean isSyntheticMethod(PsiMethod psiMethod) {

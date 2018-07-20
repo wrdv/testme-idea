@@ -27,4 +27,11 @@ public class StringUtils extends org.apache.velocity.util.StringUtils {
         }
         return false;
     }
+    public static String removeSuffix(String str,String suffix){
+        if (str.endsWith(suffix)) {
+            return str.substring(0, str.length() - suffix.length());
+        } else {
+            return str;
+        }
+    }
 }

@@ -71,6 +71,9 @@ public class TestMeGeneratorSpecs2Test extends TestMeGeneratorTestBase   {
     public void testScalaRequireExecutionContext() {
         doTestWithDefaults();
     }
+    public void testScalaObject() {
+        doTest("com.example.services.impl", "Foo$", "FooTest", true, true, true, true, TestMeGeneratorJunit4Test.MIN_PERCENT_OF_EXCESSIVE_SETTERS_TO_PREFER_DEFAULT_CTOR, true);
+    }
     private void doTestWithDefaults() {
         doTest(true,true,true, TestMeGeneratorJunit4Test.MIN_PERCENT_OF_EXCESSIVE_SETTERS_TO_PREFER_DEFAULT_CTOR, true, true);
     }

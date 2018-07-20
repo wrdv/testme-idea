@@ -142,13 +142,14 @@
 #if($TestSubjectUtils.isJavaFuture($method.returnType))result.get()#elseif($TestSubjectUtils.isScalaFuture($method.returnType))Await.result(result, 10.seconds)#{else}result#end === $TestBuilder.renderReturnParam($method,$method.returnType,"replaceMeWithExpectedResult",$scReplacementTypesForReturn,$scDefaultTypeValues)
 #end
 ##
-#macro(scRenderMethodCall $method,$testedClassName)
-val result = #if($method.static)$testedClassName#{else}$StringUtils.deCapitalizeFirstLetter($testedClassName)#end.${method.name}#if($method.methodParams.size()>0)($TestBuilder.renderMethodParams($method,$scReplacementTypes,$scDefaultTypeValues))#end
+#macro(scRenderMethodCall $method,$testedClass)
+#set($testedClassName = $testedClass.name)
+val result = #if($method.static || $TESTED_CLASS.isStatic())$StringUtils.removeSuffix($testedClassName,"$")#{else}$StringUtils.deCapitalizeFirstLetter($testedClassName)#end.${method.name}#if($method.methodParams.size()>0)($TestBuilder.renderMethodParams($method,$scReplacementTypes,$scDefaultTypeValues))#end
 
 #end
 ##
 #macro(scRenderParameterizedMethodCall $method,$testedClassName $methodClassParamsStr)
-#if($method.static)$testedClassName#{else}$StringUtils.deCapitalizeFirstLetter($testedClassName)#end.${method.name}($methodClassParamsStr)##
+#if($method.static)$StringUtils.removeSuffix($testedClassName,"$")#{else}$StringUtils.deCapitalizeFirstLetter($testedClassName)#end.${method.name}($methodClassParamsStr)##
 #end
 ##
 #macro(scRenderMockStubs $method $primaryCtor)

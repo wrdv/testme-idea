@@ -21,11 +21,11 @@ class ${CLASS_NAME} extends Specification #if($hasMocks) with Mockito#end{
     isolated
 #scRenderMockedParams($constructor)
 #end
-#if($TestSubjectUtils.hasTestableInstanceMethod($TESTED_CLASS.methods))
+#if(!$TESTED_CLASS.isStatic() && $TestSubjectUtils.hasTestableInstanceMethod($TESTED_CLASS.methods))
 #scRenderTestSubjectInit($TESTED_CLASS,$hasMocks,$constructor)
 #end
 
-  "$TESTED_CLASS.name" should {
+  "$StringUtils.removeSuffix($TESTED_CLASS.name,"$")" should {
 #foreach($method in $TESTED_CLASS.methods)
 #if($method.isTestable())
 
@@ -33,7 +33,7 @@ class ${CLASS_NAME} extends Specification #if($hasMocks) with Mockito#end{
 #if($MockitoMockBuilder.shouldStub($method,$constructor,$scDefaultTypeValues))
 #scRenderMockStubs($method, $constructor)
 #end
-        #scRenderMethodCall($method,$TESTED_CLASS.name)
+        #scRenderMethodCall($method,$TESTED_CLASS)
 #if($method.hasReturn())        #scRenderAssert($method)#{else}false//todo - validate something
 #end
       }

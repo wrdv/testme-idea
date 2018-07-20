@@ -3,13 +3,14 @@ package com.example.services.impl
 import com.example.common.LogSupport
 import com.example.foes.Fire
 import com.example.warriers.FooFighter
+import com.example.warriers.impl.FooFighterImpl
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 
-class Foo(fooFighter:FooFighter) extends LogSupport{
-  //  <caret>
+trait Foo extends LogSupport{
+  val fooFighter:FooFighter
   val withFire: Fire = new Fire()
 
   def fight(optFire:Option[String]): Future[String] ={
@@ -26,4 +27,9 @@ class Foo(fooFighter:FooFighter) extends LogSupport{
       }
     }
   }
+}
+
+object Foo extends Foo{
+  val fooFighter =  new FooFighterImpl()
+  //  <caret>
 }
