@@ -14,8 +14,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -34,6 +32,9 @@ public class Type {
     private final boolean isEnum;
     private final boolean isInterface;
     private final boolean isAbstract;
+    /**
+     * this is a static type/class or a Scala object
+     */
     private final boolean isStatic;
     private final boolean isFinal;
     private final List<Method> methods;
@@ -88,7 +89,7 @@ public class Type {
         isEnum = psiClass != null && psiClass.isEnum();
         isInterface = psiClass != null && psiClass.isInterface();
         isAbstract = psiClass != null && psiClass.getModifierList() != null && psiClass.getModifierList().hasModifierProperty(PsiModifier.ABSTRACT);
-        isStatic = psiClass != null && psiClass.getModifierList() != null && psiClass.getModifierList().hasExplicitModifier(PsiModifier.STATIC);
+        isStatic = hasModifier(psiClass, PsiModifier.STATIC) || psiClass!=null && "org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScObjectImpl".equals(psiClass.getClass().getCanonicalName());
         parentContainerClass = psiClass != null && psiClass.getParent() != null && psiClass.getParent() instanceof PsiClass && typeDictionary != null ? typeDictionary.getType(resolveType((PsiClass) psiClass.getParent()), maxRecursionDepth,
                 false) : null;
         fields = new ArrayList<Field>();
@@ -166,7 +167,7 @@ public class Type {
     }
 
     private boolean isFinalType(PsiClass aClass) {
-        return aClass != null &&  aClass.getModifierList()!=null && aClass.getModifierList().hasExplicitModifier(PsiModifier.FINAL);
+        return hasModifier(aClass, PsiModifier.FINAL);
     }
 
     private boolean isGroovyLangProperty(PsiMethod method) {
@@ -252,6 +253,10 @@ public class Type {
             }
         }
         return types;
+    }
+
+    private boolean hasModifier(PsiClass psiClass, String aStatic) {
+        return psiClass != null && psiClass.getModifierList() != null && psiClass.getModifierList().hasExplicitModifier(aStatic);
     }
 
     public String getCanonicalName() {
