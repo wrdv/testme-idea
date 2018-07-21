@@ -1,26 +1,6 @@
 #parse("TestMe common macros.java")
 ################## Global vars ###############
 #set($scReplacementTypesStatic = {
-    "java.util.Collection": "[<VAL>]",
-    "java.util.Deque": "new LinkedList([<VAL>])",
-    "java.util.List": "[<VAL>]",
-    "java.util.Map": "[<VAL>:<VAL>]",
-    "java.util.NavigableMap": "new java.util.TreeMap([<VAL>:<VAL>])",
-    "java.util.NavigableSet": "new java.util.TreeSet([<VAL>])",
-    "java.util.Queue": "new java.util.LinkedList<TYPES>([<VAL>])",
-    "java.util.RandomAccess": "new java.util.Vector([<VAL>])",
-    "java.util.Set": "[<VAL>] as java.util.Set<TYPES>",
-    "java.util.SortedSet": "[<VAL>] as java.util.SortedSet<TYPES>",
-    "java.util.LinkedList": "new java.util.LinkedList<TYPES>([<VAL>])",
-    "java.util.ArrayList": "[<VAL>]",
-    "java.util.HashMap": "[<VAL>:<VAL>]",
-    "java.util.TreeMap": "new java.util.TreeMap<TYPES>([<VAL>:<VAL>])",
-    "java.util.LinkedList": "new java.util.LinkedList<TYPES>([<VAL>])",
-    "java.util.Vector": "new java.util.Vector([<VAL>])",
-    "java.util.HashSet": "[<VAL>] as java.util.HashSet",
-    "java.util.Stack": "new java.util.Stack<TYPES>(){{push(<VAL>)}}",
-    "java.util.LinkedHashMap": "[<VAL>:<VAL>]",
-    "java.util.TreeSet": "[<VAL>] as java.util.TreeSet",
 
     "scala.Option": "Some(<VAL>)",
     "scala.collection.immutable.Map": "Map(<VAL> -> <VAL>)",
@@ -54,12 +34,54 @@
     "scala.Tuple10": "(<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>)",
     "scala.Tuple11": "(<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>)",
     "scala.Tuple12": "(<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>)",
-    "scala.Tuple13": "(<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>)"
+    "scala.Tuple13": "(<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>,<VAL>)",
+
+
+    "java.util.Collection": "java.util.Arrays.asList<VAL>([<VAL>])",
+    "java.util.Deque": "new java.util.LinkedList<VAL>(java.util.Arrays.asList([<VAL>]))",
+    "java.util.List": "java.util.Arrays.asList<VAL>([<VAL>])",
+    "java.util.Map": "new java.util.HashMap<VAL>(){{put([<VAL>],[<VAL>]);}}",
+    "java.util.NavigableMap": "new java.util.TreeMap<VAL>(new java.util.HashMap<VAL>(){{put([<VAL>],[<VAL>]);}})",
+    "java.util.NavigableSet": "new java.util.TreeSet<VAL>(java.util.Arrays.asList([<VAL>]))",
+    "java.util.Queue": "new java.util.LinkedList<VAL>(java.util.Arrays.asList([<VAL>]))",
+    "java.util.RandomAccess": "new java.util.Vector(java.util.Arrays.asList([<VAL>]))",
+    "java.util.Set": "new java.util.HashSet<VAL>(java.util.Arrays.asList([<VAL>]))",
+    "java.util.SortedSet": "new java.util.TreeSet<VAL>(java.util.Arrays.asList([<VAL>]))",
+    "java.util.LinkedList": "new java.util.LinkedList<VAL>(java.util.Arrays.asList([<VAL>]))",
+    "java.util.ArrayList": "new java.util.ArrayList<VAL>(java.util.Arrays.asList([<VAL>]))",
+    "java.util.HashMap": "new java.util.HashMap<VAL>(){{put([<VAL>],[<VAL>]);}}",
+    "java.util.TreeMap": "new java.util.TreeMap<VAL>(new java.util.HashMap<VAL>(){{put([<VAL>],[<VAL>]);}})",
+    "java.util.LinkedList": "new java.util.LinkedList<VAL>(java.util.Arrays.asList([<VAL>]))",
+    "java.util.Vector": "new java.util.Vector(java.util.Arrays.asList([<VAL>]))",
+    "java.util.HashSet": "new java.util.HashSet<VAL>(java.util.Arrays.asList([<VAL>]))",
+    "java.util.Stack": "new java.util.Stack<VAL>(){{push([<VAL>]);}}",
+    "java.util.TreeSet": "new java.util.TreeSet<VAL>(java.util.Arrays.asList([<VAL>]))",
+
+
+    "Collection": "java.util.Arrays.<VAL>asList([<VAL>])",
+    "Deque": "new java.util.LinkedList<VAL>(java.util.Arrays.asList([<VAL>]))",
+    "List": "java.util.Arrays.<VAL>asList([<VAL>])",
+    "Map": "new java.util.HashMap<VAL>(){{put([<VAL>],[<VAL>]);}}",
+    "NavigableMap": "new java.util.TreeMap<VAL>(new java.util.HashMap<VAL>(){{put([<VAL>],[<VAL>]);}})",
+    "NavigableSet": "new java.util.TreeSet<VAL>(java.util.Arrays.asList([<VAL>]))",
+    "Queue": "new java.util.LinkedList<VAL>(java.util.Arrays.asList([<VAL>]))",
+    "RandomAccess": "new java.util.Vector(java.util.Arrays.asList([<VAL>]))",
+    "Set": "new java.util.HashSet<VAL>(java.util.Arrays.asList([<VAL>]))",
+    "SortedSet": "new java.util.TreeSet<VAL>(java.util.Arrays.asList([<VAL>]))",
+    "LinkedList": "new java.util.LinkedList<VAL>(java.util.Arrays.asList([<VAL>]))",
+    "ArrayList": "new java.util.ArrayList<VAL>(java.util.Arrays.asList([<VAL>]))",
+    "HashMap": "new java.util.HashMap<VAL>(){{put([<VAL>],[<VAL>]);}}",
+    "TreeMap": "new java.util.TreeMap<VAL>(new java.util.HashMap<VAL>(){{put([<VAL>],[<VAL>]);}})",
+    "LinkedList": "new java.util.LinkedList<VAL>(java.util.Arrays.asList([<VAL>]))",
+    "Vector": "new java.util.Vector(java.util.Arrays.asList([<VAL>]))",
+    "HashSet": "new java.util.HashSet<VAL>(java.util.Arrays.asList([<VAL>]))",
+    "Stack": "new java.util.Stack<VAL>(){{push([<VAL>]);}}",
+    "TreeSet": "new java.util.TreeSet<VAL>(java.util.Arrays.asList([<VAL>]))"
 })
 #set($scReplacementTypes = $scReplacementTypesStatic.clone())
 #set($scReplacementTypesForReturn = $scReplacementTypesStatic.clone())
 #foreach($javaFutureType in $TestSubjectUtils.javaFutureTypes)
-#evaluate(${scReplacementTypes.put($javaFutureType,"java.util.concurrent.CompletableFuture.completedFuture(<VAL>)")})
+#evaluate(${scReplacementTypes.put($javaFutureType,"java.util.concurrent.CompletableFuture.completedFuture(<<VAL>>)")})
 #end
 #foreach($scalaFutureType in $TestSubjectUtils.scalaFutureTypes)
 #evaluate(${scReplacementTypes.put($scalaFutureType,"scala.concurrent.Future.successful(<VAL>)")})
@@ -71,25 +93,25 @@
 #evaluate(${scReplacementTypesForReturn.put($scalaFutureType,"<VAL>")})
 #end
 #set($scDefaultTypeValues = {
-    "byte": "(byte)0",
-    "short": "(short)0",
+    "byte": "64.toByte",
+    "short": "21.toShort",
     "int": "1",
-    "long": "0l",
-    "float": "0f",
-    "double": "0d",
-    "char": "(char)'a'",
+    "long": "12345l",
+    "float": "1.1f",
+    "double": "100d",
+    "char": "'c'",
     "boolean": "true",
-    "java.lang.Byte": """00110"" as Byte",
-    "java.lang.Short": "(short)0",
-    "java.lang.Integer": "0",
-    "java.lang.Long": "1l",
+    "java.lang.Byte": "64.toByte",
+    "java.lang.Short": "21.toShort",
+    "java.lang.Integer": "1",
+    "java.lang.Long": "12345l",
     "java.lang.Float": "1.1f",
-    "java.lang.Double": "0d",
-    "java.lang.Character": "'a'",
-    "java.lang.Boolean": "Boolean.TRUE",
-    "java.math.BigDecimal": "0 as java.math.BigDecimal",
-    "java.math.BigInteger": "0g",
-    "java.util.Date": "new java.util.GregorianCalendar($YEAR, java.util.Calendar.$MONTH_NAME_EN.toUpperCase(), $DAY_NUMERIC, $HOUR_NUMERIC, $MINUTE_NUMERIC).getTime()",
+    "java.lang.Double": "100d",
+    "java.lang.Character": "'c'",
+    "java.lang.Boolean": "true",
+    "java.math.BigInteger": "BigInt(123123).bigInteger",
+    "java.math.BigDecimal": "BigDecimal(2.44).bigDecimal",
+    "java.util.Date": "new java.util.GregorianCalendar($YEAR, java.util.Calendar.$MONTH_NAME_EN.toUpperCase(), $DAY_NUMERIC, $HOUR_NUMERIC, $MINUTE_NUMERIC).getTime",
     "java.time.LocalDate": "java.time.LocalDate.of($YEAR, java.time.Month.$MONTH_NAME_EN.toUpperCase(), $DAY_NUMERIC)",
     "java.time.LocalDateTime": "java.time.LocalDateTime.of($YEAR, java.time.Month.$MONTH_NAME_EN.toUpperCase(), $DAY_NUMERIC, $HOUR_NUMERIC, $MINUTE_NUMERIC, $SECOND_NUMERIC)",
     "java.time.LocalTime": "java.time.LocalTime.of($HOUR_NUMERIC, $MINUTE_NUMERIC, $SECOND_NUMERIC)",
@@ -97,16 +119,35 @@
     "java.io.File": "new File(getClass().getResource(""/$PACKAGE_NAME.replace('.','/')/PleaseReplaceMeWithTestFile.txt"").getFile())",
     "java.lang.Class": "Class.forName(""$TESTED_CLASS.canonicalName"")",
 
-    "scala.Byte": """00110"" as Byte",
-    "scala.Short": "2",
+    "scala.Byte": "64.toByte",
+    "scala.Short": "21.toShort",
     "scala.Int": "1",
-    "scala.Long": "123456789",
+    "scala.Long": "12345l",
     "scala.Float": "1.1f",
-    "scala.Double": "11223344.53",
-    "scala.Char": "a",
+    "scala.Double": "100d",
+    "scala.Char": "'c'",
     "scala.Boolean": "true",
-    "scala.math.BigDecimal": "2.44",
-    "scala.concurrent.ExecutionContext": "scala.concurrent.ExecutionContext.Implicits.global"
+    "scala.math.BigInt": "BigInt(123123).bigInteger",
+    "scala.math.BigDecimal": "BigDecimal(2.44).bigDecimal",
+
+    "scala.concurrent.ExecutionContext": "scala.concurrent.ExecutionContext.Implicits.global",
+
+    "Byte": "64.toByte",
+    "Short": "21.toShort",
+    "Integer": "1",
+    "Long": "12345l",
+    "Float": "1.1f",
+    "Double": "100d",
+    "Character": "'c'",
+    "Boolean": "true",
+    "BigInteger": "BigInt(123123).bigInteger",
+    "BigDecimal": "BigDecimal(2.44).bigDecimal",
+    "Date": "new java.util.GregorianCalendar($YEAR, java.util.Calendar.$MONTH_NAME_EN.toUpperCase(), $DAY_NUMERIC, $HOUR_NUMERIC, $MINUTE_NUMERIC).getTime",
+    "LocalDate": "java.time.LocalDate.of($YEAR, java.time.Month.$MONTH_NAME_EN.toUpperCase(), $DAY_NUMERIC)",
+    "LocalDateTime": "java.time.LocalDateTime.of($YEAR, java.time.Month.$MONTH_NAME_EN.toUpperCase(), $DAY_NUMERIC, $HOUR_NUMERIC, $MINUTE_NUMERIC, $SECOND_NUMERIC)",
+    "LocalTime": "java.time.LocalTime.of($HOUR_NUMERIC, $MINUTE_NUMERIC, $SECOND_NUMERIC)",
+    "Instant": "java.time.LocalDateTime.of($YEAR, java.time.Month.$MONTH_NAME_EN.toUpperCase(), $DAY_NUMERIC, $HOUR_NUMERIC, $MINUTE_NUMERIC, $SECOND_NUMERIC).toInstant(java.time.ZoneOffset.UTC)"
+
 })
 ##
 ##
