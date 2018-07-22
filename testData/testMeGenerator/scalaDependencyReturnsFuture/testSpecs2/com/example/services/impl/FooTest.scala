@@ -16,9 +16,9 @@ class FooTest extends Specification with Mockito {
   "Foo" should {
 
     "fight" in {
-      timeMachine.lookInto() returns scala.concurrent.Future.successful(11223344.53)
+      timeMachine.lookInto() returns scala.concurrent.Future.successful(100d)
       val result = foo.fight(Some("optFire"))
-      Await.result(result, 10.seconds) === 11223344.53
+      Await.result(result, 10.seconds) === 100d
     }
 
   }

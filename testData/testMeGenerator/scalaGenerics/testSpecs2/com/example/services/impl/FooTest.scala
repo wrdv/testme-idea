@@ -10,11 +10,11 @@ class FooTest extends Specification {
 
     "tuple Maker" in {
       val result = foo.tupleMaker(Some(1))
-      result === ("replaceMeWithExpectedResult", 11223344.53, 1)
+      result === ("replaceMeWithExpectedResult", 100d, 1)
     }
 
     "example" in {
-      val result = foo.example((Some(1), Some(List(List(11223344.53)))))
+      val result = foo.example((Some(1), Some(List(List(100d)))))
       result === "replaceMeWithExpectedResult"
     }
 
