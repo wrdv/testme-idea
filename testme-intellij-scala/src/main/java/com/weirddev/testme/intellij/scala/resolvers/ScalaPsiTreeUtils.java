@@ -189,15 +189,22 @@ public class ScalaPsiTreeUtils {
         if (psiMethod instanceof ScFunctionWrapper) {
             final ScFunction function = resolveFunction(((ScFunctionWrapper) psiMethod)); //            final ScFunction function = ((ScFunctionWrapper) psiMethod).function();
             if (function != null) {
-                Object resultObj = MethodReflectionUtils.invokeMethodReflectivelyWithFallback(function, Object.class /*TypeResult.class*/, "returnTypeInner", "returnType");
-                if (resultObj != null) {
-                    scType = MethodReflectionUtils.invokeMethodReflectivelyWithFallback(resultObj, Object.class, "get", null);
-                }
                 //Non reflective version #1
 //                final org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult<ScType> scTypeTypeResult = function.returnType();
 //                if (scTypeTypeResult != null && !scTypeTypeResult.isEmpty()) {
 //                    scType = scTypeTypeResult.get();
 //                }
+                Object resultObj = MethodReflectionUtils.invokeMethodReflectivelyWithFallback(function, Object.class /*TypeResult.class*/, "returnTypeInner", "returnType");
+                if (resultObj != null) {
+                    //fallback to a more advanced IDEA scala plugin api
+                    scType = MethodReflectionUtils.invokeMethodReflectivelyWithFallback(resultObj, Object.class, "get", null);
+                    if (scType == null) {
+                        Object typeWrapper = MethodReflectionUtils.invokeMethodReflectivelyWithFallback(resultObj, Object.class, "right", null);
+                        if (typeWrapper != null) {
+                            scType = MethodReflectionUtils.invokeMethodReflectivelyWithFallback(typeWrapper, Object.class, "get", null);
+                        }
+                    }
+                }
             }
         }
         return scType;

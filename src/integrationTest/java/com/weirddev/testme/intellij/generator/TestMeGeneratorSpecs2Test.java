@@ -75,7 +75,7 @@ public class TestMeGeneratorSpecs2Test extends TestMeGeneratorTestBase   {
         doTest("com.example.services.impl", "Foo$", "FooTest", true, true, true, true, TestMeGeneratorJunit4Test.MIN_PERCENT_OF_EXCESSIVE_SETTERS_TO_PREFER_DEFAULT_CTOR, true);
     }
     public void testVariousTypesOfArguments() {
-        doTestWithDefaults();
+        doTest(true,true,false, TestMeGeneratorJunit4Test.MIN_PERCENT_OF_EXCESSIVE_SETTERS_TO_PREFER_DEFAULT_CTOR, true, true);
     }
 //    public void testCollections() throws Exception { //todo testing java collections. not supported properly yet
 //        doTest(false, false, true);
