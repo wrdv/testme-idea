@@ -1,60 +1,38 @@
-package com.example.services.impl;
-
-import com.example.foes.Fear;
-import com.example.foes.Fire;
-import com.example.foes.Ice;
-import com.example.warriers.FooFighter;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.Before;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-
-import java.util.*;
-
-import static org.mockito.Mockito.*;
-
+package com.example.services.impl
+import collection.JavaConverters._
+import com.example.foes.{Fear, Fire, Ice}
+import org.specs2.mutable.Specification
 /** created by TestMe integration test on MMXVI */
-public class FooTest {
-    @Mock
-    List<FooFighter> fooFighter;
-    @InjectMocks
-    Foo foo;
+class FooTest extends Specification {
+    val foo = new Foo()
 
-    @Before
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
-    }
+    "Foo" should {
 
-    @Test
-    public void testFight() throws Exception {
-        List<Fire> result = foo.fight(Arrays.<Fire>asList(new Fire()), new HashSet<Fire>(Arrays.asList(new Fire())), new HashMap<String,Ice>(){{put("String",new Ice());}}, Arrays.<String>asList("String"), Arrays.<List<String>>asList(Arrays.<String>asList("String")), new LinkedList<List<Fear>>(Arrays.asList(Arrays.<Fear>asList(new Fear()))), new LinkedList<Fear>(Arrays.asList(new Fear())));
-        Assert.assertEquals(Arrays.<Fire>asList(new Fire()), result);
-    }
+        "fight" in {
+            val result = foo.fight(List(new Fire()).asJava, Set(new Fire()).asJava, Map("String" -> new Ice()).asJava, List("String").asJava, List(List("String").asJava).asJava, new java.util.LinkedList(List(List(new Fear()).asJava).asJava), new java.util.LinkedList(List(new Fear()).asJava))
+            result === List(new Fire()).asJava
+        }
 
-    @Test
-    public void testFightConcreteTypes() throws Exception {
-        List<Fire> result = foo.fightConcreteTypes(new ArrayList<Fire>(Arrays.asList(new Fire())), new HashSet<Fire>(Arrays.asList(new Fire())), new HashMap<String,Ice>(){{put("String",new Ice());}}, new Vector(Arrays.asList(Arrays.<String>asList("String"))), new TreeSet<Fear>(Arrays.asList(new Fear())), new Stack<Fear>(){{push(new Fear());}});
-        Assert.assertEquals(Arrays.<Fire>asList(new Fire()), result);
-    }
+        "fight Concrete Types" in {
+            val result = foo.fightConcreteTypes(new java.util.ArrayList(List(new Fire()).asJava), new java.util.HashSet(Set(new Fire()).asJava), new java.util.HashMap(Map("String" -> new Ice()).asJava), new java.util.Vector(Vector(List("String").asJava).asJava), new java.util.TreeSet(List(new Fear()).asJava), null)
+            result === List(new Fire()).asJava
+        }
 
-    @Test
-    public void testTypeless() throws Exception {
-        List result = foo.typeless(Arrays.asList("String"), new HashSet(Arrays.asList("String")), new HashMap(){{put("String","String");}}, Arrays.asList("String"), Arrays.<List>asList(Arrays.asList("String")), new LinkedList<List>(Arrays.asList(Arrays.asList("String"))));
-        Assert.assertEquals(Arrays.asList("String"), result);
-    }
+        "typeless" in {
+            val result = foo.typeless(List("String").asJava, Set("String").asJava, Map("String" -> "String").asJava, List("String").asJava, List(List("String").asJava).asJava, new java.util.LinkedList(List(List("String").asJava).asJava))
+            result === List("String").asJava
+        }
 
-    @Test
-    public void testMiscColls() throws Exception {
-        NavigableMap<String,Fire> result = foo.miscColls(new TreeMap<String,Fire>(new HashMap<String,Fire>(){{put("String",new Fire());}}), new TreeSet<Fire>(Arrays.asList(new Fire())), new Vector(Arrays.asList("String")), new TreeSet<Fire>(Arrays.asList(new Fire())));
-        Assert.assertEquals(new TreeMap<String,Fire>(new HashMap<String,Fire>(){{put("String",new Fire());}}), result);
-    }
+        "misc Colls" in {
+            val result = foo.miscColls(Map("String" -> new Fire()).asJava, Set(new Fire())).asJava, Vector("String").asJava, Set(new Fire()).asJava)
+            result === Map("String" -> new Fire()).asJava
+        }
 
-    @Test
-    public void testObjectMaps() throws Exception {
-        HashMap<Fire,Fire> result = foo.objectMaps(new TreeMap<Boolean,String>(new HashMap<Boolean,String>(){{put(Boolean.TRUE,"String");}}), new HashMap<Integer,Boolean>(){{put(Integer.valueOf(0),Boolean.TRUE);}}, new HashMap<Fire,Fire>(){{put(new Fire(),new Fire());}});
-        Assert.assertEquals(new HashMap<Fire,Fire>(){{put(new Fire(),new Fire());}}, result);
+        "object Maps" in {
+            val result = foo.objectMaps(Map(true -> "String").asJava, Map(1 -> true).asJava, new java.util.HashMap(Map(new Fire() -> new Fire()).asJava))
+            result === new java.util.HashMap(Map(new Fire() -> new Fire()).asJava)
+        }
+
     }
 }
 
