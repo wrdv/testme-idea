@@ -144,7 +144,9 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
    public void testAvoidInfiniteRecursionSelfReferences() throws Exception {//todo fix issue with legitimate testable method interpreted as a getter
        doTest(FileTemplateConfig.getInstance());
     }
-
+    public void testOverrideAbstract() throws Exception {
+        doTest(FileTemplateConfig.getInstance());
+    }
 //   public void testWithFinalTypeDependencyMockable() throws Exception {
 //       myFixture.copyDirectoryToProject("resources", "resources"); //issue with setting up a resource folder
 //        doTest(true, true, true);

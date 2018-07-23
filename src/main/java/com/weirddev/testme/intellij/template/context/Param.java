@@ -1,11 +1,13 @@
 package com.weirddev.testme.intellij.template.context;
 
 import com.intellij.psi.PsiParameter;
+import com.intellij.psi.PsiType;
 import com.weirddev.testme.intellij.common.utils.LanguageUtils;
 import com.weirddev.testme.intellij.scala.resolvers.ScalaPsiTreeUtils;
 import com.weirddev.testme.intellij.template.TypeDictionary;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 /**
  * Date: 24/10/2016
@@ -16,17 +18,17 @@ public class Param {
     private String name;
     private final ArrayList<Field> assignedToFields;
 
-    public Param(PsiParameter psiParameter, TypeDictionary typeDictionary, int maxRecursionDepth, ArrayList<Field> assignedToFields, boolean shouldResolveAllMethods) {
-        this(resolveType(psiParameter, shouldResolveAllMethods, typeDictionary, maxRecursionDepth), psiParameter.getName(),assignedToFields);
+    public Param(PsiParameter psiParameter, Optional<PsiType> substitutedType, TypeDictionary typeDictionary, int maxRecursionDepth, ArrayList<Field> assignedToFields, boolean shouldResolveAllMethods) {
+        this(resolveType(psiParameter, substitutedType,shouldResolveAllMethods, typeDictionary, maxRecursionDepth), psiParameter.getName(),assignedToFields);
     }
 
-    private static Type resolveType(PsiParameter psiParameter, boolean shouldResolveAllMethods, TypeDictionary typeDictionary, int maxRecursionDepth) {
+    private static Type resolveType(PsiParameter psiParameter, Optional<PsiType> substitutedType, boolean shouldResolveAllMethods, TypeDictionary typeDictionary, int maxRecursionDepth) {
 
         Object element = null;
         if (LanguageUtils.isScala(psiParameter.getLanguage())) {
             element = ScalaPsiTreeUtils.resolveRelatedTypeElement(psiParameter);
         }
-        return typeDictionary.getType(psiParameter.getType(), maxRecursionDepth, shouldResolveAllMethods,element);
+        return typeDictionary.getType(substitutedType.orElse(psiParameter.getType()), maxRecursionDepth, shouldResolveAllMethods,element);
     }
 
     public Param(Type type, String name, ArrayList<Field> assignedToFields) {
