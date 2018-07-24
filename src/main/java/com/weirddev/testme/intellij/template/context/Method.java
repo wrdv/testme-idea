@@ -156,22 +156,18 @@ public class Method {
     }
 
     private boolean hasGenericType(PsiMethod psiMethod) {
-        return Stream.concat(Stream.of(psiMethod.getParameterList().getParameters()).map(PsiVariable::getType), Stream.of(psiMethod.getReturnType())).anyMatch(psiType -> resolveGenericType(psiType) != null);
+        return Stream.concat(Stream.of(psiMethod.getParameterList().getParameters()).map(PsiVariable::getType), Stream.of(psiMethod.getReturnType())).anyMatch(psiType -> mayContainTypeParameter(psiType));
+    }
+
+    private boolean mayContainTypeParameter(PsiType psiType) {
+        return psiType instanceof PsiClassReferenceType/* && ((PsiClassReferenceType) psiType).resolve() instanceof PsiTypeParameter */;
     }
 
     private Optional<PsiType> findSubstitutedType(PsiMethod psiMethod, PsiType psiType, List<Pair<PsiMethod, PsiSubstitutor>> methodsAndTheirSubstitutors) {
-        final PsiTypeParameter psiTypeParameter = resolveGenericType(psiType);
-        return methodsAndTheirSubstitutors.stream().filter(pair -> psiTypeParameter!=null && pair.first.equals(psiMethod) && pair.second.getSubstitutionMap().containsKey(psiTypeParameter)).map(pair -> pair.second.getSubstitutionMap().get
-                (psiTypeParameter)).findFirst();
-    }
-
-    @Nullable
-    private PsiTypeParameter resolveGenericType(PsiType psiType) {
-        if (psiType instanceof PsiClassReferenceType) {
-            final PsiClass resolvedType = ((PsiClassReferenceType) psiType).resolve();
-            if(resolvedType instanceof PsiTypeParameter) return ((PsiTypeParameter) resolvedType);
-        }
-        return null;
+        return methodsAndTheirSubstitutors.stream()
+                .filter(pair1 -> pair1.first.equals(psiMethod))
+                .findFirst()
+                .flatMap(pair -> Optional.of(pair.second.substitute(psiType)));
     }
 
     static boolean isRelevant(PsiClass psiClass, PsiMethod psiMethod) {
