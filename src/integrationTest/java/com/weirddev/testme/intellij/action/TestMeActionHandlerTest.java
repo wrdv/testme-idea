@@ -8,7 +8,7 @@ import com.weirddev.testme.intellij.generator.TestMeGeneratorTestBase;
 import com.weirddev.testme.intellij.template.TemplateDescriptor;
 import com.weirddev.testme.intellij.template.TemplateRegistry;
 import com.weirddev.testme.intellij.template.context.Language;
-import com.weirddev.testme.intellij.ui.TestMePopUpHandler;
+import com.weirddev.testme.intellij.ui.popup.TestMePopUpHandler;
 import org.junit.Assert;
 
 import java.util.List;
