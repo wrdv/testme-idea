@@ -1,5 +1,5 @@
 
-package com.weirddev.testme.intellij.ui;
+package com.weirddev.testme.intellij.ui.popup;
 
 import com.intellij.codeInsight.CodeInsightActionHandler;
 import com.intellij.codeInsight.hint.HintManager;
