@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.weirddev.testme.intellij.ui.configuration.TestMeSettings">
-  <grid id="27dc6" binding="rootPanel" layout-manager="GridLayoutManager" row-count="3" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.weirddev.testme.intellij.ui.settings.TestMeSettingsForm">
+  <grid id="27dc6" binding="rootPanel" layout-manager="GridLayoutManager" row-count="4" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="8" y="20" width="514" height="400"/>
+      <xy x="8" y="20" width="514" height="416"/>
     </constraints>
     <properties/>
     <border type="none"/>
@@ -16,26 +16,26 @@
       <grid id="a18c4" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
         <margin top="0" left="0" bottom="0" right="0"/>
         <constraints>
-          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
-            <preferred-size width="229" height="108"/>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="1" fill="1" indent="0" use-parent-layout="true">
+            <preferred-size width="229" height="80"/>
           </grid>
         </constraints>
         <properties/>
-        <border type="line" title="Test generation behavior"/>
+        <border type="none" title="Test generation behavior">
+          <color color="-4473925"/>
+        </border>
         <children>
           <component id="d659e" class="javax.swing.JCheckBox" binding="generateTestsForInheritedCheckBox" default-binding="true">
             <constraints>
-              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="9" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text value="Generate tests for inherited methods"/>
             </properties>
           </component>
-          <vspacer id="29564">
+          <vspacer id="d7db7">
             <constraints>
-              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false">
-                <preferred-size width="11" height="21"/>
-              </grid>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="1" anchor="1" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
           </vspacer>
         </children>
@@ -43,10 +43,10 @@
       <grid id="4c6fe" layout-manager="GridLayoutManager" row-count="4" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
         <margin top="0" left="0" bottom="0" right="0"/>
         <constraints>
-          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="1" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
-        <border type="line" title="Post test generation tasks"/>
+        <border type="none" title="Post test generation tasks"/>
         <children>
           <component id="777ee" class="javax.swing.JCheckBox" binding="reformatCodeCheckBox" default-binding="true">
             <constraints>
@@ -58,7 +58,7 @@
           </component>
           <vspacer id="e2be0">
             <constraints>
-              <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+              <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="1" anchor="1" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
           </vspacer>
           <component id="46d1" class="javax.swing.JCheckBox" binding="replaceFullyQualifiedNamesCheckBox" default-binding="true">
@@ -79,6 +79,11 @@
           </component>
         </children>
       </grid>
+      <vspacer id="4e6fe">
+        <constraints>
+          <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+        </constraints>
+      </vspacer>
     </children>
   </grid>
 </form>
