@@ -61,6 +61,7 @@
     <!--</group>-->
   </actions>
   <extensions defaultExtensionNs="com.intellij">
-    <applicationConfigurable groupId="null" displayName="TestMe" id="preferences.TestMe" instance="com.weirddev.testme.intellij.ui.configuration.TestMeConfigurable" />
+    <applicationConfigurable groupId="null" displayName="TestMe" id="preferences.TestMe" instance="com.weirddev.testme.intellij.ui.settings.TestMeConfigurable" />
+    <projectService serviceInterface="com.weirddev.testme.intellij.configuration.TestMeConfigPersistent" serviceImplementation="com.weirddev.testme.intellij.configuration.TestMeConfigPersistent"/>
   </extensions>
 </idea-plugin>
