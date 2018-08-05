@@ -5,7 +5,6 @@ package com.weirddev.testme.intellij.configuration;
  *
  * @author Yaron Yamin
  */
-
 public class TestMeConfig {
     private Boolean generateTestsForInherited = true;
     private Boolean reformatCode= true;
