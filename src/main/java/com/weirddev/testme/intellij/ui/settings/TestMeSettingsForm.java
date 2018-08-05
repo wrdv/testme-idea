@@ -1,7 +1,10 @@
 package com.weirddev.testme.intellij.ui.settings;
 
+import com.intellij.openapi.Disposable;
+import com.weirddev.testme.intellij.configuration.TestMeConfig;
+import com.intellij.openapi.util.Disposer;
+
 import javax.swing.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 /**
@@ -9,53 +12,46 @@ import java.awt.event.ActionListener;
  *
  * @author Yaron Yamin
  */
-public class TestMeSettingsForm {
-    private final ActionListener updateDirtyStateListener;
+public class TestMeSettingsForm implements Disposable {
     private JCheckBox generateTestsForInheritedCheckBox;
+    private JCheckBox optimizeImportsCheckBox;
     private JCheckBox reformatCodeCheckBox;
     private JCheckBox replaceFullyQualifiedNamesCheckBox;
-    private JCheckBox optimizeImportsCheckBox;
     private JPanel rootPanel;
-    private boolean isDirty = false;
-
-    public TestMeSettingsForm() {
-        updateDirtyStateListener = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                isDirty = true;
-            }
-        };
-        generateTestsForInheritedCheckBox.addActionListener(updateDirtyStateListener);
-        reformatCodeCheckBox.addActionListener(updateDirtyStateListener);
-        replaceFullyQualifiedNamesCheckBox.addActionListener(updateDirtyStateListener);
-        optimizeImportsCheckBox.addActionListener(updateDirtyStateListener);
-    }
 
     public JPanel getRootPanel() {
         return rootPanel;
     }
 
-    public JCheckBox getGenerateTestsForInheritedCheckBox() {
-        return generateTestsForInheritedCheckBox;
+    @Override
+    public void dispose() {
+        Disposer.dispose(this);
     }
 
-    public JCheckBox getReformatCodeCheckBox() {
-        return reformatCodeCheckBox;
+    public void persistState(TestMeConfig testMeConfig) {
+        if (testMeConfig != null) {
+            testMeConfig.setGenerateTestsForInherited(generateTestsForInheritedCheckBox.isSelected());
+            testMeConfig.setOptimizeImports(optimizeImportsCheckBox.isSelected());
+            testMeConfig.setReformatCode(reformatCodeCheckBox.isSelected());
+            testMeConfig.setReplaceFullyQualifiedNames(replaceFullyQualifiedNamesCheckBox.isSelected());
+        }
     }
 
-    public JCheckBox getReplaceFullyQualifiedNamesCheckBox() {
-        return replaceFullyQualifiedNamesCheckBox;
+    public void reset(TestMeConfig state) {
+        if (state != null) {
+            generateTestsForInheritedCheckBox.setSelected(state.getGenerateTestsForInherited());
+            optimizeImportsCheckBox.setSelected(state.getOptimizeImports());
+            reformatCodeCheckBox.setSelected(state.getReformatCode());
+            replaceFullyQualifiedNamesCheckBox.setSelected(state.getReplaceFullyQualifiedNames());
+        }
     }
 
-    public JCheckBox getOptimizeImportsCheckBox() {
-        return optimizeImportsCheckBox;
-    }
-
-    public boolean isDirty() {
-        return isDirty;
-    }
-
-    public void setDirty(boolean dirty) {
-        isDirty = dirty;
+    public boolean isDirty(TestMeConfig state) {
+        return state != null &&
+                (generateTestsForInheritedCheckBox.isSelected() != state.getGenerateTestsForInherited() ||
+                        optimizeImportsCheckBox.isSelected() != state.getOptimizeImports() ||
+                        reformatCodeCheckBox.isSelected() != state.getReformatCode() ||
+                        replaceFullyQualifiedNamesCheckBox.isSelected() != state.getReplaceFullyQualifiedNames()
+                );
     }
 }

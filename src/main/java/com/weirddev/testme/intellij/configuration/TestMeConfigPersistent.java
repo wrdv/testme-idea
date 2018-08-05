@@ -11,7 +11,6 @@ import org.jetbrains.annotations.Nullable;
 @State(
         name="TestMeConfig",
         storages = {
-//                @Storage(StoragePathMacros.WORKSPACE_FILE)
                 @Storage("TestMeConfig.xml")
         }
 )
@@ -25,6 +24,11 @@ public class TestMeConfigPersistent implements PersistentStateComponent<TestMeCo
     @Nullable
     @Override
     public TestMeConfig getState() {
+        synchronized (this) {
+            if (state == null) {
+                state = new TestMeConfig();
+            }
+        }
         return state;
     }
 

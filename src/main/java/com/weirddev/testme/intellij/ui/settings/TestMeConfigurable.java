@@ -1,7 +1,6 @@
 package com.weirddev.testme.intellij.ui.settings;
 
 import com.intellij.openapi.options.SearchableConfigurable;
-import com.weirddev.testme.intellij.configuration.TestMeConfig;
 import com.weirddev.testme.intellij.configuration.TestMeConfigPersistent;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
@@ -50,29 +49,22 @@ public class TestMeConfigurable implements SearchableConfigurable {
 
     @Override
     public boolean isModified() {
-        return testMeSettingsForm.isDirty();
+        return testMeSettingsForm.isDirty(testMeConfigPersistent.getState());
     }
 
     @Override
     public void apply() {
-        final TestMeConfig testMeConfig = testMeConfigPersistent.getState();
-        if (testMeConfig != null) {
-            testMeConfig.setGenerateTestsForInherited(testMeSettingsForm.getGenerateTestsForInheritedCheckBox().isSelected());
-            testMeConfig.setOptimizeImports(testMeSettingsForm.getOptimizeImportsCheckBox().isSelected());
-            testMeConfig.setReformatCode(testMeSettingsForm.getReformatCodeCheckBox().isSelected());
-            testMeConfig.setReplaceFullyQualifiedNames(testMeSettingsForm.getReplaceFullyQualifiedNamesCheckBox().isSelected());
-        }
-        testMeSettingsForm.setDirty(false);
+        testMeSettingsForm.persistState(testMeConfigPersistent.getState());
     }
 
     @Override
     public void reset() {
-        //todo reset UI
-        testMeSettingsForm.setDirty(false);
+        testMeSettingsForm.reset(testMeConfigPersistent.getState());
     }
 
     @Override
     public void disposeUIResources() {
+        testMeSettingsForm.dispose();
         testMeSettingsForm = null;
     }
 }
