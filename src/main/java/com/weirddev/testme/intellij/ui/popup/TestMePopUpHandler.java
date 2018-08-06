@@ -49,7 +49,7 @@ public abstract class TestMePopUpHandler implements CodeInsightActionHandler {
 
   @Override
   public void invoke(@NotNull Project project, @NotNull Editor editor, @NotNull PsiFile file) {
-//    FeatureUsageTracker.getInstance().triggerFeatureUsed(getFeatureUsedKey()); //todo register a ProductivityFeaturesProvider extension
+//    FeatureUsageTracker.FileTemplateConfig().triggerFeatureUsed(getFeatureUsedKey()); //todo register a ProductivityFeaturesProvider extension
 
     try {
       GotoData gotoData = getSourceAndTargetElements(editor, file);

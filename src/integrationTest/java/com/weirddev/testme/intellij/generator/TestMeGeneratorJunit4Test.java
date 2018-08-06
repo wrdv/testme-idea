@@ -1,5 +1,6 @@
 package com.weirddev.testme.intellij.generator;
 
+import com.weirddev.testme.intellij.configuration.TestMeConfigPersistent;
 import com.weirddev.testme.intellij.template.FileTemplateConfig;
 import com.weirddev.testme.intellij.template.TemplateRegistry;
 import com.weirddev.testme.intellij.template.context.Language;
@@ -27,7 +28,7 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
         doTest("", "Foo", "FooTest", true, false, false, false, 50, false);
     }
     public void testVariousFieldTypes() throws Exception {
-        final FileTemplateConfig fileTemplateConfig = FileTemplateConfig.getInstance();
+        final FileTemplateConfig fileTemplateConfig = new FileTemplateConfig(TestMeConfigPersistent.getInstance().getState());
         fileTemplateConfig.setOptimizeImports(false);
         fileTemplateConfig.setReplaceFqn(false);
         doTest(fileTemplateConfig);
@@ -51,7 +52,7 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
         doTest("", "Foo", "FooTest", true, false, false, false, 50, false);
     }
     public void testInheritance() throws Exception {
-        final FileTemplateConfig fileTemplateConfig = FileTemplateConfig.getInstance();
+        final FileTemplateConfig fileTemplateConfig = new FileTemplateConfig(TestMeConfigPersistent.getInstance().getState());
         fileTemplateConfig.setReformatCode(false);
         fileTemplateConfig.setOptimizeImports(false);
         fileTemplateConfig.setReplaceFqn(false);
@@ -88,7 +89,7 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
         doTest(true, true, false);
     }
     public void testParamsConstructors() throws Exception {
-        final FileTemplateConfig fileTemplateConfig = FileTemplateConfig.getInstance();
+        final FileTemplateConfig fileTemplateConfig = new FileTemplateConfig(TestMeConfigPersistent.getInstance().getState());
         fileTemplateConfig.setReplaceInterfaceParamsWithConcreteTypes(false);
         doTest(fileTemplateConfig);
     }
@@ -139,13 +140,13 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
         doTest(true, true, true);
     }
    public void testMockReturned() throws Exception {
-       doTest(FileTemplateConfig.getInstance());
+       doTest(new FileTemplateConfig(TestMeConfigPersistent.getInstance().getState()));
     }
    public void testAvoidInfiniteRecursionSelfReferences() throws Exception {//todo fix issue with legitimate testable method interpreted as a getter
-       doTest(FileTemplateConfig.getInstance());
+       doTest(new FileTemplateConfig(TestMeConfigPersistent.getInstance().getState()));
     }
     public void testOverrideAbstract() throws Exception {
-        doTest(FileTemplateConfig.getInstance());
+        doTest(new FileTemplateConfig(TestMeConfigPersistent.getInstance().getState()));
     }
 //   public void testWithFinalTypeDependencyMockable() throws Exception {
 //       myFixture.copyDirectoryToProject("resources", "resources"); //issue with setting up a resource folder

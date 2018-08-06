@@ -5,6 +5,7 @@ import com.intellij.ide.fileTemplates.FileTemplateDescriptor;
 import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.psi.*;
 import com.weirddev.testme.intellij.BaseIJIntegrationTest;
+import com.weirddev.testme.intellij.configuration.TestMeConfig;
 import com.weirddev.testme.intellij.template.FileTemplateConfig;
 import com.weirddev.testme.intellij.template.FileTemplateContext;
 import com.weirddev.testme.intellij.template.context.Language;
@@ -77,7 +78,22 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
     }
 
     protected void doTest(final String packageName, String testSubjectClassName, final String expectedTestClassName, final boolean reformatCode, final boolean optimizeImports, final boolean replaceFqn, final boolean ignoreUnusedProperties, final int minPercentOfExcessiveSettersToPreferDefaultCtor, boolean stubMockMethodCallsReturnValues) {
-        doTest(packageName, testSubjectClassName, expectedTestClassName, new FileTemplateConfig(4, reformatCode, replaceFqn, optimizeImports, ignoreUnusedProperties, true, stubMockMethodCallsReturnValues, 2,minPercentOfExcessiveSettersToPreferDefaultCtor,66));
+        final TestMeConfig testMeConfig = new TestMeConfig();
+        testMeConfig.setGenerateTestsForInherited(true);
+        testMeConfig.setOptimizeImports(optimizeImports);
+        testMeConfig.setReformatCode(reformatCode);
+        testMeConfig.setReplaceFullyQualifiedNames(replaceFqn);
+
+        final FileTemplateConfig fileTemplateConfig = new FileTemplateConfig(testMeConfig);
+        fileTemplateConfig.setMaxRecursionDepth(4);
+        fileTemplateConfig.setIgnoreUnusedProperties(ignoreUnusedProperties);
+        fileTemplateConfig.setStubMockMethodCallsReturnValues(stubMockMethodCallsReturnValues);
+        fileTemplateConfig.setMaxNumOfConcreteCandidatesToReplaceInterfaceParam(2);
+        fileTemplateConfig.setMinPercentOfExcessiveSettersToPreferMapCtor(minPercentOfExcessiveSettersToPreferDefaultCtor);
+        fileTemplateConfig.setMinPercentOfInteractionWithPropertiesToTriggerConstructorOptimization(66);
+        fileTemplateConfig.setIgnoreUnusedProperties(ignoreUnusedProperties);
+
+        doTest(packageName, testSubjectClassName, expectedTestClassName, fileTemplateConfig);
     }
 
     protected void doTest(final String packageName, String testSubjectClassName, final String expectedTestClassName, final FileTemplateConfig fileTemplateConfig) {
@@ -89,22 +105,19 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
         final PsiDirectory srcDir = fooClass.getContainingFile().getContainingDirectory();
         final PsiPackage targetPackage = JavaDirectoryService.getInstance().getPackage(srcDir);
 
-        CommandProcessor.getInstance().executeCommand(getProject(), new Runnable() {
-            @Override
-            public void run() {
-                myFixture.openFileInEditor(fooClass.getContainingFile().getVirtualFile());
+        CommandProcessor.getInstance().executeCommand(getProject(), () -> {
+            myFixture.openFileInEditor(fooClass.getContainingFile().getVirtualFile());
 
-                PsiElement result = new TestMeGenerator(new TestClassElementsLocator(), testTemplateContextBuilder,new CodeRefactorUtil()).generateTest(new FileTemplateContext(new FileTemplateDescriptor(templateFilename), language, getProject(),
-                        expectedTestClassName,
-                        targetPackage,
-                        myModule,
-                        myModule,
-                        srcDir,
-                        fooClass,
-                        fileTemplateConfig));
-                System.out.println("result:"+result);
-                verifyGeneratedTest(packageName, expectedTestClassName);
-            }
+            PsiElement result = new TestMeGenerator(new TestClassElementsLocator(), testTemplateContextBuilder,new CodeRefactorUtil()).generateTest(new FileTemplateContext(new FileTemplateDescriptor(templateFilename), language, getProject(),
+                    expectedTestClassName,
+                    targetPackage,
+                    myModule,
+                    myModule,
+                    srcDir,
+                    fooClass,
+                    fileTemplateConfig));
+            System.out.println("result:"+result);
+            verifyGeneratedTest(packageName, expectedTestClassName);
         }, CodeInsightBundle.message("intention.create.test"), this);
     }
 

@@ -1,5 +1,6 @@
 package com.weirddev.testme.intellij.template.context
 
+import com.weirddev.testme.intellij.configuration.TestMeConfig
 import com.weirddev.testme.intellij.template.FileTemplateConfig
 import spock.lang.Specification
 
@@ -11,7 +12,7 @@ class GroovyTestBuilderImplTest extends Specification {
 
     def "test should Prefer Setters Over Ctor"() {
         given:
-        GroovyTestBuilderImpl groovyTestBuilderImpl = new GroovyTestBuilderImpl(null, null, FileTemplateConfig.getInstance(), null, null)
+        GroovyTestBuilderImpl groovyTestBuilderImpl = new GroovyTestBuilderImpl(null, null, new FileTemplateConfig(new TestMeConfig()), null, null)
 
         expect:
         result == groovyTestBuilderImpl.shouldPreferSettersOverCtor(noOfCtorArgs, noOfSetters)
@@ -35,7 +36,7 @@ class GroovyTestBuilderImplTest extends Specification {
 
     def "test should Optimize Constructor Optimization"() {
         given:
-        GroovyTestBuilderImpl groovyTestBuilderImpl = new GroovyTestBuilderImpl(null, null, new FileTemplateConfig(minPercentOfExcessiveSettersToPreferMapCtor: 50,minPercentOfInteractionWithPropertiesToTriggerConstructorOptimization: 66,maxRecursionDepth: 4), null, null)
+        GroovyTestBuilderImpl groovyTestBuilderImpl = new GroovyTestBuilderImpl(null, null, new FileTemplateConfig(new TestMeConfig()), null, null)
 
         expect:
         result == groovyTestBuilderImpl.shouldOptimizeConstructorInitialization(nTotalTypeUsages, nBeanUsages)

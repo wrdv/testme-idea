@@ -6,40 +6,60 @@ package com.weirddev.testme.intellij.configuration;
  * @author Yaron Yamin
  */
 public class TestMeConfig {
-    private Boolean generateTestsForInherited = true;
-    private Boolean reformatCode= true;
-    private Boolean replaceFullyQualifiedNames= true;
-    private Boolean optimizeImports= true;
+    /**
+     * Test generator behavior option. Generate tests for inherited methods
+     * Valid values:true,false
+     * Default:true
+     */
+    private boolean generateTestsForInherited = true;
+    /**
+     * Test generator styling feature. reformat generated test code according to relevant language styling settings in IDEA
+     * Valid values:true,false
+     * Default:true
+     */
+    private boolean reformatCode= true;
+    /**
+     * Test generator styling feature. replace fully qualified class names with import statements where possible in generated test
+     * Valid values:true,false
+     * Default:true
+     */
+    private boolean replaceFullyQualifiedNames= true;
+    /**
+     * Test generator styling feature. optimize imports in generated test
+     * Valid values:true,false
+     * Default:true
+     */
+    private boolean optimizeImports= true;
 
-    public Boolean getGenerateTestsForInherited() {
+    public boolean getGenerateTestsForInherited() {
         return generateTestsForInherited;
     }
 
-    public void setGenerateTestsForInherited(Boolean generateTestsForInherited) {
+    public void setGenerateTestsForInherited(boolean generateTestsForInherited) {
         this.generateTestsForInherited = generateTestsForInherited;
     }
 
-    public Boolean getReformatCode() {
+    public boolean getReformatCode() {
         return reformatCode;
     }
 
-    public void setReformatCode(Boolean reformatCode) {
+    public void setReformatCode(boolean reformatCode) {
         this.reformatCode = reformatCode;
     }
 
-    public Boolean getReplaceFullyQualifiedNames() {
+    public boolean getReplaceFullyQualifiedNames() {
         return replaceFullyQualifiedNames;
     }
 
-    public void setReplaceFullyQualifiedNames(Boolean replaceFullyQualifiedNames) {
+    public void setReplaceFullyQualifiedNames(boolean replaceFullyQualifiedNames) {
         this.replaceFullyQualifiedNames = replaceFullyQualifiedNames;
     }
 
-    public Boolean getOptimizeImports() {
+    public boolean getOptimizeImports() {
         return optimizeImports;
     }
 
-    public void setOptimizeImports(Boolean optimizeImports) {
+    public void setOptimizeImports(boolean optimizeImports) {
         this.optimizeImports = optimizeImports;
     }
 }

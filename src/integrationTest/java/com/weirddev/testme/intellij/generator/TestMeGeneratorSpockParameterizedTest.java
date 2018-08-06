@@ -26,6 +26,6 @@ public class TestMeGeneratorSpockParameterizedTest extends TestMeGeneratorTestBa
         doTest(true,true,true);
     }
 //    public void testMockReturned() throws Exception {
-//        doTest(FileTemplateConfig.getInstance());
+//        doTest(new FileTemplateConfig());
 //    }
 }
