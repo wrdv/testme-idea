@@ -21,6 +21,7 @@ import com.intellij.util.IncorrectOperationException;
 import com.weirddev.testme.intellij.action.helpers.ClassNameSelection;
 import com.weirddev.testme.intellij.action.helpers.GeneratedClassNameResolver;
 import com.weirddev.testme.intellij.action.helpers.TargetDirectoryLocator;
+import com.weirddev.testme.intellij.configuration.TestMeConfigPersistent;
 import com.weirddev.testme.intellij.generator.TestMeGenerator;
 import com.weirddev.testme.intellij.template.FileTemplateConfig;
 import com.weirddev.testme.intellij.template.FileTemplateContext;
@@ -114,7 +115,7 @@ public class CreateTestMeAction extends CreateTestAction {
                     testMeGenerator.generateTest(
                             new FileTemplateContext(
                                     new FileTemplateDescriptor(templateDescriptor.getFilename()),templateDescriptor.getLanguage(),project, classNameSelection.getClassName(), srcPackage, srcModule, finalTestModule,targetDirectory, srcClass,
-                                    FileTemplateConfig.getInstance()
+                                    new FileTemplateConfig(TestMeConfigPersistent.getInstance().getState())
                             )
                     );
                 }

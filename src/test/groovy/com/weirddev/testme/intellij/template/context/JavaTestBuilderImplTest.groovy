@@ -1,5 +1,6 @@
 package com.weirddev.testme.intellij.template.context
 
+import com.weirddev.testme.intellij.configuration.TestMeConfig
 import com.weirddev.testme.intellij.template.FileTemplateConfig
 import com.weirddev.testme.intellij.utils.ClassNameUtils
 import spock.lang.Specification
@@ -18,7 +19,7 @@ class JavaTestBuilderImplTest extends Specification {
                                        "java.util.NavigableMap": "new java.util.TreeMap<TYPES>(new java.util.HashMap<TYPES>(){{put(<VAL>,<VAL>);}})",
                                        "java.util.List"        : "java.util.Arrays.<TYPES>asList(<VAL>)"
     ]
-    def testBuilder = new JavaTestBuilderImpl(null, TestBuilder.ParamRole.Input, FileTemplateConfig.getInstance(), null, null)
+    def testBuilder = new JavaTestBuilderImpl(null, TestBuilder.ParamRole.Input, new FileTemplateConfig(new TestMeConfig()), null, null)
 
     def "stripGenerics"() {
 
