@@ -79,7 +79,7 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
 
     protected void doTest(final String packageName, String testSubjectClassName, final String expectedTestClassName, final boolean reformatCode, final boolean optimizeImports, final boolean replaceFqn, final boolean ignoreUnusedProperties, final int minPercentOfExcessiveSettersToPreferDefaultCtor, boolean stubMockMethodCallsReturnValues) {
         final TestMeConfig testMeConfig = new TestMeConfig();
-        testMeConfig.setGenerateTestsForInherited(true);
+        testMeConfig.setGenerateTestsForInheritedMethods(true);
         testMeConfig.setOptimizeImports(optimizeImports);
         testMeConfig.setReformatCode(reformatCode);
         testMeConfig.setReplaceFullyQualifiedNames(replaceFqn);

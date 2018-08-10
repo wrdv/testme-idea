@@ -1,7 +1,9 @@
 package com.weirddev.testme.intellij.configuration;
 
-import com.intellij.openapi.components.*;
-import org.jetbrains.annotations.Nullable;
+import com.intellij.openapi.components.PersistentStateComponent;
+import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.components.State;
+import com.intellij.openapi.components.Storage;
 
 /**
  * Date: 29/07/2018
@@ -21,7 +23,6 @@ public class TestMeConfigPersistent implements PersistentStateComponent<TestMeCo
         return ServiceManager.getService(TestMeConfigPersistent.class);
     }
 
-    @Nullable
     @Override
     public TestMeConfig getState() {
         synchronized (this) {

@@ -1,11 +1,10 @@
 package com.weirddev.testme.intellij.ui.settings;
 
 import com.intellij.openapi.Disposable;
-import com.weirddev.testme.intellij.configuration.TestMeConfig;
 import com.intellij.openapi.util.Disposer;
+import com.weirddev.testme.intellij.configuration.TestMeConfig;
 
 import javax.swing.*;
-import java.awt.event.ActionListener;
 
 /**
  * Date: 28/07/2018
@@ -30,7 +29,7 @@ public class TestMeSettingsForm implements Disposable {
 
     public void persistState(TestMeConfig testMeConfig) {
         if (testMeConfig != null) {
-            testMeConfig.setGenerateTestsForInherited(generateTestsForInheritedCheckBox.isSelected());
+            testMeConfig.setGenerateTestsForInheritedMethods(generateTestsForInheritedCheckBox.isSelected());
             testMeConfig.setOptimizeImports(optimizeImportsCheckBox.isSelected());
             testMeConfig.setReformatCode(reformatCodeCheckBox.isSelected());
             testMeConfig.setReplaceFullyQualifiedNames(replaceFullyQualifiedNamesCheckBox.isSelected());
@@ -39,7 +38,7 @@ public class TestMeSettingsForm implements Disposable {
 
     public void reset(TestMeConfig state) {
         if (state != null) {
-            generateTestsForInheritedCheckBox.setSelected(state.getGenerateTestsForInherited());
+            generateTestsForInheritedCheckBox.setSelected(state.getGenerateTestsForInheritedMethods());
             optimizeImportsCheckBox.setSelected(state.getOptimizeImports());
             reformatCodeCheckBox.setSelected(state.getReformatCode());
             replaceFullyQualifiedNamesCheckBox.setSelected(state.getReplaceFullyQualifiedNames());
@@ -48,7 +47,7 @@ public class TestMeSettingsForm implements Disposable {
 
     public boolean isDirty(TestMeConfig state) {
         return state != null &&
-                (generateTestsForInheritedCheckBox.isSelected() != state.getGenerateTestsForInherited() ||
+                (generateTestsForInheritedCheckBox.isSelected() != state.getGenerateTestsForInheritedMethods() ||
                         optimizeImportsCheckBox.isSelected() != state.getOptimizeImports() ||
                         reformatCodeCheckBox.isSelected() != state.getReformatCode() ||
                         replaceFullyQualifiedNamesCheckBox.isSelected() != state.getReplaceFullyQualifiedNames()

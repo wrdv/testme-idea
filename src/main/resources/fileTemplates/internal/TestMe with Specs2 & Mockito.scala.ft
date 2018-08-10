@@ -27,7 +27,7 @@ class ${CLASS_NAME} extends Specification #if($hasMocks) with Mockito#end{
 
   "$StringUtils.removeSuffix($TESTED_CLASS.name,"$")" should {
 #foreach($method in $TESTED_CLASS.methods)
-#if($method.isTestable())
+#if($TestSubjectUtils.shouldBeTested($method))
 
       "#renderTestMethodNameAsWords($method.name)" in {
 #if($MockitoMockBuilder.shouldStub($method,$constructor,$scDefaultTypeValues))

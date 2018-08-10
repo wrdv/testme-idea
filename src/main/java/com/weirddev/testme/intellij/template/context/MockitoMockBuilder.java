@@ -64,10 +64,12 @@ public class  MockitoMockBuilder {
      */
     private boolean isMockitoMockMakerInlineOn;
     private boolean stubMockMethodCallsReturnValues;
+    private TestSubjectInspector testSubjectInspector;
 
-    public MockitoMockBuilder(boolean isMockitoMockMakerInlineOn, boolean stubMockMethodCallsReturnValues) {
+    public MockitoMockBuilder(boolean isMockitoMockMakerInlineOn, boolean stubMockMethodCallsReturnValues, TestSubjectInspector testSubjectInspector) {
         this.isMockitoMockMakerInlineOn = isMockitoMockMakerInlineOn;
         this.stubMockMethodCallsReturnValues = stubMockMethodCallsReturnValues;
+        this.testSubjectInspector = testSubjectInspector;
     }
     @SuppressWarnings("unused")
     public boolean isMockable(Field field) {
@@ -164,7 +166,7 @@ public class  MockitoMockBuilder {
                 if (isMockable(testedClassField)) {
                     LOG.debug("field "+testedClassField.getName()+" type "+testedClassField.getType().getCanonicalName()+" type methods:"+testedClassField.getType().getMethods().size());
                     for (Method fieldMethod : testedClassField.getType().getMethods()) {
-                        if (fieldMethod.getReturnType() != null && !"void".equals(fieldMethod.getReturnType().getCanonicalName()) && TestSubjectUtils.isMethodCalled(fieldMethod, testMethod)) {
+                        if (fieldMethod.getReturnType() != null && !"void".equals(fieldMethod.getReturnType().getCanonicalName()) && testSubjectInspector.isMethodCalled(fieldMethod, testMethod)) {
                             shouldStub = true;
                             break;
                         }
@@ -186,7 +188,7 @@ public class  MockitoMockBuilder {
             if (isMockable(param, defaultTypes)) {
                 LOG.debug("ctor param "+param.getName()+" type "+param.getType().getCanonicalName()+" type methods:"+param.getType().getMethods().size());
                 for (Method method : param.getType().getMethods()) {
-                    if (method.getReturnType() != null && !"void".equals(method.getReturnType().getCanonicalName()) && TestSubjectUtils.isMethodCalled(method, testMethod)) {
+                    if (method.getReturnType() != null && !"void".equals(method.getReturnType().getCanonicalName()) && testSubjectInspector.isMethodCalled(method, testMethod)) {
                         shouldStub = true;
                         break;
                     }
@@ -196,8 +198,10 @@ public class  MockitoMockBuilder {
         LOG.debug("method "+testMethod.getMethodId()+" should be stabbed:"+shouldStub);
         return shouldStub;
     }
+/*
+
     public boolean hasStubsReturningScalaFuture(Type testedClass, Map<String,String> defaultTypes) { //todo - probably will not be needed and can be removed
-        Method ctor = TestSubjectUtils.findOptimalConstructor(testedClass);
+        Method ctor = testSubjectInspector.findOptimalConstructor(testedClass);
         if (ctor == null) {
             return false;
         }
@@ -206,7 +210,7 @@ public class  MockitoMockBuilder {
                 for (Param param : ctor.getMethodParams()) {
                     isMockable(param, defaultTypes);
                     for (Method methodOfDependency : param.getType().getMethods()) {
-                        if (TestSubjectUtils.isMethodCalled(methodOfDependency, method) && methodOfDependency.getReturnType() != null && TestSubjectUtils.isScalaFuture(methodOfDependency.getReturnType())) {
+                        if (testSubjectInspector.isMethodCalled(methodOfDependency, method) && methodOfDependency.getReturnType() != null && TestSubjectInspector.isScalaFuture(methodOfDependency.getReturnType())) {
                             return true;
                         }
                     }
@@ -215,6 +219,8 @@ public class  MockitoMockBuilder {
         }
         return false;
     }
+*/
+
     /**
         @return true - if Field should be mocked
      */
@@ -227,4 +233,3 @@ public class  MockitoMockBuilder {
     }
 
 }
-

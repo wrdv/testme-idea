@@ -22,7 +22,7 @@ class ${CLASS_NAME}  extends Specification {
     }
 #end
 #foreach($method in $TESTED_CLASS.methods)
-#if($method.isTestable())
+#if($TestSubjectUtils.shouldBeTested($method))
 
     def "test #renderTestMethodNameAsWords($method.name)"() {
 #if($MockitoMockBuilder.shouldStub($method,$TESTED_CLASS.fields))

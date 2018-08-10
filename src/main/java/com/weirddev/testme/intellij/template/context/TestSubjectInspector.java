@@ -12,9 +12,9 @@ import java.util.*;
  * @author Yaron Yamin
  */
 @SuppressWarnings("unused")
-public class TestSubjectUtils
+public class TestSubjectInspector
 {
-    private static final Logger LOG = Logger.getInstance(TestSubjectUtils.class.getName());
+    private static final Logger LOG = Logger.getInstance(TestSubjectInspector.class.getName());
 
     private static final Set<String> JAVA_FUTURE_TYPES = new HashSet<String>(Arrays.asList("java.util.concurrent.Future", "java.util.concurrent.CompletableFuture", "java.util.concurrent.RunnableFuture",
             "java.util.concurrent.ForkJoinTask.AdaptedRunnableAction", "java.util.concurrent.RunnableScheduledFuture", "java.util.concurrent.ScheduledThreadPoolExecutor.ScheduledFutureTask", "java.util.concurrent.FutureTask",
@@ -22,17 +22,27 @@ public class TestSubjectUtils
             "java.util.concurrent.ForkJoinTask.AdaptedRunnableAction", "java.util.concurrent.CountedCompleter","java.util.concurrent.RecursiveTask", "java.util.concurrent.ForkJoinTask.RunnableExecuteAction",
             "java.util.concurrent.CompletableFuture.AsyncSupply","java.util.concurrent.RecursiveAction","java.util.concurrent.CompletableFuture.Completion","java.util.concurrent.ScheduledFuture", "java.util.concurrent.RunnableScheduledFuture"));
     private static final Set<String> SCALA_FUTURE_TYPES = new HashSet<String>(Arrays.asList("scala.concurrent.Future","scala.concurrent.impl.Promise"));
+    private boolean generateTestsForInheritedMethods;
 
-    public static boolean hasTestableInstanceMethod(List<Method> methods) {
+    public TestSubjectInspector(boolean generateTestsForInheritedMethods) {
+
+        this.generateTestsForInheritedMethods = generateTestsForInheritedMethods;
+    }
+
+    public boolean hasTestableInstanceMethod(List<Method> methods) {
         for (Method method : methods) {
-            if (method.isTestable() && !method.isStatic()) {
+            if (shouldBeTested(method) && !method.isStatic()) {
                 return true;
             }
         }
         return false;
     }
 
-    public static boolean isMethodCalled(Method method, Method byTestedMethod) {
+    public boolean shouldBeTested(Method method) {
+        return method.isTestable() && ( generateTestsForInheritedMethods || !method.isInherited());
+    }
+
+    public boolean isMethodCalled(Method method, Method byTestedMethod) {
         Set<MethodCall> methodCalls = byTestedMethod.getMethodCalls();
         boolean isMethodCalled = false;
         for (MethodCall methodCall : methodCalls) {
@@ -110,7 +120,7 @@ public class TestSubjectUtils
         }
         return isImplements(type, "java.util.concurrent.Future");
     }
-    public static boolean isScalaFuture(Type type) {
+    public boolean isScalaFuture(Type type) {
         for (String javaFutureType : SCALA_FUTURE_TYPES) {
             if (isSameGenericType(type, javaFutureType)) {
                 return true;
@@ -120,15 +130,21 @@ public class TestSubjectUtils
     }
     public boolean hasScalaFutureReturn(List<Method> methods) {
         for (Method method : methods) {
-            if (method.isTestable() && method.hasReturn() && isScalaFuture(method.getReturnType())) {
+            if (shouldBeTested(method) && method.hasReturn() && isScalaFuture(method.getReturnType())) {
                 return true;
             }
         }
         return false;
     }
-    public static @Nullable Method findOptimalConstructor(Type type){
+    public @Nullable Method findOptimalConstructor(Type type){
         final Optional<Method> optPrimaryCtor = Optional.of(type.getMethods()).flatMap(methods -> methods.stream().filter(Method::isPrimaryConstructor).findAny());
         return optPrimaryCtor.orElse(findBiggestValidConstructor(type));
+    }
+    public Set<String> getJavaFutureTypes() {
+        return JAVA_FUTURE_TYPES;
+    }
+    public Set<String> getScalaFutureTypes() {
+        return SCALA_FUTURE_TYPES;
     }
 
     private static @Nullable Method findBiggestValidConstructor(Type type) {
@@ -152,10 +168,5 @@ public class TestSubjectUtils
         return paramNameKeys.size() > 1 || paramNameKeys.size() == 1 && !paramNameKeys.contains(TestBuilder.RESULT_VARIABLE_NAME);
     }
 
-    public static Set<String> getJavaFutureTypes() {
-        return JAVA_FUTURE_TYPES;
-    }
-    public static Set<String> getScalaFutureTypes() {
-        return SCALA_FUTURE_TYPES;
-    }
+
 }
