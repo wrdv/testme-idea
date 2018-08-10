@@ -11,7 +11,7 @@ public class TestMeConfig {
      * Valid values:true,false
      * Default:true
      */
-    private boolean generateTestsForInherited = true;
+    private boolean generateTestsForInheritedMethods = true;
     /**
      * Test generator styling feature. reformat generated test code according to relevant language styling settings in IDEA
      * Valid values:true,false
@@ -31,12 +31,12 @@ public class TestMeConfig {
      */
     private boolean optimizeImports= true;
 
-    public boolean getGenerateTestsForInherited() {
-        return generateTestsForInherited;
+    public boolean getGenerateTestsForInheritedMethods() {
+        return generateTestsForInheritedMethods;
     }
 
-    public void setGenerateTestsForInherited(boolean generateTestsForInherited) {
-        this.generateTestsForInherited = generateTestsForInherited;
+    public void setGenerateTestsForInheritedMethods(boolean generateTestsForInheritedMethods) {
+        this.generateTestsForInheritedMethods = generateTestsForInheritedMethods;
     }
 
     public boolean getReformatCode() {

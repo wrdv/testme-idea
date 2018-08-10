@@ -32,7 +32,6 @@ public class TestTemplateContextBuilder {
         int maxRecursionDepth = context.getFileTemplateConfig().getMaxRecursionDepth();
         ctxtParams.put(TestMeTemplateParams.MAX_RECURSION_DEPTH, maxRecursionDepth);
         ctxtParams.put(TestMeTemplateParams.STRING_UTILS, new StringUtils());
-        ctxtParams.put(TestMeTemplateParams.TEST_SUBJECT_UTILS,new TestSubjectUtils());
         final TypeDictionary typeDictionary = new TypeDictionary(context.getSrcClass(), context.getTargetPackage());
         ctxtParams.put(TestMeTemplateParams.TEST_BUILDER, new TestBuilderImpl(context.getLanguage(), context.getSrcModule(), typeDictionary, context.getFileTemplateConfig()));
         final PsiClass targetClass = context.getSrcClass();
@@ -44,14 +43,15 @@ public class TestTemplateContextBuilder {
                 resolveInternalReferences(maxRecursionDepth, type.getMethods());
             }
         }
-        logger.debug("Resolved internal references in test template context");
-        ctxtParams.put(TestMeTemplateParams.MOCKITO_MOCK_BUILDER, createMockitoMockBuilder(context));
+        final TestSubjectInspector testSubjectInspector = new TestSubjectInspector(context.getFileTemplateConfig().isGenerateTestsForInheritedMethods());
+        ctxtParams.put(TestMeTemplateParams.TEST_SUBJECT_UTILS, testSubjectInspector);
+        ctxtParams.put(TestMeTemplateParams.MOCKITO_MOCK_BUILDER, createMockitoMockBuilder(context, testSubjectInspector));
         logger.debug("Done building Test Template context in "+(new Date().getTime()-start)+" millis");
         return ctxtParams;
     }
 
     @NotNull
-    private MockitoMockBuilder createMockitoMockBuilder(FileTemplateContext context) {
+    private MockitoMockBuilder createMockitoMockBuilder(FileTemplateContext context, TestSubjectInspector testSubjectInspector) {
         boolean found = false;
 //        final VirtualFile mockMakerVFile = ResourceFileUtil.findResourceFileInScope("mockito-extensions/org.mockito.plugins.MockMaker", context.getProject(), context.getTestModule().getModuleWithDependenciesAndLibrariesScope(true));
         final VirtualFile mockMakerVFile = ResourceFileUtil.findResourceFileInDependents(context.getTestModule(), "mockito-extensions/org.mockito.plugins.MockMaker");
@@ -65,7 +65,7 @@ public class TestTemplateContextBuilder {
                 logger.debug("is mock-maker-inline turned on:"+ found);
             }
         }
-        return new MockitoMockBuilder(found,context.getFileTemplateConfig().isStubMockMethodCallsReturnValues());
+        return new MockitoMockBuilder(found,context.getFileTemplateConfig().isStubMockMethodCallsReturnValues(), testSubjectInspector);
     }
 
     void populateDateFields(Map<String, Object> ctxtParams, Calendar calendar) {
@@ -95,6 +95,7 @@ public class TestTemplateContextBuilder {
         for (Method method : methods) {
             resolveFieldsAffectedByCtor(method.getReturnType(),maxMethodCallsDepth);
         }
+        logger.debug("Resolved internal references in test template context");
     }
 
     private void resolveFieldsAffectedByCtor(Type type, int maxMethodCallsDepth) {//todo consider moving to test builder
