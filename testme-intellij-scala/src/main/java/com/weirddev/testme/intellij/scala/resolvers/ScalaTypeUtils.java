@@ -15,4 +15,9 @@ public class ScalaTypeUtils {
         }
         return false;
     }
+
+    public static boolean isEnum(PsiClass psiClass) {
+        return "scala.Enumeration.Value".equals(psiClass.getQualifiedName());
+    }
+
 }

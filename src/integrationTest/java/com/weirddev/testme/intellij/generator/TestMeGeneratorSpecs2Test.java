@@ -77,6 +77,9 @@ public class TestMeGeneratorSpecs2Test extends TestMeGeneratorTestBase   {
     public void testVariousTypesOfArguments() {
         doTest(true,true,false, TestMeGeneratorJunit4Test.MIN_PERCENT_OF_EXCESSIVE_SETTERS_TO_PREFER_DEFAULT_CTOR, true, true);
     }
+    public void testScalaEnumeration() {
+        doTestWithDefaults();
+    }
 //    public void testCollections() throws Exception { //todo testing java collections. not supported properly yet
 //        doTest(false, false, true);
 //    }

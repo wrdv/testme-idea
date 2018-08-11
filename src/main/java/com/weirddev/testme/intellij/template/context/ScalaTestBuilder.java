@@ -17,6 +17,7 @@ import java.util.Map;
 public class ScalaTestBuilder extends JavaTestBuilderImpl {
 
     private static final Logger LOG = Logger.getInstance(ScalaTestBuilder.class.getName());
+    public static final String VALUE_TYPE_SUFFIX = ".Value";
 
     public ScalaTestBuilder(Method testedMethod, TestBuilder.ParamRole paramRole, FileTemplateConfig fileTemplateConfig, Module srcModule, TypeDictionary typeDictionary) {
         super(testedMethod, paramRole, fileTemplateConfig, srcModule, typeDictionary);
@@ -48,6 +49,11 @@ public class ScalaTestBuilder extends JavaTestBuilderImpl {
         if (type.isArray()) {
             testBuilder.append(")");
         }
+    }
+
+    @Override
+    protected void renderEnumValue(StringBuilder testBuilder, String canonicalName, String enumValue) {
+        testBuilder.append(StringUtils.removeSuffix(canonicalName,VALUE_TYPE_SUFFIX)).append(".").append(enumValue);
     }
 
 }

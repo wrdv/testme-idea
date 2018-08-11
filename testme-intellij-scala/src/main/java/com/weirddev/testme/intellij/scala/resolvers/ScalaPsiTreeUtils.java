@@ -14,16 +14,22 @@ import com.weirddev.testme.intellij.scala.utils.GenericsExpressionParser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor;
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement;
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern;
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement;
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement;
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScArgumentExprList;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction;
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition;
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceExpressionImpl;
 import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper;
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper;
@@ -31,6 +37,9 @@ import org.jetbrains.plugins.scala.lang.psi.light.ScPrimaryConstructorWrapper;
 import org.jetbrains.plugins.scala.lang.psi.types.ScParameterizedType;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdType;
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType;
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType;
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult;
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable;
 import scala.Option;
 import scala.collection.Seq;
@@ -105,32 +114,62 @@ public class ScalaPsiTreeUtils {
         return aClass;
     }
 
-    public static String resolveParameterizedCanonicalName(PsiElement typePsiElement) {
-        String canonicalText = null;
-        if (typePsiElement instanceof ScParameterizedTypeElement) {
-            final ScParameterizedTypeElement parameterizedTypeElement = (ScParameterizedTypeElement) typePsiElement; //todo find alternative solution - no supported in future scala plugin versions
-            final ScType scType = extractScType(parameterizedTypeElement);
-            if (scType == null) {
-                return null;
-            } else {
-
-                canonicalText = scType.canonicalText();
-                final String sanitizedRoot = stripRootPrefixFromScalaCanonicalName(canonicalText);
-                return normalizeGenericsRepresentation(sanitizedRoot);
-            }
-        } else if (typePsiElement instanceof ScClass) {
-            final ScClass scClass = (ScClass) typePsiElement;
-            final ScType scType = extractScType(scClass);
-            if (scType!=null) {
-                canonicalText = scType.canonicalText();
-            }
-        }
+    public static String resolveCanonicalName(PsiElement typePsiElement) {
+        String canonicalText = resolveRawCanonicalText(typePsiElement);
         if (null != canonicalText) {
             final String sanitizedRoot = stripRootPrefixFromScalaCanonicalName(canonicalText);
             return normalizeGenericsRepresentation(sanitizedRoot);
         } else {
             return null;
         }
+    }
+
+    @Nullable
+    private static String resolveRawCanonicalText(PsiElement typePsiElement) {
+        if (typePsiElement instanceof ScParameterizedTypeElement) {
+            final ScParameterizedTypeElement parameterizedTypeElement = (ScParameterizedTypeElement) typePsiElement; //todo find alternative solution - no supported in future scala plugin versions
+            final ScType scType = extractScType(parameterizedTypeElement);
+            if (scType != null) {
+                return scType.canonicalText();
+            }
+        } else if (typePsiElement instanceof ScClass) {
+            final ScClass scClass = (ScClass) typePsiElement;
+            final ScType scType = extractScType(scClass);
+            if (scType!=null) {
+                return scType.canonicalText();
+            }
+        } else if (typePsiElement instanceof ScSimpleTypeElement) {
+            final ScSimpleTypeElement scSimpleTypeElement = (ScSimpleTypeElement) typePsiElement;
+            final Option<ScStableCodeReferenceElement> reference = scSimpleTypeElement.reference();
+            if (reference.isDefined()) {
+                final ScStableCodeReferenceElement scStableCodeReferenceElement = reference.get();
+                final PsiElement psiElement = scStableCodeReferenceElement.resolve();
+                if (psiElement instanceof ScTypeAliasDefinition) {
+                    final ScTypeAliasDefinition scTypeAliasDefinition = (ScTypeAliasDefinition) psiElement;
+                    final TypeResult<ScType> scTypeResult = scTypeAliasDefinition.aliasedType();
+                    if (scTypeResult.isDefined()) {
+                        final ScType scType = scTypeResult.get();
+//                        if (scType instanceof ScProjectionType) {
+//                            final ScType projectedType = ((ScProjectionType) scType).projected();
+//                            if (projectedType instanceof ScThisType) {
+//                                final ScTemplateDefinition scTemplateDefinition = ((ScThisType) projectedType).element();
+//                                if (scTemplateDefinition instanceof ScTypeDefinition) {
+//                                    final ScTypeDefinition scTypeDefinition = (ScTypeDefinition) scTemplateDefinition;
+//                                    final String qualifiedName = scTypeDefinition.getQualifiedName();
+//                                }
+//                            }
+//                        }
+                        return scType.canonicalText();
+                    }
+                }
+            }
+//            if (scSimpleTypeElement.text().equals("WeekDay")) {
+//                final String canonicalText = "com.example.scala.WeekDay";
+//                final PsiClass psiClass = resolvePsiClass(typePsiElement, canonicalText);
+//                return canonicalText;
+//            }
+        }
+        return null;
     }
 
     public static String resolveCanonicalNameOfObject(Object typeElement) {
@@ -284,7 +323,7 @@ public class ScalaPsiTreeUtils {
     private static List<PsiClass> resolveComposedTypes(PsiType psiType, PsiElement typePsiElement) {
         final List<PsiClass> psiClasses = new ArrayList<PsiClass>();
         if (typePsiElement instanceof ScParameterizedTypeElement) {
-            String canonicalName = resolveParameterizedCanonicalName(typePsiElement);
+            String canonicalName = resolveCanonicalName(typePsiElement);
             final ArrayList<String> genericTypes = GenericsExpressionParser.extractGenericTypes(canonicalName);
             for (String genericType : genericTypes) {
                 if (genericType.length() > 0) {
@@ -359,4 +398,37 @@ public class ScalaPsiTreeUtils {
         return null;
     }
 
+    public static List<String> resolveEnumValues(PsiClass psiClass, Object typePsiElement) {
+        List<String> enumValues = new ArrayList<>();
+        if (typePsiElement instanceof ScSimpleTypeElement) {
+            final ScSimpleTypeElement scSimpleTypeElement = (ScSimpleTypeElement) typePsiElement;
+            final Option<ScStableCodeReferenceElement> reference = scSimpleTypeElement.reference();
+            if (reference.isDefined()) {
+                final ScStableCodeReferenceElement scStableCodeReferenceElement = reference.get();
+                final PsiElement psiElement = scStableCodeReferenceElement.resolve();
+                if (psiElement instanceof ScTypeAliasDefinition) {
+                    final ScTypeAliasDefinition scTypeAliasDefinition = (ScTypeAliasDefinition) psiElement;
+                    final TypeResult<ScType> scTypeResult = scTypeAliasDefinition.aliasedType();
+                    if (scTypeResult.isDefined()) {
+                        final ScType scType = scTypeResult.get();
+//                        final String canonicalText = scType.canonicalText();
+                        if (scType instanceof ScProjectionType) {
+                            final ScType projectedType = ((ScProjectionType) scType).projected();
+                            if (projectedType instanceof ScThisType) {
+                                final ScTemplateDefinition scTemplateDefinition = ((ScThisType) projectedType).element();
+                                if (scTemplateDefinition instanceof ScObject) {
+                                    final ScObject scObject = (ScObject) scTemplateDefinition;
+                                    final Collection<ScReferencePattern> scReferencePatterns = PsiTreeUtil.findChildrenOfType(scObject, ScReferencePattern.class);
+                                    for (ScReferencePattern scReferencePattern : scReferencePatterns) {
+                                        enumValues.add(scReferencePattern.getName());
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return enumValues;
+    }
 }

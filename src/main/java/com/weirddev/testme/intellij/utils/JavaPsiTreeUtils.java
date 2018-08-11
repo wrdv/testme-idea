@@ -1,9 +1,12 @@
 package com.weirddev.testme.intellij.utils;
 import com.intellij.psi.*;
 import com.intellij.psi.util.PsiTreeUtil;
+import com.weirddev.testme.intellij.common.utils.LanguageUtils;
 import com.weirddev.testme.intellij.resolvers.to.MethodCallArg;
 import com.weirddev.testme.intellij.resolvers.to.ResolvedMethodCall;
 import com.weirddev.testme.intellij.resolvers.to.ResolvedReference;
+import com.weirddev.testme.intellij.scala.resolvers.ScalaPsiTreeUtils;
+import com.weirddev.testme.intellij.scala.resolvers.ScalaTypeUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -82,5 +85,40 @@ public class JavaPsiTreeUtils {
             }
         }
         return methodCalled;
+    }
+
+    public static boolean resolveIfEnum(PsiClass psiClass) {
+        if (psiClass != null) {
+            if(LanguageUtils.isScala(psiClass.getLanguage()) && ScalaTypeUtils.isEnum(psiClass)){
+                 return true;
+            }
+            else return psiClass.isEnum();
+        }
+        return false;
+    }
+
+    public static List<String> resolveEnumValues(PsiClass psiClass, Object typePsiElement) {
+        if (psiClass!=null && typePsiElement!=null && LanguageUtils.isScala(psiClass.getLanguage()) && ScalaTypeUtils.isEnum(psiClass) ) {
+            return ScalaPsiTreeUtils.resolveEnumValues(psiClass,typePsiElement);
+        } else {
+            return resolveJavaEnumValues(psiClass);
+        }
+    }
+
+    @NotNull
+    private static List<String> resolveJavaEnumValues(PsiClass psiClass) {
+        List<String> enumValues = new ArrayList<>();
+        if (resolveIfEnum(psiClass)) {
+            for (PsiField field : psiClass.getFields()) {
+                if (field instanceof PsiEnumConstant) {
+                    final PsiEnumConstant enumConstant = (PsiEnumConstant) field;
+                    final PsiEnumConstantInitializer initializingClass = enumConstant.getInitializingClass();
+                    if (initializingClass == null) {
+                        enumValues.add(enumConstant.getName());
+                    }
+                }
+            }
+        }
+        return enumValues;
     }
 }
