@@ -83,7 +83,8 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
         } else if (TestBuilderUtil.isStringType(canonicalName)) {
             testBuilder.append("\"").append(resolveStringValue(paramNode)).append("\"");
         } else if (type.getEnumValues().size() > 0) {
-            testBuilder.append(canonicalName).append(".").append(type.getEnumValues().get(0));
+            final String enumValue = type.getEnumValues().get(0);
+            renderEnumValue(testBuilder, canonicalName, enumValue);
         } else {
             final Type resolvedType=resolveChildTypeIfNeeded(type,fileTemplateConfig.getMaxRecursionDepth());
             if (!resolvedType.equals(type)) {
@@ -130,6 +131,10 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
                 testBuilder.append("null");
             }
         }
+    }
+
+    protected void renderEnumValue(StringBuilder testBuilder, String canonicalName, String enumValue) {
+        testBuilder.append(canonicalName).append(".").append(enumValue);
     }
 
     private String resolveStringValue(Node<Param> paramNode) {

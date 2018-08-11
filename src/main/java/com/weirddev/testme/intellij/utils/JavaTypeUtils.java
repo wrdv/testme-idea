@@ -19,7 +19,7 @@ public class JavaTypeUtils {
         if (typeElement instanceof PsiElement) {
             final PsiElement psiTypeElement = (PsiElement) typeElement;
             if (LanguageUtils.isScala(psiTypeElement.getLanguage())) {
-                scalaCanonicalName = ScalaPsiTreeUtils.resolveParameterizedCanonicalName(psiTypeElement);
+                scalaCanonicalName = ScalaPsiTreeUtils.resolveCanonicalName(psiTypeElement);
             }
         }
         else if (typeElement != null && LanguageUtils.isScalaPluginObject(typeElement)) {

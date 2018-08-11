@@ -8,6 +8,7 @@ import com.weirddev.testme.intellij.scala.resolvers.ScalaPsiTreeUtils;
 import com.weirddev.testme.intellij.scala.resolvers.ScalaTypeUtils;
 import com.weirddev.testme.intellij.template.TypeDictionary;
 import com.weirddev.testme.intellij.utils.ClassNameUtils;
+import com.weirddev.testme.intellij.utils.JavaPsiTreeUtils;
 import com.weirddev.testme.intellij.utils.JavaTypeUtils;
 import com.weirddev.testme.intellij.utils.PropertyUtils;
 import org.jetbrains.annotations.NotNull;
@@ -86,14 +87,14 @@ public class Type {
         isPrimitive = psiType instanceof PsiPrimitiveType;
         composedTypes = resolveTypes(psiType, typePsiElement,typeDictionary, maxRecursionDepth);
         PsiClass psiClass = PsiUtil.resolveClassInType(psiType);
-        isEnum = psiClass != null && psiClass.isEnum();
+        isEnum = JavaPsiTreeUtils.resolveIfEnum(psiClass);
         isInterface = psiClass != null && psiClass.isInterface();
         isAbstract = psiClass != null && psiClass.getModifierList() != null && psiClass.getModifierList().hasModifierProperty(PsiModifier.ABSTRACT);
         isStatic = hasModifier(psiClass, PsiModifier.STATIC) || psiClass!=null && "org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScObjectImpl".equals(psiClass.getClass().getCanonicalName());
         parentContainerClass = psiClass != null && psiClass.getParent() != null && psiClass.getParent() instanceof PsiClass && typeDictionary != null ? typeDictionary.getType(resolveType((PsiClass) psiClass.getParent()), maxRecursionDepth,
                 false) : null;
         fields = new ArrayList<Field>();
-        enumValues = resolveEnumValues(psiClass);
+        enumValues = JavaPsiTreeUtils.resolveEnumValues(psiClass,typePsiElement);
         dependenciesResolvable = shouldResolveAllMethods && maxRecursionDepth > 1;
         methods = new ArrayList<Method>();
         isFinal = isFinalType(psiClass);
@@ -105,7 +106,7 @@ public class Type {
         array = ClassNameUtils.isArray(canonicalText);
         varargs = ClassNameUtils.isVarargs(canonicalText);
         canonicalName = ClassNameUtils.stripArrayVarargsDesignator(canonicalText);
-        name = ClassNameUtils.extractClassName(ClassNameUtils.stripArrayVarargsDesignator(psiClass.getQualifiedName()));
+        name = psiClass.getQualifiedName() == null ? null : ClassNameUtils.extractClassName(ClassNameUtils.stripArrayVarargsDesignator(psiClass.getQualifiedName()));
         packageName = ClassNameUtils.extractPackageName(canonicalName);
         isPrimitive = psiClass instanceof PsiPrimitiveType;
         composedTypes = new ArrayList<Type>();
@@ -116,7 +117,7 @@ public class Type {
         parentContainerClass = psiClass.getParent() != null && psiClass.getParent() instanceof PsiClass && typeDictionary != null ? typeDictionary.getType(resolveType((PsiClass) psiClass.getParent()), maxRecursionDepth,
                 false) : null;
         fields = new ArrayList<Field>();
-        enumValues = resolveEnumValues(psiClass);
+        enumValues = JavaPsiTreeUtils.resolveEnumValues(psiClass, null);
         dependenciesResolvable = shouldResolveAllMethods && maxRecursionDepth > 1;
         methods = new ArrayList<Method>();
         isFinal = isFinalType(psiClass);
@@ -177,22 +178,6 @@ public class Type {
         }
         final PsiParameter psiParameter = parameters[0];
         return "groovy.lang.MetaClass".equals(psiParameter.getType().getCanonicalText()) && "metaClass".equals(psiParameter.getName());
-    }
-
-    private static List<String> resolveEnumValues(PsiClass psiClass) {
-        List<String> enumValues = new ArrayList<String>();
-        if (psiClass != null && psiClass.isEnum()) {
-            for (PsiField field : psiClass.getFields()) {
-                if (field instanceof PsiEnumConstant) {
-                    final PsiEnumConstant enumConstant = (PsiEnumConstant) field;
-                    final PsiEnumConstantInitializer initializingClass = enumConstant.getInitializingClass();
-                    if (initializingClass == null) {
-                        enumValues.add(enumConstant.getName());
-                    }
-                }
-            }
-        }
-        return enumValues;
     }
 
     private List<Type> resolveTypes(PsiType psiType, Object typeElement, TypeDictionary typeDictionary, int maxRecursionDepth) {
