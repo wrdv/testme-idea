@@ -23,7 +23,7 @@ public class JavaTypeUtils {
             }
         }
         else if (typeElement != null && LanguageUtils.isScalaPluginObject(typeElement)) {
-            scalaCanonicalName = ScalaPsiTreeUtils.resolveCanonicalNameOfObject(typeElement);
+            scalaCanonicalName = ScalaPsiTreeUtils.resolveCanonicalNameOfObject(typeElement,psiElement);
         }
         if (scalaCanonicalName == null) {
             if (psiElement instanceof PsiType) {

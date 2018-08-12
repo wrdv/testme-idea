@@ -7,7 +7,7 @@ class FooTest extends Specification {
   "Foo" should {
 
     "beam Me Up" in {
-      val result = foo.beamMeUp(com.example.scala.Planet.Mars, com.example.scala.WeekDay.Mon, Some(com.example.scala.WeekDay.Fri))
+      val result = foo.beamMeUp(com.example.scala.Planet.Mars, com.example.scala.WeekDay.Mon, Some(com.example.scala.WeekDay.Mon))
       result === "replaceMeWithExpectedResult"
     }
 

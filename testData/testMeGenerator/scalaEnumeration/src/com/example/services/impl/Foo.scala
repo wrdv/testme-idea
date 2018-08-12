@@ -1,6 +1,5 @@
 package com.example.services.impl
 
-
 class Foo(weekDay: WeekDay){
   //  <caret>
   def beamMeUp(planet:Planet.Value,shoppingDay:WeekDay, optWeekDay:Option[WeekDay]): String ={
