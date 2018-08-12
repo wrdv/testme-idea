@@ -57,6 +57,8 @@ import java.util.List;
  */
 public class ScalaPsiTreeUtils {
     private static final Logger LOG = Logger.getInstance(ScalaPsiTreeUtils.class.getName());
+    private static final String TYPE_SUFFIX_IN_RAW_CANONICAL_NAME = ".type";
+
     public static PsiParameter[] resolveParameters(PsiMethod psiMethod) {
         PsiParameter[] psiParameters = null;
         if (psiMethod instanceof ScPrimaryConstructorWrapper) { //todo revise implementation
@@ -115,82 +117,11 @@ public class ScalaPsiTreeUtils {
     }
 
     public static String resolveCanonicalName(PsiElement typePsiElement) {
-        String canonicalText = resolveRawCanonicalText(typePsiElement);
-        if (null != canonicalText) {
-            final String sanitizedRoot = stripRootPrefixFromScalaCanonicalName(canonicalText);
-            return normalizeGenericsRepresentation(sanitizedRoot);
-        } else {
-            return null;
-        }
+        return normalizeRawCanonicalName(resolveRawCanonicalText(typePsiElement));
     }
 
-    @Nullable
-    private static String resolveRawCanonicalText(PsiElement typePsiElement) {
-        if (typePsiElement instanceof ScParameterizedTypeElement) {
-            final ScParameterizedTypeElement parameterizedTypeElement = (ScParameterizedTypeElement) typePsiElement; //todo find alternative solution - no supported in future scala plugin versions
-            final ScType scType = extractScType(parameterizedTypeElement);
-            if (scType != null) {
-                return scType.canonicalText();
-            }
-        } else if (typePsiElement instanceof ScClass) {
-            final ScClass scClass = (ScClass) typePsiElement;
-            final ScType scType = extractScType(scClass);
-            if (scType!=null) {
-                return scType.canonicalText();
-            }
-        } else if (typePsiElement instanceof ScSimpleTypeElement) {
-            final ScSimpleTypeElement scSimpleTypeElement = (ScSimpleTypeElement) typePsiElement;
-            final Option<ScStableCodeReferenceElement> reference = scSimpleTypeElement.reference();
-            if (reference.isDefined()) {
-                final ScStableCodeReferenceElement scStableCodeReferenceElement = reference.get();
-                final PsiElement psiElement = scStableCodeReferenceElement.resolve();
-                if (psiElement instanceof ScTypeAliasDefinition) {
-                    final ScTypeAliasDefinition scTypeAliasDefinition = (ScTypeAliasDefinition) psiElement;
-                    final TypeResult<ScType> scTypeResult = scTypeAliasDefinition.aliasedType();
-                    if (scTypeResult.isDefined()) {
-                        final ScType scType = scTypeResult.get();
-//                        if (scType instanceof ScProjectionType) {
-//                            final ScType projectedType = ((ScProjectionType) scType).projected();
-//                            if (projectedType instanceof ScThisType) {
-//                                final ScTemplateDefinition scTemplateDefinition = ((ScThisType) projectedType).element();
-//                                if (scTemplateDefinition instanceof ScTypeDefinition) {
-//                                    final ScTypeDefinition scTypeDefinition = (ScTypeDefinition) scTemplateDefinition;
-//                                    final String qualifiedName = scTypeDefinition.getQualifiedName();
-//                                }
-//                            }
-//                        }
-                        return scType.canonicalText();
-                    }
-                }
-            }
-//            if (scSimpleTypeElement.text().equals("WeekDay")) {
-//                final String canonicalText = "com.example.scala.WeekDay";
-//                final PsiClass psiClass = resolvePsiClass(typePsiElement, canonicalText);
-//                return canonicalText;
-//            }
-        }
-        return null;
-    }
-
-    public static String resolveCanonicalNameOfObject(Object typeElement) {
-        String canonicalText = null;
-        if (typeElement instanceof ScParameterizedType) {
-            final ScParameterizedType scParameterizedType = (ScParameterizedType) typeElement;
-            canonicalText = scParameterizedType.canonicalText();
-            final String designatorCanonicalText = scParameterizedType.designator().canonicalText();
-            if (canonicalText.startsWith("(") && canonicalText.endsWith(")")) {
-                canonicalText = designatorCanonicalText + ("<"+canonicalText.substring(1, canonicalText.length() - 1)+">");
-            }
-        } else if(typeElement instanceof ScType){
-            final ScType scType = (ScType) typeElement;
-            if (scType instanceof StdType) {
-                canonicalText = ((StdType) scType).fullName();
-            } else {
-                canonicalText = scType.canonicalText();
-            }
-        }
-        canonicalText = stripRootPrefixFromScalaCanonicalName(canonicalText);
-        return normalizeGenericsRepresentation(canonicalText);
+    public static String resolveCanonicalNameOfObject(Object typeElement, Object psiElement) {
+        return normalizeRawCanonicalName(resolveRawCanonicalTextOfObject(typeElement,psiElement));
     }
 
     public static List<Object> resolveComposedTypeElementsForObject(PsiType psiType, Object typeElement) {
@@ -291,6 +222,86 @@ public class ScalaPsiTreeUtils {
             }
         }
         return methodCalled;
+    }
+    private static String normalizeRawCanonicalName(String canonicalText) {
+        if (null != canonicalText) {
+            final String sanitizedRoot = stripRootPrefixFromScalaCanonicalName(canonicalText);
+            return normalizeGenericsRepresentation(sanitizedRoot);
+        } else {
+            return null;
+        }
+    }
+
+    @Nullable
+    private static String resolveRawCanonicalText(PsiElement typePsiElement) {
+        if (typePsiElement instanceof ScParameterizedTypeElement) {
+            final ScParameterizedTypeElement parameterizedTypeElement = (ScParameterizedTypeElement) typePsiElement; //todo find alternative solution - not supported in future scala plugin versions
+            final ScType scType = extractScType(parameterizedTypeElement);
+            if (scType != null) {
+                return scType.canonicalText();
+            }
+        } else if (typePsiElement instanceof ScClass) {
+            final ScClass scClass = (ScClass) typePsiElement;
+            final ScType scType = extractScType(scClass);
+            if (scType!=null) {
+                return scType.canonicalText();
+            }
+        } else if (typePsiElement instanceof ScSimpleTypeElement) {
+            final ScSimpleTypeElement scSimpleTypeElement = (ScSimpleTypeElement) typePsiElement;
+            final Option<ScStableCodeReferenceElement> reference = scSimpleTypeElement.reference();
+            if (reference.isDefined()) {
+                final ScStableCodeReferenceElement scStableCodeReferenceElement = reference.get();
+                final PsiElement psiElement = scStableCodeReferenceElement.resolve();
+                if (psiElement instanceof ScTypeAliasDefinition) {
+                    return resolveRawCanonicalTextFromAlias((ScTypeAliasDefinition) psiElement);
+                }
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    private static String resolveRawCanonicalTextFromAlias(ScTypeAliasDefinition scTypeAliasDefinition) {
+        final TypeResult<ScType> scTypeResult = scTypeAliasDefinition.aliasedType();
+        if (scTypeResult.isDefined()) {
+            final ScType scType = scTypeResult.get();
+            return scType.canonicalText();
+        }
+        else {
+            return null;
+        }
+    }
+
+    @Nullable
+    private static String resolveRawCanonicalTextOfObject(Object typeElement, Object psiElement) {
+        String canonicalText = null;
+        if (typeElement instanceof ScParameterizedType) {
+            final ScParameterizedType scParameterizedType = (ScParameterizedType) typeElement;
+            canonicalText = scParameterizedType.canonicalText();
+            final String designatorCanonicalText = scParameterizedType.designator().canonicalText();
+            if (canonicalText.startsWith("(") && canonicalText.endsWith(")")) {
+                canonicalText = designatorCanonicalText + ("<"+canonicalText.substring(1, canonicalText.length() - 1)+">");
+            }
+        } else if(typeElement instanceof ScProjectionType && psiElement instanceof PsiType && ScalaTypeUtils.isEnum((PsiType) psiElement)){
+            final PsiNamedElement psiNamedElement = ((ScProjectionType) typeElement).actualElement();
+            if (psiNamedElement instanceof ScTypeAliasDefinition) {
+                final String enumRawCanonicalText = resolveRawCanonicalTextFromAlias(((ScTypeAliasDefinition) psiNamedElement));
+                if (enumRawCanonicalText != null && enumRawCanonicalText.endsWith(TYPE_SUFFIX_IN_RAW_CANONICAL_NAME)) {
+                    canonicalText = enumRawCanonicalText.substring(0, enumRawCanonicalText.length() - TYPE_SUFFIX_IN_RAW_CANONICAL_NAME.length()) + ".Value";
+                }
+                else {
+                    canonicalText = enumRawCanonicalText;
+                }
+            }
+        } else if(typeElement instanceof ScType){
+            final ScType scType = (ScType) typeElement;
+            if (scType instanceof StdType) {
+                canonicalText = ((StdType) scType).fullName();
+            } else {
+                canonicalText = scType.canonicalText();
+            }
+        }
+        return canonicalText;
     }
 
     private static String normalizeGenericsRepresentation(String sanitizedRoot) {
@@ -399,7 +410,6 @@ public class ScalaPsiTreeUtils {
     }
 
     public static List<String> resolveEnumValues(PsiClass psiClass, Object typePsiElement) {
-        List<String> enumValues = new ArrayList<>();
         if (typePsiElement instanceof ScSimpleTypeElement) {
             final ScSimpleTypeElement scSimpleTypeElement = (ScSimpleTypeElement) typePsiElement;
             final Option<ScStableCodeReferenceElement> reference = scSimpleTypeElement.reference();
@@ -407,23 +417,33 @@ public class ScalaPsiTreeUtils {
                 final ScStableCodeReferenceElement scStableCodeReferenceElement = reference.get();
                 final PsiElement psiElement = scStableCodeReferenceElement.resolve();
                 if (psiElement instanceof ScTypeAliasDefinition) {
-                    final ScTypeAliasDefinition scTypeAliasDefinition = (ScTypeAliasDefinition) psiElement;
-                    final TypeResult<ScType> scTypeResult = scTypeAliasDefinition.aliasedType();
-                    if (scTypeResult.isDefined()) {
-                        final ScType scType = scTypeResult.get();
-//                        final String canonicalText = scType.canonicalText();
-                        if (scType instanceof ScProjectionType) {
-                            final ScType projectedType = ((ScProjectionType) scType).projected();
-                            if (projectedType instanceof ScThisType) {
-                                final ScTemplateDefinition scTemplateDefinition = ((ScThisType) projectedType).element();
-                                if (scTemplateDefinition instanceof ScObject) {
-                                    final ScObject scObject = (ScObject) scTemplateDefinition;
-                                    final Collection<ScReferencePattern> scReferencePatterns = PsiTreeUtil.findChildrenOfType(scObject, ScReferencePattern.class);
-                                    for (ScReferencePattern scReferencePattern : scReferencePatterns) {
-                                        enumValues.add(scReferencePattern.getName());
-                                    }
-                                }
-                            }
+                    return resolveEnumFieldsFromTypeAlias((ScTypeAliasDefinition) psiElement);
+                }
+            }
+        }
+        else if (typePsiElement instanceof ScProjectionType) {
+            final PsiNamedElement element = ((ScProjectionType) typePsiElement).element();
+            if (element instanceof ScTypeAliasDefinition) {
+                return resolveEnumFieldsFromTypeAlias((ScTypeAliasDefinition) element);
+            }
+        }
+        return new ArrayList<>();
+    }
+
+    private static List<String> resolveEnumFieldsFromTypeAlias(ScTypeAliasDefinition scTypeAliasDefinition) {
+        List<String> enumValues = new ArrayList<>();
+        final TypeResult<ScType> scTypeResult = scTypeAliasDefinition.aliasedType();
+        if (scTypeResult.isDefined()) {
+            final ScType scType = scTypeResult.get();
+            if (scType instanceof ScProjectionType) {
+                final ScType projectedType = ((ScProjectionType) scType).projected();
+                if (projectedType instanceof ScThisType) {
+                    final ScTemplateDefinition scTemplateDefinition = ((ScThisType) projectedType).element();
+                    if (scTemplateDefinition instanceof ScObject) {
+                        final ScObject scObject = (ScObject) scTemplateDefinition;
+                        final Collection<ScReferencePattern> scReferencePatterns = PsiTreeUtil.findChildrenOfType(scObject, ScReferencePattern.class);
+                        for (ScReferencePattern scReferencePattern : scReferencePatterns) {
+                            enumValues.add(scReferencePattern.getName());
                         }
                     }
                 }
@@ -431,4 +451,5 @@ public class ScalaPsiTreeUtils {
         }
         return enumValues;
     }
+
 }
