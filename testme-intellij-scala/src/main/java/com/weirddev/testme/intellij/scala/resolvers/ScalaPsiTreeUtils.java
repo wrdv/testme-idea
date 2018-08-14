@@ -37,6 +37,7 @@ import org.jetbrains.plugins.scala.lang.psi.light.ScPrimaryConstructorWrapper;
 import org.jetbrains.plugins.scala.lang.psi.types.ScParameterizedType;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdType;
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType;
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType;
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType;
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult;
@@ -283,15 +284,12 @@ public class ScalaPsiTreeUtils {
                 canonicalText = designatorCanonicalText + ("<"+canonicalText.substring(1, canonicalText.length() - 1)+">");
             }
         } else if(typeElement instanceof ScProjectionType && psiElement instanceof PsiType && ScalaTypeUtils.isEnum((PsiType) psiElement)){
-            final PsiNamedElement psiNamedElement = ((ScProjectionType) typeElement).actualElement();
+            final ScProjectionType scProjectionType = (ScProjectionType) typeElement;
+            final PsiNamedElement psiNamedElement = scProjectionType.actualElement();
             if (psiNamedElement instanceof ScTypeAliasDefinition) {
-                final String enumRawCanonicalText = resolveRawCanonicalTextFromAlias(((ScTypeAliasDefinition) psiNamedElement));
-                if (enumRawCanonicalText != null && enumRawCanonicalText.endsWith(TYPE_SUFFIX_IN_RAW_CANONICAL_NAME)) {
-                    canonicalText = enumRawCanonicalText.substring(0, enumRawCanonicalText.length() - TYPE_SUFFIX_IN_RAW_CANONICAL_NAME.length()) + ".Value";
-                }
-                else {
-                    canonicalText = enumRawCanonicalText;
-                }
+                canonicalText = normalizeEnumCanonicalNameSuffix(resolveRawCanonicalTextFromAlias(((ScTypeAliasDefinition) psiNamedElement)));
+            } else if (scProjectionType.projected() instanceof ScDesignatorType) {
+                canonicalText = normalizeEnumCanonicalNameSuffix(scProjectionType.projected().canonicalText());
             }
         } else if(typeElement instanceof ScType){
             final ScType scType = (ScType) typeElement;
@@ -302,6 +300,16 @@ public class ScalaPsiTreeUtils {
             }
         }
         return canonicalText;
+    }
+
+    @Nullable
+    private static String normalizeEnumCanonicalNameSuffix(String enumRawCanonicalText) {
+        if (enumRawCanonicalText != null && enumRawCanonicalText.endsWith(TYPE_SUFFIX_IN_RAW_CANONICAL_NAME)) {
+            return enumRawCanonicalText.substring(0, enumRawCanonicalText.length() - TYPE_SUFFIX_IN_RAW_CANONICAL_NAME.length()) + ".Value";
+        }
+        else {
+            return enumRawCanonicalText;
+        }
     }
 
     private static String normalizeGenericsRepresentation(String sanitizedRoot) {
@@ -409,7 +417,7 @@ public class ScalaPsiTreeUtils {
         return null;
     }
 
-    public static List<String> resolveEnumValues(PsiClass psiClass, Object typePsiElement) {
+    public static List<String> resolveEnumValues(Object typePsiElement) {
         if (typePsiElement instanceof ScSimpleTypeElement) {
             final ScSimpleTypeElement scSimpleTypeElement = (ScSimpleTypeElement) typePsiElement;
             final Option<ScStableCodeReferenceElement> reference = scSimpleTypeElement.reference();
@@ -425,13 +433,18 @@ public class ScalaPsiTreeUtils {
             final PsiNamedElement element = ((ScProjectionType) typePsiElement).element();
             if (element instanceof ScTypeAliasDefinition) {
                 return resolveEnumFieldsFromTypeAlias((ScTypeAliasDefinition) element);
+            } else if (((ScProjectionType) typePsiElement).projected() instanceof ScDesignatorType) {
+                final ScDesignatorType projected = (ScDesignatorType) ((ScProjectionType) typePsiElement).projected();
+                final PsiNamedElement namedElement = projected.element();
+                if (namedElement instanceof ScObject) {
+                    return resolveEnumFieldsFromEnumObject((ScObject) namedElement);
+                }
             }
         }
         return new ArrayList<>();
     }
 
     private static List<String> resolveEnumFieldsFromTypeAlias(ScTypeAliasDefinition scTypeAliasDefinition) {
-        List<String> enumValues = new ArrayList<>();
         final TypeResult<ScType> scTypeResult = scTypeAliasDefinition.aliasedType();
         if (scTypeResult.isDefined()) {
             final ScType scType = scTypeResult.get();
@@ -440,14 +453,19 @@ public class ScalaPsiTreeUtils {
                 if (projectedType instanceof ScThisType) {
                     final ScTemplateDefinition scTemplateDefinition = ((ScThisType) projectedType).element();
                     if (scTemplateDefinition instanceof ScObject) {
-                        final ScObject scObject = (ScObject) scTemplateDefinition;
-                        final Collection<ScReferencePattern> scReferencePatterns = PsiTreeUtil.findChildrenOfType(scObject, ScReferencePattern.class);
-                        for (ScReferencePattern scReferencePattern : scReferencePatterns) {
-                            enumValues.add(scReferencePattern.getName());
-                        }
+                        return resolveEnumFieldsFromEnumObject((ScObject) scTemplateDefinition);
                     }
                 }
             }
+        }
+        return new ArrayList<>();
+    }
+
+    private static List<String> resolveEnumFieldsFromEnumObject(ScObject scObject) {
+        List<String> enumValues = new ArrayList<>();
+        final Collection<ScReferencePattern> scReferencePatterns = PsiTreeUtil.findChildrenOfType(scObject, ScReferencePattern.class);
+        for (ScReferencePattern scReferencePattern : scReferencePatterns) {
+            enumValues.add(scReferencePattern.getName());
         }
         return enumValues;
     }

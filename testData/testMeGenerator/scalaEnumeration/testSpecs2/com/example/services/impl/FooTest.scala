@@ -1,7 +1,5 @@
 package com.example.services.impl
 
-import org.specs2.mutable.Specification
-
 /** created by TestMe integration test on MMXVI */
 class FooTest extends Specification {
   val foo = new Foo(com.example.scala.WeekDay.Mon)
@@ -9,7 +7,7 @@ class FooTest extends Specification {
   "Foo" should {
 
     "beam Me Up" in {
-      val result = foo.beamMeUp(com.example.scala.Planet.Mars, com.example.scala.WeekDay.Mon, Some(com.example.scala.WeekDay.Mon))
+      val result = foo.beamMeUp(com.example.scala.Planet.G, com.example.scala.WeekDay.Mon, Some(com.example.scala.WeekDay.Mon))
       result === "replaceMeWithExpectedResult"
     }
 
