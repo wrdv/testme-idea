@@ -1,5 +1,6 @@
 package com.example.services.impl
 
+import com.example.scala.{DayInAWeek, SolarSystemPlanets}
 
 class Foo(fromPlanet:SolarSystemPlanets.Planet){
   //  <caret>
