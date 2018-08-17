@@ -47,11 +47,19 @@ public class Type {
     private boolean dependenciesResolved =false;
     private boolean dependenciesResolvable =false;
     private boolean hasDefaultConstructor=false;
-    private List<Type> implementedInterfaces = new ArrayList<Type>();
+    private List<Type> implementedInterfaces = new ArrayList<>();
     /**
      * true - if this is a scala case class
      */
     private final boolean caseClass;
+    /**
+     * true - if this is a scala sealed class
+     */
+    private final boolean sealed;
+    /**
+     * relevant of scala sealed classes
+     */
+    final List<String> childObjectsQualifiedNames;
 
     Type(String canonicalName, String name, String packageName, boolean isPrimitive, boolean isInterface, boolean isAbstract, boolean array, boolean varargs, List<Type> composedTypes) {
         this.canonicalName = canonicalName;
@@ -63,14 +71,16 @@ public class Type {
         this.array = array;
         this.varargs = varargs;
         this.composedTypes = composedTypes;
-        enumValues = new ArrayList<String>();
+        enumValues = new ArrayList<>();
         isEnum = false;
-        methods=new ArrayList<Method>();
-        fields=new ArrayList<Field>();
+        methods= new ArrayList<>();
+        fields= new ArrayList<>();
         parentContainerClass = null;
         isStatic = false;
         isFinal = false;
         caseClass = false;
+        sealed = false;
+        childObjectsQualifiedNames = new ArrayList<>();
     }
 
     Type(String canonicalName) {
@@ -93,12 +103,14 @@ public class Type {
         isStatic = hasModifier(psiClass, PsiModifier.STATIC) || psiClass!=null && "org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScObjectImpl".equals(psiClass.getClass().getCanonicalName());
         parentContainerClass = psiClass != null && psiClass.getParent() != null && psiClass.getParent() instanceof PsiClass && typeDictionary != null ? typeDictionary.getType(resolveType((PsiClass) psiClass.getParent()), maxRecursionDepth,
                 false) : null;
-        fields = new ArrayList<Field>();
+        fields = new ArrayList<>();
         enumValues = JavaPsiTreeUtils.resolveEnumValues(psiClass,typePsiElement);
         dependenciesResolvable = shouldResolveAllMethods && maxRecursionDepth > 1;
-        methods = new ArrayList<Method>();
+        methods = new ArrayList<>();
         isFinal = isFinalType(psiClass);
         caseClass = psiClass != null && LanguageUtils.isScala(psiClass.getLanguage()) && ScalaTypeUtils.isCaseClass(psiClass);
+        sealed = psiClass != null && LanguageUtils.isScala(psiClass.getLanguage()) && ScalaTypeUtils.isSealed(psiClass);
+        childObjectsQualifiedNames = sealed ? ScalaPsiTreeUtils.findChildObjectsQualifiedNameInFile(psiClass):new ArrayList<>();
     }
 
     public Type(PsiClass psiClass, TypeDictionary typeDictionary, int maxRecursionDepth, boolean shouldResolveAllMethods) {
@@ -109,20 +121,21 @@ public class Type {
         name = psiClass.getQualifiedName() == null ? null : ClassNameUtils.extractClassName(ClassNameUtils.stripArrayVarargsDesignator(psiClass.getQualifiedName()));
         packageName = ClassNameUtils.extractPackageName(canonicalName);
         isPrimitive = psiClass instanceof PsiPrimitiveType;
-        composedTypes = new ArrayList<Type>();
+        composedTypes = new ArrayList<>();
         isEnum = psiClass.isEnum();
         isInterface = psiClass.isInterface();
         isAbstract = psiClass.getModifierList() != null && psiClass.getModifierList().hasModifierProperty(PsiModifier.ABSTRACT);
         isStatic = psiClass.getModifierList() != null && psiClass.getModifierList().hasExplicitModifier(PsiModifier.STATIC);
         parentContainerClass = psiClass.getParent() != null && psiClass.getParent() instanceof PsiClass && typeDictionary != null ? typeDictionary.getType(resolveType((PsiClass) psiClass.getParent()), maxRecursionDepth,
                 false) : null;
-        fields = new ArrayList<Field>();
+        fields = new ArrayList<>();
         enumValues = JavaPsiTreeUtils.resolveEnumValues(psiClass, null);
         dependenciesResolvable = shouldResolveAllMethods && maxRecursionDepth > 1;
-        methods = new ArrayList<Method>();
+        methods = new ArrayList<>();
         isFinal = isFinalType(psiClass);
         caseClass = LanguageUtils.isScala(psiClass.getLanguage()) && ScalaTypeUtils.isCaseClass(psiClass);
-
+        sealed = LanguageUtils.isScala(psiClass.getLanguage()) && ScalaTypeUtils.isSealed(psiClass);;
+        childObjectsQualifiedNames = sealed ? ScalaPsiTreeUtils.findChildObjectsQualifiedNameInFile(psiClass):new ArrayList<>();
     }
 
     @NotNull
@@ -181,7 +194,7 @@ public class Type {
     }
 
     private List<Type> resolveTypes(PsiType psiType, Object typeElement, TypeDictionary typeDictionary, int maxRecursionDepth) {
-        List<Type> types = new ArrayList<Type>();
+        List<Type> types = new ArrayList<>();
         if (typeDictionary!=null && psiType instanceof PsiClassType) {
             PsiClassType psiClassType = (PsiClassType) psiType;
             PsiType[] parameters = psiClassType.getParameters();
@@ -297,7 +310,7 @@ public class Type {
      * @return Type's constructors sorted in revers order by no. of constructor params
      */
     public List<Method> findConstructors() {
-        List<Method> constructors = new ArrayList<Method>();
+        List<Method> constructors = new ArrayList<>();
         for (Method method : methods) {
             if (method.isConstructor() && !"java.lang.Object".equals(method.getOwnerClassCanonicalType())) {
                 constructors.add(method);
@@ -360,5 +373,13 @@ public class Type {
 
     public List<Type> getImplementedInterfaces() {
         return implementedInterfaces;
+    }
+
+    public boolean isSealed() {
+        return sealed;
+    }
+
+    public List<String> getChildObjectsQualifiedNames() {
+        return childObjectsQualifiedNames;
     }
 }

@@ -52,8 +52,17 @@ public class ScalaTestBuilder extends JavaTestBuilderImpl {
     }
 
     @Override
-    protected void renderEnumValue(StringBuilder testBuilder, String canonicalName, String enumValue) {
-        testBuilder.append(StringUtils.removeSuffix(canonicalName,VALUE_TYPE_SUFFIX)).append(".").append(enumValue);
+    protected void renderEnumValue(StringBuilder testBuilder, Type type) {
+        final String canonicalName = type.getCanonicalName();
+        if (type.getEnumValues().size() > 0) {
+            testBuilder.append(StringUtils.removeSuffix(canonicalName,VALUE_TYPE_SUFFIX)).append(".").append(type.getEnumValues().get(0));
+        } else if (type.getChildObjectsQualifiedNames().size() > 0) {
+            testBuilder.append(type.getChildObjectsQualifiedNames().get(0));
+        }
     }
 
+    @Override
+    protected boolean hasEnumValues(Type type) {
+        return type.getEnumValues().size() > 0 || type.getChildObjectsQualifiedNames().size() > 0 ;
+    }
 }

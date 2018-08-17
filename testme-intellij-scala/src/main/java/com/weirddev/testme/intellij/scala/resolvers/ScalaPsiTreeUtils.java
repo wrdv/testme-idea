@@ -59,6 +59,7 @@ import java.util.List;
 public class ScalaPsiTreeUtils {
     private static final Logger LOG = Logger.getInstance(ScalaPsiTreeUtils.class.getName());
     private static final String TYPE_SUFFIX_IN_RAW_CANONICAL_NAME = ".type";
+    private static final String OBJECT_SUFFIX_IN_RAW_CANONICAL_NAME = "$";
 
     public static PsiParameter[] resolveParameters(PsiMethod psiMethod) {
         PsiParameter[] psiParameters = null;
@@ -283,7 +284,7 @@ public class ScalaPsiTreeUtils {
             if (canonicalText.startsWith("(") && canonicalText.endsWith(")")) {
                 canonicalText = designatorCanonicalText + ("<"+canonicalText.substring(1, canonicalText.length() - 1)+">");
             }
-        } else if(typeElement instanceof ScProjectionType && psiElement instanceof PsiType && ScalaTypeUtils.isEnum((PsiType) psiElement)){
+        } else if(typeElement instanceof ScProjectionType && psiElement instanceof PsiType && ScalaTypeUtils.isEnumeration((PsiType) psiElement)){
             final ScProjectionType scProjectionType = (ScProjectionType) typeElement;
             final PsiNamedElement psiNamedElement = scProjectionType.actualElement();
             if (psiNamedElement instanceof ScTypeAliasDefinition) {
@@ -309,6 +310,15 @@ public class ScalaPsiTreeUtils {
         }
         else {
             return enumRawCanonicalText;
+        }
+    }
+    @Nullable
+    private static String normalizeObjectCanonicalNameSuffix(String objectRawCanonicalText) {
+        if (objectRawCanonicalText != null && objectRawCanonicalText.endsWith(OBJECT_SUFFIX_IN_RAW_CANONICAL_NAME)) {
+            return objectRawCanonicalText.substring(0, objectRawCanonicalText.length() - OBJECT_SUFFIX_IN_RAW_CANONICAL_NAME.length());
+        }
+        else {
+            return objectRawCanonicalText;
         }
     }
 
@@ -470,4 +480,28 @@ public class ScalaPsiTreeUtils {
         return enumValues;
     }
 
+    public static List<String> findChildObjectsQualifiedNameInFile(PsiClass psiClass) {
+        final List<String> childObjectsQualifiedNames = new ArrayList<>();
+        final Collection<ScObject> objects = PsiTreeUtil.findChildrenOfType(psiClass.getContainingFile().getFirstChild(), ScObject.class);
+        final String psiClassQualifiedName = psiClass.getQualifiedName();
+        if (psiClassQualifiedName != null) {
+            for (ScObject object : objects) {
+                if (isExtendedBy(psiClassQualifiedName, object)) {
+                    childObjectsQualifiedNames.add(normalizeObjectCanonicalNameSuffix(object.getQualifiedName()));
+                }
+            }
+        }
+        return childObjectsQualifiedNames;
+    }
+
+    private static boolean isExtendedBy(String parentClassQualifiedName, ScObject candidateChild) {
+        final PsiClassType[] parentTypes = candidateChild.getImplementsListTypes();
+        for (PsiClassType psiClassType : parentTypes) {
+            final PsiClass resolvedClass = psiClassType.resolve();
+            if (resolvedClass != null && parentClassQualifiedName.equals(resolvedClass.getQualifiedName())) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

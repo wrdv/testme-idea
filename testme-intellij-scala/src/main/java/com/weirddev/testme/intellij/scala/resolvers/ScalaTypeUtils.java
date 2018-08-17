@@ -21,10 +21,19 @@ public class ScalaTypeUtils {
     }
 
     public static boolean isEnum(PsiClass psiClass) {
+        return isEnumeration(psiClass) || isSealed(psiClass) && ScalaPsiTreeUtils.findChildObjectsQualifiedNameInFile(psiClass).size()>0;
+    }
+
+    public static boolean isSealed(PsiClass psiClass) {
+        return psiClass.hasModifierProperty("sealed");
+    }
+
+    public static boolean isEnumeration(PsiType psiElement) {
+        return SCALA_ENUMERATION_VALUE.equals(psiElement.getCanonicalText());
+    }
+
+    public static boolean isEnumeration(PsiClass psiClass) {
         return SCALA_ENUMERATION_VALUE.equals(psiClass.getQualifiedName());
     }
 
-    public static boolean isEnum(PsiType psiElement) {
-        return SCALA_ENUMERATION_VALUE.equals(psiElement.getCanonicalText());
-    }
 }
