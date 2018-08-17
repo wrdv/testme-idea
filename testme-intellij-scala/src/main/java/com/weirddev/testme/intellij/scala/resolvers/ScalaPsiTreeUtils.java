@@ -40,7 +40,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.StdType;
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType;
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType;
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType;
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult;
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable;
 import scala.Option;
 import scala.collection.Seq;
@@ -264,14 +263,38 @@ public class ScalaPsiTreeUtils {
 
     @Nullable
     private static String resolveRawCanonicalTextFromAlias(ScTypeAliasDefinition scTypeAliasDefinition) {
-        final TypeResult<ScType> scTypeResult = scTypeAliasDefinition.aliasedType();
-        if (scTypeResult.isDefined()) {
-            final ScType scType = scTypeResult.get();
+
+// implementation supported by Scala plugin to up v2016:
+//        final TypeResult<ScType> scTypeResult = scTypeAliasDefinition.aliasedType();
+//        if (scTypeResult.isDefined()) {
+//            final ScType scType = scTypeResult.get();
+//            return scType.canonicalText();
+//        }
+//        else {
+//            return null;
+//        }
+
+        ScType scType = getAliasedType(scTypeAliasDefinition);
+        if (scType == null) {
+            return null;
+        } else {
             return scType.canonicalText();
         }
-        else {
-            return null;
+    }
+
+    private static ScType getAliasedType(ScTypeAliasDefinition scTypeAliasDefinition) {
+        ScType scType = getEitherReturnValueReflectively(scTypeAliasDefinition, ScTypeAliasDefinition.class, ScType.class, null);
+        if (scType == null) {
+            Object resultObj = MethodReflectionUtils.invokeMethodReflectivelyWithFallback(scTypeAliasDefinition, Object.class /*TypeResult.class*/, "aliasedType",null );
+            if (resultObj != null) {
+                //fallback to older IDEA scala plugin api
+                Object scTypeFromOlderIDEA = MethodReflectionUtils.invokeMethodReflectivelyWithFallback(resultObj, Object.class, "get", null);
+                if (scTypeFromOlderIDEA instanceof ScType) {
+                    scType = (ScType) scTypeFromOlderIDEA;
+                }
+            }
         }
+        return scType;
     }
 
     @Nullable
@@ -455,16 +478,13 @@ public class ScalaPsiTreeUtils {
     }
 
     private static List<String> resolveEnumFieldsFromTypeAlias(ScTypeAliasDefinition scTypeAliasDefinition) {
-        final TypeResult<ScType> scTypeResult = scTypeAliasDefinition.aliasedType();
-        if (scTypeResult.isDefined()) {
-            final ScType scType = scTypeResult.get();
-            if (scType instanceof ScProjectionType) {
-                final ScType projectedType = ((ScProjectionType) scType).projected();
-                if (projectedType instanceof ScThisType) {
-                    final ScTemplateDefinition scTemplateDefinition = ((ScThisType) projectedType).element();
-                    if (scTemplateDefinition instanceof ScObject) {
-                        return resolveEnumFieldsFromEnumObject((ScObject) scTemplateDefinition);
-                    }
+        ScType scType = getAliasedType(scTypeAliasDefinition);
+        if (scType instanceof ScProjectionType) {
+            final ScType projectedType = ((ScProjectionType) scType).projected();
+            if (projectedType instanceof ScThisType) {
+                final ScTemplateDefinition scTemplateDefinition = ((ScThisType) projectedType).element();
+                if (scTemplateDefinition instanceof ScObject) {
+                    return resolveEnumFieldsFromEnumObject((ScObject) scTemplateDefinition);
                 }
             }
         }
