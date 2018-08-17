@@ -80,6 +80,9 @@ public class TestMeGeneratorSpecs2Test extends TestMeGeneratorTestBase   {
     public void testScalaEnumeration() {
         doTestWithDefaults();
     }
+    public void testScalaSealedCaseClassEnum() {
+        doTestWithDefaults();
+    }
 //    public void testCollections() throws Exception { //todo testing java collections. not supported properly yet
 //        doTest(false, false, true);
 //    }

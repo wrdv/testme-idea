@@ -98,7 +98,7 @@ public class JavaPsiTreeUtils {
     }
 
     public static List<String> resolveEnumValues(PsiClass psiClass, Object typePsiElement) {
-        if (psiClass!=null && typePsiElement!=null && LanguageUtils.isScala(psiClass.getLanguage()) && ScalaTypeUtils.isEnum(psiClass) ) {
+        if (psiClass!=null && typePsiElement!=null && LanguageUtils.isScala(psiClass.getLanguage()) && ScalaTypeUtils.isEnumeration(psiClass) ) {
             return ScalaPsiTreeUtils.resolveEnumValues(typePsiElement);
         } else {
             return resolveJavaEnumValues(psiClass);
