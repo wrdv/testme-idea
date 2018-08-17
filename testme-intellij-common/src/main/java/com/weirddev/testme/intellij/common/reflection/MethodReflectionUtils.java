@@ -81,8 +81,8 @@ public class MethodReflectionUtils {
         if (returnTypeMethod != null) {
             try {
                 returnObj = returnTypeMethod.invoke(owner);
-            } catch (Exception e) {
-                LOG.error("method invocation failed",e);
+            } catch (Throwable e) {
+                LOG.warn("method invocation failed",e);
             }
         }
 
