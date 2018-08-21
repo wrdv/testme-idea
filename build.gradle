@@ -173,6 +173,8 @@ dependencies {
         exclude group:'org.jetbrains.plugins', module: 'Groovy'
         exclude group:'org.jetbrains.plugins', module: 'Scala'
     }
+    compileOnly(project(':testme-intellij-idea-2017.3.compatibility'))
+
     testCompile 'junit:junit:4.12'
     testCompile("org.spockframework:spock-core:$spockVersion"){
         exclude group: 'org.codehaus.groovy'
