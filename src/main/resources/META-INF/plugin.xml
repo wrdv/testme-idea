@@ -38,8 +38,10 @@
   <depends optional="true">org.intellij.groovy</depends>
   <depends optional="true">org.intellij.scala</depends>
   <extensions defaultExtensionNs="com.intellij">
+    <applicationConfigurable groupId="other" displayName="TestMe" id="preferences.TestMe" instance="com.weirddev.testme.intellij.ui.settings.TestMeConfigurable" />
+    <applicationService serviceInterface="com.weirddev.testme.intellij.configuration.TestMeConfigPersistent" serviceImplementation="com.weirddev.testme.intellij.configuration.TestMeConfigPersistent"/>
+    <webHelpProvider implementation="com.weirddev.testme.intellij.configuration.TestMeWebHelpProvider" id="com.weirddev.testme"/>
   </extensions>
-
   <application-components>
     <component>
       <implementation-class>com.weirddev.testme.intellij.TestMePluginRegistration</implementation-class>
@@ -63,8 +65,4 @@
       <!--<add-to-group group-id="GenerateGroup" relative-to-action="GenerateCopyright" anchor="after" />-->
     <!--</group>-->
   </actions>
-  <extensions defaultExtensionNs="com.intellij">
-    <applicationConfigurable groupId="other" displayName="TestMe" id="preferences.TestMe" instance="com.weirddev.testme.intellij.ui.settings.TestMeConfigurable" />
-    <applicationService serviceInterface="com.weirddev.testme.intellij.configuration.TestMeConfigPersistent" serviceImplementation="com.weirddev.testme.intellij.configuration.TestMeConfigPersistent"/>
-  </extensions>
 </idea-plugin>
