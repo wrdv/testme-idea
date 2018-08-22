@@ -1,7 +1,6 @@
 package com.weirddev.testme.intellij.configuration;
 
 import com.intellij.openapi.application.ex.ApplicationInfoEx;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.help.WebHelpProvider;
 import com.weirddev.testme.intellij.ui.settings.TestMeConfigurable;
 import org.jetbrains.annotations.NotNull;
@@ -13,11 +12,12 @@ import org.jetbrains.annotations.Nullable;
  * @author Yaron Yamin
  */
 public class TestMeWebHelpProvider extends WebHelpProvider {
-    private static final Logger LOG = Logger.getInstance(TestMeWebHelpProvider.class.getName());
+    static final String SETTINGS_DOCS_URL = "http://weirddev.com/testme/settings/?utm_source=jetbrains&utm_medium=idea&utm_content=help-settings&utm_campaign=";
+
     @Nullable
     public String getHelpPageUrl(@NotNull String helpTopicId) {
         if (TestMeConfigurable.settingsHelpId().equals(helpTopicId)) {
-            return "http://weirddev.com/<DOCS_URI>?source=idea&ideaVersion=" + ideaVersion();
+            return SETTINGS_DOCS_URL + ideaVersion();
         } else {
             return null;
         }
