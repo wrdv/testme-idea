@@ -5,13 +5,14 @@
   <vendor email="testme@weirddev.com" url="http://weirddev.com">WeirdDev</vendor>
 
   <description><![CDATA[
-   <p>Auto Generate Unit Tests for source class in Java or Groovy.</p>
+   <p>Auto Generate Unit Tests in Java, Groovy or Scala.</p>
    <p>No more boilerplate!</p>
    <h3>Features:</h3>
    <ul>
-     <li>Auto generate Java or Groovy test code with JUnit 4/5, TestNG or Spock frameworks</li>
-     <li>Auto generate Mockito mocks </li>
+     <li>Auto generate Java, Scala or Groovy test code with JUnit 4/5, TestNG, Spock or Specs2 frameworks</li>
+     <li>Auto generate Mockito mocks</li>
      <li>Generate test params and assertion statements</li>
+     <li>Generate relevant mocked return statements</li>
      <li>Integrates with IDEA menus: Code->TestMe, Code->Generate</li>
    </ul>
    <p>You're welcome to report issues and raise feature requests at <a href="http://weirddev.com/forum#!/testme">TestMe project forum</a></p>
@@ -23,9 +24,11 @@
             <li>Generate test code in Scala with Spec2 test framework</li>
             <li>Generate Spock Parameterized tests</li>
             <li>Test Scala classes</li>
-            <li>Properly Assert methods returning Java futures</li>
+            <li>Properly Assert methods returning Java or Scala futures</li>
+            <li>New Settings UI to control some aspects of the test generation behavior</li>
+            <li>In Settings UI - an option to skip test generation for inherited methods (requested by subodh on Sep 16 '17 and by manishkumawat_900 on July 16 '18)</li>
           </ul>
-        <a href="http://weirddev.com/testme/release-notes">Complete Changelog</a>
+        <a href="http://weirddev.com/testme/release-notes">Complete Release Notes listing</a>
     ]]>
   </change-notes>
   <!-- please see https://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
