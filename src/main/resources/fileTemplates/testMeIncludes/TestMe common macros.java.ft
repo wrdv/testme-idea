@@ -7,7 +7,7 @@ test$StringUtils.capitalizeFirstLetter($methodName)#testMethodSuffix($methodName
 #end
 ##
 #macro(renderTestMethodNameAsWords $methodName)
-test $StringUtils.camelCaseToWords($methodName)#testMethodSuffix($methodName," ")
+$StringUtils.camelCaseToWords($methodName)#testMethodSuffix($methodName," ")
 #end
 ##
 #macro(testMethodSuffix $methodName, $prefix)

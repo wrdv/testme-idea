@@ -9,6 +9,7 @@ import java.util.Map;
  * @author Yaron Yamin
  */
 public interface LangTestBuilder {
+    String PARAMS_SEPARATOR = ", ";
     String renderJavaCallParams(List<Param> params, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues);
 
     String renderJavaCallParam(Type type, String strValue, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues);

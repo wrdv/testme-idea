@@ -1,5 +1,6 @@
 package com.weirddev.testme.intellij.generator;
 
+import com.weirddev.testme.intellij.configuration.TestMeConfigPersistent;
 import com.weirddev.testme.intellij.template.FileTemplateConfig;
 import com.weirddev.testme.intellij.template.TemplateRegistry;
 import com.weirddev.testme.intellij.template.context.Language;
@@ -11,7 +12,7 @@ import com.weirddev.testme.intellij.template.context.Language;
  */
 public class TestMeGeneratorSpockTest extends TestMeGeneratorTestBase {
     public TestMeGeneratorSpockTest() {
-        super(TemplateRegistry.SPOCK_GROOVY_MOCKITO_JAVA_TEMPLATE, "testSpock", Language.Groovy);
+        super(TemplateRegistry.SPOCK_MOCKITO_GROOVY_TEMPLATE, "testSpock", Language.Groovy);
         expectedTestClassExtension = "groovy";
         skipTestIfGroovyPluginDisabled();
     }
@@ -26,6 +27,6 @@ public class TestMeGeneratorSpockTest extends TestMeGeneratorTestBase {
         doTest(true,true,true);
     }
     public void testMockReturned() throws Exception {
-        doTest(FileTemplateConfig.getInstance());
+        doTest(new FileTemplateConfig(TestMeConfigPersistent.getInstance().getState()));
     }
 }

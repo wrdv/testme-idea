@@ -10,7 +10,7 @@ import com.weirddev.testme.intellij.template.context.Language;
  */
 public class TestMeGeneratorGroovyJunit4Test extends TestMeGeneratorJunit4Test {
     public TestMeGeneratorGroovyJunit4Test() {
-        super(TemplateRegistry.JUNIT4_GROOVY_MOCKITO_JAVA_TEMPLATE, "testGroovy", Language.Groovy);
+        super(TemplateRegistry.JUNIT4_MOCKITO_GROOVY_TEMPLATE, "testGroovy", Language.Groovy);
         expectedTestClassExtension = "groovy";
         skipTestIfGroovyPluginDisabled();
     }
@@ -34,12 +34,12 @@ public class TestMeGeneratorGroovyJunit4Test extends TestMeGeneratorJunit4Test {
         doTest(true);
     }
     public void testDirectlyReferencedPropertiesNotIgnored() throws Exception{
-        doTest("com.example.beans", "Foo", "FooTest", true, true, true, true, 50);
+        doTest("com.example.beans", "Foo", "FooTest", true, true, true, true, 50, false);
     }
     public void testSettersOverCtor() throws Exception{
         doTest(true,true,true);
     }
     public void testCtorOverSetters() throws Exception{
-        doTest(true,true,true,67, false);
+        doTest(true,true,true,67, false, false);
     }
 }

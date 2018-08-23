@@ -1,5 +1,7 @@
 package com.example.services.impl;
 
+import com.example.beans.ConvertedBean;
+import com.example.foes.Fear;
 import com.example.foes.Fire;
 import com.example.foes.Ice;
 import com.example.foes.Pokemon;
@@ -8,7 +10,10 @@ import com.example.warriers.FooFighter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Set
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.FutureTask
+import java.util.concurrent.Future;
 
 public class Foo{
 
@@ -21,6 +26,11 @@ public class Foo{
         public String fight(Fire withFire) {
             return "unknown soldier";
         }
+
+        @Override
+        public ConvertedBean surrender(Fear fear, Ice ice, int times) {
+            return null;
+        }
     };
 
     public String fight(ArrayList<Fire> withFire, String foeName) {
@@ -29,5 +39,11 @@ public class Foo{
 
     public void intoTheVoid(){
         System.out.println("Solitude");
+    }
+    public Future lookInto(Future backTo,CompletableFuture theFuture){
+        return CompletableFuture.completedFuture("the flux capacitor")
+    }
+    public CompletableFuture<Integer> warm(Future<Fire> up,FutureTask<Ice> coolDown){
+        return CompletableFuture.completedFuture(666)
     }
 }

@@ -31,7 +31,11 @@ class StringUtilsTest {
         assert !StringUtils.hasLine("#toFind", "toFind")
         assert !StringUtils.hasLine(" toFind  12", "toFind")
     }
-
+    @Test
+    void testRemoveSuffix() {
+        String result = StringUtils.removeSuffix("strWith_suffix_and_more_stuff_and_suffix", "suffix")
+        assert result == "strWith_suffix_and_more_stuff_and_"
+    }
 }
 
 //Generated with love by TestMe :) Please report issues and submit feature requests at: http://weirddev.com/forum#!/testme

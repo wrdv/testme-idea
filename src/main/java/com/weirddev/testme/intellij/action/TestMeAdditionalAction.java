@@ -3,7 +3,7 @@ package com.weirddev.testme.intellij.action;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.psi.PsiFile;
 import com.weirddev.testme.intellij.template.TemplateDescriptor;
-import com.weirddev.testme.intellij.ui.TestMePopUpHandler;
+import com.weirddev.testme.intellij.ui.popup.TestMePopUpHandler;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;

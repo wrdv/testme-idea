@@ -1,5 +1,7 @@
 package com.weirddev.testme.intellij.template;
 
+import com.weirddev.testme.intellij.configuration.TestMeConfig;
+
 /**
  * Date: 25/09/2017
  *
@@ -74,14 +76,20 @@ public class FileTemplateConfig {
      * Default:66
      */
     private int minPercentOfInteractionWithPropertiesToTriggerConstructorOptimization = 66;
+    /**
+     * Test generator behavior option. Generate tests for inherited methods
+     * Valid values:true,false
+     * Default:true
+     */
+    private boolean generateTestsForInheritedMethods = true;
 
-    public FileTemplateConfig() { }
-    public static FileTemplateConfig getInstance()  {
-        return new FileTemplateConfig(
+    public FileTemplateConfig(TestMeConfig testMeConfig)  {
+        this(
                 Integer.valueOf(System.getProperties().getProperty("testMe.generator.maxRecursionDepth", FileTemplateConfig.DEFAULT_MAX_RECURSION_DEPTH + "")),
-                Boolean.valueOf(System.getProperties().getProperty("testMe.style.reformatCode", "true")),
-                Boolean.valueOf(System.getProperties().getProperty("testMe.style.replaceFqn", "true")),
-                Boolean.valueOf(System.getProperties().getProperty("testMe.style.optimizeImports", "true")),
+                testMeConfig == null || testMeConfig.getReformatCode(),
+                testMeConfig == null || testMeConfig.getReplaceFullyQualifiedNames(),
+                testMeConfig == null || testMeConfig.getOptimizeImports(),
+                testMeConfig == null || testMeConfig.getGenerateTestsForInheritedMethods(),
                 Boolean.valueOf(System.getProperties().getProperty("testMe.generator.ignoreUnusedProperties", "true")),
                 Boolean.valueOf(System.getProperties().getProperty("testMe.generator.replaceInterfaceParamsWithConcreteTypes", "true")),
                 Boolean.valueOf(System.getProperties().getProperty("testMe.generator.stubMockMethodCallsReturnValues", "true")),
@@ -92,12 +100,13 @@ public class FileTemplateConfig {
 
     }
 
-    public FileTemplateConfig(int maxRecursionDepth, boolean reformatCode, boolean replaceFqn, boolean optimizeImports, boolean ignoreUnusedProperties, boolean replaceInterfaceParamsWithConcreteTypes, boolean stubMockMethodCallsReturnValues,
+    private FileTemplateConfig(int maxRecursionDepth, boolean reformatCode, boolean replaceFqn, boolean optimizeImports, boolean generateTestsForInheritedMethods, boolean ignoreUnusedProperties, boolean replaceInterfaceParamsWithConcreteTypes, boolean stubMockMethodCallsReturnValues,
                               int maxNumOfConcreteCandidatesToReplaceInterfaceParam, int minPercentOfExcessiveSettersToPreferMapCtor, int minPercentOfInteractionWithPropertiesToTriggerConstructorOptimization) {
         this.maxRecursionDepth = maxRecursionDepth;
         this.reformatCode = reformatCode;
         this.replaceFqn = replaceFqn;
         this.optimizeImports = optimizeImports;
+        this.generateTestsForInheritedMethods = generateTestsForInheritedMethods;
         this.stubMockMethodCallsReturnValues = stubMockMethodCallsReturnValues;
         this.ignoreUnusedProperties = ignoreUnusedProperties;
         this.replaceInterfaceParamsWithConcreteTypes = replaceInterfaceParamsWithConcreteTypes;
@@ -138,18 +147,6 @@ public class FileTemplateConfig {
         this.maxRecursionDepth = maxRecursionDepth;
     }
 
-    public void setReformatCode(boolean reformatCode) {
-        this.reformatCode = reformatCode;
-    }
-
-    public void setOptimizeImports(boolean optimizeImports) {
-        this.optimizeImports = optimizeImports;
-    }
-
-    public void setReplaceFqn(boolean replaceFqn) {
-        this.replaceFqn = replaceFqn;
-    }
-
     public void setReplaceInterfaceParamsWithConcreteTypes(boolean replaceInterfaceParamsWithConcreteTypes) {
         this.replaceInterfaceParamsWithConcreteTypes = replaceInterfaceParamsWithConcreteTypes;
     }
@@ -172,5 +169,21 @@ public class FileTemplateConfig {
 
     public int getMaxNumOfConcreteCandidatesToReplaceInterfaceParam() {
         return maxNumOfConcreteCandidatesToReplaceInterfaceParam;
+    }
+
+    public void setStubMockMethodCallsReturnValues(boolean stubMockMethodCallsReturnValues) {
+        this.stubMockMethodCallsReturnValues = stubMockMethodCallsReturnValues;
+    }
+
+    public void setIgnoreUnusedProperties(boolean ignoreUnusedProperties) {
+        this.ignoreUnusedProperties = ignoreUnusedProperties;
+    }
+
+    public void setMaxNumOfConcreteCandidatesToReplaceInterfaceParam(int maxNumOfConcreteCandidatesToReplaceInterfaceParam) {
+        this.maxNumOfConcreteCandidatesToReplaceInterfaceParam = maxNumOfConcreteCandidatesToReplaceInterfaceParam;
+    }
+
+    public boolean isGenerateTestsForInheritedMethods() {
+        return generateTestsForInheritedMethods;
     }
 }

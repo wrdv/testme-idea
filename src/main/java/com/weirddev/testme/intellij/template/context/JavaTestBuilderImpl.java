@@ -27,10 +27,10 @@ import java.util.Map;
  */
 public class JavaTestBuilderImpl implements LangTestBuilder {
     private static final Logger LOG = Logger.getInstance(JavaTestBuilderImpl.class.getName());
-    private static Type DEFAULT_TYPE = new Type("java.lang.String", "String", "java.lang", false, false, false, false, false, new ArrayList<Type>());
-    protected static final String PARAMS_SEPARATOR = ", ";
+    private static Type DEFAULT_STRING_TYPE = new Type("java.lang.String", "String", "java.lang", false, false, false, false, false, new ArrayList<Type>());
     private final TestBuilder.ParamRole paramRole; //todo consider removing. not used anymore
     private final Method testedMethod;
+    protected final String NEW_INITIALIZER = "new ";
     private Module srcModule;
     private TypeDictionary typeDictionary;
     protected FileTemplateConfig fileTemplateConfig;
@@ -61,7 +61,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
     protected void buildCallParam(Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Param> paramNode) {
         final Type type = paramNode.getData().getType();
         if (type.isArray()) {
-            testBuilder.append("new ").append(type.getCanonicalName()).append("[]{");
+            testBuilder.append(NEW_INITIALIZER).append(type.getCanonicalName()).append("[]{");
         }
         final Type parentContainerClass = type.getParentContainerClass();
         if (parentContainerClass != null && !type.isStatic()) {
@@ -80,10 +80,10 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
         if (defaultTypeValues.get(canonicalName) != null) {
 
             testBuilder.append(defaultTypeValues.get(canonicalName));
-        } else if (canonicalName.equals("java.lang.String")) {
-            testBuilder.append("\"").append(paramNode.getData().getName()).append("\"");
-        } else if (type.getEnumValues().size() > 0) {
-            testBuilder.append(canonicalName).append(".").append(type.getEnumValues().get(0));
+        } else if (TestBuilderUtil.isStringType(canonicalName)) {
+            testBuilder.append("\"").append(resolveStringValue(paramNode)).append("\"");
+        } else if (hasEnumValues(type)) {
+            renderEnumValue(testBuilder, type);
         } else {
             final Type resolvedType=resolveChildTypeIfNeeded(type,fileTemplateConfig.getMaxRecursionDepth());
             if (!resolvedType.equals(type)) {
@@ -92,22 +92,23 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
             String typeName = resolveTypeName(resolvedType, replacementTypes);
             if (!resolvedType.getCanonicalName().equals(typeName)) {
                 final String[] typeInitExp = typeName.split("<VAL>");
-                testBuilder.append(typeInitExp[0]);
-                for (int i = 1; i < typeInitExp.length; i++) {
-                    Type genericTypeParam;
-                    if (resolvedType.getComposedTypes().size() >= i) {
-                        genericTypeParam = resolvedType.getComposedTypes().get(i - 1);
-                    } else {
-                        genericTypeParam = DEFAULT_TYPE;
+                if (typeInitExp.length == 0) {
+                    Type genericTypeParam = safeGetComposedTypeAtIndex(resolvedType, 0);
+                    buildCallParam(replacementTypes, defaultTypeValues, testBuilder, new Node<Param>(new SyntheticParam(genericTypeParam, genericTypeParam.getName(), false), paramNode, paramNode.getDepth()));
+                }
+                else {
+                    testBuilder.append(typeInitExp[0]);
+                    for (int i = 1; i < typeInitExp.length; i++) {
+                        Type genericTypeParam = safeGetComposedTypeAtIndex(resolvedType, i-1);
+                        if (TestBuilderUtil.looksLikeObjectKeyInGroovyMap(typeInitExp[i], genericTypeParam.getCanonicalName())) {
+                            testBuilder.append("(");
+                        }
+                        buildCallParam(replacementTypes, defaultTypeValues, testBuilder, new Node<Param>(new SyntheticParam(genericTypeParam, genericTypeParam.getName(), false),paramNode,paramNode.getDepth()));
+                        if (TestBuilderUtil.looksLikeObjectKeyInGroovyMap(typeInitExp[i], genericTypeParam.getCanonicalName())) {
+                            testBuilder.append(")");
+                        }
+                        testBuilder.append(typeInitExp[i]);
                     }
-                    if (TestBuilderUtil.looksLikeObjectKeyInGroovyMap(typeInitExp[i], genericTypeParam.getCanonicalName())) {
-                        testBuilder.append("(");
-                    }
-                    buildCallParam(replacementTypes, defaultTypeValues, testBuilder, new Node<Param>(new SyntheticParam(genericTypeParam, genericTypeParam.getName(), false),paramNode,paramNode.getDepth()));
-                    if (TestBuilderUtil.looksLikeObjectKeyInGroovyMap(typeInitExp[i], genericTypeParam.getCanonicalName())) {
-                        testBuilder.append(")");
-                    }
-                    testBuilder.append(typeInitExp[i]);
                 }
             }
             else if (shouldContinueRecursion(paramNode)) {
@@ -116,7 +117,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
                 if (foundCtor == null && !hasEmptyConstructor || !resolvedType.isDependenciesResolved()) {
                     testBuilder.append("null");
                 } else {
-                    testBuilder.append("new ");
+                    testBuilder.append(resolveInitializerKeyword( type,foundCtor));
                     if (resolvedType.getParentContainerClass() != null && !resolvedType.isStatic()) {
                         typeName = resolveNestedClassTypeName(typeName);
                     }
@@ -129,6 +130,36 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
                 testBuilder.append("null");
             }
         }
+    }
+
+    protected boolean hasEnumValues(Type type) {
+        return type.getEnumValues().size() > 0;
+    }
+
+    protected void renderEnumValue(StringBuilder testBuilder, Type type) {
+        final String enumValue = type.getEnumValues().get(0);
+        final String canonicalName = type.getCanonicalName();
+        testBuilder.append(canonicalName).append(".").append(enumValue);
+    }
+
+    private String resolveStringValue(Node<Param> paramNode) {
+        final Param data = paramNode.getData();
+        return "Object".equals(data.getName())&& paramNode.getParent()!=null ?paramNode.getParent().getData().getName():data.getName();
+    }
+
+    private Type safeGetComposedTypeAtIndex(Type resolvedType, int i) {
+        Type genericTypeParam;
+        if (resolvedType.getComposedTypes().size() > i) {
+            genericTypeParam = resolvedType.getComposedTypes().get(i);
+        } else {
+            genericTypeParam = DEFAULT_STRING_TYPE;
+        }
+        return genericTypeParam;
+    }
+
+    @NotNull
+    protected String resolveInitializerKeyword(Type type, Method foundCtor) {
+        return NEW_INITIALIZER;
     }
 
     private Type resolveChildTypeIfNeeded(Type type, int maxRecursionDepth) {
@@ -302,7 +333,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
                 return true;
             }
         }
-        for (Method methodRef : method.getMethodRefereneces()) {
+        for (Method methodRef : method.getMethodReferences()) {
             if (isSharedType(paramOwner, methodRef) && (isGetterUsed(propertyParam, methodRef) || isSetterUsed(propertyParam, methodRef) )) {
                 LOG.debug("getter or setter are used in method ref "+paramOwnerCanonicalName+" - "+propertyParam+" in methodCall "+methodRef);
                 return true;

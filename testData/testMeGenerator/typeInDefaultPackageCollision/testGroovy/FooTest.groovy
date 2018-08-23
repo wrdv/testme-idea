@@ -1,4 +1,3 @@
-import com.example.warriers.FooFighter
 import org.junit.Test
 import org.junit.Before
 import org.mockito.InjectMocks
@@ -9,7 +8,7 @@ import static org.mockito.Mockito.*
 /** created by TestMe integration test on MMXVI */
 class FooTest {
     @Mock
-    FooFighter fooFighter
+    com.example.warriers.FooFighter fooFighter
     @Mock
     com.example.foes.Fire fireOfFoe
     @InjectMocks
@@ -22,7 +21,7 @@ class FooTest {
 
     @Test
     void testFight() {
-        String result = foo.fight(new Fire(), new com.example.hole.Fire())
+        java.lang.String result = foo.fight(new Fire(), new com.example.hole.Fire())
         assert result == "replaceMeWithExpectedResult"
     }
 }

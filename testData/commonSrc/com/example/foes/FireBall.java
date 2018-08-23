@@ -35,7 +35,6 @@ public class FireBall implements Comparable{
         return message != null ? message.hashCode() : 0;
     }
 
-    @Override
     public int compareTo(Object o) {
         if (o instanceof FireBall) {
             return message.compareTo(((FireBall) o).message);

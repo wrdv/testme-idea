@@ -5,7 +5,7 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.weirddev.testme.intellij.action.GotoTestOrCodeActionExt;
-import com.weirddev.testme.intellij.utils.ReflectionUtil;
+import com.weirddev.testme.intellij.utils.AccessLevelReflectionUtils;
 import org.apache.velocity.runtime.RuntimeSingleton;
 import org.jetbrains.annotations.NotNull;
 
@@ -35,7 +35,7 @@ public class TestMePluginRegistration implements ApplicationComponent {
     }
 
     private void hackVelocity() throws Exception {
-        ReflectionUtil.replaceFinalStatic(RuntimeSingleton.class.getDeclaredField("ri"), new HackedRuntimeInstance());
+        AccessLevelReflectionUtils.replaceFinalStatic(RuntimeSingleton.class.getDeclaredField("ri"), new HackedRuntimeInstance());
     }
 
     @Override

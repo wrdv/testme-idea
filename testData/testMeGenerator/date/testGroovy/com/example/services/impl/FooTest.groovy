@@ -8,11 +8,12 @@ import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.Month
-
+import java.time.ZoneOffset
 import static org.mockito.Mockito.*
 
 /** created by TestMe integration test on MMXVI */
@@ -49,6 +50,12 @@ class FooTest {
     void testFightAnyDate() {
         LocalDateTime result = foo.fightAnyDate(new Fire(), LocalDateTime.of(2016, Month.JANUARY, 11, 22, 45, 55))
         assert result == LocalDateTime.of(2016, Month.JANUARY, 11, 22, 45, 55)
+    }
+
+    @Test
+    void testMaybe() {
+        Instant result = foo.maybe(LocalDateTime.of(2016, Month.JANUARY, 11, 22, 45, 55).toInstant(ZoneOffset.UTC), new Fire())
+        assert result == LocalDateTime.of(2016, Month.JANUARY, 11, 22, 45, 55).toInstant(ZoneOffset.UTC)
     }
 }
 
