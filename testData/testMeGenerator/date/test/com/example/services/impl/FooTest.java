@@ -9,10 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.Month;
+import java.time.*;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -53,6 +50,12 @@ public class FooTest {
     public void testFightAnyDate() throws Exception {
         LocalDateTime result = foo.fightAnyDate(new Fire(), LocalDateTime.of(2016, Month.JANUARY, 11, 22, 45, 55));
         Assert.assertEquals(LocalDateTime.of(2016, Month.JANUARY, 11, 22, 45, 55), result);
+    }
+
+    @Test
+    public void testMaybe() throws Exception {
+        Instant result = foo.maybe(LocalDateTime.of(2016, Month.JANUARY, 11, 22, 45, 55).toInstant(ZoneOffset.UTC), new Fire());
+        Assert.assertEquals(LocalDateTime.of(2016, Month.JANUARY, 11, 22, 45, 55).toInstant(ZoneOffset.UTC), result);
     }
 }
 

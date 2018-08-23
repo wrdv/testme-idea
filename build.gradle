@@ -1,3 +1,6 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
+
 buildscript {
   repositories {
     maven { url 'http://dl.bintray.com/jetbrains/intellij-plugin-service' }
@@ -5,85 +8,107 @@ buildscript {
 }
 
 plugins {
-    id "org.jetbrains.intellij" version "0.2.7"
+    id "org.jetbrains.intellij" version "0.2.17"
     id 'jacoco'
     id 'org.unbroken-dome.test-sets' version '1.3.2'
     id 'com.github.kt3k.coveralls' version '2.6.3'
 }
-def isRunInCI=Boolean.valueOf(System.getenv('CI'))
+
 //def buildTrigger = System.getenv('TRAVIS_EVENT_TYPE')
 def enableIdeaGroovyPlugin=Boolean.valueOf(enableIdeaGroovyPlugin)
 def groovyOn = enableIdeaGroovyPlugin ? 'enabled':'disabled'
+def enableIdeaScalaPlugin=Boolean.valueOf(enableIdeaScalaPlugin)
+def scalaOn = enableIdeaScalaPlugin ? 'enabled':'disabled'
 
-println "*****************************************************************************************************************************"
-println "                 Running build for ideaVersion: $ideaVersion with Groovy idea plugin ${groovyOn}"
-println "*****************************************************************************************************************************"
+println "*****************************************************************************************************************************************************************"
+println "              Running build for ideaVersion: $ideaVersion and scalaPluginVersion: $scalaPluginVersion with Groovy plugin ${groovyOn} and Scala plugin ${scalaOn}"
+println "*****************************************************************************************************************************************************************"
 
 apply plugin: 'java'
 apply plugin: 'groovy'
 apply plugin: 'idea'
 apply plugin: 'org.jetbrains.intellij'
 
-def spockVersion = ideaVersion.startsWith("14.")? "1.0-groovy-2.3" : "1.0-groovy-2.4"
+def isRunInCI=Boolean.valueOf(System.getenv('CI'))
+def spockVersion = ideaVersion.startsWith("14.") || ideaVersion.startsWith("15.")? "1.0-groovy-2.3" : "1.0-groovy-2.4"
 
 jacoco {
     toolVersion = "0.7.6.201602180812"
 }
-
-repositories {
-    mavenCentral()
-}
-
-sourceCompatibility = jvmTargetVersion
-targetCompatibility = jvmTargetVersion
-
-testSets {
-    integrationTest
-}
-test {
-    afterTest { desc, result ->
-        println "Executing test [${desc.className}].${desc.name} with result: ${result.resultType}"
+allprojects{
+    sourceCompatibility = jvmTargetVersion
+    targetCompatibility = jvmTargetVersion
+    repositories {
+        mavenCentral()
     }
-    testLogging {
-        exceptionFormat = 'full'
-        events "failed"
-        showStandardStreams = true
-    }
-    reports.html.enabled = !isRunInCI
-}
-integrationTest {
-    afterTest { desc, result ->
-        println "Executing test [${desc.className}].${desc.name} with result: ${result.resultType}"
-    }
-    reports.html.enabled = !isRunInCI
-}
-def shouldInstrumentCode = !isRunInCI && !Boolean.valueOf(System.getProperty('skipCodeInstrumentation','false'))
-def mandatoryPlugins = ['junit','properties']
-intellij {
-    pluginName 'TestMe'
-    instrumentCode = shouldInstrumentCode
-    version ideaVersion
-    type ideaType
-    downloadSources !isRunInCI
-    sameSinceUntilBuild false
-    updateSinceUntilBuild false
-    plugins = enableIdeaGroovyPlugin ? (mandatoryPlugins + 'Groovy') : mandatoryPlugins
 
-    publishPlugin {
-        username ideaPublishUsername
-        password ideaPublishPassword
-        channels = [ideaPublishChannel]
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
+        if (!javaHome) {
+            javaHome =  System.getenv().JAVA_HOME
+        }
+        options.bootClasspath = "$javaHome/jre/lib/rt.jar"
     }
-}
-idea {
-    project {
-        jdkName         = jvmTargetVersion
-        languageLevel   = jvmTargetVersion
-        vcs = 'Git'
+    testSets {
+        integrationTest
+    }
+
+    integrationTest {
+        afterTest { desc, result ->
+            println "Executing test [${desc.className}].${desc.name} with result: ${result.resultType}"
+        }
+        reports.html.enabled = !isRunInCI
+    }
+    tasks.withType(Test) {
+        systemProperty 'enableIdeaGroovyPlugin', enableIdeaGroovyPlugin
+        systemProperty 'enableIdeaScalaPlugin', enableIdeaScalaPlugin
+        reports.html.destination = file("${reporting.baseDir}/${name}")
+        testLogging {
+            exceptionFormat = TestExceptionFormat.FULL
+//            events TestLogEvent.FAILED, TestLogEvent.STANDARD_OUT, TestLogEvent.STANDARD_ERROR
+            events TestLogEvent.values()
+            showStandardStreams = true
+        }
+    }
+    test {
+        afterTest { desc, result ->
+            println "Executing test [${desc.className}].${desc.name} with result: ${result.resultType}"
+        }
+        reports.html.enabled = !isRunInCI
     }
 }
 
-jacocoTestReport {
+subprojects{
+    apply plugin: 'java'
+    apply plugin: 'groovy'
+    apply plugin: 'idea'
+    apply plugin: 'jacoco'
+    dependencies {
+        testCompile("org.spockframework:spock-core:$spockVersion"){
+            exclude group: 'org.codehaus.groovy'
+        }
+    }
+}
+
+def inspectedProjects = subprojects + rootProject
+task jacocoMerge(type: JacocoMerge) {
+    inspectedProjects.each { subproject ->
+        executionData subproject.tasks.withType(Test)
+    }
+    doFirst {
+        executionData = files(executionData.findAll { it.exists() })
+    }
+}
+
+task jacocoRootReport(type: JacocoReport, group: 'Coverage reports') {
+    description = 'Generates an aggregate report from all subprojects'
+    dependsOn inspectedProjects.test, jacocoMerge
+
+    additionalSourceDirs = files(inspectedProjects.sourceSets.main.allSource.srcDirs)
+    sourceDirectories = files(inspectedProjects.sourceSets.main.allSource.srcDirs)
+    classDirectories = files(inspectedProjects.sourceSets.main.output)
+    executionData jacocoMerge.destinationFile
+
     reports {
         xml.enabled isRunInCI
         csv.enabled isRunInCI
@@ -92,43 +117,81 @@ jacocoTestReport {
             destination "${buildDir}/reports/jacoco"
         }
     }
-    executionData(test, integrationTest)
-    afterEvaluate {
-        classDirectories = files(classDirectories.files.collect {
-            fileTree(dir: it,
-//                    exclude: ['com/weirddev/testme/intellij/ui/**']
-            )
-        })
+}
+
+def shouldInstrumentCode = !isRunInCI && !Boolean.valueOf(System.getProperty('skipCodeInstrumentation','false'))
+def enabledPlugins = ['junit','properties']
+if (enableIdeaGroovyPlugin) {
+    enabledPlugins += 'Groovy'
+}
+if (enableIdeaScalaPlugin) {
+    enabledPlugins += ('org.intellij.scala:' + scalaPluginVersion)
+}
+intellij {
+    pluginName 'TestMe'
+    instrumentCode = shouldInstrumentCode
+    version ideaVersion
+    type ideaType
+    downloadSources !isRunInCI
+    sameSinceUntilBuild false
+    updateSinceUntilBuild false
+    plugins = enabledPlugins
+
+    publishPlugin {
+        username ideaPublishUsername
+        password ideaPublishPassword
+        channels = [ideaPublishChannel]
     }
 }
 
+idea {
+    project {
+        jdkName         = jvmTargetVersion
+        languageLevel   = jvmTargetVersion
+        vcs = 'Git'
+    }
+}
+
+
 dependencies {
+    compile(project(':testme-intellij-common')){
+        exclude group:'com.jetbrains', module: 'ideaIC'
+        exclude group:'org.jetbrains.plugins', module: 'junit'
+        exclude group:'org.jetbrains.plugins', module: 'properties'
+        exclude group:'org.jetbrains.plugins', module: 'Groovy'
+    }
     compile(project(':testme-intellij-groovy')){
         exclude group:'com.jetbrains', module: 'ideaIC'
         exclude group:'org.jetbrains.plugins', module: 'junit'
         exclude group:'org.jetbrains.plugins', module: 'properties'
         exclude group:'org.jetbrains.plugins', module: 'Groovy'
     }
+    compile(project(':testme-intellij-scala')){
+        exclude group:'com.jetbrains', module: 'ideaIC'
+        exclude group:'org.jetbrains.plugins', module: 'junit'
+        exclude group:'org.jetbrains.plugins', module: 'properties'
+        exclude group:'org.jetbrains.plugins', module: 'Groovy'
+        exclude group:'org.jetbrains.plugins', module: 'Scala'
+    }
+    compileOnly(project(':testme-intellij-idea-2017.3.compatibility'))
+
     testCompile 'junit:junit:4.12'
     testCompile("org.spockframework:spock-core:$spockVersion"){
         exclude group: 'org.codehaus.groovy'
     }
-}
-//subprojects{
-//    ideaVersion=ideaVersion
-//}
-tasks.withType(JavaCompile) {
-    options.encoding = 'UTF-8'
-    if (!javaHome) {
-        javaHome =  System.env.JAVA_HOME
-    }
-    options.bootClasspath = "$javaHome/jre/lib/rt.jar"
+    testCompileOnly group: 'org.scala-lang', name: 'scala-library', version: '2.10.6'
 }
 
-tasks.withType(Test) {
-    systemProperty 'enableIdeaGroovyPlugin', enableIdeaGroovyPlugin
-    reports.html.destination = file("${reporting.baseDir}/${name}")
-}
 check.dependsOn integrationTest
 integrationTest.mustRunAfter test
 tasks.build.dependsOn(jacocoTestReport)
+coveralls {
+    sourceDirs = inspectedProjects.sourceSets.main.allSource.srcDirs.flatten()
+    jacocoReportPath = "${buildDir}/reports/jacoco/jacocoRootReport/jacocoRootReport.xml"
+}
+tasks.coveralls {
+//    group = 'Coverage reports'
+//    description = 'Uploads the aggregated coverage report to Coveralls'
+//dependsOn jacocoRootReport
+    onlyIf { isRunInCI}
+}

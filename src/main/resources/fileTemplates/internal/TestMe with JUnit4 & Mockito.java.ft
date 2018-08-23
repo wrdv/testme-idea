@@ -26,7 +26,7 @@ public class ${CLASS_NAME} {
     }
 #end
 #foreach($method in $TESTED_CLASS.methods)
-#if($method.isTestable())
+#if($TestSubjectUtils.shouldBeTested($method))
 
     @Test
     public void #renderTestMethodName($method.name)() throws Exception {
@@ -35,7 +35,7 @@ public class ${CLASS_NAME} {
 
 #end
         #renderMethodCall($method,$TESTED_CLASS.name)
-#if($method.returnType && $method.returnType.name !="void")        Assert.#renderJUnitAssert($method)#end
+#if($method.hasReturn())        Assert.#renderJUnitAssert($method)#end
     }
 #end
 #end

@@ -9,6 +9,8 @@ import com.intellij.psi.*;
 import com.intellij.psi.impl.PsiElementFactoryImpl;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.IncorrectOperationException;
+import com.weirddev.testme.intellij.common.utils.LanguageUtils;
+import com.weirddev.testme.intellij.scala.resolvers.ScalaPsiRefactoringUtils;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
@@ -44,6 +46,8 @@ public class CodeRefactorUtil {
             newImport = createImportStatementOnDemand(project, unCommentedImport, unCommentedImport.contains("static"));
         } else if ("Groovy".equalsIgnoreCase(fileTypeName)) {
             newImport = createGroovyImport(project, unCommentedImport);
+        } else if (LanguageUtils.isScala(psiClass.getLanguage())) {
+            newImport = ScalaPsiRefactoringUtils.createScalaImport(project, unCommentedImport);
         }
         else {
             LOG.warn("Unsupported source file type "+fileTypeName);
@@ -56,7 +60,7 @@ public class CodeRefactorUtil {
         //            final GroovyPsiElementFactory factory = GroovyPsiElementFactory.getInstance(project);//Groovy is an optional dependency - no direct code dependency for now
         //            newImport = factory.createImportStatementFromText(unCommentedImport);
         //Groovy plugin dependant code - End
-        //The reflective non dependant version:
+        //The reflective version - not dependant on plugin existence:
         PsiElement newImport = null;
         try {
             final Class<?> aClass = Class.forName("org.jetbrains.plugins.groovy.lang.psi.GroovyPsiElementFactory");

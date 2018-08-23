@@ -1,6 +1,6 @@
 #parse("TestMe common macros.java")
 ################## Global vars ###############
-#set($grReplacementTypes = {
+#set($grReplacementTypesStatic = {
     "java.util.Collection": "[<VAL>]",
     "java.util.Deque": "new LinkedList([<VAL>])",
     "java.util.List": "[<VAL>]",
@@ -22,6 +22,14 @@
     "java.util.LinkedHashMap": "[<VAL>:<VAL>]",
     "java.util.TreeSet": "[<VAL>] as java.util.TreeSet"
 })
+#set($grReplacementTypes = $grReplacementTypesStatic.clone())
+#set($grReplacementTypesForReturn = $grReplacementTypesStatic.clone())
+#foreach($javaFutureType in $TestSubjectUtils.javaFutureTypes)
+#evaluate(${grReplacementTypes.put($javaFutureType,"java.util.concurrent.CompletableFuture.completedFuture(<VAL>)")})
+#end
+#foreach($javaFutureType in $TestSubjectUtils.javaFutureTypes)
+#evaluate(${grReplacementTypesForReturn.put($javaFutureType,"<VAL>")})
+#end
 #set($grDefaultTypeValues = {
     "byte": "(byte)0",
     "short": "(short)0",
@@ -45,6 +53,7 @@
     "java.time.LocalDate": "java.time.LocalDate.of($YEAR, java.time.Month.$MONTH_NAME_EN.toUpperCase(), $DAY_NUMERIC)",
     "java.time.LocalDateTime": "java.time.LocalDateTime.of($YEAR, java.time.Month.$MONTH_NAME_EN.toUpperCase(), $DAY_NUMERIC, $HOUR_NUMERIC, $MINUTE_NUMERIC, $SECOND_NUMERIC)",
     "java.time.LocalTime": "java.time.LocalTime.of($HOUR_NUMERIC, $MINUTE_NUMERIC, $SECOND_NUMERIC)",
+    "java.time.Instant": "java.time.LocalDateTime.of($YEAR, java.time.Month.$MONTH_NAME_EN.toUpperCase(), $DAY_NUMERIC, $HOUR_NUMERIC, $MINUTE_NUMERIC, $SECOND_NUMERIC).toInstant(java.time.ZoneOffset.UTC)",
     "java.io.File": "new File(getClass().getResource(""/$PACKAGE_NAME.replace('.','/')/PleaseReplaceMeWithTestFile.txt"").getFile())",
     "java.lang.Class": "Class.forName(""$TESTED_CLASS.canonicalName"")"
 })
@@ -72,11 +81,15 @@
 #end
 ##
 #macro(grRenderAssert $method)
-result == $TestBuilder.renderReturnParam($method,$method.returnType,"replaceMeWithExpectedResult",$grReplacementTypes,$grDefaultTypeValues)
+result#if($TestSubjectUtils.isJavaFuture($method.returnType)).get()#end == $TestBuilder.renderReturnParam($method,$method.returnType,"replaceMeWithExpectedResult",$grReplacementTypesForReturn,$grDefaultTypeValues)
 #end
 ##
 #macro(grRenderMethodCall $method,$testedClassName)
 #renderJavaReturnVar($method.returnType)#if($method.static)$testedClassName#{else}$StringUtils.deCapitalizeFirstLetter($testedClassName)#end.${method.name}($TestBuilder.renderMethodParams($method,$grReplacementTypes,$grDefaultTypeValues))
+#end
+##
+#macro(grRenderParameterizedMethodCall $method,$testedClassName $methodClassParamsStr)
+#if($method.static)$testedClassName#{else}$StringUtils.deCapitalizeFirstLetter($testedClassName)#end.${method.name}($methodClassParamsStr)##
 #end
 ##
 #macro(grRenderMockStubs $method $testedClassFields)
@@ -84,7 +97,7 @@ result == $TestBuilder.renderReturnParam($method,$method.returnType,"replaceMeWi
 #if($MockitoMockBuilder.isMockable($field))
 #foreach($fieldMethod in $field.type.methods)
 #if($fieldMethod.returnType && $fieldMethod.returnType.name !="void" && $TestSubjectUtils.isMethodCalled($fieldMethod,$method))
-        when($field.name.${fieldMethod.name}($MockitoMockBuilder.buildMockArgsMatchers(${fieldMethod.methodParams}))).thenReturn($TestBuilder.renderReturnParam($method,$fieldMethod.returnType,"${fieldMethod.name}Response",$grReplacementTypes,$grDefaultTypeValues))
+        when($field.name.${fieldMethod.name}($MockitoMockBuilder.buildMockArgsMatchers(${fieldMethod.methodParams},"Jave"))).thenReturn($TestBuilder.renderReturnParam($method,$fieldMethod.returnType,"${fieldMethod.name}Response",$grReplacementTypes,$grDefaultTypeValues))
 #end
 #end
 #end

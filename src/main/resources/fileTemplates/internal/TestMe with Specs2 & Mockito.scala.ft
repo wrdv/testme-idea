@@ -1,0 +1,46 @@
+#parse("TestMe macros.scala")
+#set($constructor = $TestSubjectUtils.findOptimalConstructor($TESTED_CLASS))
+#set($hasMocks = $MockitoMockBuilder.hasMocks($constructor, $scDefaultTypeValues) )
+#if($PACKAGE_NAME)
+package ${PACKAGE_NAME}
+#end
+//import org.specs2.mutable.Specification
+#if($hasMocks)
+//import org.specs2.mock.Mockito
+#end
+#if($TestSubjectUtils.hasScalaFutureReturn($TESTED_CLASS.methods))
+import scala.concurrent.duration._
+import scala.concurrent.Await
+#end
+##if($MockitoMockBuilder.requiresExecutionContext($constructor))
+##import scala.concurrent.ExecutionContext.Implicits.global
+##end
+#parse("File Header.java")
+class ${CLASS_NAME} extends Specification #if($hasMocks) with Mockito#end{
+#if($hasMocks)
+    isolated
+#scRenderMockedParams($constructor)
+#end
+#if(!$TESTED_CLASS.isStatic() && $TestSubjectUtils.hasTestableInstanceMethod($TESTED_CLASS.methods))
+#scRenderTestSubjectInit($TESTED_CLASS,$hasMocks,$constructor)
+#end
+
+  "$StringUtils.removeSuffix($TESTED_CLASS.name,"$")" should {
+#foreach($method in $TESTED_CLASS.methods)
+#if($TestSubjectUtils.shouldBeTested($method))
+
+      "#renderTestMethodNameAsWords($method.name)" in {
+#if($MockitoMockBuilder.shouldStub($method,$constructor,$scDefaultTypeValues))
+#scRenderMockStubs($method, $constructor)
+#end
+        #scRenderMethodCall($method,$TESTED_CLASS)
+#if($method.hasReturn())        #scRenderAssert($method)#{else}false//todo - validate something
+#end
+      }
+#end
+#end
+
+  }
+}
+
+#parse("TestMe Footer.java")

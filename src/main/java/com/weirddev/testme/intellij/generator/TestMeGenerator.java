@@ -64,8 +64,10 @@ public class TestMeGenerator {
                                 return null;
                             }
                             try {
-                                CodeInsightUtil.positionCursor(project, targetClass.getContainingFile(), testClassElementsLocator.findOptimalCursorLocation(targetClass));
-//                            } catch (PsiInvalidElementAccessException e) {
+                                final PsiElement optimalCursorLocation = testClassElementsLocator.findOptimalCursorLocation(targetClass);
+                                if (optimalCursorLocation != null) {
+                                    CodeInsightUtil.positionCursor(project, targetClass.getContainingFile(), optimalCursorLocation);
+                                }
                             } catch (Throwable e) {
                                 LOG.warn("unable to locate optimal cursor location post test generation",e);
 //                                new OpenFileDescriptor(project, targetClass.getContainingFile().getVirtualFile()).navigate(true);
@@ -122,10 +124,10 @@ public class TestMeGenerator {
                 if (context.getFileTemplateConfig().isOptimizeImports()) {
                     codeStyleManager.optimizeImports(psiClass.getContainingFile());
                 }
-                codeRefactorUtil.uncommentImports(psiClass, context.getProject());
                 if (context.getFileTemplateConfig().isReplaceFqn()) {
                     codeStyleManager.shortenClassReferences(psiClass);
                 }
+                codeRefactorUtil.uncommentImports(psiClass, context.getProject());
                 if (context.getFileTemplateConfig().isReformatCode()) {
                     final PsiFile containingFile = psiClass.getContainingFile();
                     final TextRange textRange = containingFile.getTextRange();
@@ -157,15 +159,32 @@ public class TestMeGenerator {
 //    }
 
     private PsiElement resolveEmbeddedClass(PsiElement psiElement) {
-        if (!(psiElement instanceof PsiClass)){//Important for Groovy support - expecting org.jetbrains.plugins.groovy.lang.psi.GroovyFile. see org.jetbrains.plugins.groovy.annotator.intentions.CreateClassActionBase.createClassByType
+        //Important for Groovy support - expecting org.jetbrains.plugins.groovy.lang.psi.GroovyFile. see org.jetbrains.plugins.groovy.annotator.intentions.CreateClassActionBase.createClassByType
+        final PsiElement resolveEmbeddedClass = resolveEmbeddedClassRecursive(psiElement, 2);
+        if (resolveEmbeddedClass == null) {
+            return psiElement;
+        } else {
+            return resolveEmbeddedClass;
+        }
+    }
+
+    @Nullable
+    private PsiElement resolveEmbeddedClassRecursive(PsiElement psiElement, int recursionLevel) {
+        if (psiElement instanceof PsiClass) {
+            return psiElement;
+        } else  if (recursionLevel <= 0) {
+            return null;
+        }
+        else{
             final PsiElement[] psiElementChildren = psiElement.getChildren();
             for (PsiElement psiElementChild : psiElementChildren) {
-                if (psiElementChild instanceof PsiClass) {
-                    return psiElementChild;
+                final PsiElement resolvedPsiClass= resolveEmbeddedClassRecursive(psiElementChild, recursionLevel - 1);
+                if (resolvedPsiClass != null) {
+                    return resolvedPsiClass;
                 }
             }
         }
-        return psiElement;
+        return null;
     }
 
     static void showErrorLater(final Project project, final String targetClassName) {

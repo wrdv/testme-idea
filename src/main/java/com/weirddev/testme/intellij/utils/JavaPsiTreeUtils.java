@@ -1,8 +1,12 @@
 package com.weirddev.testme.intellij.utils;
 import com.intellij.psi.*;
 import com.intellij.psi.util.PsiTreeUtil;
+import com.weirddev.testme.intellij.common.utils.LanguageUtils;
+import com.weirddev.testme.intellij.resolvers.to.MethodCallArg;
+import com.weirddev.testme.intellij.resolvers.to.ResolvedMethodCall;
 import com.weirddev.testme.intellij.resolvers.to.ResolvedReference;
-import com.weirddev.testme.intellij.template.context.MethodCallArgument;
+import com.weirddev.testme.intellij.scala.resolvers.ScalaPsiTreeUtils;
+import com.weirddev.testme.intellij.scala.resolvers.ScalaTypeUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -61,43 +65,60 @@ public class JavaPsiTreeUtils {
     }
 
     @NotNull
-    public static List<MethodCalled> findMethodCalls(PsiMethod psiMethod) {
-        List<MethodCalled> methodCalled=new ArrayList<MethodCalled>();
+    public static List<ResolvedMethodCall> findMethodCalls(PsiMethod psiMethod) {
+        List<ResolvedMethodCall > methodCalled= new ArrayList<>();
         final Collection<PsiCallExpression> psiMethodCallExpressions = PsiTreeUtil.findChildrenOfType(psiMethod, PsiCallExpression.class);
         for (PsiCallExpression psiMethodCallExpression : psiMethodCallExpressions) {
             final PsiMethod psiMethodResolved = psiMethodCallExpression.resolveMethod();
             if (psiMethodResolved != null) {
                 final PsiExpressionList argumentList = psiMethodCallExpression.getArgumentList();
-                final ArrayList<MethodCallArgument> methodCallArguments = new ArrayList<MethodCallArgument>();
+                final ArrayList<MethodCallArg> methodCallArguments = new ArrayList<>();
                 if (argumentList != null) {
                     for (PsiElement psiElement : argumentList.getChildren()) {
                         if (psiElement instanceof PsiJavaToken || psiElement instanceof PsiWhiteSpace ) {
                             continue;
                         }
-                        methodCallArguments.add(new MethodCallArgument(psiElement.getText()==null?"":psiElement.getText().trim()));
+                        methodCallArguments.add(new MethodCallArg(psiElement.getText()==null?"":psiElement.getText().trim()));
                     }
                 }
-                methodCalled.add(new MethodCalled(psiMethodResolved,methodCallArguments));
+                methodCalled.add(new ResolvedMethodCall(psiMethodResolved,methodCallArguments));
             }
         }
         return methodCalled;
     }
 
-    public static class MethodCalled {
-        private final PsiMethod psiMethod;
-        private final ArrayList<MethodCallArgument> methodCallArguments;
-
-        public MethodCalled(PsiMethod psiMethod, ArrayList<MethodCallArgument> methodCallArguments) {
-            this.psiMethod = psiMethod;
-            this.methodCallArguments = methodCallArguments;
+    public static boolean resolveIfEnum(PsiClass psiClass) {
+        if (psiClass != null) {
+            if(LanguageUtils.isScala(psiClass.getLanguage()) && ScalaTypeUtils.isEnum(psiClass)){
+                 return true;
+            }
+            else return psiClass.isEnum();
         }
+        return false;
+    }
 
-        public PsiMethod getPsiMethod() {
-            return psiMethod;
+    public static List<String> resolveEnumValues(PsiClass psiClass, Object typePsiElement) {
+        if (psiClass!=null && typePsiElement!=null && LanguageUtils.isScala(psiClass.getLanguage()) && ScalaTypeUtils.isEnumeration(psiClass) ) {
+            return ScalaPsiTreeUtils.resolveEnumValues(typePsiElement);
+        } else {
+            return resolveJavaEnumValues(psiClass);
         }
+    }
 
-        public ArrayList<MethodCallArgument> getMethodCallArguments() {
-            return methodCallArguments;
+    @NotNull
+    private static List<String> resolveJavaEnumValues(PsiClass psiClass) {
+        List<String> enumValues = new ArrayList<>();
+        if (resolveIfEnum(psiClass)) {
+            for (PsiField field : psiClass.getFields()) {
+                if (field instanceof PsiEnumConstant) {
+                    final PsiEnumConstant enumConstant = (PsiEnumConstant) field;
+                    final PsiEnumConstantInitializer initializingClass = enumConstant.getInitializingClass();
+                    if (initializingClass == null) {
+                        enumValues.add(enumConstant.getName());
+                    }
+                }
+            }
         }
+        return enumValues;
     }
 }

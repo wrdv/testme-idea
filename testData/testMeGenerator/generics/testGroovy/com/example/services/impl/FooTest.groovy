@@ -9,6 +9,9 @@ import org.junit.Before
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
+
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Future
 import static org.mockito.Mockito.*
 
 /** created by TestMe integration test on MMXVI */
@@ -36,6 +39,18 @@ class FooTest {
     @Test
     void testIntoTheVoid() {
         foo.intoTheVoid()
+    }
+
+    @Test
+    void testLookInto() {
+        Future result = foo.lookInto(CompletableFuture.completedFuture("String"), CompletableFuture.completedFuture("String"))
+        assert result.get() == "String"
+    }
+
+    @Test
+    void testWarm() {
+        CompletableFuture<Integer> result = foo.warm(CompletableFuture.completedFuture(new Fire()), CompletableFuture.completedFuture(new Ice()))
+        assert result.get() == 0
     }
 }
 

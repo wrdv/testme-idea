@@ -1,5 +1,7 @@
 package com.weirddev.testme.intellij.generator;
 
+import com.weirddev.testme.intellij.configuration.TestMeConfig;
+import com.weirddev.testme.intellij.configuration.TestMeConfigPersistent;
 import com.weirddev.testme.intellij.template.FileTemplateConfig;
 import com.weirddev.testme.intellij.template.TemplateRegistry;
 import com.weirddev.testme.intellij.template.context.Language;
@@ -20,105 +22,116 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
         super(templateFilename, testDirectory, language);
     }
 
-    public void testSimpleClass() throws Exception {
+    public void testSimpleClass() {
         doTest();
     }
-    public void testDefaultPackage() throws Exception {
-        doTest("", "Foo", "FooTest", true, false, true, false, 50);
+    public void testDefaultPackage() {
+        doTest("", "Foo", "FooTest", true, false, false, false, 50, false);
     }
-    public void testVariousFieldTypes() throws Exception {
-        final FileTemplateConfig fileTemplateConfig = FileTemplateConfig.getInstance();
-        fileTemplateConfig.setOptimizeImports(false);
-        fileTemplateConfig.setReplaceFqn(false);
+    public void testVariousFieldTypes() {
+        final TestMeConfig testMeConfig = new TestMeConfig();
+        testMeConfig.setOptimizeImports(false);
+        testMeConfig.setReplaceFullyQualifiedNames(false);
+        final FileTemplateConfig fileTemplateConfig = new FileTemplateConfig(testMeConfig);
         doTest(fileTemplateConfig);
     }
-    public void testWithSetters() throws Exception {
+    public void testWithSetters() {
         doTest();
     }
-    public void testConstructors() throws Exception {
+    public void testConstructors() {
         doTest(); //TODO template should initialize test subject directly with c'tor in this use case
     }
-    public void testOverloading() throws Exception {
+    public void testOverloading() {
         doTest();
     }
-    public void testNoFormatting() throws Exception {
+    public void testNoFormatting() {
         doTest(false, false, false);
     }
-    public void testTypeNameCollision() throws Exception {
+    public void testTypeNameCollision() {
         doTest(false,false,true);
     }
-    public void testTypeInDefaultPackageCollision() throws Exception {
-        doTest("", "Foo", "FooTest", true, true, true, false, 50);
+    public void testTypeInDefaultPackageCollision() {
+        doTest("", "Foo", "FooTest", true, false, false, false, 50, false);
     }
-    public void testInheritance() throws Exception {
-        final FileTemplateConfig fileTemplateConfig = FileTemplateConfig.getInstance();
-        fileTemplateConfig.setReformatCode(false);
-        fileTemplateConfig.setOptimizeImports(false);
-        fileTemplateConfig.setReplaceFqn(false);
+    public void testInheritance() {
+        final TestMeConfig testMeConfig = new TestMeConfig();
+        testMeConfig.setReformatCode(false);
+        testMeConfig.setOptimizeImports(false);
+        testMeConfig.setReplaceFullyQualifiedNames(false);
+        final FileTemplateConfig fileTemplateConfig = new FileTemplateConfig(testMeConfig);
         doTest(fileTemplateConfig);
     }
-    public void testGenerics() throws Exception {
+    public void testInheritanceIgnored() {
+        final TestMeConfig testMeConfig = new TestMeConfig();
+        testMeConfig.setReformatCode(false);
+        testMeConfig.setOptimizeImports(false);
+        testMeConfig.setReplaceFullyQualifiedNames(false);
+        testMeConfig.setGenerateTestsForInheritedMethods(false);
+        final FileTemplateConfig fileTemplateConfig = new FileTemplateConfig(testMeConfig);
+        doTest(fileTemplateConfig);
+    }
+    public void testGenerics() {
         doTest(false, false, true);
     }
-    public void testPrimitiveCallTypes() throws Exception {
+    public void testPrimitiveCallTypes() {
         doTest(false, false, true);
     }
-    public void testArrays() throws Exception {
+    public void testArrays() {
         doTest(false, false, true);
     }
-    public void testConstants() throws Exception {
+    public void testConstants() {
         doTest();
     }
-    public void testCollections() throws Exception {
+    public void testCollections() {
         doTest(false, false, true);
     }
-    public void testGenericsTypeCollision() throws Exception {
+    public void testGenericsTypeCollision() {
         doTest(false,false,true);
     }
-    public void testEnum() throws Exception {
+    public void testEnum() {
         doTest(false, false, true);
     }
-    public void testStatic() throws Exception {
+    public void testStatic() {
         doTest(false, false, true);
     }
-    public void testDate() throws Exception {
+    public void testDate() {
         doTest(false, true, true);
     }
-    public void testParamsConstructorsNoFqnReplacement() throws Exception {
+    public void testParamsConstructorsNoFqnReplacement() {
         doTest(true, true, false);
     }
-    public void testParamsConstructors() throws Exception {
-        final FileTemplateConfig fileTemplateConfig = FileTemplateConfig.getInstance();
+    public void testParamsConstructors() {
+        final FileTemplateConfig fileTemplateConfig = new FileTemplateConfig(TestMeConfigPersistent.getInstance().getState());
         fileTemplateConfig.setReplaceInterfaceParamsWithConcreteTypes(false);
         doTest(fileTemplateConfig);
     }
-    public void testMiscReplacementTypes() throws Exception {
+    public void testMiscReplacementTypes() {
         doTest(true, true, true);
     }
-    public void testStaticFieldless() throws Exception {
+    public void testStaticFieldless() {
         doTest(true, true, true);
     }
-    public void testCtorWhenNoMocks() throws Exception {
+    public void testCtorWhenNoMocks() {
         doTest(true, true, true);
     }
-    public void testNestedClassParams() throws Exception {
+    public void testNestedClassParams() {
         doTest(true, true, true);
     }
-    public void testGroovy() throws Exception {
+    public void testGroovy() {
         skipTestIfGroovyPluginDisabled();
-        doTest("com.example.services.impl", "Foovy", "FoovyTest", true, true, true, false, 50);
+        doTest("com.example.services.impl", "Foovy", "FoovyTest", true, true, true, false, 50, false);
     }
-    public void testIgnoreUnusedCtorArguments() throws Exception{
+    public void testIgnoreUnusedCtorArguments() {
         skipTestIfGroovyPluginDisabled();//this tested feature does not require Groovy IJ plugin but the test cases use Groovy objects
-        doTest(true,true,true, MIN_PERCENT_OF_EXCESSIVE_SETTERS_TO_PREFER_DEFAULT_CTOR, true);
+        doTest(true,true,true, MIN_PERCENT_OF_EXCESSIVE_SETTERS_TO_PREFER_DEFAULT_CTOR, true, false);
     }
-    public void testIgnoreUnusedCtorArgumentsIdentifyMethodReference() throws Exception{
+    public void testIgnoreUnusedCtorArgumentsIdentifyMethodReference() {
         skipTestIfGroovyPluginDisabled();//this tested feature does not require Groovy IJ plugin but the test cases use Groovy objects
-        doTest(true,true,true, MIN_PERCENT_OF_EXCESSIVE_SETTERS_TO_PREFER_DEFAULT_CTOR, true);
+        doTest(true,true,true, MIN_PERCENT_OF_EXCESSIVE_SETTERS_TO_PREFER_DEFAULT_CTOR, true, false);
     }
-    public void testIgnoreUnusedCtorArgumentsWhenDelegatedCalls() throws Exception{
+    public void testIgnoreUnusedCtorArgumentsWhenDelegatedCalls() {
         skipTestIfGroovyPluginDisabled();//this tested feature does not require Groovy IJ plugin but the test cases use Groovy objects
-        doTest(true,true,true, MIN_PERCENT_OF_EXCESSIVE_SETTERS_TO_PREFER_DEFAULT_CTOR, true);
+        doTest(true,true,true, MIN_PERCENT_OF_EXCESSIVE_SETTERS_TO_PREFER_DEFAULT_CTOR, true, false);
     }
 //    public void testIgnoreUnusedCtorArgumentsWhenDelegatedCallsInGroovy() throws Exception{  //todo fix different handling of array field  - BeanByCtor#myBeans - compared to testIgnoreUnusedCtorArgumentsWhenDelegatedCalls test
 //        doTest(true,true,true,67, true);
@@ -126,25 +139,32 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
 //    public void testIgnoreUnusedCtorArgumentsWhenNestedProps() throws Exception{//todo support this use case
 //        doTest(true,true,true,67, true);
 //    }
-    public void testIgnoreUnusedCtorArgumentsInGroovy() throws Exception{
+    public void testIgnoreUnusedCtorArgumentsInGroovy() {
         skipTestIfGroovyPluginDisabled();
         //note: 2nd ctor arg passed to BeanByCtor should actually be 'new Ice()' - rather than 'null' as currently set in excepted test outcome.
         // For some reason manual tests match the expected behaviour but the UT fails. expected test has been adapted to the 'wrong' UT runtime behaviour
-        doTest(true,true,true, MIN_PERCENT_OF_EXCESSIVE_SETTERS_TO_PREFER_DEFAULT_CTOR, true);
+        doTest(true,true,true, MIN_PERCENT_OF_EXCESSIVE_SETTERS_TO_PREFER_DEFAULT_CTOR, true, false);
     }
-    public void testWithFinalTypeDependency() throws Exception {
+    public void testWithFinalTypeDependency() {
         doTest(true, true, true);
     }
-    public void testReplacedInterface() throws Exception {
+    public void testReplacedInterface() {
         doTest(true, true, true);
     }
-   public void testMockReturned() throws Exception {
-       doTest(FileTemplateConfig.getInstance());
+   public void testMockReturned() {
+       doTest(new FileTemplateConfig(TestMeConfigPersistent.getInstance().getState()));
     }
-   public void testAvoidInfiniteRecursionSelfReferences() throws Exception {//todo fix issue with legitimate testable method interpreted as a getter
-       doTest(FileTemplateConfig.getInstance());
+   public void testAvoidInfiniteRecursionSelfReferences() {//todo fix issue with legitimate testable method interpreted as a getter
+       doTest(new FileTemplateConfig(TestMeConfigPersistent.getInstance().getState()));
     }
-
+    public void testOverrideAbstract() {
+        doTest(new FileTemplateConfig(TestMeConfigPersistent.getInstance().getState()));
+    }
+    public void testOverrideAbstractIgnoreInherited() {
+        final TestMeConfig testMeConfig = new TestMeConfig();
+        testMeConfig.setGenerateTestsForInheritedMethods(false);
+        doTest(new FileTemplateConfig(testMeConfig));
+    }
 //   public void testWithFinalTypeDependencyMockable() throws Exception {
 //       myFixture.copyDirectoryToProject("resources", "resources"); //issue with setting up a resource folder
 //        doTest(true, true, true);

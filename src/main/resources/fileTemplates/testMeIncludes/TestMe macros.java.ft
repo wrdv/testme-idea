@@ -1,6 +1,6 @@
 #parse("TestMe common macros.java")
 ################## Global vars ###############
-#set($replacementTypes = {
+#set($replacementTypesStatic = {
     "java.util.Collection": "java.util.Arrays.<TYPES>asList(<VAL>)",
     "java.util.Deque": "new java.util.LinkedList<TYPES>(java.util.Arrays.asList(<VAL>))",
     "java.util.List": "java.util.Arrays.<TYPES>asList(<VAL>)",
@@ -21,6 +21,14 @@
     "java.util.Stack": "new java.util.Stack<TYPES>(){{push(<VAL>);}}",
     "java.util.TreeSet": "new java.util.TreeSet<TYPES>(java.util.Arrays.asList(<VAL>))"
 })
+#set($replacementTypes = $replacementTypesStatic.clone())
+#set($replacementTypesForReturn = $replacementTypesStatic.clone())
+#foreach($javaFutureType in $TestSubjectUtils.javaFutureTypes)
+#evaluate(${replacementTypes.put($javaFutureType,"java.util.concurrent.CompletableFuture.completedFuture(<VAL>)")})
+#end
+#foreach($javaFutureType in $TestSubjectUtils.javaFutureTypes)
+#evaluate(${replacementTypesForReturn.put($javaFutureType,"<VAL>")})
+#end
 #set($defaultTypeValues = {
     "byte": "(byte) 0",
     "short": "(short) 0",
@@ -43,6 +51,7 @@
     "java.time.LocalDate": "java.time.LocalDate.of($YEAR, java.time.Month.$MONTH_NAME_EN.toUpperCase(), $DAY_NUMERIC)",
     "java.time.LocalDateTime": "java.time.LocalDateTime.of($YEAR, java.time.Month.$MONTH_NAME_EN.toUpperCase(), $DAY_NUMERIC, $HOUR_NUMERIC, $MINUTE_NUMERIC, $SECOND_NUMERIC)",
     "java.time.LocalTime": "java.time.LocalTime.of($HOUR_NUMERIC, $MINUTE_NUMERIC, $SECOND_NUMERIC)",
+    "java.time.Instant": "java.time.LocalDateTime.of($YEAR, java.time.Month.$MONTH_NAME_EN.toUpperCase(), $DAY_NUMERIC, $HOUR_NUMERIC, $MINUTE_NUMERIC, $SECOND_NUMERIC).toInstant(java.time.ZoneOffset.UTC)",
     "java.io.File": "new File(getClass().getResource(""/$PACKAGE_NAME.replace('.','/')/PleaseReplaceMeWithTestFile.txt"").getFile())",
     "java.lang.Class": "Class.forName(""$TESTED_CLASS.canonicalName"")"
 })
@@ -74,11 +83,11 @@
 #end
 ##
 #macro(renderJUnitAssert $method)
-#renderJunitAssertMethod($method.returnType)($TestBuilder.renderReturnParam($method,$method.returnType,"replaceMeWithExpectedResult",$replacementTypes,$defaultTypeValues), result);
+#renderJunitAssertMethod($method.returnType)($TestBuilder.renderReturnParam($method,$method.returnType,"replaceMeWithExpectedResult",$replacementTypesForReturn,$defaultTypeValues), result#{if}($TestSubjectUtils.isJavaFuture($method.returnType)).get()#{end});
 #end
 ##
 #macro(renderTestNgAssert $method)
-assertEquals(result, $TestBuilder.renderReturnParam($method,$method.returnType,"replaceMeWithExpectedResult",$replacementTypes,$defaultTypeValues));
+assertEquals(result#{if}($TestSubjectUtils.isJavaFuture($method.returnType)).get()#{end}, $TestBuilder.renderReturnParam($method,$method.returnType,"replaceMeWithExpectedResult",$replacementTypesForReturn,$defaultTypeValues));
 #end
 ##
 #macro(renderJunitAssertMethod $type)
@@ -94,7 +103,7 @@ assertEquals(result, $TestBuilder.renderReturnParam($method,$method.returnType,"
 #if($MockitoMockBuilder.isMockable($field))
 #foreach($fieldMethod in $field.type.methods)
 #if($fieldMethod.returnType && $fieldMethod.returnType.name !="void" && $TestSubjectUtils.isMethodCalled($fieldMethod,$method))
-        when($field.name.${fieldMethod.name}($MockitoMockBuilder.buildMockArgsMatchers(${fieldMethod.methodParams}))).thenReturn($TestBuilder.renderReturnParam($method,$fieldMethod.returnType,"${fieldMethod.name}Response",$replacementTypes,$defaultTypeValues));
+        when($field.name.${fieldMethod.name}($MockitoMockBuilder.buildMockArgsMatchers(${fieldMethod.methodParams},"Jave"))).thenReturn($TestBuilder.renderReturnParam($method,$fieldMethod.returnType,"${fieldMethod.name}Response",$replacementTypes,$defaultTypeValues));
 #end
 #end
 #end

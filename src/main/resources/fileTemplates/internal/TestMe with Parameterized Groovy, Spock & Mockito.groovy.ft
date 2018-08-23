@@ -1,0 +1,50 @@
+#parse("TestMe macros.groovy")
+#set($hasMocks=$MockitoMockBuilder.hasMockable($TESTED_CLASS.fields))
+#if($PACKAGE_NAME)
+package ${PACKAGE_NAME}
+#end
+import spock.lang.*
+#if($hasMocks)
+import org.mockito.InjectMocks
+import org.mockito.Mock
+import org.mockito.MockitoAnnotations
+//import static org.mockito.Mockito.*
+#end
+
+#parse("File Header.java")
+class ${CLASS_NAME}  extends Specification {
+#grRenderMockedFields($TESTED_CLASS.fields)
+#grRenderTestSubjectInit($TESTED_CLASS,$TestSubjectUtils.hasTestableInstanceMethod($TESTED_CLASS.methods),$hasMocks)
+#if($hasMocks)
+
+    def setup() {
+        MockitoAnnotations.initMocks(this)
+    }
+#end
+#foreach($method in $TESTED_CLASS.methods)
+#if($TestSubjectUtils.shouldBeTested($method))
+#set($paraTestComponents=$TestBuilder.buildPrameterizedTestComponents($method,$grReplacementTypesForReturn,$grReplacementTypes,$grDefaultTypeValues))
+
+    @Unroll
+    def "#renderTestMethodNameAsWords($method.name)$TestSubjectUtils.formatSpockParamNamesTitle($paraTestComponents.paramsMap, $method.hasReturn())"() {
+#if($MockitoMockBuilder.shouldStub($method,$TESTED_CLASS.fields))
+        given:
+#grRenderMockStubs($method,$TESTED_CLASS.fields)
+
+#end
+        expect:
+        #grRenderParameterizedMethodCall($method, $TESTED_CLASS.name, $paraTestComponents.methodClassParamsStr)#{if}($TestSubjectUtils.isJavaFuture($method.returnType)).get()#{end}#if($method.hasReturn()) == expectedResult
+#end
+#if(!$method.hasReturn())
+
+        assert expectedResult == false //todo - validate something
+#end
+
+        where:
+        $TestSubjectUtils.formatSpockDataParameters($paraTestComponents.paramsMap, "        ")
+    }
+#end
+#end
+}
+
+#parse("TestMe Footer.java")

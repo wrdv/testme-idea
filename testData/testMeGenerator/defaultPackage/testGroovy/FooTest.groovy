@@ -1,4 +1,3 @@
-import com.example.foes.Pokemon
 import org.junit.Test
 import org.junit.Before
 import org.mockito.InjectMocks
@@ -20,7 +19,7 @@ class FooTest {
 
     @Test
     void testFight() {
-        String result = foo.fight(new com.example.foes.Fire(), new Flames(), new Pokemon())
+        java.lang.String result = foo.fight(new com.example.foes.Fire(), new Flames(), new com.example.foes.Pokemon())
         assert result == "replaceMeWithExpectedResult"
     }
 }
