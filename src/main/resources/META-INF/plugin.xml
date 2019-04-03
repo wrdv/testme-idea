@@ -1,7 +1,7 @@
 <idea-plugin version="2">
   <id>com.weirddev.testme</id>
   <name>TestMe</name>
-  <version>2.0.0</version>
+  <version>3.0.0</version>
   <vendor email="testme@weirddev.com" url="http://weirddev.com">WeirdDev</vendor>
 
   <description><![CDATA[
@@ -19,20 +19,16 @@
     ]]></description>
 
   <change-notes><![CDATA[
-        <i>Main Changes in v2.0.0:</i>
+        <i>Main Changes in v3.0.0 (bugfix release):</i>
           <ul>
-            <li>Generate test code in Scala with Spec2 test framework</li>
-            <li>Generate Spock Parameterized tests</li>
-            <li>Test Scala classes</li>
-            <li>Properly Assert methods returning Java or Scala futures</li>
-            <li>New Settings UI to control some aspects of the test generation behavior</li>
-            <li>In Settings UI - an option to skip test generation for inherited methods (requested by subodh on Sep 16 '17 and by manishkumawat_900 on July 16 '18)</li>
+            <li>Fix broken compatibility with IDEA 2019.1 (reported by albertchen on April 1 '19)</li>
+            <li>Compatibility: Not supporting IDEA 2016 - 2018 versions any more. Scala support - tested against Scala plugin version 2019.1.6 (Optional dependency)</li>
           </ul>
         <a href="http://weirddev.com/testme/release-notes">Complete Release Notes listing</a>
     ]]>
   </change-notes>
   <!-- please see https://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
-  <idea-version since-build="163"/>
+  <idea-version since-build="191"/>
   <depends>com.intellij.modules.java</depends>
   <depends>JUnit</depends>
   <depends optional="true">org.intellij.groovy</depends>
