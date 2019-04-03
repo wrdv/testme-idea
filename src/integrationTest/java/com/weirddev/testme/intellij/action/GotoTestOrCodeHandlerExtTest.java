@@ -39,7 +39,7 @@ public class GotoTestOrCodeHandlerExtTest extends TestMeGeneratorTestBase {
 
     protected void verifyGotoDataActions(GotoTargetHandler.GotoData sourceAndTargetElements, String packageName, String expectedTestClassName) {
         Assert.assertNotNull(sourceAndTargetElements);
-        Assert.assertEquals(2,sourceAndTargetElements.additionalActions.size());
+        Assert.assertTrue(sourceAndTargetElements.additionalActions.size()>0);
         final GotoTargetHandler.AdditionalAction firstAction = sourceAndTargetElements.additionalActions.get(0);
         Assert.assertEquals("TestMe...", firstAction.getText());
         Assert.assertEquals(Icons.TEST_ME, firstAction.getIcon());
