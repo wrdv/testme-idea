@@ -29,13 +29,13 @@ public class FooTest {
 
     @Test
     public void testFight() throws Exception {
-        List<Fire> result = foo.fight(Arrays.<Fire>asList(new Fire()), new HashSet<Fire>(Arrays.asList(new Fire())), new HashMap<String,Ice>(){{put("String",new Ice());}}, Arrays.<String>asList("String"), Arrays.<List<String>>asList(Arrays.<String>asList("String")), new LinkedList<List<Fear>>(Arrays.asList(Arrays.<Fear>asList(new Fear()))), new LinkedList<Fear>(Arrays.asList(new Fear())));
+        List<Fire> result = foo.fight(Arrays.<Fire>asList(new Fire()), new HashSet<Fire>(Arrays.asList(new Fire())), new HashMap<String, Ice>(){{put("String",new Ice());}}, Arrays.<String>asList("String"), Arrays.<List<String>>asList(Arrays.<String>asList("String")), new LinkedList<List<Fear>>(Arrays.asList(Arrays.<Fear>asList(new Fear()))), new LinkedList<Fear>(Arrays.asList(new Fear())));
         Assert.assertEquals(Arrays.<Fire>asList(new Fire()), result);
     }
 
     @Test
     public void testFightConcreteTypes() throws Exception {
-        List<Fire> result = foo.fightConcreteTypes(new ArrayList<Fire>(Arrays.asList(new Fire())), new HashSet<Fire>(Arrays.asList(new Fire())), new HashMap<String,Ice>(){{put("String",new Ice());}}, new Vector(Arrays.asList(Arrays.<String>asList("String"))), new TreeSet<Fear>(Arrays.asList(new Fear())), new Stack<Fear>(){{push(new Fear());}});
+        List<Fire> result = foo.fightConcreteTypes(new ArrayList<Fire>(Arrays.asList(new Fire())), new HashSet<Fire>(Arrays.asList(new Fire())), new HashMap<String, Ice>(){{put("String",new Ice());}}, new Vector(Arrays.asList(Arrays.<String>asList("String"))), new TreeSet<Fear>(Arrays.asList(new Fear())), new Stack<Fear>(){{push(new Fear());}});
         Assert.assertEquals(Arrays.<Fire>asList(new Fire()), result);
     }
 
@@ -47,14 +47,14 @@ public class FooTest {
 
     @Test
     public void testMiscColls() throws Exception {
-        NavigableMap<String,Fire> result = foo.miscColls(new TreeMap<String,Fire>(new HashMap<String,Fire>(){{put("String",new Fire());}}), new TreeSet<Fire>(Arrays.asList(new Fire())), new Vector(Arrays.asList("String")), new TreeSet<Fire>(Arrays.asList(new Fire())));
-        Assert.assertEquals(new TreeMap<String,Fire>(new HashMap<String,Fire>(){{put("String",new Fire());}}), result);
+        NavigableMap<String, Fire> result = foo.miscColls(new TreeMap<String, Fire>(new HashMap<String, Fire>(){{put("String",new Fire());}}), new TreeSet<Fire>(Arrays.asList(new Fire())), new Vector(Arrays.asList("String")), new TreeSet<Fire>(Arrays.asList(new Fire())));
+        Assert.assertEquals(new TreeMap<String, Fire>(new HashMap<String, Fire>(){{put("String",new Fire());}}), result);
     }
 
     @Test
     public void testObjectMaps() throws Exception {
-        HashMap<Fire,Fire> result = foo.objectMaps(new TreeMap<Boolean,String>(new HashMap<Boolean,String>(){{put(Boolean.TRUE,"String");}}), new HashMap<Integer,Boolean>(){{put(Integer.valueOf(0),Boolean.TRUE);}}, new HashMap<Fire,Fire>(){{put(new Fire(),new Fire());}});
-        Assert.assertEquals(new HashMap<Fire,Fire>(){{put(new Fire(),new Fire());}}, result);
+        HashMap<Fire, Fire> result = foo.objectMaps(new TreeMap<Boolean, String>(new HashMap<Boolean, String>(){{put(Boolean.TRUE,"String");}}), new HashMap<Integer, Boolean>(){{put(Integer.valueOf(0),Boolean.TRUE);}}, new HashMap<Fire, Fire>(){{put(new Fire(),new Fire());}});
+        Assert.assertEquals(new HashMap<Fire, Fire>(){{put(new Fire(),new Fire());}}, result);
     }
 }
 

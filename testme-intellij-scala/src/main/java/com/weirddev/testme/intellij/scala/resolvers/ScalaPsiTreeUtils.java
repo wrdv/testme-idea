@@ -14,7 +14,7 @@ import com.weirddev.testme.intellij.scala.utils.GenericsExpressionParser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor;
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement;
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference;
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern;
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement;
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement;
@@ -249,10 +249,10 @@ public class ScalaPsiTreeUtils {
             }
         } else if (typePsiElement instanceof ScSimpleTypeElement) {
             final ScSimpleTypeElement scSimpleTypeElement = (ScSimpleTypeElement) typePsiElement;
-            final Option<ScStableCodeReferenceElement> reference = scSimpleTypeElement.reference();
+            final Option<ScStableCodeReference> reference = scSimpleTypeElement.reference();
             if (reference.isDefined()) {
-                final ScStableCodeReferenceElement scStableCodeReferenceElement = reference.get();
-                final PsiElement psiElement = scStableCodeReferenceElement.resolve();
+                final ScStableCodeReference ScStableCodeReference = reference.get();
+                final PsiElement psiElement = ScStableCodeReference.resolve();
                 if (psiElement instanceof ScTypeAliasDefinition) {
                     return resolveRawCanonicalTextFromAlias((ScTypeAliasDefinition) psiElement);
                 }
@@ -453,10 +453,10 @@ public class ScalaPsiTreeUtils {
     public static List<String> resolveEnumValues(Object typePsiElement) {
         if (typePsiElement instanceof ScSimpleTypeElement) {
             final ScSimpleTypeElement scSimpleTypeElement = (ScSimpleTypeElement) typePsiElement;
-            final Option<ScStableCodeReferenceElement> reference = scSimpleTypeElement.reference();
+            final Option<ScStableCodeReference> reference = scSimpleTypeElement.reference();
             if (reference.isDefined()) {
-                final ScStableCodeReferenceElement scStableCodeReferenceElement = reference.get();
-                final PsiElement psiElement = scStableCodeReferenceElement.resolve();
+                final ScStableCodeReference ScStableCodeReference = reference.get();
+                final PsiElement psiElement = ScStableCodeReference.resolve();
                 if (psiElement instanceof ScTypeAliasDefinition) {
                     return resolveEnumFieldsFromTypeAlias((ScTypeAliasDefinition) psiElement);
                 }

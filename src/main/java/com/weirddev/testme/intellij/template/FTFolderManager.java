@@ -62,7 +62,8 @@ import java.util.Map;
                 final String filename = path.substring(0, path.length() - TEMPLATE_EXTENSION_SUFFIX.length());
                 final String extension = getExtension(filename);
                 final String templateName = filename.substring(0, filename.length() - extension.length() - 1);
-                final URL templateUrl = UrlClassLoader.internProtocol(new URL(root.toExternalForm() + "/" + path));
+                final String rootDir = root.toExternalForm();
+                final URL templateUrl = UrlClassLoader.internProtocol(new URL((rootDir.endsWith("/") ? rootDir : (rootDir + "/")) + path));
                 assert templateUrl != null;
                 addDefaultTemplate(new DefaultTemplate(templateName, extension, templateUrl, null));
             }
