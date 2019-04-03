@@ -8,12 +8,13 @@ buildscript {
 }
 
 plugins {
-    id "org.jetbrains.intellij" version "0.2.17"
+    id "org.jetbrains.intellij" version "0.4.7"
     id 'jacoco'
-    id 'org.unbroken-dome.test-sets' version '1.3.2'
-    id 'com.github.kt3k.coveralls' version '2.6.3'
+    id 'org.unbroken-dome.test-sets' version '2.1.1'
+//    id 'net.saliman.cobertura' version '2.3.1'
+    id 'com.github.kt3k.coveralls' version '2.8.2'
 }
-
+//cobertura.coverageFormats = ['html', 'xml'] // coveralls plugin depends on xml format report
 //def buildTrigger = System.getenv('TRAVIS_EVENT_TYPE')
 def enableIdeaGroovyPlugin=Boolean.valueOf(enableIdeaGroovyPlugin)
 def groovyOn = enableIdeaGroovyPlugin ? 'enabled':'disabled'
@@ -47,7 +48,7 @@ allprojects{
         if (!javaHome) {
             javaHome =  System.getenv().JAVA_HOME
         }
-        options.bootClasspath = "$javaHome/jre/lib/rt.jar"
+//        options.bootClasspath = "$javaHome/jre/lib/rt.jar"
     }
     testSets {
         integrationTest
@@ -99,7 +100,19 @@ task jacocoMerge(type: JacocoMerge) {
         executionData = files(executionData.findAll { it.exists() })
     }
 }
-
+/*ref: https://docs.gradle.org/current/userguide/jacoco_plugin.html
+jacocoTestReport {
+    reports {
+        xml.enabled isRunInCI
+        csv.enabled isRunInCI
+        html{
+            enabled !isRunInCI
+            destination "${buildDir}/reports/jacoco"
+        }
+//        html.destination file("${buildDir}/jacocoHtml")
+    }
+}*/
+/*
 task jacocoRootReport(type: JacocoReport, group: 'Coverage reports') {
     description = 'Generates an aggregate report from all subprojects'
     dependsOn inspectedProjects.test, jacocoMerge
@@ -118,6 +131,7 @@ task jacocoRootReport(type: JacocoReport, group: 'Coverage reports') {
         }
     }
 }
+*/
 
 def shouldInstrumentCode = !isRunInCI && !Boolean.valueOf(System.getProperty('skipCodeInstrumentation','false'))
 def enabledPlugins = ['junit','properties']
