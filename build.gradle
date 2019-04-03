@@ -112,7 +112,6 @@ jacocoTestReport {
 //        html.destination file("${buildDir}/jacocoHtml")
     }
 }*/
-/*
 task jacocoRootReport(type: JacocoReport, group: 'Coverage reports') {
     description = 'Generates an aggregate report from all subprojects'
     dependsOn inspectedProjects.test, jacocoMerge
@@ -127,11 +126,10 @@ task jacocoRootReport(type: JacocoReport, group: 'Coverage reports') {
         csv.enabled isRunInCI
         html{
             enabled !isRunInCI
-            destination "${buildDir}/reports/jacoco"
+            destination file("${buildDir}/reports/jacoco")
         }
     }
 }
-*/
 
 def shouldInstrumentCode = !isRunInCI && !Boolean.valueOf(System.getProperty('skipCodeInstrumentation','false'))
 def enabledPlugins = ['junit','properties']
@@ -205,6 +203,6 @@ coveralls {
 tasks.coveralls {
 //    group = 'Coverage reports'
 //    description = 'Uploads the aggregated coverage report to Coveralls'
-//dependsOn jacocoRootReport
+dependsOn jacocoRootReport
     onlyIf { isRunInCI}
 }

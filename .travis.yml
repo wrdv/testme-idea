@@ -17,7 +17,7 @@ script:
  - ./gradlew check -PideaVersion=$IDEA_VERSION -PscalaPluginVersion=$SCALA_PLUGIN_VERSION -PenableIdeaGroovyPlugin=$ENABLE_IDEA_GROOVY_PLUGIN -PenableIdeaScalaPlugin=$ENABLE_IDEA_SCALA_PLUGIN jacocoRootReport
 after_failure: ./print_surefire_reports.sh
 after_success:
-  - ./gradlew jacocoTestReport coveralls
+  - ./gradlew coveralls
 #  - ./gradlew cobertura coveralls
 before_cache:
   - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
