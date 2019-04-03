@@ -1,4 +1,0 @@
-apply plugin: 'java'
-
-description "contains optional IDEA 2017.3.x interfaces for compile time only"
-

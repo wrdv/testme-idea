@@ -1,2 +1,2 @@
 rootProject.name = 'testme-intellij'
-include 'testme-intellij-common', 'testme-intellij-groovy', 'testme-intellij-scala', 'testme-intellij-idea-2017.3.compatibility'
+include 'testme-intellij-common', 'testme-intellij-groovy', 'testme-intellij-scala'
