@@ -30,7 +30,8 @@ public class TestMePluginRegistration implements ApplicationComponent {
         }
         ActionManager am = ActionManager.getInstance();
         AnAction action = new GotoTestOrCodeActionExt();
-        am.unregisterAction(GOTO_TEST_ACTION_ID);
+//        am.replaceAction(GOTO_TEST_ACTION_ID, action);
+//        am.unregisterAction(GOTO_TEST_ACTION_ID);
         am.registerAction(GOTO_TEST_ACTION_ID, action);
     }
 
