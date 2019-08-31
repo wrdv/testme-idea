@@ -5,6 +5,10 @@ def ideaVersion = (rootProject.hasProperty('ideaVersion') && rootProject.ideaVer
 def ideaType = (rootProject.hasProperty('ideaType') && rootProject.ideaType) ? rootProject.ideaType : 'IC'
 //def spockVersion = ideaVersion.startsWith("14.") || ideaVersion.startsWith("15.")? "1.0-groovy-2.3" : "1.0-groovy-2.4"
 def shouldInstrumentCode = (rootProject.hasProperty('shouldInstrumentCode') && rootProject.shouldInstrumentCode) ? rootProject.shouldInstrumentCode : true
+apply from: "$rootProject.projectDir/shared.gradle"
+def enabledPlugins = ['java','junit','properties']
+enabledPlugins = filterPlugins(enabledPlugins)
+
 intellij {
     pluginName 'TestMe'
     instrumentCode = shouldInstrumentCode
@@ -13,6 +17,6 @@ intellij {
     downloadSources true
     sameSinceUntilBuild false
     updateSinceUntilBuild false
-    plugins = ['junit','properties']
+    plugins = enabledPlugins
 }
 

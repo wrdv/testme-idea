@@ -5,4 +5,5 @@
 *.ipr
 build/
 hs_err_pid*
-classes/
+classes
+out

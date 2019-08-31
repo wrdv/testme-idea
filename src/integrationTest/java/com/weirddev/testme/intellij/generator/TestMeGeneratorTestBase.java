@@ -111,8 +111,8 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
             PsiElement result = new TestMeGenerator(new TestClassElementsLocator(), testTemplateContextBuilder,new CodeRefactorUtil()).generateTest(new FileTemplateContext(new FileTemplateDescriptor(templateFilename), language, getProject(),
                     expectedTestClassName,
                     targetPackage,
-                    myModule,
-                    myModule,
+                    getModule(),
+                    getModule(),
                     srcDir,
                     fooClass,
                     fileTemplateConfig));

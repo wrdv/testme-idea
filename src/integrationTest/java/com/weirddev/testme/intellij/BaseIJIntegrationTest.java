@@ -9,7 +9,7 @@ import com.intellij.openapi.roots.ContentEntry;
 import com.intellij.openapi.roots.ModifiableRootModel;
 import com.intellij.testFramework.LightProjectDescriptor;
 import com.intellij.testFramework.fixtures.DefaultLightProjectDescriptor;
-import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
+import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -19,7 +19,7 @@ import java.io.File;
  *
  * @author Yaron Yamin
  */
-abstract public class BaseIJIntegrationTest extends LightCodeInsightFixtureTestCase {
+abstract public class BaseIJIntegrationTest extends LightJavaCodeInsightFixtureTestCase {
     private static final String FILE_HEADER_TEMPLATE = "File Header.java";
     private static final String HEADER_TEMPLATE_REPLACEMENT_TEXT = "/** created by TestMe integration test on MMXVI */\n";
     private static boolean isHeaderTemplateReplaced=false;
