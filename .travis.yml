@@ -1,6 +1,6 @@
 language: java
 jdk:
-  - oraclejdk12
+  - openjdk8
 install: echo "skiping install phase"
 env:
   - IDEA_VERSION=2019.1 SCALA_PLUGIN_VERSION=2019.1.6 ENABLE_IDEA_GROOVY_PLUGIN=false ENABLE_IDEA_SCALA_PLUGIN=true
