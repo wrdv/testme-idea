@@ -1,5 +1,6 @@
 package com.weirddev.testme.intellij.template.context;
 
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.Pair;
 import com.intellij.psi.*;
 import com.intellij.psi.impl.source.PsiClassReferenceType;
@@ -9,6 +10,7 @@ import com.intellij.psi.search.searches.ReferencesSearch;
 import com.intellij.psi.util.MethodSignatureUtil;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.util.PsiUtil;
+import com.weirddev.testme.intellij.common.reflection.MethodReflectionUtils;
 import com.weirddev.testme.intellij.common.utils.PsiMethodUtils;
 import com.weirddev.testme.intellij.groovy.resolvers.GroovyPsiTreeUtils;
 import com.weirddev.testme.intellij.common.utils.LanguageUtils;
@@ -31,6 +33,8 @@ import java.util.stream.Stream;
  * @author Yaron Yamin
  */
 public class Method {
+    private static final Logger LOG = Logger.getInstance(Method.class.getName());
+
     private final Type returnType;
     private final String name;
     private final String ownerClassCanonicalType;
@@ -291,20 +295,24 @@ public class Method {
     }
     private static ArrayList<Field> findMatchingFields(PsiParameter psiParameter, PsiMethod psiMethod) {
         final ArrayList<Field> fields = new ArrayList<Field>();
-        if (!psiMethod.hasModifierProperty(PsiModifier.STATIC)) {
-            for (PsiReference reference : ReferencesSearch.search(psiParameter, new LocalSearchScope(new PsiMethod[]{psiMethod}))) {
-                final PsiElement element = reference.getElement();
-                PsiField psiField = null;
-                if (LanguageUtils.isGroovy(element.getLanguage())) {
-                    psiField = GroovyPsiTreeUtils.resolveGrLeftHandExpressionAsField(element);
-                }
-                else if (element instanceof PsiExpression && !PsiUtil.isOnAssignmentLeftHand((PsiExpression) element)) {
-                    psiField = resolveLeftHandExpressionAsField((PsiExpression) element);
-                }
-                if (psiField != null) {
-                    fields.add(new Field(psiField, psiField.getContainingClass(),null, 0));
+        try {
+            if (!psiMethod.hasModifierProperty(PsiModifier.STATIC)) {
+                for (PsiReference reference : ReferencesSearch.search(psiParameter, new LocalSearchScope(new PsiMethod[]{psiMethod}))) {
+                    final PsiElement element = reference.getElement();
+                    PsiField psiField = null;
+                    if (LanguageUtils.isGroovy(element.getLanguage())) {
+                        psiField = GroovyPsiTreeUtils.resolveGrLeftHandExpressionAsField(element);
+                    }
+                    else if (element instanceof PsiExpression && !PsiUtil.isOnAssignmentLeftHand((PsiExpression) element)) {
+                        psiField = resolveLeftHandExpressionAsField((PsiExpression) element);
+                    }
+                    if (psiField != null && psiField.getContainingClass() != null) {
+                        fields.add(new Field(psiField, psiField.getContainingClass(),null, 0));
+                    }
                 }
             }
+        } catch (Throwable e) {
+            LOG.warn(String.format("cant search for matching fields for parameter %s in method %s", psiParameter.getName(), psiMethod.getName()),e);
         }
         return fields;
     }

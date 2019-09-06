@@ -9,14 +9,14 @@ class FooTest extends Specification {
 
   "Foo" should {
 
-    "fight With Map" in {
-      val result = Foo.fightWithMap(Some("optFire"))
-      Await.result(result, 10.seconds) === Some("Option")
-    }
-
     "fight" in {
       val result = Foo.fight(Some("optFire"))
       Await.result(result, 10.seconds) === "replaceMeWithExpectedResult"
+    }
+
+    "fight With Map" in {
+      val result = Foo.fightWithMap(Some("optFire"))
+      Await.result(result, 10.seconds) === Some("Option")
     }
 
   }
