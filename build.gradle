@@ -132,13 +132,16 @@ task jacocoRootReport(type: JacocoReport, group: 'Coverage reports') {
 }
 
 def shouldInstrumentCode = !isRunInCI && !Boolean.valueOf(System.getProperty('skipCodeInstrumentation','false'))
-def enabledPlugins = ['junit','properties']
+def enabledPlugins = ['java','junit','properties']
 if (enableIdeaGroovyPlugin) {
     enabledPlugins += 'Groovy'
 }
 if (enableIdeaScalaPlugin) {
     enabledPlugins += ('org.intellij.scala:' + scalaPluginVersion)
 }
+apply from: "$rootProject.projectDir/shared.gradle"
+enabledPlugins = filterPlugins(enabledPlugins)
+
 intellij {
     pluginName 'TestMe'
     instrumentCode = shouldInstrumentCode
@@ -148,10 +151,8 @@ intellij {
     sameSinceUntilBuild false
     updateSinceUntilBuild false
     plugins = enabledPlugins
-
     publishPlugin {
-        username ideaPublishUsername
-        password ideaPublishPassword
+        token System.getenv("ORG_GRADLE_PROJECT_intellijPublishToken")
         channels = [ideaPublishChannel]
     }
 }

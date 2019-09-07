@@ -1,7 +1,7 @@
 <idea-plugin version="2">
   <id>com.weirddev.testme</id>
   <name>TestMe</name>
-  <version>3.0.0</version>
+  <version>3.0.1</version>
   <vendor email="testme@weirddev.com" url="http://weirddev.com">WeirdDev</vendor>
 
   <description><![CDATA[
@@ -19,10 +19,11 @@
     ]]></description>
 
   <change-notes><![CDATA[
-        <i>Main Changes in v3.0.0 (bugfix release):</i>
+        <i>Main Changes in v3.0.1 (bugfix release):</i>
           <ul>
-            <li>Fix broken compatibility with IDEA 2019.1 (reported by albertchen on April 1 '19)</li>
-            <li>Compatibility: Not supporting IDEA 2016 - 2018 versions any more. Scala support - tested against Scala plugin version 2019.1.6 (Optional dependency)</li>
+            <li>Fix issue with Goto Test dialog (Ctrl+Shift T) not opening in IDEA 2019.2.x (reported by Simon Stratmann on August 23 '19)</li>
+            <li>Fix degradation issue with mock stub args not generated properly due to typo in macro code</li>
+            <li>Fix error during test generation for target scala class's ( while searching method args references)</li>
           </ul>
         <a href="http://weirddev.com/testme/release-notes">Complete Release Notes listing</a>
     ]]>
