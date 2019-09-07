@@ -3,6 +3,9 @@ apply plugin: 'org.jetbrains.intellij'
 def ideaVersion = (rootProject.hasProperty('ideaVersion') && rootProject.ideaVersion) ? rootProject.ideaVersion : '2016.3'
 def ideaType = (rootProject.hasProperty('ideaType') && rootProject.ideaType) ? rootProject.ideaType : 'IC'
 def shouldInstrumentCode = (rootProject.hasProperty('shouldInstrumentCode') && rootProject.shouldInstrumentCode) ? rootProject.shouldInstrumentCode : true
+apply from: "$rootProject.projectDir/shared.gradle"
+def enabledPlugins = ['java','junit','properties','Groovy']
+enabledPlugins = filterPlugins(enabledPlugins)
 
 intellij {
     pluginName 'TestMe'
@@ -12,7 +15,7 @@ intellij {
     downloadSources true
     sameSinceUntilBuild false
     updateSinceUntilBuild false
-    plugins = ['junit','properties','Groovy']
+    plugins = enabledPlugins
 }
 
 

@@ -1,0 +1,8 @@
+ext.filterPlugins =  {plugins ->
+    if (project.property('ideaVersion')  == '2019.1') {
+        return plugins.findAll { it != 'java' }
+    }
+    else{
+        return plugins
+    }
+}
