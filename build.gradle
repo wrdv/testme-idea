@@ -151,10 +151,8 @@ intellij {
     sameSinceUntilBuild false
     updateSinceUntilBuild false
     plugins = enabledPlugins
-
     publishPlugin {
-        username ideaPublishUsername
-        password ideaPublishPassword
+        token System.getenv("ORG_GRADLE_PROJECT_intellijPublishToken")
         channels = [ideaPublishChannel]
     }
 }
