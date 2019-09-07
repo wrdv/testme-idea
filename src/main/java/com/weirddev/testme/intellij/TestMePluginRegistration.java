@@ -33,9 +33,9 @@ public class TestMePluginRegistration implements ApplicationComponent {
         AnAction action = new GotoTestOrCodeActionExt();
         final int baselineVersion = ApplicationInfo.getInstance().getBuild().getBaselineVersion();
         LOG.info("registering action on idea version:" + baselineVersion);
-//        if ("Y".equalsIgnoreCase(System.getProperty("IN_TEST_MODE")) || baselineVersion < 192) {
-//            am.unregisterAction(GOTO_TEST_ACTION_ID);
-//        }
+        if ("Y".equalsIgnoreCase(System.getProperty("IN_TEST_MODE")) /*|| baselineVersion < 192*/) {
+            am.unregisterAction(GOTO_TEST_ACTION_ID);
+        }
         am.registerAction(GOTO_TEST_ACTION_ID, action);
     }
 
