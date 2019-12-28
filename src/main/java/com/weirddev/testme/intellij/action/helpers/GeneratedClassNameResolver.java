@@ -4,16 +4,19 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.InputValidatorEx;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.io.FileUtilRt;
+import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiDirectory;
+import com.intellij.psi.codeStyle.JavaCodeStyleSettings;
 import com.intellij.refactoring.util.RefactoringMessageUtil;
 import com.weirddev.testme.intellij.template.TemplateDescriptor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class GeneratedClassNameResolver {
+
     @NotNull
-    public ClassNameSelection resolveClassName(@NotNull Project project, PsiDirectory targetDirectory, String targetTestSubjectClassName, TemplateDescriptor templateDescriptor) {
-        String className = buildDefaultTestClassName(targetTestSubjectClassName, templateDescriptor);
+    public ClassNameSelection resolveClassName(@NotNull Project project, PsiDirectory targetDirectory, PsiClass targetTestSubjectClass, TemplateDescriptor templateDescriptor) {
+        String className = composeTestClassName(targetTestSubjectClass);
         ClassNameSelection classNameSelection;
         //TODO add merge option
         final String fileCreateErrorMessage = RefactoringMessageUtil.checkCanCreateFile(targetDirectory, className + "." + FileUtilRt.getExtension(templateDescriptor.getFilename()));
@@ -29,7 +32,6 @@ public class GeneratedClassNameResolver {
         }
         return classNameSelection;
     }
-
     @NotNull
     private ClassNameSelection getUserDecision(@NotNull Project project, final String className, String fileCreateErrorMessage, String dialogTitle) {
         ClassNameSelection classNameSelection;
@@ -65,8 +67,8 @@ public class GeneratedClassNameResolver {
         }
         return classNameSelection;
     }
-
-    private String buildDefaultTestClassName(String targetTestSubjectClassName, TemplateDescriptor templateDescriptor) {
-        return String.format(templateDescriptor.getTestClassFormat(), targetTestSubjectClassName);
+    private String composeTestClassName(PsiClass targetClass) {
+        JavaCodeStyleSettings customSettings = JavaCodeStyleSettings.getInstance(targetClass.getContainingFile());
+        return customSettings.TEST_NAME_PREFIX + targetClass.getName() + customSettings.TEST_NAME_SUFFIX;
     }
 }
