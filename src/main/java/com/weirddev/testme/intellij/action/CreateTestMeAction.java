@@ -106,7 +106,7 @@ public class CreateTestMeAction extends CreateTestAction {
             return;
         }
         LOG.debug("targetDirectory:"+targetDirectory.getVirtualFile().getUrl());
-        final ClassNameSelection classNameSelection = generatedClassNameResolver.resolveClassName(project, targetDirectory, srcClass.getName(), templateDescriptor);
+        final ClassNameSelection classNameSelection = generatedClassNameResolver.resolveClassName(project, targetDirectory, srcClass, templateDescriptor);
         if (classNameSelection.getUserDecision() != ClassNameSelection.UserDecision.Abort) {
             final Module finalTestModule = testModule;
             CommandProcessor.getInstance().executeCommand(project, new Runnable() {
