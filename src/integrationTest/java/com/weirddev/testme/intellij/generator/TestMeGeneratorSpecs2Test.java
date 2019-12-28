@@ -100,7 +100,7 @@ public class TestMeGeneratorSpecs2Test extends TestMeGeneratorTestBase   {
     protected LightProjectDescriptor getProjectDescriptor() {
         return new LightProjectDescriptor(){
             @NotNull
-            @Override
+//            @Override
             public ModuleType getModuleType() {
                 return StdModuleTypes.JAVA;
             }

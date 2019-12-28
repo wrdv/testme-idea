@@ -1,7 +1,7 @@
 package com.weirddev.testme.intellij.template;
 
-import com.weirddev.testme.intellij.icon.IconTokensReplacerImpl;
 import com.weirddev.testme.intellij.common.utils.LanguageUtils;
+import com.weirddev.testme.intellij.icon.IconTokensReplacerImpl;
 import com.weirddev.testme.intellij.template.context.Language;
 
 /**
@@ -39,11 +39,6 @@ public class TemplateDescriptor {
     public String getFilename() {
         return filename;
     }
-
-    public String getTestClassFormat() {
-        return "%sTest";
-    }
-
     public boolean isEnabled() {
         if (dependantPlugins != null) {
             for (String pluginId : dependantPlugins) {
