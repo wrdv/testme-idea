@@ -26,7 +26,6 @@ abstract public class BaseIJIntegrationTest extends LightJavaCodeInsightFixtureT
 
     public BaseIJIntegrationTest(String testDataRoot) {
         this.testDataRoot = testDataRoot;
-        System.setProperty("IN_TEST_MODE", "Y");
     }
 
     @Override
