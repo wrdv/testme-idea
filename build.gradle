@@ -46,7 +46,7 @@ allprojects{
     tasks.withType(JavaCompile) {
         options.encoding = 'UTF-8'
         if (!javaHome) {
-            javaHome =  System.getenv().JAVA_HOME
+            javaHome =  System.getenv().JAVA_HOME//            javaHome =  'C:\\Program Files\\AdoptOpenJDK\\jdk-13.0.2.8-hotspot'
         }
 //        options.bootClasspath = "$javaHome/jre/lib/rt.jar"
     }
@@ -164,7 +164,6 @@ idea {
         vcs = 'Git'
     }
 }
-
 
 dependencies {
     compile(project(':testme-intellij-common')){

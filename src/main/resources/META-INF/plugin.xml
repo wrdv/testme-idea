@@ -1,7 +1,7 @@
 <idea-plugin version="2">
   <id>com.weirddev.testme</id>
   <name>TestMe</name>
-  <version>3.0.2</version>
+  <version>3.0.3</version>
   <vendor email="testme@weirddev.com" url="http://weirddev.com">WeirdDev</vendor>
 
   <description><![CDATA[
@@ -19,10 +19,9 @@
     ]]></description>
 
   <change-notes><![CDATA[
-        <i>Main Changes in v3.0.2 (bugfix release):</i>
+        <i>Main Changes in v3.0.3 (bugfix release):</i>
           <ul>
-            <li>Fix logged error on GotoTest action re-registration in IDEA 2019.2+ (reported by antediluvian on November 26 '19)</li>
-            <li>Generate Test class name with prefix/suffix configured in Settings -> Code Style -> Java -> Code Generation (requested by jeffreyfate on October 3 '19)</li>
+            <li>Fix plugin load failure when IDEA runs on JDK 12+ - "couldn't initialize TestMe plugin". (reported by contra-bit on February 27 '20)</li>
           </ul>
         <a href="http://weirddev.com/testme/release-notes">Complete Release Notes listing</a>
     ]]>
