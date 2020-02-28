@@ -45,7 +45,7 @@ public class TestMePluginRegistration implements ApplicationComponent {
         }
     }
     private void hackVelocity() throws Exception {
-        AccessLevelReflectionUtils.replaceFinalStatic(RuntimeSingleton.class.getDeclaredField("ri"), new HackedRuntimeInstance());
+        AccessLevelReflectionUtils.replaceField(RuntimeSingleton.class.getDeclaredField("ri"), new HackedRuntimeInstance());
     }
     @Override
     public void disposeComponent() {
