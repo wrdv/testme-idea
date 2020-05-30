@@ -30,10 +30,11 @@
   <idea-version since-build="191"/>
   <depends>com.intellij.modules.java</depends>
   <depends>JUnit</depends>
-  <depends optional="true">org.intellij.groovy</depends>
-  <depends optional="true">org.intellij.scala</depends>
+  <depends optional="true" config-file="plugin-groovy.xml">org.intellij.groovy</depends>
+  <depends optional="true" config-file="plugin-scala.xml">org.intellij.scala</depends>
   <extensions defaultExtensionNs="com.intellij">
-    <applicationConfigurable groupId="other" displayName="TestMe" id="preferences.TestMe" instance="com.weirddev.testme.intellij.ui.settings.TestMeConfigurable" />
+    <applicationConfigurable parentId="root" displayName="TestMe" id="preferences.TestMe" instance="com.weirddev.testme.intellij.ui.settings.TestMeConfigurable"/>
+    <projectConfigurable  id="preferences.TestMe.templates"  parentId="preferences.TestMe"  displayName="Templates" provider="com.weirddev.testme.intellij.ui.template.AllFileTemplatesConfigurable$Provider"/>
     <applicationService serviceImplementation="com.weirddev.testme.intellij.configuration.TestMeConfigPersistent"/>
     <webHelpProvider implementation="com.weirddev.testme.intellij.configuration.TestMeWebHelpProvider" id="com.weirddev.testme"/>
   </extensions>
