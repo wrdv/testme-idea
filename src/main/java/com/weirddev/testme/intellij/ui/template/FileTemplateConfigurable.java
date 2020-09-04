@@ -49,6 +49,7 @@ import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
 import com.intellij.xml.util.XmlStringUtil;
+import com.weirddev.testme.intellij.icon.TemplateNameFormatter;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -85,9 +86,11 @@ public class FileTemplateConfigurable implements Configurable, Configurable.NoSc
   private Splitter mySplitter;
   private final FileType myVelocityFileType = FileTypeManager.getInstance().getFileTypeByExtension("ft");
   private float myProportion = 0.6f;
+  private TemplateNameFormatter templateNameFormatter;
 
   public FileTemplateConfigurable(Project project) {
     myProject = project;
+    templateNameFormatter = new TemplateNameFormatter();
   }
 
   public FileTemplate getTemplate() {
@@ -282,8 +285,10 @@ public class FileTemplateConfigurable implements Configurable, Configurable.NoSc
   public void apply() throws ConfigurationException {
     if (myTemplate != null) {
       myTemplate.setText(myTemplateEditor.getDocument().getText());
-      String name = myNameField.getText();
+      String templateName = myNameField.getText();
       String extension = myExtensionField.getText();
+
+      String name = templateNameFormatter.sanitizeHtml(templateName);
       String filename = name + "." + extension;
       if (name.length() == 0 || !isValidFilename(filename)) {
         throw new ConfigurationException(IdeBundle.message("error.invalid.template.file.name.or.extension"));
@@ -292,7 +297,7 @@ public class FileTemplateConfigurable implements Configurable, Configurable.NoSc
       if (fileType == UnknownFileType.INSTANCE) {
         FileTypeChooser.associateFileType(filename);
       }
-      myTemplate.setName(name);
+      myTemplate.setName(templateName);//todo save fileName on template?! (use TestMeFileTemplate ?! )
       myTemplate.setExtension(extension);
       myTemplate.setReformatCode(myAdjustBox.isSelected());
       myTemplate.setLiveTemplateEnabled(myLiveTemplateBox.isSelected());

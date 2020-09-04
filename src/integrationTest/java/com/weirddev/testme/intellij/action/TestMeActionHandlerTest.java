@@ -44,7 +44,7 @@ public class TestMeActionHandlerTest extends TestMeGeneratorTestBase {
                 Assert.assertEquals(countEnabledTemplates(templateDescriptors),sourceAndTargetElements.additionalActions.size());
                 final PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
                 propertiesComponent.setValue("create.test.in.the.same.root",String.valueOf(true));
-                Assert.assertEquals("<html><i>JUnit4</i></html><JUnit4><html>& <i>Mockito</i></html><Mockito>",sourceAndTargetElements.additionalActions.get(0).getText());
+                Assert.assertEquals("<html><i>JUnit4</i><img src='/icons/junit.png'>& <i>Mockito</i><img src='/icons/mockito.png'></html>",sourceAndTargetElements.additionalActions.get(0).getText());
                 sourceAndTargetElements.additionalActions.get(0).execute();
                 verifyGeneratedTest(packageName, expectedTestClassName);
             }

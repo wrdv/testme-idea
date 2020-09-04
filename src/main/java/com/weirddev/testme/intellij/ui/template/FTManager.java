@@ -3,6 +3,10 @@ package com.weirddev.testme.intellij.ui.template;
 
 import com.intellij.application.options.CodeStyle;
 import com.intellij.ide.fileTemplates.FileTemplate;
+import com.intellij.ide.fileTemplates.impl.BundledFileTemplate;
+import com.intellij.ide.fileTemplates.impl.CustomFileTemplate;
+import com.intellij.ide.fileTemplates.impl.FileTemplateBase;
+import com.intellij.ide.fileTemplates.impl.DefaultTemplate;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.util.Pair;
@@ -82,9 +86,9 @@ public class FTManager {
 
     final List<FileTemplateBase> list = new ArrayList<>(sorted.size());
     for (FileTemplateBase template : sorted) {
-      if (template instanceof BundledFileTemplate && !((BundledFileTemplate)template).isEnabled()) {
-        continue;
-      }
+//      if (template instanceof BundledFileTemplate && !((BundledFileTemplate)template).isEnabled()) {
+//        continue;
+//      }
       list.add(template);
     }
     return list;
@@ -105,10 +109,10 @@ public class FTManager {
   public FileTemplateBase findTemplateByName(@NotNull String templateName) {
     final FileTemplateBase template = getTemplates().get(templateName);
     if (template != null) {
-      final boolean isEnabled = !(template instanceof BundledFileTemplate) || ((BundledFileTemplate)template).isEnabled();
-      if (isEnabled) {
-        return template;
-      }
+//      final boolean isEnabled = !(template instanceof BundledFileTemplate) || ((BundledFileTemplate)template).isEnabled();
+//      if (isEnabled) {
+//      }
+      return template;
     }
     // templateName must be non-qualified name, since previous lookup found nothing
     for (FileTemplateBase t : getAllTemplates(false)) {
@@ -132,11 +136,11 @@ public class FTManager {
       getTemplates().put(qName, template);
       mySortedTemplates = null;
     }
-    else {
-      if (template instanceof BundledFileTemplate && !((BundledFileTemplate)template).isEnabled()) {
-        ((BundledFileTemplate)template).setEnabled(true);
-      }
-    }
+//    else {
+//      if (template instanceof BundledFileTemplate && !((BundledFileTemplate)template).isEnabled()) {
+//        ((BundledFileTemplate)template).setEnabled(true);
+//      }
+//    }
     return template;
   }
 
@@ -146,9 +150,9 @@ public class FTManager {
       getTemplates().remove(qName);
       mySortedTemplates = null;
     }
-    else if (template instanceof BundledFileTemplate){
-      ((BundledFileTemplate)template).setEnabled(false);
-    }
+//    else if (template instanceof BundledFileTemplate){
+//      ((BundledFileTemplate)template).setEnabled(false);
+//    }
   }
 
   void updateTemplates(@NotNull Collection<? extends FileTemplate> newTemplates) {
@@ -174,9 +178,9 @@ public class FTManager {
     mySortedTemplates = null;
     for (DefaultTemplate template : myDefaultTemplates) {
       final BundledFileTemplate bundled = createAndStoreBundledTemplate(template);
-      if (toDisable.contains(bundled.getQualifiedName())) {
-        bundled.setEnabled(false);
-      }
+//      if (toDisable.contains(bundled.getQualifiedName())) {
+//        bundled.setEnabled(false);
+//      }
     }
   }
 
@@ -283,9 +287,9 @@ public class FTManager {
     final Map<String, FileTemplateBase> templatesToSave = new THashMap<>();
 
     for (FileTemplateBase template : getAllTemplates(true)) {
-      if (template instanceof BundledFileTemplate && !((BundledFileTemplate)template).isTextModified()) {
-        continue;
-      }
+//      if (template instanceof BundledFileTemplate && !((BundledFileTemplate)template).isTextModified()) {
+//        continue;
+//      }
       final String name = template.getQualifiedName();
       templatesToSave.put(name, template);
       allNames.add(name);

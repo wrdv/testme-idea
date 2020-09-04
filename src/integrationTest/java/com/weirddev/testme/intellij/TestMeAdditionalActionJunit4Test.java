@@ -8,6 +8,7 @@ import com.intellij.psi.PsiFile;
 import com.weirddev.testme.intellij.action.TestMeAdditionalAction;
 import com.weirddev.testme.intellij.template.TemplateDescriptor;
 import com.weirddev.testme.intellij.template.TemplateRegistry;
+import com.weirddev.testme.intellij.template.TemplateRole;
 import com.weirddev.testme.intellij.template.context.Language;
 import org.junit.Assert;
 
@@ -57,7 +58,7 @@ public class TestMeAdditionalActionJunit4Test extends BaseIJIntegrationTest {
     protected void doTest(final String packageName, String testSubjectClassName, final String expectedTestClassName, VisualPosition expectedCaretPosition) {
         myFixture.copyDirectoryToProject("../../commonSrc", "");
         final PsiFile psiFile = myFixture.configureByFile(formatTestSourcePath(packageName, testSubjectClassName));
-        new TestMeAdditionalAction(new TemplateDescriptor("", templateFilename, Language.Java), myFixture.getEditor(), psiFile).execute();
+        new TestMeAdditionalAction(new TemplateDescriptor("","", templateFilename, Language.Java, TemplateRole.Tester), myFixture.getEditor(), psiFile).execute();
         String expectedTestClassFilePath = formatTestSourcePath(packageName, expectedTestClassName);
         myFixture.checkResultByFile(expectedTestClassFilePath, testDirectory + "/" +expectedTestClassFilePath, false);
         Editor selectedTextEditor = FileEditorManager.getInstance(getProject()).getSelectedTextEditor();

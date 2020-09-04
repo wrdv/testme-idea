@@ -5,6 +5,7 @@ import com.weirddev.testme.intellij.action.TestMeAdditionalAction;
 import com.weirddev.testme.intellij.icon.IconTokensReplacer;
 import com.weirddev.testme.intellij.icon.IconTokensReplacerImpl;
 import com.weirddev.testme.intellij.icon.IconizedLabel;
+import com.weirddev.testme.intellij.icon.TemplateNameFormatter;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -18,7 +19,14 @@ import java.util.ArrayList;
  * @author Yaron Yamin
  */
 public class TestMeActionCellRenderer extends DefaultListCellRenderer {
-    private final IconTokensReplacer iconTokensReplacer=new IconTokensReplacerImpl();
+    private final IconTokensReplacer iconTokensReplacer;
+    private final TemplateNameFormatter templateNameFormatter;
+
+    public TestMeActionCellRenderer(TemplateNameFormatter templateNameFormatter, IconTokensReplacerImpl iconTokensReplacer) {
+        this.templateNameFormatter = templateNameFormatter;
+        this.iconTokensReplacer = iconTokensReplacer;
+    }
+
     @Override
     public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
         Component result = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
@@ -26,21 +34,30 @@ public class TestMeActionCellRenderer extends DefaultListCellRenderer {
             if (value instanceof TestMeAdditionalAction) {
                 TestMeAdditionalAction action = (TestMeAdditionalAction) value;
                 JPanel jPanel = createPanel(list, isSelected);
-                ArrayList<IconizedLabel> iconizedLabels = iconTokensReplacer.tokenize(action.getText(),action.getIcon());
-                for (int i = 0; i < iconizedLabels.size(); i++) {
-                    if (i == 0) {
-                        setText(iconizedLabels.get(i).getText());
-                        setIcon(action.getIcon());
-                        setBorder(new EmptyBorder(0,0,0,0));
-                        jPanel.add(result);
-                    } else {
-                        jPanel.add(createSubLabel(list, value, index, isSelected, cellHasFocus, iconizedLabels.get(i)));
-                    }
+                if (action.getTokenizedtext() != null) {
+                    addFromTokenizedText(list, value, index, isSelected, cellHasFocus, result, action, jPanel);
+                }
+                else{
+                    jPanel.add(createSubLabel(list, value, index, isSelected, cellHasFocus, new IconizedLabel( templateNameFormatter.formatWithInnerImages(action.getText()),null,null)));
                 }
                 return jPanel;
             }
         }
         return result;
+    }
+
+    private void addFromTokenizedText(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus, Component result, TestMeAdditionalAction action, JPanel jPanel) {
+        ArrayList<IconizedLabel> iconizedLabels = iconTokensReplacer.tokenize(action.getTokenizedtext(),action.getIcon());
+        for (int i = 0; i < iconizedLabels.size(); i++) {
+            if (i == 0) {
+                setText(iconizedLabels.get(i).getText());
+                setIcon(action.getIcon());
+                setBorder(new EmptyBorder(0,0,0,0));
+                jPanel.add(result);
+            } else {
+                jPanel.add(createSubLabel(list, value, index, isSelected, cellHasFocus, iconizedLabels.get(i)));
+            }
+        }
     }
 
     @NotNull
