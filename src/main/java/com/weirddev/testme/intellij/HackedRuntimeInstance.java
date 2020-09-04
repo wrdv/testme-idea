@@ -24,7 +24,8 @@ import java.io.UnsupportedEncodingException;
 
 public class HackedRuntimeInstance extends RuntimeInstance {
     private static final Logger LOG = Logger.getInstance(HackedRuntimeInstance.class.getName());
-    private FTFolderManager ftFolderManager = new FTFolderManager("fileTemplates/testMeIncludes");
+    public static final String FILE_TEMPLATES_TEST_ME_INCLUDES = "fileTemplates/testMeIncludes";
+    private FTFolderManager ftFolderManager = new FTFolderManager(FILE_TEMPLATES_TEST_ME_INCLUDES);
 
     @Override
     public void setProperty(String key, Object value) {

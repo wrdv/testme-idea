@@ -1,7 +1,7 @@
 package com.weirddev.testme.intellij.ui.template;
 
 import com.intellij.util.containers.MultiMap;
-
+import com.intellij.ide.fileTemplates.impl.DefaultTemplate;
 import java.net.URL;
 
 /**

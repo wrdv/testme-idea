@@ -1,6 +1,7 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package com.weirddev.testme.intellij.ui.template;
 
+import com.intellij.ide.fileTemplates.impl.FileTemplateBase;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
@@ -14,20 +15,24 @@ import java.util.Locale;
 /**
  * Exportable part of file template settings. User-specific (local) settings are handled by FileTemplateManagerImpl.
  *
- * @author Rustam Vishnyakov
+ * @see com.intellij.ide.fileTemplates.impl.FileTemplateSettings
  */
 @State(
-  name = "ExportableFileTemplateSettings",
+  name = FileTemplateSettings.FILE_TEMPLATE_SETTINGS,
   storages = @Storage(FileTemplateSettings.EXPORTABLE_SETTINGS_FILE)
 )
 class FileTemplateSettings extends FileTemplatesLoader implements PersistentStateComponent<Element> {
-  static final String EXPORTABLE_SETTINGS_FILE = "file.template.settings.xml";
+  public static final String FILE_TEMPLATE_SETTINGS = "TestMeFileTemplateSettings";
+  static final String EXPORTABLE_SETTINGS_FILE = "testme.file.template.settings.xml";
 
   private static final String ELEMENT_TEMPLATE = "template";
   private static final String ATTRIBUTE_NAME = "name";
   private static final String ATTRIBUTE_REFORMAT = "reformat";
   private static final String ATTRIBUTE_LIVE_TEMPLATE = "live-template-enabled";
   private static final String ATTRIBUTE_ENABLED = "enabled";
+
+  static final boolean DEFAULT_REFORMAT_CODE_VALUE = true;
+  static final boolean DEFAULT_ENABLED_VALUE = true; // todo make use of
 
   FileTemplateSettings(@Nullable Project project) {
     super(project);
@@ -42,12 +47,12 @@ class FileTemplateSettings extends FileTemplatesLoader implements PersistentStat
       Element templatesGroup = null;
       for (FileTemplateBase template : manager.getAllTemplates(true)) {
         // save only those settings that differ from defaults
-        boolean shouldSave = template.isReformatCode() != FileTemplateBase.DEFAULT_REFORMAT_CODE_VALUE ||
+        boolean shouldSave = template.isReformatCode() != FileTemplateSettings.DEFAULT_REFORMAT_CODE_VALUE ||
                              // check isLiveTemplateEnabledChanged() first to avoid expensive loading all templates on exit
                              template.isLiveTemplateEnabledChanged() && template.isLiveTemplateEnabled() != template.isLiveTemplateEnabledByDefault();
-        if (template instanceof BundledFileTemplate) {
-          shouldSave |= ((BundledFileTemplate)template).isEnabled() != FileTemplateBase.DEFAULT_ENABLED_VALUE;
-        }
+//        if (template instanceof BundledFileTemplate) {
+//          shouldSave |= ((BundledFileTemplate)template).isEnabled() != FileTemplateSettings.DEFAULT_ENABLED_VALUE;
+//        }
         if (!shouldSave) continue;
 
         final Element templateElement = new Element(ELEMENT_TEMPLATE);
@@ -55,9 +60,9 @@ class FileTemplateSettings extends FileTemplatesLoader implements PersistentStat
         templateElement.setAttribute(ATTRIBUTE_REFORMAT, Boolean.toString(template.isReformatCode()));
         templateElement.setAttribute(ATTRIBUTE_LIVE_TEMPLATE, Boolean.toString(template.isLiveTemplateEnabled()));
 
-        if (template instanceof BundledFileTemplate) {
-          templateElement.setAttribute(ATTRIBUTE_ENABLED, Boolean.toString(((BundledFileTemplate)template).isEnabled()));
-        }
+//        if (template instanceof BundledFileTemplate) {
+//          templateElement.setAttribute(ATTRIBUTE_ENABLED, Boolean.toString(((BundledFileTemplate)template).isEnabled()));
+//        }
 
         if (templatesGroup == null) {
           templatesGroup = new Element(getXmlElementGroupName(manager));
@@ -84,9 +89,9 @@ class FileTemplateSettings extends FileTemplatesLoader implements PersistentStat
         template.setReformatCode(Boolean.parseBoolean(child.getAttributeValue(ATTRIBUTE_REFORMAT)));
         template.setLiveTemplateEnabled(Boolean.parseBoolean(child.getAttributeValue(ATTRIBUTE_LIVE_TEMPLATE)));
 
-        if (template instanceof BundledFileTemplate) {
-          ((BundledFileTemplate)template).setEnabled(Boolean.parseBoolean(child.getAttributeValue(ATTRIBUTE_ENABLED, "true")));
-        }
+//        if (template instanceof BundledFileTemplate) {
+//          ((BundledFileTemplate)template).setEnabled(Boolean.parseBoolean(child.getAttributeValue(ATTRIBUTE_ENABLED, "true")));
+//        }
       }
     }
   }

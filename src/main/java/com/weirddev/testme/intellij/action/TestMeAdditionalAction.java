@@ -21,12 +21,14 @@ public class TestMeAdditionalAction implements TestMePopUpHandler.AdditionalActi
     private final PsiFile file;
     private final String text;
     private final TestMeCreator testMeCreator;
+    private final String tokenizedtext;
 
     public TestMeAdditionalAction(TemplateDescriptor templateDescriptor, Editor editor, PsiFile file) {
         this.templateDescriptor = templateDescriptor;
         this.editor = editor;
         this.file = file;
-        this.text = templateDescriptor.getTokenizedDisplayName();
+        this.text = templateDescriptor.getHtmlDisplayName();
+        this.tokenizedtext = templateDescriptor.getTokenizedName();
         testMeCreator = new TestMeCreator();
     }
 
@@ -44,5 +46,9 @@ public class TestMeAdditionalAction implements TestMePopUpHandler.AdditionalActi
     @Override
     public void execute() {
         testMeCreator.createTest(editor, file, templateDescriptor);
+    }
+
+    public String getTokenizedtext() {
+        return tokenizedtext;
     }
 }

@@ -19,6 +19,7 @@ import com.intellij.util.lang.UrlClassLoader;
 import gnu.trove.THashSet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import com.intellij.ide.fileTemplates.impl.DefaultTemplate;
 
 import java.io.IOException;
 import java.net.URL;
@@ -40,18 +41,15 @@ class FileTemplatesLoader {
   private static final String DESCRIPTION_FILE_EXTENSION = "html";
   private static final String DESCRIPTION_EXTENSION_SUFFIX = "." + DESCRIPTION_FILE_EXTENSION;
 
-  private final FTManager myDefaultTemplatesManager;
+//  private final FTManager myDefaultTemplatesManager;
   private final FTManager myInternalTemplatesManager;
   private final FTManager myPatternsManager;
-  private final FTManager myCodeTemplatesManager;
-  private final FTManager myJ2eeTemplatesManager;
 
   private final FTManager[] myAllManagers;
 
   private static final String INTERNAL_DIR = "internal";
-  private static final String INCLUDES_DIR = "includes";
-  private static final String CODE_TEMPLATES_DIR = "code";
-  private static final String J2EE_TEMPLATES_DIR = "j2ee";
+//  private static final String INCLUDES_DIR = "includes";//"testMeIncludes"
+  private static final String INCLUDES_DIR = "testMeIncludes";
 
   private final URL myDefaultTemplateDescription;
   private final URL myDefaultIncludeDescription;
@@ -61,17 +59,14 @@ class FileTemplatesLoader {
                                ? PathManager.getConfigPath()
                                : UriUtil.trimTrailingSlashes(Objects.requireNonNull(ProjectKt.getStateStore(project).getDirectoryStorePath(true))), TEMPLATES_DIR);
 
-    myDefaultTemplatesManager = new FTManager(FileTemplateManager.DEFAULT_TEMPLATES_CATEGORY, configDir);
+//    myDefaultTemplatesManager = new FTManager(FileTemplateManager.DEFAULT_TEMPLATES_CATEGORY, configDir);
     myInternalTemplatesManager = new FTManager(FileTemplateManager.INTERNAL_TEMPLATES_CATEGORY, configDir.resolve(INTERNAL_DIR), true);
     myPatternsManager = new FTManager(FileTemplateManager.INCLUDES_TEMPLATES_CATEGORY, configDir.resolve(INCLUDES_DIR));
-    myCodeTemplatesManager = new FTManager(FileTemplateManager.CODE_TEMPLATES_CATEGORY, configDir.resolve(CODE_TEMPLATES_DIR));
-    myJ2eeTemplatesManager = new FTManager(FileTemplateManager.J2EE_TEMPLATES_CATEGORY, configDir.resolve(J2EE_TEMPLATES_DIR));
+//    myPatternsManager = new com.intellij.ide.fileTemplates.impl.FTManager(FileTemplateManager.INCLUDES_TEMPLATES_CATEGORY, configDir.resolve("Includes"));
     myAllManagers = new FTManager[]{
-      myDefaultTemplatesManager,
+//      myDefaultTemplatesManager,
       myInternalTemplatesManager,
       myPatternsManager,
-      myCodeTemplatesManager,
-      myJ2eeTemplatesManager
     };
 
     Map<FTManager, String> managerToPrefix = new LinkedHashMap<>();
@@ -95,10 +90,10 @@ class FileTemplatesLoader {
     return myAllManagers;
   }
 
-  @NotNull
-  FTManager getDefaultTemplatesManager() {
-    return new FTManager(myDefaultTemplatesManager);
-  }
+//  @NotNull
+//  FTManager getDefaultTemplatesManager() {
+//    return new FTManager(myDefaultTemplatesManager);
+//  }
 
   @NotNull
   FTManager getInternalTemplatesManager() {
@@ -108,16 +103,6 @@ class FileTemplatesLoader {
   @NotNull
   FTManager getPatternsManager() {
     return new FTManager(myPatternsManager);
-  }
-
-  @NotNull
-  FTManager getCodeTemplatesManager() {
-    return new FTManager(myCodeTemplatesManager);
-  }
-
-  @NotNull
-  FTManager getJ2eeTemplatesManager() {
-    return new FTManager(myJ2eeTemplatesManager);
   }
 
   URL getDefaultTemplateDescription() {

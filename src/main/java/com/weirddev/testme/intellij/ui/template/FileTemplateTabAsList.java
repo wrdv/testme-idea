@@ -22,6 +22,7 @@ import com.intellij.ui.ListSpeedSearch;
 import com.intellij.ui.components.JBList;
 import com.intellij.util.Function;
 import com.intellij.util.ui.UIUtil;
+import com.weirddev.testme.intellij.icon.TemplateNameFormatter;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -35,6 +36,7 @@ import java.util.List;
 abstract class FileTemplateTabAsList extends FileTemplateTab {
   private final JList<FileTemplate> myList = new JBList<>();
   private MyListModel myModel;
+  private TemplateNameFormatter templateNameFormatter = new TemplateNameFormatter();
 
   FileTemplateTabAsList(String title) {
     super(title);
@@ -57,14 +59,15 @@ abstract class FileTemplateTabAsList extends FileTemplateTab {
       if (value instanceof FileTemplate) {
         FileTemplate template = (FileTemplate) value;
         icon = FileTemplateUtil.getIcon(template);
-        final boolean internalTemplate = AllFileTemplatesConfigurable.isInternalTemplate(template.getName(), getTitle());
+        final boolean internalTemplate = TestTemplatesConfigurable.isInternalTemplate(template.getName(), getTitle());
+        String formattedName = templateNameFormatter.formatWithInnerImages(template.getName());
         if (internalTemplate) {
           setFont(getFont().deriveFont(Font.BOLD));
-          setText(template.getName());
+          setText(formattedName);
         }
         else {
           setFont(getFont().deriveFont(Font.PLAIN));
-          setText(template.getName());
+          setText(formattedName);
         }
 
         if (!template.isDefault()) {
@@ -126,7 +129,7 @@ abstract class FileTemplateTabAsList extends FileTemplateTab {
   @Override
   @NotNull
   public FileTemplate[] getTemplates() {
-    final int size = myModel.getSize();
+    final int size = myModel.getSize(); // todo fix
     List<FileTemplate> templates = new ArrayList<>(size);
     for (int i =0; i<size; i++) {
       templates.add(myModel.getElementAt(i));

@@ -7,14 +7,15 @@ import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 
 /**
- * @author Dmitry Avdeev
+ * @see com.intellij.ide.fileTemplates.impl.ExportableFileTemplateSettings
  */
 @State(
-  name = "ExportableFileTemplateSettings",
+  name = FileTemplateSettings.FILE_TEMPLATE_SETTINGS,
   storages = @Storage(FileTemplateSettings.EXPORTABLE_SETTINGS_FILE),
-  additionalExportFile = FileTemplatesLoader.TEMPLATES_DIR
+  additionalExportFile = "fileTemplates"
 )
 class ExportableFileTemplateSettings extends FileTemplateSettings {
+
   ExportableFileTemplateSettings() {
     super(null);
   }

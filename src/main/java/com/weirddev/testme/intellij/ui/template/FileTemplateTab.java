@@ -17,6 +17,7 @@
 package com.weirddev.testme.intellij.ui.template;
 
 import com.intellij.ide.fileTemplates.FileTemplate;
+import com.intellij.ide.fileTemplates.impl.FileTemplateBase;
 import com.intellij.ui.JBColor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
