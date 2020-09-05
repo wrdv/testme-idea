@@ -1,14 +1,9 @@
-// Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package com.weirddev.testme.intellij.ui.template;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.intellij.ide.IdeBundle;
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
-
-
-
-
 import com.intellij.lexer.FlexAdapter;
 import com.intellij.lexer.Lexer;
 import com.intellij.lexer.MergingLexerAdapter;
@@ -151,7 +146,6 @@ public class FileTemplateConfigurable implements Configurable, Configurable.NoSc
     myAdjustBox = new JCheckBox(IdeBundle.message("checkbox.reformat.according.to.style"));
     myLiveTemplateBox = new JCheckBox(IdeBundle.message("checkbox.enable.live.templates"));
     myTemplateEditor = createEditor(null);
-
     myDescriptionComponent = new JEditorPane();
     myDescriptionComponent.setEditorKit(UIUtil.getHTMLEditorKit());
     myDescriptionComponent.setText(EMPTY_HTML);
@@ -332,7 +326,14 @@ public class FileTemplateConfigurable implements Configurable, Configurable.NoSc
 
     EditorFactory.getInstance().releaseEditor(myTemplateEditor);
     myTemplateEditor = createEditor(createFile(text, name));
-
+    if (myTemplate!=null && myTemplate.isDefault()) {
+      myTemplateEditor.getDocument().setReadOnly(true);
+//      JComponent contentComponent = myTemplateEditor.getContentComponent();
+//      contentComponent.setEnabled(false);
+//      if (contentComponent instanceof JTextComponent) {
+//        ((JTextComponent) contentComponent).setEditable(false);
+//      }
+    }
     myNameField.setText(name);
     myExtensionField.setText(extension);
     myAdjustBox.setSelected(myTemplate != null && myTemplate.isReformatCode());

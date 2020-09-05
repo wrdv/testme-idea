@@ -1,18 +1,3 @@
-/*
- * Copyright 2000-2009 JetBrains s.r.o.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 
 package com.weirddev.testme.intellij.ui.template;
 
@@ -35,9 +20,6 @@ import java.awt.*;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * @author Alexey Kudravtsev
- */
 abstract class FileTemplateTabAsTree extends FileTemplateTab {
   private final JTree myTree;
   private final FileTemplateNode myRoot;
@@ -126,9 +108,9 @@ abstract class FileTemplateTabAsTree extends FileTemplateTab {
         final FileTemplateNode node = (FileTemplateNode)value;
         setText((String) node.getUserObject());
         setIcon(node.getIcon());
-        setFont(getFont().deriveFont(TestTemplatesConfigurable.isInternalTemplate(node.getTemplateName(), getTitle()) ? Font.BOLD : Font.PLAIN));
-
+//        setFont(getFont().deriveFont(TestTemplatesConfigurable.isInternalTemplate(node.getTemplateName(), getTitle()) ? Font.BOLD : Font.PLAIN));
         final FileTemplate template = getTemplate(node);
+        setFont(getFont().deriveFont(TestTemplatesConfigurable.isInternalTemplate(template) ? Font.BOLD : Font.PLAIN));
         if (template != null && !template.isDefault()) {
           if (!sel) {
             setForeground(MODIFIED_FOREGROUND);

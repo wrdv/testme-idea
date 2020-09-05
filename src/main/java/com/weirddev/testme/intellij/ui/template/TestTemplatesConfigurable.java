@@ -1,4 +1,3 @@
-// Copyright 2000-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 
 package com.weirddev.testme.intellij.ui.template;
 
@@ -233,7 +232,7 @@ public final class TestTemplatesConfigurable implements SearchableConfigurable, 
     myTabbedPane.addChangeListener(__ -> onTabChanged());
 
     DefaultActionGroup group = new DefaultActionGroup();
-    AnAction removeAction = new AnAction(IdeBundle.message("action.remove.template"), null, AllIcons.General.Remove) {
+    AnAction removeAction = new AnAction(TestMeBundle.message("testMe.settings.templates.remove.template"), null, AllIcons.General.Remove) {
       @Override
       public void actionPerformed(@NotNull AnActionEvent e) {
         onRemove();
@@ -247,7 +246,7 @@ public final class TestTemplatesConfigurable implements SearchableConfigurable, 
           return;
         }
         FileTemplate selectedItem = myCurrentTab.getSelectedTemplate();
-        e.getPresentation().setEnabled(selectedItem != null && !isInternalTemplate(selectedItem.getName(), myCurrentTab.getTitle()));
+        e.getPresentation().setEnabled(selectedItem != null && !isInternalTemplate(selectedItem));
       }
     };
     AnAction addAction = new AnAction(IdeBundle.message("action.create.template"), null, AllIcons.General.Add) {
@@ -410,8 +409,7 @@ public final class TestTemplatesConfigurable implements SearchableConfigurable, 
     }
     if (myEditor.getTemplate() != template) {
       myEditor.setTemplate(template, defDesc);
-      final boolean isInternal = template != null && isInternalTemplate(template.getName(), myCurrentTab.getTitle());
-      myEditor.setShowInternalMessage(isInternal ? " " : null);
+      myEditor.setShowInternalMessage(isInternalTemplate(template) ? " " : null);
       myEditor.setShowAdjustCheckBox(myTemplatesList == myCurrentTab);
     }
   }
@@ -421,27 +419,11 @@ public final class TestTemplatesConfigurable implements SearchableConfigurable, 
     return myScheme != null && !myScheme.getProject().isDefault();
   }
 
-  // internal template could not be removed and should be rendered bold
-  static boolean isInternalTemplate(String templateName, String templateTabTitle) { // todo update logic
-    if (templateName == null) {
-      return false;
-    }
-    if (Comparing.strEqual(templateTabTitle, TEMPLATES_TITLE)) {
-      return isInternalTemplateName(templateName);
-    }
-    if (Comparing.strEqual(templateTabTitle, INCLUDES_TITLE)) {
-      return Comparing.strEqual(templateName, FileTemplateManager.FILE_HEADER_TEMPLATE_NAME); // todo update logic to identify internal include template
-    }
-    return false;
-  }
-
-  private static boolean isInternalTemplateName(final String templateName) {
-    for(InternalTemplateBean bean: InternalTemplateBean.EP_NAME.getExtensionList()) {
-      if (Comparing.strEqual(templateName, bean.name)) {
-        return true;
-      }
-    }
-    return false;
+  /**
+   * internal templates are not editable and not removable
+   */
+  static boolean isInternalTemplate(FileTemplate template){
+    return template instanceof TestMeFileTemplate && ((TestMeFileTemplate) template).isDefault();
   }
 
   private void initLists() {

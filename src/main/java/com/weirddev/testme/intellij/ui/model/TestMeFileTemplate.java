@@ -12,7 +12,10 @@ public class TestMeFileTemplate extends FileTemplateBase { //todo migrate away f
     private String name;
 
     private String displayName;
-    private boolean isDefault = false; //todo - is needed?
+    /**
+     * true - when this is an OOB template (readonly)
+     */
+    private boolean isDefault = false;
 
     private String description;
 
@@ -21,6 +24,7 @@ public class TestMeFileTemplate extends FileTemplateBase { //todo migrate away f
     public TestMeFileTemplate(String htmlDisplayName, String extension) {
         this.name = htmlDisplayName;
         this.extension = extension;
+        this.isDefault = true;
     }
 
 
@@ -37,7 +41,7 @@ public class TestMeFileTemplate extends FileTemplateBase { //todo migrate away f
 
     @Override
     public boolean isDefault() {
-        return false;
+        return isDefault;
     }
 
     @NotNull
