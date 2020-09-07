@@ -7,7 +7,10 @@ import com.intellij.application.options.schemes.SchemesModel;
 import com.intellij.application.options.schemes.SimpleSchemesPanel;
 import com.intellij.icons.AllIcons;
 import com.intellij.ide.IdeBundle;
-import com.intellij.ide.fileTemplates.*;
+import com.intellij.ide.fileTemplates.FileTemplate;
+import com.intellij.ide.fileTemplates.FileTemplateManager;
+import com.intellij.ide.fileTemplates.FileTemplateUtil;
+import com.intellij.ide.fileTemplates.FileTemplatesScheme;
 import com.intellij.ide.fileTemplates.impl.BundledFileTemplate;
 import com.intellij.ide.fileTemplates.impl.CustomFileTemplate;
 import com.intellij.ide.util.PropertiesComponent;
@@ -46,11 +49,10 @@ import org.jetbrains.annotations.TestOnly;
 import javax.swing.*;
 import java.awt.*;
 import java.net.URL;
-import java.text.MessageFormat;
 import java.util.List;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public final class TestTemplatesConfigurable implements SearchableConfigurable, Configurable.NoMargin, Configurable.NoScroll, Configurable.VariableProjectAppLevel {
 
@@ -106,7 +108,7 @@ public final class TestTemplatesConfigurable implements SearchableConfigurable, 
 
   public TestTemplatesConfigurable(Project project) {
     myProject = project;
-    myManager = FileTemplateManager.getInstance(project);
+    myManager = TestMeTemplateManagerImpl.getInstance(project);
     myScheme = myManager.getCurrentScheme();
     myInternalTemplateNames = ContainerUtil.map2Set(myManager.getInternalTemplates(), FileTemplate::getName);
     templateRegistry = new TemplateRegistry(); //todo consider making this a service
@@ -249,7 +251,7 @@ public final class TestTemplatesConfigurable implements SearchableConfigurable, 
         e.getPresentation().setEnabled(selectedItem != null && !isInternalTemplate(selectedItem));
       }
     };
-    AnAction addAction = new AnAction(IdeBundle.message("action.create.template"), null, AllIcons.General.Add) {
+    AnAction addAction = new AnAction(TestMeBundle.message("testMe.settings.templates.create.template"), null, AllIcons.General.Add) {
       @Override
       public void actionPerformed(@NotNull AnActionEvent e) {
         onAdd();
@@ -273,7 +275,7 @@ public final class TestTemplatesConfigurable implements SearchableConfigurable, 
         e.getPresentation().setEnabled(myCurrentTab.getSelectedTemplate() != null);
       }
     };
-    AnAction resetAction = new AnAction(IdeBundle.message("action.reset.to.default"), null, AllIcons.Actions.Rollback) {
+    AnAction resetAction = new AnAction(TestMeBundle.message("testMe.settings.templates.reset.to.default"), null, AllIcons.Actions.Rollback) {
       @Override
       public void actionPerformed(@NotNull AnActionEvent e) {
         onReset();
@@ -538,9 +540,9 @@ public final class TestTemplatesConfigurable implements SearchableConfigurable, 
     for (Map.Entry<FileTemplatesScheme, Map<String, FileTemplate[]>> entry : myChangesCache.entrySet()) {
       myManager.setCurrentScheme(entry.getKey());
       Map<String, FileTemplate[]> templates = entry.getValue();
-      myManager.setTemplates(FileTemplateManager.DEFAULT_TEMPLATES_CATEGORY, Arrays.asList(templates.get(FileTemplateManager.DEFAULT_TEMPLATES_CATEGORY)));
+      persistTemplates(templates, TestMeTemplateManagerImpl.INTERNAL_TEMPLATES_CATEGORY);
 //      myManager.setTemplates(FileTemplateManager.INTERNAL_TEMPLATES_CATEGORY, Arrays.asList(templates.get(FileTemplateManager.INTERNAL_TEMPLATES_CATEGORY)));
-      myManager.setTemplates(FileTemplateManager.INCLUDES_TEMPLATES_CATEGORY, Arrays.asList(templates.get(FileTemplateManager.INCLUDES_TEMPLATES_CATEGORY)));
+      persistTemplates(templates, TestMeTemplateManagerImpl.INCLUDES_TEMPLATES_CATEGORY);
     }
     myChangesCache.clear();
 
@@ -549,6 +551,13 @@ public final class TestTemplatesConfigurable implements SearchableConfigurable, 
     if (myEditor != null) {
       myModified = false;
       fireListChanged();
+    }
+  }
+
+  private void persistTemplates(Map<String, FileTemplate[]> templates, String templatesCategory) {
+    List<FileTemplate> customTemplates = Stream.of(templates.get(templatesCategory)).filter(t -> !t.isDefault()).collect(Collectors.toList());
+    if (customTemplates.size() > 0) {
+      myManager.setTemplates(templatesCategory, customTemplates);
     }
   }
 
@@ -645,10 +654,8 @@ public final class TestTemplatesConfigurable implements SearchableConfigurable, 
       if (!myChangesCache.containsKey(myScheme)) {
         Map<String, FileTemplate[]> templates = new HashMap<>();
         FileTemplate[] allTemplates = myTemplatesList.getTemplates();
-        templates.put(FileTemplateManager.DEFAULT_TEMPLATES_CATEGORY, ContainerUtil.filter(allTemplates,
+        templates.put(FileTemplateManager.INTERNAL_TEMPLATES_CATEGORY, ContainerUtil.filter(allTemplates,
                                                                        template -> !myInternalTemplateNames.contains(template.getName())).toArray(FileTemplate.EMPTY_ARRAY)); // todo filter out testme oob templates
-//        templates.put(FileTemplateManager.INTERNAL_TEMPLATES_CATEGORY, ContainerUtil.filter(allTemplates,
-//                                                                        template -> myInternalTemplateNames.contains(template.getName())).toArray(FileTemplate.EMPTY_ARRAY));
         templates.put(FileTemplateManager.INCLUDES_TEMPLATES_CATEGORY, myIncludesList.getTemplates());//todo filter out testme oob includes templates
         myChangesCache.put(myScheme, templates);
       }

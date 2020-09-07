@@ -33,7 +33,7 @@ import java.util.*;
  */
 @State(name = "TestMeTemplateManagerImpl", storages = @Storage(StoragePathMacros.WORKSPACE_FILE))
 public class TestMeTemplateManagerImpl extends FileTemplateManager implements PersistentStateComponent<TestMeTemplateManagerImpl.State> {
-  private static final Logger LOG = Logger.getInstance("#FileTemplateManagerImpl");
+  private static final Logger LOG = Logger.getInstance("#TestMeTemplateManagerImpl");
 
   private final State myState = new State();
 //  private final FileTypeManagerEx myTypeManager;
@@ -123,7 +123,7 @@ public class TestMeTemplateManagerImpl extends FileTemplateManager implements Pe
   @Override
   public FileTemplate[] getTemplates(@NotNull String category) {
 //    if (DEFAULT_TEMPLATES_CATEGORY.equals(category)) return ArrayUtil.mergeArrays(getInternalTemplates() //,*getAllTemplates()*/);
-    if (DEFAULT_TEMPLATES_CATEGORY.equals(category)) return getInternalTemplates();
+    if (INTERNAL_TEMPLATES_CATEGORY.equals(category)) return getInternalTemplates();
     if (INCLUDES_TEMPLATES_CATEGORY.equals(category)) return getAllPatterns();
     throw new IllegalArgumentException("Unknown category: " + category);
   }
@@ -235,7 +235,7 @@ public class TestMeTemplateManagerImpl extends FileTemplateManager implements Pe
         result.add(getInternalTemplate(bean.name));
       }
       catch (Exception e) {
-        LOG.error(e);
+        LOG.error("Can't find template " + bean.name, e);
       }
     }
     return result.toArray(FileTemplate.EMPTY_ARRAY);
@@ -420,54 +420,54 @@ public class TestMeTemplateManagerImpl extends FileTemplateManager implements Pe
     return getSettings().getAllManagers();
   }
 
-  @TestOnly
-  public void setDefaultFileIncludeTemplateTextTemporarilyForTest(String simpleName, String text, @NotNull Disposable parentDisposable) {
-    FTManager defaultTemplatesManager = getSettings().getPatternsManager();
-    String qName = getQualifiedName(simpleName);
-    FileTemplateBase oldTemplate = defaultTemplatesManager.getTemplate(qName);
-    Map<String, FileTemplateBase> templates = defaultTemplatesManager.getTemplates();
-    templates.put(qName, new FileTemplateBase() {
-      @NotNull
-      @Override
-      public String getName() {
-        return simpleName;
-      }
-
-      @Override
-      public void setName(@NotNull String name) {
-        throw new AbstractMethodError();
-      }
-
-      @Override
-      public boolean isDefault() {
-        return true;
-      }
-
-      @NotNull
-      @Override
-      public String getDescription() {
-        throw new AbstractMethodError();
-      }
-
-      @NotNull
-      @Override
-      public String getExtension() {
-        return qName.substring(simpleName.length());
-      }
-
-      @Override
-      public void setExtension(@NotNull String extension) {
-        throw new AbstractMethodError();
-      }
-
-      @NotNull
-      @Override
-      protected String getDefaultText() {
-        return text;
-      }
-    });
-    Disposer.register(parentDisposable, () -> templates.put(qName, oldTemplate));
-  }
+//  @TestOnly
+//  public void setDefaultFileIncludeTemplateTextTemporarilyForTest(String simpleName, String text, @NotNull Disposable parentDisposable) {
+//    FTManager defaultTemplatesManager = getSettings().getPatternsManager();
+//    String qName = getQualifiedName(simpleName);
+//    FileTemplateBase oldTemplate = defaultTemplatesManager.getTemplate(qName);
+//    Map<String, FileTemplateBase> templates = defaultTemplatesManager.getTemplates();
+//    templates.put(qName, new FileTemplateBase() {
+//      @NotNull
+//      @Override
+//      public String getName() {
+//        return simpleName;
+//      }
+//
+//      @Override
+//      public void setName(@NotNull String name) {
+//        throw new AbstractMethodError();
+//      }
+//
+//      @Override
+//      public boolean isDefault() {
+//        return true;
+//      }
+//
+//      @NotNull
+//      @Override
+//      public String getDescription() {
+//        throw new AbstractMethodError();
+//      }
+//
+//      @NotNull
+//      @Override
+//      public String getExtension() {
+//        return qName.substring(simpleName.length());
+//      }
+//
+//      @Override
+//      public void setExtension(@NotNull String extension) {
+//        throw new AbstractMethodError();
+//      }
+//
+//      @NotNull
+//      @Override
+//      protected String getDefaultText() {
+//        return text;
+//      }
+//    });
+//    Disposer.register(parentDisposable, () -> templates.put(qName, oldTemplate));
+//  }
 
   public static class State {
     public List<String> RECENT_TEMPLATES = new ArrayList<>();
