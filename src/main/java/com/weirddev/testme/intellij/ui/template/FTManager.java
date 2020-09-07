@@ -155,14 +155,6 @@ public class FTManager {
   }
 
   void updateTemplates(@NotNull Collection<? extends FileTemplate> newTemplates) {
-    final Set<String> toDisable = new HashSet<>();
-    for (DefaultTemplate template : myDefaultTemplates) {
-      toDisable.add(template.getQualifiedName());
-    }
-    for (FileTemplate template : newTemplates) {
-      toDisable.remove(((FileTemplateBase)template).getQualifiedName());
-    }
-    restoreDefaults(toDisable);
     for (FileTemplate template : newTemplates) {
       final FileTemplateBase _template = addTemplate(template.getName(), template.getExtension());
       _template.setText(template.getText());
@@ -170,17 +162,6 @@ public class FTManager {
       _template.setLiveTemplateEnabled(template.isLiveTemplateEnabled());
     }
     saveTemplates(true);
-  }
-
-  private void restoreDefaults(@NotNull Set<String> toDisable) {
-    getTemplates().clear();
-    mySortedTemplates = null;
-    for (DefaultTemplate template : myDefaultTemplates) {
-      final BundledFileTemplate bundled = createAndStoreBundledTemplate(template);
-//      if (toDisable.contains(bundled.getQualifiedName())) {
-//        bundled.setEnabled(false);
-//      }
-    }
   }
 
   void setDefaultTemplates(@NotNull Collection<DefaultTemplate> templates) {
@@ -290,8 +271,10 @@ public class FTManager {
 //        continue;
 //      }
       final String name = template.getQualifiedName();
-      templatesToSave.put(name, template);
-      allNames.add(name);
+      if (template instanceof CustomFileTemplate) {
+        templatesToSave.put(name, template);
+        allNames.add(name);
+      }
     }
 
     if (allNames.isEmpty()) {
@@ -350,7 +333,14 @@ public class FTManager {
    *  If template was not modified, it is not saved.
    */
   private static void saveTemplate(@NotNull Path parentDir, @NotNull FileTemplateBase template, @NotNull String lineSeparator) throws IOException {
-    final Path templateFile = parentDir.resolve(encodeFileName(template.getName(), template.getExtension()));
+
+    String name = template.getName();
+    String extension = template.getExtension();
+    String extSuffix = "." + extension;
+    if (name.endsWith(extSuffix)) {
+      name = name.substring(0, name.length() - (extSuffix).length());
+    }
+    final Path templateFile = parentDir.resolve(encodeFileName(name, extension));
     try (OutputStream fileOutputStream = startWriteOrCreate(templateFile);
          OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8)) {
       String content = template.getText();
