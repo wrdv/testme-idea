@@ -5,7 +5,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.weirddev.testme.intellij.HackedRuntimeInstance;
 import com.weirddev.testme.intellij.icon.TemplateIcons;
 import com.weirddev.testme.intellij.template.context.Language;
-import com.weirddev.testme.intellij.utils.ResourceWalker;
+import com.weirddev.testme.intellij.utils.ResourceLoader;
 import org.apache.commons.io.FilenameUtils;
 
 import java.nio.file.Path;
@@ -24,13 +24,13 @@ public class TemplateRegistry {
 
     static private List<TemplateDescriptor> templateDescriptors = new ArrayList<TemplateDescriptor>();
 
-    public static final String JUNIT4_MOCKITO_JAVA_TEMPLATE = "TestMe with JUnit4 & Mockito.java";
-    public static final String JUNIT5_MOCKITO_JAVA_TEMPLATE = "TestMe with JUnit5 & Mockito.java";
-    public static final String TESTNG_MOCKITO_JAVA_TEMPLATE = "TestMe with TestNG & Mockito.java";
-    public static final String JUNIT4_MOCKITO_GROOVY_TEMPLATE = "TestMe with Groovy, JUnit4 & Mockito.groovy";
-    public static final String SPOCK_MOCKITO_GROOVY_TEMPLATE = "TestMe with Groovy, Spock & Mockito.groovy";
-    public static final String SPOCK_PARAMETERIZED_MOCKITO_GROOVY_TEMPLATE = "TestMe with Parameterized Groovy, Spock & Mockito.groovy";
-    public static final String SPECS2_MOCKITO_SCALA_TEMPLATE = "TestMe with Specs2 & Mockito.scala";
+    public static final String JUNIT4_MOCKITO_JAVA_TEMPLATE = "JUnit4 & Mockito.java";
+    public static final String JUNIT5_MOCKITO_JAVA_TEMPLATE = "JUnit5 & Mockito.java";
+    public static final String TESTNG_MOCKITO_JAVA_TEMPLATE = "TestNG & Mockito.java";
+    public static final String JUNIT4_MOCKITO_GROOVY_TEMPLATE = "Groovy, JUnit4 & Mockito.groovy";
+    public static final String SPOCK_MOCKITO_GROOVY_TEMPLATE = "Groovy, Spock & Mockito.groovy";
+    public static final String SPOCK_PARAMETERIZED_MOCKITO_GROOVY_TEMPLATE = "Parameterized Groovy, Spock & Mockito.groovy";
+    public static final String SPECS2_MOCKITO_SCALA_TEMPLATE = "Specs2 & Mockito.scala";
 
     static {
 /*
@@ -38,8 +38,8 @@ public class TemplateRegistry {
         URL juDark = TemplateRegistry.class.getResource("/icons/junit_dark.png");
         URL mockito = TemplateRegistry.class.getResource("/icons/mockito.png");
         URL ju5 = TemplateRegistry.class.getResource("/icons/junit5.png");
-        templateDescriptors.add(new TemplateDescriptor("<html>with <i><b>JUnit4</b></i><img src='"+ juDark +"'> & <i><b>Mockito</b></i><img src='"+ mockito +"'></html>", "TestMe with JUnit4 & Mockito.java"));
-        templateDescriptors.add(new TemplateDescriptor("<html>with <i><b>JUnit5</b></i><img src='"+ ju5 +"'> & <i><b>Mockito</b></i><img src='"+ mockito +"'></html>", "TestMe with JUnit4 & Mockito.java"));
+        templateDescriptors.add(new TemplateDescriptor("<html>with <i><b>JUnit4</b></i><img src='"+ juDark +"'> & <i><b>Mockito</b></i><img src='"+ mockito +"'></html>", "JUnit4 & Mockito.java"));
+        templateDescriptors.add(new TemplateDescriptor("<html>with <i><b>JUnit5</b></i><img src='"+ ju5 +"'> & <i><b>Mockito</b></i><img src='"+ mockito +"'></html>", "JUnit4 & Mockito.java"));
 */
         templateDescriptors.add(new TemplateDescriptor("<html><i>JUnit4</i>"+ TemplateIcons.JUnit4.asHtml()+"& <i>Mockito</i>" + TemplateIcons.Mockito.asHtml()+ "</html>",
                 "<html><i>JUnit4</i></html><JUnit4><html>& <i>Mockito</i></html><Mockito>",
@@ -72,7 +72,7 @@ public class TemplateRegistry {
     public List<TemplateDescriptor> getIncludedTemplateDescriptors()  {
         Stream<Path> paths;
         try {
-            paths = ResourceWalker.getDirResources("/" + HackedRuntimeInstance.FILE_TEMPLATES_TEST_ME_INCLUDES);
+            paths = ResourceLoader.getDirResources("/" + HackedRuntimeInstance.FILE_TEMPLATES_TEST_ME_INCLUDES);
         } catch (Exception e) {
             LOG.warn("failed to load included templates",e);
             return null;

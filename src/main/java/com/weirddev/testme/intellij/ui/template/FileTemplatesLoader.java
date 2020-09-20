@@ -15,12 +15,14 @@ import com.intellij.project.ProjectKt;
 import com.intellij.util.UriUtil;
 import com.intellij.util.containers.MultiMap;
 import com.intellij.util.lang.UrlClassLoader;
+import com.weirddev.testme.intellij.utils.ResourceLoader;
 import gnu.trove.THashSet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import com.intellij.ide.fileTemplates.impl.DefaultTemplate;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -40,15 +42,13 @@ class FileTemplatesLoader {
   private static final String DESCRIPTION_FILE_EXTENSION = "html";
   private static final String DESCRIPTION_EXTENSION_SUFFIX = "." + DESCRIPTION_FILE_EXTENSION;
 
-//  private final FTManager myDefaultTemplatesManager;
-  private final FTManager myInternalTemplatesManager;
-  private final FTManager myPatternsManager;
+  private final FTManager myTestTemplatesManager;
+  private final FTManager myIncludesManager;//testMeIncludes
 
   private final FTManager[] myAllManagers;
 
-  private static final String INTERNAL_DIR = "internal";
-//  private static final String INCLUDES_DIR = "includes";//"testMeIncludes"
-  private static final String INCLUDES_DIR = "testMeIncludes";
+  private static final String TESTS_DIR = "testMeTests";
+  public static final String INCLUDES_DIR = "testMeIncludes";
 
   private final URL myDefaultTemplateDescription;
   private final URL myDefaultIncludeDescription;
@@ -58,14 +58,11 @@ class FileTemplatesLoader {
                                ? PathManager.getConfigPath()
                                : UriUtil.trimTrailingSlashes(Objects.requireNonNull(ProjectKt.getStateStore(project).getDirectoryStorePath(true))), TEMPLATES_DIR);
 
-//    myDefaultTemplatesManager = new FTManager(FileTemplateManager.DEFAULT_TEMPLATES_CATEGORY, configDir);
-    myInternalTemplatesManager = new FTManager(FileTemplateManager.INTERNAL_TEMPLATES_CATEGORY, configDir.resolve(INTERNAL_DIR), true);
-    myPatternsManager = new FTManager(FileTemplateManager.INCLUDES_TEMPLATES_CATEGORY, configDir.resolve(INCLUDES_DIR));
-//    myPatternsManager = new com.intellij.ide.fileTemplates.impl.FTManager(FileTemplateManager.INCLUDES_TEMPLATES_CATEGORY, configDir.resolve("Includes"));
+    myTestTemplatesManager = new FTManager(TestMeTemplateManagerImpl.TEST_TEMPLATES_CATEGORY, configDir.resolve(TESTS_DIR), true);
+    myIncludesManager = new FTManager(FileTemplateManager.INCLUDES_TEMPLATES_CATEGORY, configDir.resolve(INCLUDES_DIR));
     myAllManagers = new FTManager[]{
-//      myDefaultTemplatesManager,
-      myInternalTemplatesManager,
-      myPatternsManager,
+            myTestTemplatesManager,
+            myIncludesManager,
     };
 
     Map<FTManager, String> managerToPrefix = new LinkedHashMap<>();
@@ -84,24 +81,33 @@ class FileTemplatesLoader {
     }
   }
 
+  private Path resolveInternalTemplatesRoot() {
+    try {
+      return ResourceLoader.getPath("/" + TEMPLATES_DIR+"/"+ TESTS_DIR);
+    } catch (URISyntaxException | IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
   @NotNull
   FTManager[] getAllManagers() {
     return myAllManagers;
   }
 
-//  @NotNull
-//  FTManager getDefaultTemplatesManager() {
-//    return new FTManager(myDefaultTemplatesManager);
-//  }
+  @NotNull
+  FTManager getInternalTestTemplatesManager() {
+//    return new FTManager(myInternalTestTemplatesManager);
+    return new FTManager(myTestTemplatesManager);
+  }
 
   @NotNull
-  FTManager getInternalTemplatesManager() {
-    return new FTManager(myInternalTemplatesManager);
+  FTManager getCustomTestTemplatesManager() {
+    return new FTManager(myTestTemplatesManager);
   }
 
   @NotNull
   FTManager getPatternsManager() {
-    return new FTManager(myPatternsManager);
+    return new FTManager(myIncludesManager);
   }
 
   URL getDefaultTemplateDescription() {
@@ -204,9 +210,8 @@ class FileTemplatesLoader {
                                            @NotNull Set<String> descriptionPaths) {
     final Locale locale = Locale.getDefault();
 
-    String descName = MessageFormat
-      .format("{0}.{1}_{2}_{3}" + DESCRIPTION_EXTENSION_SUFFIX, templateName, templateExtension,
-              locale.getLanguage(), locale.getCountry());
+    String descName = MessageFormat.format("{0}.{1}_{2}_{3}" + DESCRIPTION_EXTENSION_SUFFIX, templateName, templateExtension,
+                                      locale.getLanguage(), locale.getCountry());
     String descPath = pathPrefix.isEmpty() ? descName : pathPrefix + descName;
     if (descriptionPaths.contains(descPath)) {
       return descPath;

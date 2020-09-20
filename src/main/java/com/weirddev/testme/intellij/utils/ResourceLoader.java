@@ -1,19 +1,28 @@
 package com.weirddev.testme.intellij.utils;
 
 
-import java.io.*;
-import java.net.*;
+import org.jetbrains.annotations.NotNull;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.*;
-import java.util.*;
-import java.util.stream.*;
+import java.util.Collections;
+import java.util.stream.Stream;
 
 /**
  *
  * @link https://stackoverflow.com/a/28057735
  */
-public class ResourceWalker {
+public class ResourceLoader {
     public static Stream<Path> getDirResources(String path) throws URISyntaxException, IOException {
-        URI uri = ResourceWalker.class.getResource(path).toURI();
+        Path myPath = getPath(path);
+        return Files.walk(myPath, 1);
+    }
+
+    @NotNull
+    public static Path getPath(String path) throws URISyntaxException, IOException {
+        URI uri = ResourceLoader.class.getResource(path).toURI();
         Path myPath;
         if (uri.getScheme().equals("jar")) {
             FileSystem fileSystem;
@@ -26,6 +35,6 @@ public class ResourceWalker {
         } else {
             myPath = Paths.get(uri);
         }
-        return Files.walk(myPath, 1);
+        return myPath;
     }
 }
