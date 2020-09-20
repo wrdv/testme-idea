@@ -6,14 +6,12 @@ import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.ide.fileTemplates.FileTemplatesScheme;
 import com.intellij.ide.fileTemplates.InternalTemplateBean;
 import com.intellij.ide.fileTemplates.impl.FileTemplateBase;
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ApplicationNamesInfo;
 import com.intellij.openapi.components.*;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileTypes.ex.FileTypeManagerEx;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.project.ProjectKt;
 import com.intellij.util.SystemProperties;
@@ -34,7 +32,7 @@ import java.util.*;
 @State(name = "TestMeTemplateManagerImpl", storages = @Storage(StoragePathMacros.WORKSPACE_FILE))
 public class TestMeTemplateManagerImpl extends FileTemplateManager implements PersistentStateComponent<TestMeTemplateManagerImpl.State> {
   private static final Logger LOG = Logger.getInstance("#TestMeTemplateManagerImpl");
-
+  public static final String TEST_TEMPLATES_CATEGORY = "Tests";
   private final State myState = new State();
 //  private final FileTypeManagerEx myTypeManager;
 //  private final FileTemplateSettings myProjectSettings;
@@ -45,12 +43,8 @@ public class TestMeTemplateManagerImpl extends FileTemplateManager implements Pe
   private FileTemplatesScheme myScheme = FileTemplatesScheme.DEFAULT;
   private boolean myInitialized;
 
-  public static FileTemplateManager getInstance(@NotNull Project project){
+  public static TestMeTemplateManagerImpl getInstance(@NotNull Project project){
     return ServiceManager.getService(project, TestMeTemplateManagerImpl.class);
-  }
-
-  public static TestMeTemplateManagerImpl getInstanceImpl(@NotNull Project project) {
-    return (TestMeTemplateManagerImpl)getInstance(project);
   }
 
   TestMeTemplateManagerImpl(
@@ -122,8 +116,7 @@ public class TestMeTemplateManagerImpl extends FileTemplateManager implements Pe
   @NotNull
   @Override
   public FileTemplate[] getTemplates(@NotNull String category) {
-//    if (DEFAULT_TEMPLATES_CATEGORY.equals(category)) return ArrayUtil.mergeArrays(getInternalTemplates() //,*getAllTemplates()*/);
-    if (INTERNAL_TEMPLATES_CATEGORY.equals(category)) return getInternalTemplates();
+    if (TestMeTemplateManagerImpl.TEST_TEMPLATES_CATEGORY.equals(category)) return getInternalTemplates();
     if (INCLUDES_TEMPLATES_CATEGORY.equals(category)) return getAllPatterns();
     throw new IllegalArgumentException("Unknown category: " + category);
   }
@@ -150,11 +143,11 @@ public class TestMeTemplateManagerImpl extends FileTemplateManager implements Pe
   }
 
   @Override
-  public void removeTemplate(@NotNull FileTemplate template) {
-    final String qName = ((FileTemplateBase)template).getQualifiedName();
-    for (FTManager manager : getAllManagers()) {
-      manager.removeTemplate(qName);
-    }
+  public void removeTemplate(@NotNull FileTemplate template) { // exists for testing onlu
+//    final String qName = ((FileTemplateBase)template).getQualifiedName();
+//    for (FTManager manager : getAllManagers()) {
+//      manager.removeTemplate(qName);
+//    }
   }
 
   @Override
@@ -216,53 +209,26 @@ public class TestMeTemplateManagerImpl extends FileTemplateManager implements Pe
     myState.addName(name);
   }
 
-  private void validateRecentNames() {
-//    final Collection<FileTemplateBase> allTemplates = getSettings().getDefaultTemplatesManager().getAllTemplates(false);
-//    final List<String> allNames = new ArrayList<>(allTemplates.size());
-//    for (FileTemplate fileTemplate : allTemplates) {
-//      allNames.add(fileTemplate.getName());
-//    }
-//    myState.validateNames(allNames);
-  }
-
   @Override
   @NotNull
-  public FileTemplate[] getInternalTemplates() {
-    List<InternalTemplateBean> internalTemplateBeans = InternalTemplateBean.EP_NAME.getExtensionList();
-    List<FileTemplate> result = new ArrayList<>(internalTemplateBeans.size());
-    for (InternalTemplateBean bean : internalTemplateBeans) {
-      try {
-        result.add(getInternalTemplate(bean.name));
-      }
-      catch (Exception e) {
-        LOG.error("Can't find template " + bean.name, e);
-      }
-    }
-    return result.toArray(FileTemplate.EMPTY_ARRAY);
+  public FileTemplate[] getInternalTemplates() { //todo replace/remove. extending internal templates is not relevant
+    final Collection<FileTemplateBase> allTemplates = getSettings().getInternalTestTemplatesManager().getAllTemplates(true);
+    return allTemplates.toArray(FileTemplate.EMPTY_ARRAY);
   }
 
-  @NotNull
+//  @NotNull
   @Override
   public FileTemplate getInternalTemplate(@NotNull @NonNls String templateName) {
-    FileTemplateBase template = (FileTemplateBase)findInternalTemplate(templateName);
-
-//    if (template == null) {
-//      template = (FileTemplateBase)getJ2eeTemplate(templateName); // Hack to be able to register class templates from the plugin.
-//      template.setReformatCode(true);
-//    }
-    return template;
+    return findInternalTemplate(templateName);
   }
 
   @Override
   public FileTemplate findInternalTemplate(@NotNull @NonNls String templateName) {
-    FileTemplateBase template = getSettings().getInternalTemplatesManager().findTemplateByName(templateName);
-//
-//    if (template == null) {
-//      // todo: review the hack and try to get rid of this weird logic completely
-//      template = getSettings().getDefaultTemplatesManager().findTemplateByName(templateName);
-//    }
-    return template;
-//    return  null;
+    return getSettings().getInternalTestTemplatesManager().findTemplateByName(templateName);
+  }
+
+  public FileTemplate findCustomTestTemplate(@NotNull @NonNls String templateName) { //todo hookup
+    return getSettings().getCustomTestTemplatesManager().findTemplateByName(templateName);
   }
 
   @Override

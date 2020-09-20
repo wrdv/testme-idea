@@ -8,6 +8,7 @@ import com.intellij.ui.components.JBList;
 import com.intellij.util.Function;
 import com.intellij.util.ui.UIUtil;
 import com.weirddev.testme.intellij.icon.TemplateNameFormatter;
+import com.weirddev.testme.intellij.ui.model.TestMeFileTemplate;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -41,7 +42,8 @@ abstract class FileTemplateTabAsList extends FileTemplateTab {
       if (value instanceof FileTemplate) {
         FileTemplate template = (FileTemplate) value;
         icon = FileTemplateUtil.getIcon(template);
-        String formattedName = templateNameFormatter.formatWithInnerImages(template.getName());
+        String name = template instanceof TestMeFileTemplate ? ((TestMeFileTemplate) template).getDisplayName() : template.getName();
+        String formattedName = templateNameFormatter.formatWithInnerImages(name);
         if (TestTemplatesConfigurable.isInternalTemplate(template)) {
           setFont(getFont().deriveFont(Font.BOLD));
         }

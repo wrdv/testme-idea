@@ -15,16 +15,16 @@ public class TestMeFileTemplate extends FileTemplateBase { //todo migrate away f
     /**
      * true - when this is an OOB template (readonly)
      */
-    private boolean isDefault = false;
+    private boolean isDefault;
 
     private String description;
 
     private String extension;
 
-    public TestMeFileTemplate(String htmlDisplayName, String extension) {
-        this.name = htmlDisplayName;
+    public TestMeFileTemplate(String name, String extension, boolean isDefault) {
+        this.name = name;
         this.extension = extension;
-        this.isDefault = true;
+        this.isDefault = isDefault;
     }
 
 
@@ -33,6 +33,10 @@ public class TestMeFileTemplate extends FileTemplateBase { //todo migrate away f
     public String getName() {
         return name;
     }
+//    @NotNull
+//    public String getNormalizedName() {
+//        return  FTManager.encodeFileName(name, extension);
+//    }
 
     @Override
     public void setName(@NotNull String name) {
@@ -47,7 +51,7 @@ public class TestMeFileTemplate extends FileTemplateBase { //todo migrate away f
     @NotNull
     @Override
     public String getDescription() {
-        return "TODO define html description with referenced links";
+        return description;
     }
 
     @NotNull
@@ -59,5 +63,27 @@ public class TestMeFileTemplate extends FileTemplateBase { //todo migrate away f
     @Override
     public void setExtension(@NotNull String extension) {
         this.extension = extension;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
+    public String getDisplayName() {
+        return displayName == null? name: displayName;
+    }
+
+    @Override
+    public String toString() {
+        return "TestMeFileTemplate{" +
+                "name='" + name + '\'' +
+                ", displayName='" + displayName + '\'' +
+                ", isDefault=" + isDefault +
+                ", extension='" + extension + '\'' +
+                '}';
     }
 }

@@ -2,15 +2,18 @@ package com.weirddev.testme.intellij.ui.template;
 
 import com.intellij.application.options.CodeStyle;
 import com.intellij.ide.fileTemplates.FileTemplate;
-import com.intellij.ide.fileTemplates.impl.BundledFileTemplate;
 import com.intellij.ide.fileTemplates.impl.CustomFileTemplate;
-import com.intellij.ide.fileTemplates.impl.FileTemplateBase;
 import com.intellij.ide.fileTemplates.impl.DefaultTemplate;
+import com.intellij.ide.fileTemplates.impl.FileTemplateBase;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.text.StringUtilRt;
 import com.intellij.util.io.PathKt;
+import com.weirddev.testme.intellij.template.TemplateDescriptor;
+import com.weirddev.testme.intellij.template.TemplateRegistry;
+import com.weirddev.testme.intellij.ui.model.TestMeFileTemplate;
+import com.weirddev.testme.intellij.utils.TemplateFileNameFormatter;
 import gnu.trove.THashMap;
 import gnu.trove.THashSet;
 import org.jetbrains.annotations.NonNls;
@@ -26,6 +29,7 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Eugene Zhuravlev
@@ -44,6 +48,7 @@ public class FTManager {
   private final Map<String, FileTemplateBase> myTemplates = new HashMap<>();
   private volatile List<FileTemplateBase> mySortedTemplates;
   private final List<DefaultTemplate> myDefaultTemplates = new ArrayList<>();
+  private final TemplateRegistry templateRegistry = new TemplateRegistry(); //todo consider making this a service
 
   FTManager(@NotNull @NonNls String name, @NotNull @NonNls Path defaultTemplatesDirName) {
     this(name, defaultTemplatesDirName, false);
@@ -74,23 +79,25 @@ public class FTManager {
   Collection<FileTemplateBase> getAllTemplates(boolean includeDisabled) {
     List<FileTemplateBase> sorted = mySortedTemplates;
     if (sorted == null) {
-      sorted = new ArrayList<>(getTemplates().values());
-      Collections.sort(sorted, (t1, t2) -> t1.getName().compareToIgnoreCase(t2.getName()));
+      sorted = sortOobFirst();
       mySortedTemplates = sorted;
     }
+//    return filterDisabled(includeDisabled, sorted);
+    return sorted;
+  }
 
-    if (includeDisabled) {
-      return Collections.unmodifiableCollection(sorted);
-    }
+  @NotNull
+  private List<FileTemplateBase> sortOobFirst() {
+    List<FileTemplateBase> oobTemplates = getTemplates().values().stream().filter(FileTemplate::isDefault).collect(Collectors.toList());
+    sort(oobTemplates);
+    List<FileTemplateBase> customTemplates = getTemplates().values().stream().filter(fileTemplateBase -> !fileTemplateBase.isDefault()).collect(Collectors.toList());
+    sort(customTemplates);
+    oobTemplates.addAll(customTemplates);
+    return oobTemplates;
+  }
 
-    final List<FileTemplateBase> list = new ArrayList<>(sorted.size());
-    for (FileTemplateBase template : sorted) {
-//      if (template instanceof BundledFileTemplate && !((BundledFileTemplate)template).isEnabled()) {
-//        continue;
-//      }
-      list.add(template);
-    }
-    return list;
+  private void sort(List<FileTemplateBase> sorted) {
+    sorted.sort((t1, t2) -> t1.getName().compareToIgnoreCase(t2.getName()));
   }
 
   /**
@@ -131,30 +138,19 @@ public class FTManager {
     final String qName = FileTemplateBase.getQualifiedName(name, extension);
     FileTemplateBase template = getTemplate(qName);
     if (template == null) {
+      //todo consider formatted html name for custom test templates
+//      TestMeFileTemplate tTemplate =new TestMeFileTemplate(name, extension, false);
+//      tTemplate.setDisplayName(TemplateFileNameFormatter.filenameToTemplateName(name));
+//      template = tTemplate;
       template = new CustomFileTemplate(name, extension);
       getTemplates().put(qName, template);
       mySortedTemplates = null;
     }
-//    else {
-//      if (template instanceof BundledFileTemplate && !((BundledFileTemplate)template).isEnabled()) {
-//        ((BundledFileTemplate)template).setEnabled(true);
-//      }
-//    }
     return template;
   }
 
-  public void removeTemplate(@NotNull String qName) {
-    final FileTemplateBase template = getTemplates().get(qName);
-    if (template instanceof CustomFileTemplate) {
-      getTemplates().remove(qName);
-      mySortedTemplates = null;
-    }
-//    else if (template instanceof BundledFileTemplate){
-//      ((BundledFileTemplate)template).setEnabled(false);
-//    }
-  }
-
   void updateTemplates(@NotNull Collection<? extends FileTemplate> newTemplates) {
+    restoreDefaults();
     for (FileTemplate template : newTemplates) {
       final FileTemplateBase _template = addTemplate(template.getName(), template.getExtension());
       _template.setText(template.getText());
@@ -164,6 +160,13 @@ public class FTManager {
     saveTemplates(true);
   }
 
+  private void restoreDefaults() {
+    getTemplates().clear();
+    mySortedTemplates = null;
+    for (DefaultTemplate template : myDefaultTemplates) {
+    createAndStoreBundledTemplate(template);
+    }
+  }
   void setDefaultTemplates(@NotNull Collection<DefaultTemplate> templates) {
     myDefaultTemplates.clear();
     myDefaultTemplates.addAll(templates);
@@ -173,15 +176,19 @@ public class FTManager {
   }
 
   @NotNull
-  private BundledFileTemplate createAndStoreBundledTemplate(@NotNull DefaultTemplate template) {
-    final BundledFileTemplate bundled = new BundledFileTemplate(template, myInternal);
-    final String qName = bundled.getQualifiedName();
-    final FileTemplateBase previous = getTemplates().put(qName, bundled);
+  private TestMeFileTemplate createAndStoreBundledTemplate(@NotNull DefaultTemplate template) {
+    TestMeFileTemplate testMeFileTemplate = new TestMeFileTemplate(template.getName(), template.getExtension(), true);
+    testMeFileTemplate.setText(template.getText());
+    testMeFileTemplate.setDescription(template.getDescriptionText());
+    Optional<String> optHtmlDisplayName = templateRegistry.getEnabledTemplateDescriptors().stream().filter(t -> t.getFilename().equals(template.getName()+"."+template.getExtension())).findAny().map(TemplateDescriptor::getHtmlDisplayName);
+    optHtmlDisplayName.ifPresent(testMeFileTemplate::setDisplayName);
+    final String qName = testMeFileTemplate.getQualifiedName();
+    final FileTemplateBase previous = getTemplates().put(qName, testMeFileTemplate);
     mySortedTemplates = null;
 
     LOG.assertTrue(previous == null, "Duplicate bundled template " + qName +
                                      " [" + template.getTemplateURL() + ", " + previous + ']');
-    return bundled;
+    return testMeFileTemplate;
   }
 
   void loadCustomizedContent() {
@@ -253,7 +260,7 @@ public class FTManager {
     final Map<String, Path> templatesOnDisk = new THashMap<>();
     try (DirectoryStream<Path> stream = Files.newDirectoryStream(getConfigRoot(), file -> !Files.isDirectory(file) && !Files.isHidden(file))) {
       for (Path file : stream) {
-        String fileName = file.getFileName().toString();
+        String fileName = file.getFileName().toString();//todo if under testMeTests -> decode html
         templatesOnDisk.put(fileName, file);
         allNames.add(fileName);
       }
@@ -267,9 +274,6 @@ public class FTManager {
     final Map<String, FileTemplateBase> templatesToSave = new THashMap<>();
 
     for (FileTemplateBase template : getAllTemplates(true)) {
-//      if (template instanceof BundledFileTemplate && !((BundledFileTemplate)template).isTextModified()) {
-//        continue;
-//      }
       final String name = template.getQualifiedName();
       if (template instanceof CustomFileTemplate) {
         templatesToSave.put(name, template);
@@ -340,7 +344,9 @@ public class FTManager {
     if (name.endsWith(extSuffix)) {
       name = name.substring(0, name.length() - (extSuffix).length());
     }
-    final Path templateFile = parentDir.resolve(encodeFileName(name, extension));
+
+    String fileName = parentDir.endsWith(FileTemplatesLoader.INCLUDES_DIR)? name: TemplateFileNameFormatter.templateNameToFile(name);
+    final Path templateFile = parentDir.resolve(encodeFileName(fileName, extension));
     try (OutputStream fileOutputStream = startWriteOrCreate(templateFile);
          OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8)) {
       String content = template.getText();
@@ -374,7 +380,7 @@ public class FTManager {
   }
 
   @NotNull
-  static String encodeFileName(@NotNull String templateName, @NotNull String extension) {
+  public static String encodeFileName(@NotNull String templateName, @NotNull String extension) {
     String nameExtDelimiter = extension.contains(".") ? ENCODED_NAME_EXT_DELIMITER : ".";
     return templateName + nameExtDelimiter + extension;
   }
