@@ -46,6 +46,11 @@ public class HackedRuntimeInstance extends RuntimeInstance {
 
             @Override
             public InputStream getResourceStream(String resourceName) throws ResourceNotFoundException {
+                //todo get custom templates as well
+//                TestMeTemplateManagerImpl fileTemplateManager = TestMeTemplateManagerImpl.getInstance(file.getProject());
+//                List<TemplateDescriptor> templateDescriptors =fileTemplateManager.getTestTemplates();
+//                fileTemplateManager.getAllPatterns()
+
                 final FileTemplate include = ftFolderManager.getTemplates().get(resourceName);
                 if (include == null) {
                     throw new ResourceNotFoundException("Template not found: " + resourceName);

@@ -96,7 +96,6 @@ class FileTemplatesLoader {
 
   @NotNull
   FTManager getInternalTestTemplatesManager() {
-//    return new FTManager(myInternalTestTemplatesManager);
     return new FTManager(myTestTemplatesManager);
   }
 
