@@ -70,7 +70,6 @@ public class FileTemplateConfigurable implements Configurable, Configurable.NoSc
   private JTextField myNameField;
   private JTextField myExtensionField;
   private JCheckBox myAdjustBox;
-  private JCheckBox myLiveTemplateBox;
   private JPanel myTopPanel;
   private JEditorPane myDescriptionComponent;
   private boolean myModified;
@@ -144,7 +143,6 @@ public class FileTemplateConfigurable implements Configurable, Configurable.NoSc
     myExtensionField = new JTextField();
     mySplitter = new Splitter(true, myProportion);
     myAdjustBox = new JCheckBox(IdeBundle.message("checkbox.reformat.according.to.style"));
-    myLiveTemplateBox = new JCheckBox(IdeBundle.message("checkbox.enable.live.templates"));
     myTemplateEditor = createEditor(null);
     myDescriptionComponent = new JEditorPane();
     myDescriptionComponent.setEditorKit(UIUtil.getHTMLEditorKit());
@@ -217,11 +215,11 @@ public class FileTemplateConfigurable implements Configurable, Configurable.NoSc
     ((EditorEx)editor).setHighlighter(createHighlighter());
 
     JPanel topPanel = new JPanel(new BorderLayout());
-    JPanel southPanel = new JPanel(new HorizontalLayout(40));
-    southPanel.add(myAdjustBox);
-    southPanel.add(myLiveTemplateBox);
+    //opting for code format per template not supported yet
+//    JPanel southPanel = new JPanel(new HorizontalLayout(40));
+//    southPanel.add(myAdjustBox);
 
-    topPanel.add(southPanel, BorderLayout.SOUTH);
+//    topPanel.add(southPanel, BorderLayout.SOUTH);
     topPanel.add(editor.getComponent(), BorderLayout.CENTER);
     mySplitter.setFirstComponent(topPanel);
     return editor;
@@ -268,7 +266,7 @@ public class FileTemplateConfigurable implements Configurable, Configurable.NoSc
       return true;
     }
     if (myTemplate != null) {
-      if (myTemplate.isReformatCode() != myAdjustBox.isSelected() || myTemplate.isLiveTemplateEnabled() != myLiveTemplateBox.isSelected()) {
+      if (myTemplate.isReformatCode() != myAdjustBox.isSelected()) {
         return true;
       }
     }
@@ -294,7 +292,6 @@ public class FileTemplateConfigurable implements Configurable, Configurable.NoSc
       myTemplate.setName(templateName);//todo save fileName on template?! (use TestMeFileTemplate ?! )
       myTemplate.setExtension(extension);
       myTemplate.setReformatCode(myAdjustBox.isSelected());
-      myTemplate.setLiveTemplateEnabled(myLiveTemplateBox.isSelected());
     }
     myModified = false;
   }
@@ -337,7 +334,6 @@ public class FileTemplateConfigurable implements Configurable, Configurable.NoSc
     myNameField.setText(name);
     myExtensionField.setText(extension);
     myAdjustBox.setSelected(myTemplate != null && myTemplate.isReformatCode());
-    myLiveTemplateBox.setSelected(myTemplate != null && myTemplate.isLiveTemplateEnabled());
 
     int i = description.indexOf("<html>");
     if (i > 0) {
