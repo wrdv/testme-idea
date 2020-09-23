@@ -38,7 +38,7 @@
     <applicationConfigurable parentId="root" displayName="TestMe" id="preferences.TestMe" instance="com.weirddev.testme.intellij.ui.settings.TestMeConfigurable"/>
     <projectConfigurable  id="preferences.TestMe.templates"  parentId="preferences.TestMe"  displayName="Templates" provider="com.weirddev.testme.intellij.ui.template.TestTemplatesConfigurable$Provider"/>
     <applicationService serviceImplementation="com.weirddev.testme.intellij.configuration.TestMeConfigPersistent"/>
-    <applicationService serviceImplementation="com.weirddev.testme.intellij.ui.template.ExportableFileTemplateSettings"/>
+    <applicationService serviceImplementation="com.weirddev.testme.intellij.ui.template.ExportableFileTemplateSettings" serviceInterface="com.weirddev.testme.intellij.ui.template.FileTemplateSettings"/>
     <webHelpProvider implementation="com.weirddev.testme.intellij.configuration.TestMeWebHelpProvider" id="com.weirddev.testme"/>
     <projectService serviceImplementation="com.weirddev.testme.intellij.ui.template.TestMeTemplateManagerImpl"/>
   </extensions>

@@ -344,8 +344,9 @@ public class FTManager {
     if (name.endsWith(extSuffix)) {
       name = name.substring(0, name.length() - (extSuffix).length());
     }
-
-    String fileName = parentDir.endsWith(FileTemplatesLoader.INCLUDES_DIR)? name: TemplateFileNameFormatter.templateNameToFile(name);
+// avoid encoding html for now ( high risks for max file path >255 issues on win. need to persist html name in conf files instead)
+//    String fileName = parentDir.endsWith(FileTemplatesLoader.INCLUDES_DIR)? name: TemplateFileNameFormatter.templateNameToFile(name);
+    String fileName = name;
     final Path templateFile = parentDir.resolve(encodeFileName(fileName, extension));
     try (OutputStream fileOutputStream = startWriteOrCreate(templateFile);
          OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8)) {

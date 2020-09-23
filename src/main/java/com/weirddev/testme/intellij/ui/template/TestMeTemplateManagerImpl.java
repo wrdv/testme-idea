@@ -17,6 +17,11 @@ import com.intellij.project.ProjectKt;
 import com.intellij.util.SystemProperties;
 import com.intellij.util.text.DateFormatUtil;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+import com.weirddev.testme.intellij.template.TemplateDescriptor;
+import com.weirddev.testme.intellij.template.TemplateRegistry;
+import com.weirddev.testme.intellij.template.TemplateRole;
+import com.weirddev.testme.intellij.template.context.Language;
+import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -25,6 +30,7 @@ import org.jetbrains.annotations.TestOnly;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @see com.intellij.ide.fileTemplates.impl.FileTemplateManagerImpl
@@ -36,13 +42,13 @@ public class TestMeTemplateManagerImpl extends FileTemplateManager implements Pe
   private final State myState = new State();
 //  private final FileTypeManagerEx myTypeManager;
 //  private final FileTemplateSettings myProjectSettings;
-  private final ExportableFileTemplateSettings myDefaultSettings;
+  private final FileTemplateSettings myDefaultSettings;
   private final Project myProject;
 
   private final FileTemplatesScheme myProjectScheme;
   private FileTemplatesScheme myScheme = FileTemplatesScheme.DEFAULT;
   private boolean myInitialized;
-
+  private final TemplateRegistry templateRegistry = new TemplateRegistry(); //todo consider making this a service
   public static TestMeTemplateManagerImpl getInstance(@NotNull Project project){
     return ServiceManager.getService(project, TestMeTemplateManagerImpl.class);
   }
@@ -56,7 +62,7 @@ public class TestMeTemplateManagerImpl extends FileTemplateManager implements Pe
 //    myProjectSettings = projectSettings;
 //    myDefaultSettings = defaultSettings;
 //    myDefaultSettings = ApplicationManager.getApplication().getService(ExportableFileTemplateSettings.class);;
-    myDefaultSettings = ApplicationManager.getApplication().getService(ExportableFileTemplateSettings.class);;
+    myDefaultSettings = ApplicationManager.getApplication().getService(FileTemplateSettings.class);
     myProject = project;
 
     myProjectScheme = project.isDefault() ? null : new FileTemplatesScheme("Project") {
@@ -75,7 +81,7 @@ public class TestMeTemplateManagerImpl extends FileTemplateManager implements Pe
   }
 
   private FileTemplateSettings getSettings() {
-      return myScheme == FileTemplatesScheme.DEFAULT ? myDefaultSettings : myProject.getComponent(FileTemplateSettings.class);
+      return myScheme == FileTemplatesScheme.DEFAULT ? myDefaultSettings : myProject.getService(FileTemplateSettings.class);
   }
 
   @NotNull
@@ -211,12 +217,30 @@ public class TestMeTemplateManagerImpl extends FileTemplateManager implements Pe
 
   @Override
   @NotNull
-  public FileTemplate[] getInternalTemplates() { //todo replace/remove. extending internal templates is not relevant
+  public FileTemplate[] getInternalTemplates() {
     final Collection<FileTemplateBase> allTemplates = getSettings().getInternalTestTemplatesManager().getAllTemplates(true);
     return allTemplates.toArray(FileTemplate.EMPTY_ARRAY);
   }
+  @NotNull
+  public List<TemplateDescriptor> getTestTemplates() {
+    final Collection<FileTemplateBase> allTemplates = getSettings().getInternalTestTemplatesManager().getAllTemplates(true);
+    List<TemplateDescriptor> templateDescriptors = templateRegistry.getEnabledTemplateDescriptors();
+    return allTemplates.stream().map(t -> templateDescriptors.stream()
+                                              .filter(d-> d.getFilename().equals(t.getQualifiedName()))
+                                              .findAny().orElse(new TemplateDescriptor(t.getName(),t.getName(),t.getQualifiedName(), resolveLanguage(t), TemplateRole.Tester))
+                                ).collect(Collectors.toList());
+  }
 
-//  @NotNull
+  @NotNull
+  private Language resolveLanguage(FileTemplateBase t) {
+    try {
+        return Language.valueOf(StringUtils.capitalize(t.getExtension().toLowerCase()));
+    } catch (IllegalArgumentException ignore) {
+        return Language.Java;
+    }
+  }
+
+  //  @NotNull
   @Override
   public FileTemplate getInternalTemplate(@NotNull @NonNls String templateName) {
     return findInternalTemplate(templateName);
