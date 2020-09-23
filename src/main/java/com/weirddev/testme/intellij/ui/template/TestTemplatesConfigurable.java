@@ -296,9 +296,9 @@ public final class TestTemplatesConfigurable implements SearchableConfigurable, 
     myToolBar = ActionManager.getInstance().createActionToolbar("FileTemplatesConfigurable", group, true).getComponent();
     myToolBar.setBorder(new CustomLineBorder(1, 1, 0, 1));
 
-    SchemesPanel schemesPanel = new SchemesPanel();
-    schemesPanel.setBorder(JBUI.Borders.empty(5, 10, 0, 10));
-    schemesPanel.resetSchemes(Arrays.asList(FileTemplatesScheme.DEFAULT, myManager.getProjectScheme())); //try catch - show error
+//    SchemesPanel schemesPanel = new SchemesPanel();
+//    schemesPanel.setBorder(JBUI.Borders.empty(5, 10, 0, 10));
+//    schemesPanel.resetSchemes(Arrays.asList(FileTemplatesScheme.DEFAULT, myManager.getProjectScheme())); //try catch - show error
     JPanel leftPanelWrapper = new JPanel(new BorderLayout());
     leftPanelWrapper.setBorder(JBUI.Borders.empty(10, 10, 10, 0));
     leftPanelWrapper.add(BorderLayout.NORTH, myToolBar);
@@ -313,7 +313,7 @@ public final class TestTemplatesConfigurable implements SearchableConfigurable, 
     centerPanel.add(splitter, BorderLayout.CENTER);
 
     myMainPanel = new JPanel(new BorderLayout());
-    myMainPanel.add(schemesPanel, BorderLayout.NORTH);
+//    myMainPanel.add(schemesPanel, BorderLayout.NORTH); //disable project settings for now. proper support requires more work
     myMainPanel.add(centerPanel, BorderLayout.CENTER);
 
     final PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
