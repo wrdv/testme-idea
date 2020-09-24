@@ -81,7 +81,7 @@ public final class TestTemplatesConfigurable implements SearchableConfigurable, 
   }
 
   private final Project myProject;
-  private final TestMeTemplateManagerImpl myManager;
+  private final TestMeTemplateManager myManager;
   private JPanel myMainPanel;
   private FileTemplateTab myCurrentTab;
   private FileTemplateTab myTemplatesList;
@@ -105,7 +105,7 @@ public final class TestTemplatesConfigurable implements SearchableConfigurable, 
 
   public TestTemplatesConfigurable(Project project) {
     myProject = project;
-    myManager = TestMeTemplateManagerImpl.getInstance(project);
+    myManager = TestMeTemplateManager.getInstance(project);
     myScheme = myManager.getCurrentScheme();
     templateRegistry = new TemplateRegistry(); //todo consider making this a service
     templateNameFormatter = new TemplateNameFormatter();
@@ -365,7 +365,7 @@ public final class TestTemplatesConfigurable implements SearchableConfigurable, 
         return;
       }
       if (selectedValue == null) {
-        myEditor.setTemplate(null, TestMeTemplateManagerImpl.getInstance(myProject).getDefaultTemplateDescription());
+        myEditor.setTemplate(null, TestMeTemplateManager.getInstance(myProject).getDefaultTemplateDescription());
         myEditorComponent.repaint();
       }
       else {
@@ -395,10 +395,10 @@ public final class TestTemplatesConfigurable implements SearchableConfigurable, 
   private void selectTemplate(FileTemplate template) {
     URL defDesc = null;
     if (myCurrentTab == myTemplatesList) {
-      defDesc = TestMeTemplateManagerImpl.getInstance(myProject).getDefaultTemplateDescription();
+      defDesc = TestMeTemplateManager.getInstance(myProject).getDefaultTemplateDescription();
     }
     else if (myCurrentTab == myIncludesList){
-      defDesc = TestMeTemplateManagerImpl.getInstance(myProject).getDefaultIncludeDescription();
+      defDesc = TestMeTemplateManager.getInstance(myProject).getDefaultIncludeDescription();
     }
     if (myEditor.getTemplate() != template) {
       myEditor.setTemplate(template, defDesc);
@@ -422,8 +422,8 @@ public final class TestTemplatesConfigurable implements SearchableConfigurable, 
   private void initLists() {
     FileTemplatesScheme scheme = myManager.getCurrentScheme();
     myManager.setCurrentScheme(myScheme);
-    myTemplatesList.init(getTemplates(TestMeTemplateManagerImpl.TEST_TEMPLATES_CATEGORY));
-    myIncludesList.init(getTemplates(TestMeTemplateManagerImpl.INCLUDES_TEMPLATES_CATEGORY));
+    myTemplatesList.init(getTemplates(TestMeTemplateManager.TEST_TEMPLATES_CATEGORY));
+    myIncludesList.init(getTemplates(TestMeTemplateManager.INCLUDES_TEMPLATES_CATEGORY));
     myManager.setCurrentScheme(scheme);
   }
 
@@ -496,8 +496,8 @@ public final class TestTemplatesConfigurable implements SearchableConfigurable, 
     for (Map.Entry<FileTemplatesScheme, Map<String, FileTemplate[]>> entry : myChangesCache.entrySet()) {
       myManager.setCurrentScheme(entry.getKey());
       Map<String, FileTemplate[]> templates = entry.getValue();
-      persistTemplates(templates, TestMeTemplateManagerImpl.TEST_TEMPLATES_CATEGORY);
-      persistTemplates(templates, TestMeTemplateManagerImpl.INCLUDES_TEMPLATES_CATEGORY);
+      persistTemplates(templates, TestMeTemplateManager.TEST_TEMPLATES_CATEGORY);
+      persistTemplates(templates, TestMeTemplateManager.INCLUDES_TEMPLATES_CATEGORY);
     }
     myChangesCache.clear();
 
@@ -595,8 +595,8 @@ public final class TestTemplatesConfigurable implements SearchableConfigurable, 
     if (isSchemeModified()) {
       if (!myChangesCache.containsKey(myScheme)) {
         Map<String, FileTemplate[]> templates = new HashMap<>();
-        templates.put(TestMeTemplateManagerImpl.TEST_TEMPLATES_CATEGORY, myTemplatesList.getTemplates());
-        templates.put(TestMeTemplateManagerImpl.INCLUDES_TEMPLATES_CATEGORY, myIncludesList.getTemplates());
+        templates.put(TestMeTemplateManager.TEST_TEMPLATES_CATEGORY, myTemplatesList.getTemplates());
+        templates.put(TestMeTemplateManager.INCLUDES_TEMPLATES_CATEGORY, myIncludesList.getTemplates());
         myChangesCache.put(myScheme, templates);
       }
     }

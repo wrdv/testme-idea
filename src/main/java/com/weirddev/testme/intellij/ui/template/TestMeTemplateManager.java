@@ -35,9 +35,9 @@ import java.util.stream.Collectors;
 /**
  * @see com.intellij.ide.fileTemplates.impl.FileTemplateManagerImpl
  */
-@State(name = "TestMeTemplateManagerImpl", storages = @Storage(StoragePathMacros.WORKSPACE_FILE))
-public class TestMeTemplateManagerImpl extends FileTemplateManager implements PersistentStateComponent<TestMeTemplateManagerImpl.State> {
-  private static final Logger LOG = Logger.getInstance("#TestMeTemplateManagerImpl");
+@State(name = "TestMeTemplateManager", storages = @Storage(StoragePathMacros.WORKSPACE_FILE))
+public class TestMeTemplateManager extends FileTemplateManager implements PersistentStateComponent<TestMeTemplateManager.State> {
+  private static final Logger LOG = Logger.getInstance("#TestMeTemplateManager");
   public static final String TEST_TEMPLATES_CATEGORY = "Tests";
   private final State myState = new State();
 //  private final FileTypeManagerEx myTypeManager;
@@ -49,11 +49,16 @@ public class TestMeTemplateManagerImpl extends FileTemplateManager implements Pe
   private FileTemplatesScheme myScheme = FileTemplatesScheme.DEFAULT;
   private boolean myInitialized;
   private final TemplateRegistry templateRegistry = new TemplateRegistry(); //todo consider making this a service
-  public static TestMeTemplateManagerImpl getInstance(@NotNull Project project){
-    return ServiceManager.getService(project, TestMeTemplateManagerImpl.class);
+
+  public static TestMeTemplateManager getInstance(@NotNull Project project){
+    return ServiceManager.getService(project, TestMeTemplateManager.class);
   }
 
-  TestMeTemplateManagerImpl(
+  public static TestMeTemplateManager getDefaultInstance(){
+    return ServiceManager.getService(TestMeTemplateManager.class);
+  }
+
+  TestMeTemplateManager(
 //          @NotNull FileTypeManagerEx typeManager,
 //                            FileTemplateSettings projectSettings,
 //                            ExportableFileTemplateSettings defaultSettings,
@@ -65,7 +70,7 @@ public class TestMeTemplateManagerImpl extends FileTemplateManager implements Pe
     myDefaultSettings = ApplicationManager.getApplication().getService(FileTemplateSettings.class);
     myProject = project;
 
-    myProjectScheme = project.isDefault() ? null : new FileTemplatesScheme("Project") {
+    myProjectScheme = project !=null && project.isDefault() ? null : new FileTemplatesScheme("Project") {
       @NotNull
       @Override
       public String getTemplatesDir() {
@@ -122,7 +127,7 @@ public class TestMeTemplateManagerImpl extends FileTemplateManager implements Pe
   @NotNull
   @Override
   public FileTemplate[] getTemplates(@NotNull String category) {
-    if (TestMeTemplateManagerImpl.TEST_TEMPLATES_CATEGORY.equals(category)) return getInternalTemplates();
+    if (TestMeTemplateManager.TEST_TEMPLATES_CATEGORY.equals(category)) return getInternalTemplates();
     if (INCLUDES_TEMPLATES_CATEGORY.equals(category)) return getAllPatterns();
     throw new IllegalArgumentException("Unknown category: " + category);
   }

@@ -40,7 +40,8 @@
     <applicationService serviceImplementation="com.weirddev.testme.intellij.configuration.TestMeConfigPersistent"/>
     <applicationService serviceImplementation="com.weirddev.testme.intellij.ui.template.ExportableFileTemplateSettings" serviceInterface="com.weirddev.testme.intellij.ui.template.FileTemplateSettings"/>
     <webHelpProvider implementation="com.weirddev.testme.intellij.configuration.TestMeWebHelpProvider" id="com.weirddev.testme"/>
-    <projectService serviceImplementation="com.weirddev.testme.intellij.ui.template.TestMeTemplateManagerImpl"/>
+    <projectService serviceImplementation="com.weirddev.testme.intellij.ui.template.TestMeTemplateManager"/>
+    <applicationService serviceImplementation="com.weirddev.testme.intellij.ui.template.TestMeTemplateManager"/>
   </extensions>
   <application-components>
     <component>
