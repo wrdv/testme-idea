@@ -22,7 +22,7 @@ import com.intellij.psi.search.GlobalSearchScopesCore;
 import com.intellij.testIntegration.createTest.JavaTestGenerator;
 import com.intellij.util.IncorrectOperationException;
 import com.weirddev.testme.intellij.template.FileTemplateContext;
-import com.weirddev.testme.intellij.ui.template.TestMeTemplateManagerImpl;
+import com.weirddev.testme.intellij.ui.template.TestMeTemplateManager;
 import org.apache.velocity.app.Velocity;
 import org.jetbrains.annotations.Nullable;
 
@@ -108,7 +108,7 @@ public class TestMeGenerator {
 
     private PsiClass createTestClassFromCodeTemplate(final FileTemplateContext context, final PsiDirectory targetDirectory) {
         final String templateName = context.getFileTemplateDescriptor().getFileName();
-        FileTemplateManager fileTemplateManager = TestMeTemplateManagerImpl.getInstance(targetDirectory.getProject());
+        FileTemplateManager fileTemplateManager = TestMeTemplateManager.getInstance(targetDirectory.getProject());
         Map<String, Object> templateCtxtParams = testTemplateContextBuilder.build(context, fileTemplateManager.getDefaultProperties());
         try {
             FileTemplate codeTemplate = fileTemplateManager.getInternalTemplate(templateName);
