@@ -69,19 +69,4 @@ public class TemplateRegistry {
     public List<TemplateDescriptor> getEnabledTemplateDescriptors(){
         return templateDescriptors.stream().filter(TemplateDescriptor::isEnabled).collect(Collectors.toList());
     }
-    public List<TemplateDescriptor> getIncludedTemplateDescriptors()  {
-        Stream<Path> paths;
-        try {
-            paths = ResourceLoader.getDirResources("/" + HackedRuntimeInstance.FILE_TEMPLATES_TEST_ME_INCLUDES);
-        } catch (Exception e) {
-            LOG.warn("failed to load included templates",e);
-            return null;
-        }
-        return paths.map(Path::toString).filter(f-> !Strings.isNullOrEmpty(FilenameUtils.getExtension(f)) ).map(file -> {
-            String templateFileName = file.endsWith(TEMPLATE_FILE_SUFFIX) ? file.substring(0, file.length() - TEMPLATE_FILE_SUFFIX.length()) : file;
-            String templateName = FilenameUtils.getName(templateFileName);
-            String extension = FilenameUtils.getExtension(templateFileName);
-            return new TemplateDescriptor(templateName, templateName, templateName, Language.safeValueOf(extension), TemplateRole.Included);
-        }).collect(Collectors.toList());
-    }
 }
