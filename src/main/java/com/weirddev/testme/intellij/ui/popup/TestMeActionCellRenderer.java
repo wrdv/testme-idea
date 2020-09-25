@@ -1,5 +1,6 @@
 package com.weirddev.testme.intellij.ui.popup;
 
+import com.intellij.ui.JBColor;
 import com.intellij.util.ui.UIUtil;
 import com.weirddev.testme.intellij.action.TestMeAdditionalAction;
 import com.weirddev.testme.intellij.icon.IconTokensReplacer;
@@ -40,6 +41,15 @@ public class TestMeActionCellRenderer extends DefaultListCellRenderer {
                 else{
                     jPanel.add(createSubLabel(list, value, index, isSelected, cellHasFocus, new IconizedLabel( templateNameFormatter.formatWithInnerImages(action.getText()),null,null)));
                 }
+                return jPanel;
+            }
+            else  if(value instanceof ConfigurationLinkAction) {
+                ConfigurationLinkAction action = (ConfigurationLinkAction) value;
+                action.getText();
+                JPanel jPanel = createPanel(list, isSelected);
+                Component subLabel = createSubLabel(list, value, index, isSelected, cellHasFocus, new IconizedLabel(action.getText(), action.getIcon(), action.getIcon()));
+                subLabel.setForeground(JBColor.DARK_GRAY);
+                jPanel.add(subLabel);
                 return jPanel;
             }
         }

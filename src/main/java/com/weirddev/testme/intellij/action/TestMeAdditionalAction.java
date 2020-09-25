@@ -1,6 +1,7 @@
 package com.weirddev.testme.intellij.action;
 
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import com.weirddev.testme.intellij.template.TemplateDescriptor;
 import com.weirddev.testme.intellij.ui.popup.TestMePopUpHandler;
@@ -44,7 +45,7 @@ public class TestMeAdditionalAction implements TestMePopUpHandler.AdditionalActi
     }
 
     @Override
-    public void execute() {
+    public void execute(Project project) {
         testMeCreator.createTest(editor, file, templateDescriptor);
     }
 

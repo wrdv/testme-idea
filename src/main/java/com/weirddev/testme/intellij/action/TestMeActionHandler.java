@@ -16,6 +16,7 @@ import com.intellij.util.SmartList;
 import com.weirddev.testme.intellij.TestMeBundle;
 import com.weirddev.testme.intellij.template.TemplateDescriptor;
 import com.weirddev.testme.intellij.template.TemplateRegistry;
+import com.weirddev.testme.intellij.ui.popup.ConfigurationLinkAction;
 import com.weirddev.testme.intellij.ui.popup.TestMePopUpHandler;
 import com.weirddev.testme.intellij.ui.template.TestMeTemplateManager;
 import com.weirddev.testme.intellij.utils.TestSubjectResolverUtils;
@@ -52,6 +53,7 @@ public class TestMeActionHandler extends TestMePopUpHandler {
         for (final TemplateDescriptor templateDescriptor : templateDescriptors) {
             actions.add(new TestMeAdditionalAction(templateDescriptor, editor, file) );
         }
+        actions.add(new ConfigurationLinkAction());
         return new GotoData(sourceElement, actions);
     }
 
