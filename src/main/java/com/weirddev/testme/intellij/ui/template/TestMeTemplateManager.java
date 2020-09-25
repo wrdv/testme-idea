@@ -5,6 +5,7 @@ import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.ide.fileTemplates.FileTemplatesScheme;
 import com.intellij.ide.fileTemplates.InternalTemplateBean;
+import com.intellij.ide.fileTemplates.impl.CustomFileTemplate;
 import com.intellij.ide.fileTemplates.impl.FileTemplateBase;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ApplicationNamesInfo;
@@ -31,7 +32,6 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
-
 /**
  * @see com.intellij.ide.fileTemplates.impl.FileTemplateManagerImpl
  */
@@ -229,11 +229,11 @@ public class TestMeTemplateManager extends FileTemplateManager implements Persis
   @NotNull
   public List<TemplateDescriptor> getTestTemplates() {
     final Collection<FileTemplateBase> allTemplates = getSettings().getInternalTestTemplatesManager().getAllTemplates(true);
-    List<TemplateDescriptor> templateDescriptors = templateRegistry.getEnabledTemplateDescriptors();
-    return allTemplates.stream().map(t -> templateDescriptors.stream()
-                                              .filter(d-> d.getFilename().equals(t.getQualifiedName()))
-                                              .findAny().orElse(new TemplateDescriptor(t.getName(),t.getName(),t.getQualifiedName(), resolveLanguage(t), TemplateRole.Tester))
-                                ).collect(Collectors.toList());
+    Map<String, List<TemplateDescriptor>> oobEnabledTemplates = templateRegistry.getEnabledTemplateDescriptors().stream().collect(Collectors.groupingBy(TemplateDescriptor::getFilename));
+    return allTemplates.stream()
+            .filter(t -> t instanceof CustomFileTemplate || oobEnabledTemplates.containsKey(t.getQualifiedName()))
+            .map(t -> Optional.ofNullable(oobEnabledTemplates.get(t.getQualifiedName())).map(l->l.get(0)).orElse(new TemplateDescriptor(t.getName(),t.getName(),t.getQualifiedName(), resolveLanguage(t), TemplateRole.Tester)) )
+            .collect(Collectors.toList());
   }
 
   @NotNull
