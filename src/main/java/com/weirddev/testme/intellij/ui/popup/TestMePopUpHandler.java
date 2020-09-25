@@ -108,7 +108,7 @@ public abstract class TestMePopUpHandler implements CodeInsightActionHandler {
         Object[] selectedElements = list.getSelectedValues();
         for (Object element : selectedElements) {
           if (element instanceof AdditionalAction) {
-            ((AdditionalAction)element).execute();
+            ((AdditionalAction)element).execute(editor.getProject());
           }
           else {
             Navigatable nav = element instanceof Navigatable ? (Navigatable)element : EditSourceUtil.getDescriptor((PsiElement)element);
@@ -199,7 +199,7 @@ public abstract class TestMePopUpHandler implements CodeInsightActionHandler {
 
     Icon getIcon();
 
-    void execute();
+    void execute(Project project);
   }
 
   public static class GotoData {
