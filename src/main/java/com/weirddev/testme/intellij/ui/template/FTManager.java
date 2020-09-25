@@ -13,7 +13,6 @@ import com.intellij.util.io.PathKt;
 import com.weirddev.testme.intellij.template.TemplateDescriptor;
 import com.weirddev.testme.intellij.template.TemplateRegistry;
 import com.weirddev.testme.intellij.ui.model.TestMeFileTemplate;
-import com.weirddev.testme.intellij.utils.TemplateFileNameFormatter;
 import gnu.trove.THashMap;
 import gnu.trove.THashSet;
 import org.jetbrains.annotations.NonNls;
@@ -79,21 +78,33 @@ public class FTManager {
   Collection<FileTemplateBase> getAllTemplates(boolean includeDisabled) {
     List<FileTemplateBase> sorted = mySortedTemplates;
     if (sorted == null) {
-      sorted = sortOobFirst();
+      sorted = sortTemplates();
       mySortedTemplates = sorted;
     }
 //    return filterDisabled(includeDisabled, sorted);
     return sorted;
   }
 
+  /**
+   * sort OOB templates first. keep order as listed by TemplateRegistry
+   */
   @NotNull
-  private List<FileTemplateBase> sortOobFirst() {
+  private List<FileTemplateBase> sortTemplates() {
     List<FileTemplateBase> oobTemplates = getTemplates().values().stream().filter(FileTemplate::isDefault).collect(Collectors.toList());
-    sort(oobTemplates);
+    sortOobTemplates(oobTemplates);
     List<FileTemplateBase> customTemplates = getTemplates().values().stream().filter(fileTemplateBase -> !fileTemplateBase.isDefault()).collect(Collectors.toList());
     sort(customTemplates);
     oobTemplates.addAll(customTemplates);
     return oobTemplates;
+  }
+
+  private void sortOobTemplates(List<FileTemplateBase> oobTemplates) {
+    List<String> sortedOobTemplateNames = templateRegistry.getEnabledTemplateDescriptors().stream().map(TemplateDescriptor::getFilename).collect(Collectors.toList());
+    oobTemplates.sort(Comparator.comparing(o -> indexOf(sortedOobTemplateNames, o)));
+  }
+
+  private Integer indexOf(List<String> sortedOobTemplateNames, FileTemplateBase template) {
+    return sortedOobTemplateNames.indexOf(template.getQualifiedName());
   }
 
   private void sort(List<FileTemplateBase> sorted) {
