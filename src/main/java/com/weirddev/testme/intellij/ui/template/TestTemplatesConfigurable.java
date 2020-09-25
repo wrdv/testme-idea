@@ -327,7 +327,7 @@ public final class TestTemplatesConfigurable implements SearchableConfigurable, 
     FileTemplate selected = myCurrentTab.getSelectedTemplate();
     if (selected instanceof BundledFileTemplate) {
       if (Messages.showOkCancelDialog(IdeBundle.message("prompt.reset.to.original.template"),
-                                      IdeBundle.message("title.reset.template"), "Reset", CommonBundle.getCancelButtonText(), Messages.getQuestionIcon()) !=
+              TestMeBundle.message("testMe.settings.templates.title.reset.template"), "Reset", CommonBundle.getCancelButtonText(), Messages.getQuestionIcon()) !=
           Messages.OK) {
         return;
       }
@@ -385,7 +385,7 @@ public final class TestTemplatesConfigurable implements SearchableConfigurable, 
         if (Arrays.asList(myCurrentTab.getTemplates()).contains(prevTemplate)) {
           myCurrentTab.selectTemplate(prevTemplate);
         }
-        Messages.showErrorDialog(myMainPanel, e.getMessage(), IdeBundle.message("title.cannot.save.current.template"));
+        Messages.showErrorDialog(myMainPanel, e.getMessage(), TestMeBundle.message("testMe.settings.templates.title.cannot.save.current.template"));
         return false;
       }
     }
@@ -453,7 +453,7 @@ public final class TestTemplatesConfigurable implements SearchableConfigurable, 
       final String currName = myCurrentTab.getTitle().equalsIgnoreCase("Includes")? template.getName()+template.getExtension(): template.getName();
       if (currName.isEmpty()) {
         itemWithError = template;
-        errorString = IdeBundle.message("error.please.specify.template.name");
+        errorString = TestMeBundle.message("testMe.settings.templates.error.please.specify.template.name");
         break;
       }
       if (allNames.contains(currName)) {

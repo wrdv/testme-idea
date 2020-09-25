@@ -22,12 +22,12 @@ public class CodeRefactorUtil {
     public static final String COMMENTED_IMPORT_TOKEN = "//import ";
     private static final Logger LOG = Logger.getInstance(CodeRefactorUtil.class.getName());
 
-    public void uncommentImports(PsiClass psiClass, Project project) {
-        final Collection<PsiComment> psiComments = PsiTreeUtil.findChildrenOfType(psiClass.getParent(), PsiComment.class);
+    public void uncommentImports(PsiFile psiFile, Project project) {
+        final Collection<PsiComment> psiComments = PsiTreeUtil.findChildrenOfType(psiFile, PsiComment.class);
         for (PsiComment psiComment : psiComments) {
             final String commentText = psiComment.getText();
             if (commentText != null && commentText.startsWith(COMMENTED_IMPORT_TOKEN)) {
-                PsiElement newImport = extractImportStatement(psiClass, project, commentText.replace(COMMENTED_IMPORT_TOKEN, "import "));
+                PsiElement newImport = extractImportStatement(psiFile, project, commentText.replace(COMMENTED_IMPORT_TOKEN, "import "));
                 if (newImport != null) {
                     final String prevSiblingText = psiComment.getPrevSibling()==null?null:psiComment.getPrevSibling().getText();
                     if(prevSiblingText !=null && (prevSiblingText.equals("\n\n")|| prevSiblingText.equals("\n"))){
@@ -39,18 +39,18 @@ public class CodeRefactorUtil {
         }
     }
 
-    private PsiElement extractImportStatement(PsiClass psiClass, Project project, String unCommentedImport) {
+    private PsiElement extractImportStatement(PsiFile psiFile, Project project, String unCommentedImport) {
         PsiElement newImport = null;
-        final String fileTypeName = psiClass.getContainingFile().getFileType().getName();
+        final String fileTypeName = psiFile.getFileType().getName();
         if ("JAVA".equalsIgnoreCase(fileTypeName)) {
             newImport = createImportStatementOnDemand(project, unCommentedImport, unCommentedImport.contains("static"));
         } else if ("Groovy".equalsIgnoreCase(fileTypeName)) {
             newImport = createGroovyImport(project, unCommentedImport);
-        } else if (LanguageUtils.isScala(psiClass.getLanguage())) {
+        } else if (LanguageUtils.isScala(psiFile.getLanguage())) {
             newImport = ScalaPsiRefactoringUtils.createScalaImport(project, unCommentedImport);
         }
         else {
-            LOG.warn("Unsupported source file type "+fileTypeName);
+            LOG.info("Unsupported source file type "+fileTypeName);
         }
         return newImport;
     }
