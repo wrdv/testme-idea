@@ -43,6 +43,7 @@ import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
 import com.intellij.xml.util.XmlStringUtil;
+import com.weirddev.testme.intellij.TestMeBundle;
 import com.weirddev.testme.intellij.icon.TemplateNameFormatter;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -127,7 +128,7 @@ public class FileTemplateConfigurable implements Configurable, Configurable.NoSc
 
   @Override
   public String getDisplayName() {
-    return IdeBundle.message("title.edit.file.template");
+    return TestMeBundle.message("testMe.settings.templates.title.edit.file.template");
   }
 
   @Override
