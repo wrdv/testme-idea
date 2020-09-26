@@ -105,7 +105,7 @@ public abstract class TestMePopUpHandler implements CodeInsightActionHandler {
       public void run() {
         int[] ids = list.getSelectedIndices();
         if (ids == null || ids.length == 0) return;
-        Object[] selectedElements = list.getSelectedValues();
+        List<?> selectedElements = list.getSelectedValuesList();
         for (Object element : selectedElements) {
           if (element instanceof AdditionalAction) {
             ((AdditionalAction)element).execute(editor.getProject());

@@ -1,4 +1,4 @@
-<idea-plugin version="2">
+<idea-plugin>
   <id>com.weirddev.testme</id>
   <name>TestMe</name>
   <version>4.0.0</version>
@@ -57,7 +57,7 @@
     <action id="testme.action.generators" class="com.weirddev.testme.intellij.action.TestMeAction"
             text="&amp;TestMe..." description="TestMe Unit test generators" icon="/icons/TestMe.png" >
       <keyboard-shortcut first-keystroke="alt shift Q" keymap="$default" />
-      <add-to-group group-id="GenerateGroup" relative-to-action="GenerateCopyright" anchor="after" />
+      <add-to-group group-id="GenerateGroup" anchor="last" />
       <add-to-group group-id="CodeMenu" anchor="first"/>
     </action>
     <!--<group id="testme.group.generators"-->
