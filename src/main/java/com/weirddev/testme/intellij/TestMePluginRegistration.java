@@ -36,8 +36,12 @@ public class TestMePluginRegistration implements ApplicationComponent {
         Application application = ApplicationManager.getApplication();
         KeymapManager keymapManager = application == null ? null : application.getService(KeymapManager.class);
         if (keymapManager != null) {
-            final KeyboardShortcut shortcut = new KeyboardShortcut(KeyStroke.getKeyStroke("ctrl shift T"), null);
-            final Map<String, List<KeyboardShortcut>> conflicts = keymapManager.getActiveKeymap().getConflicts(GOTO_TEST_ACTION_ID, shortcut);
+            KeyboardShortcut shortcut = new KeyboardShortcut(KeyStroke.getKeyStroke("ctrl shift T"), null);
+            Map<String, List<KeyboardShortcut>> conflicts = keymapManager.getActiveKeymap().getConflicts(GOTO_TEST_ACTION_ID, shortcut);
+            if (conflicts.size() == 0) {
+                shortcut = new KeyboardShortcut(KeyStroke.getKeyStroke("meta shift T"), null);
+                conflicts = keymapManager.getActiveKeymap().getConflicts(GOTO_TEST_ACTION_ID, shortcut);
+            }
             for (String actionId : conflicts.keySet()) {
                 LOG.info("removing conflicting shortcut of action "+actionId);
                 keymapManager.getActiveKeymap().removeShortcut(actionId,shortcut);

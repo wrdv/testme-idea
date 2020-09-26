@@ -23,6 +23,7 @@
           <ul>
             <li>Configuration: Support customizable test code templates. (requested bydotJack / Kristjan on May 29 '19, mhuelfen on Jul 2 '19 and other users)</li>
             <li>Fix logged error for incompatibility with IDEA 2020.1: "ERROR - Container.ComponentManagerImpl - class com.intellij.openapi.keymap.KeymapManager it is a service, use getService instead of getComponent". (reported by uweschaefer on June 14 '20)</li>
+            <li>Fix Ctrl+Shift+T keyboard conflict for GoTo Test action (reported by pengwang on Jul 20 '20)</li>
             <li>Compatibility: IDEA 2019.1 is no longer supported. IDEA 2019.3.1 is now the minimal supported version</li>
           </ul>
         <a href="http://weirddev.com/testme/release-notes">Complete Release Notes listing</a>
