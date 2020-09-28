@@ -1,9 +1,10 @@
-package com.weirddev.testme.intellij.template.context;
+package com.weirddev.testme.intellij.template.context.impl;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.weirddev.testme.intellij.template.FileTemplateConfig;
 import com.weirddev.testme.intellij.template.TypeDictionary;
+import com.weirddev.testme.intellij.template.context.*;
 import com.weirddev.testme.intellij.utils.Node;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -48,13 +49,13 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
             if (isNonStaticNestedClass) {
                 final Node<Param> parentContainerNode = new Node<Param>(new SyntheticParam(parentContainerClass, parentContainerClass.getName(), false), null, ownerParamNode.getDepth());
                 buildCallParam(replacementTypes, defaultTypeValues, testBuilder,parentContainerNode);
-                testBuilder.append(PARAMS_SEPARATOR);
+                testBuilder.append(LangTestBuilder.PARAMS_SEPARATOR);
             }
             final int origLength = testBuilder.length();
             super.buildCallParams(constructor,params, replacementTypes, defaultTypeValues, testBuilder, ownerParamNode);
             if (isNonStaticNestedClass) {
                 if (origLength == testBuilder.length()) {
-                    testBuilder.delete(testBuilder.length() - PARAMS_SEPARATOR.length(),testBuilder.length());
+                    testBuilder.delete(testBuilder.length() - LangTestBuilder.PARAMS_SEPARATOR.length(),testBuilder.length());
                 }
             }
         } else if(ownerParamNode.getData()!=null){

@@ -1,4 +1,7 @@
-package com.weirddev.testme.intellij.template.context;
+package com.weirddev.testme.intellij.template.context.impl;
+
+import com.weirddev.testme.intellij.template.context.Param;
+import com.weirddev.testme.intellij.template.context.Type;
 
 import java.util.List;
 import java.util.Map;

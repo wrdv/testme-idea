@@ -13,6 +13,7 @@ plugins {
     id 'org.unbroken-dome.test-sets' version '2.1.1'
 //    id 'net.saliman.cobertura' version '2.3.1'
     id 'com.github.kt3k.coveralls' version '2.8.2'
+    id "io.freefair.lombok" version "5.2.1"
 }
 //cobertura.coverageFormats = ['html', 'xml'] // coveralls plugin depends on xml format report
 //def buildTrigger = System.getenv('TRAVIS_EVENT_TYPE')
@@ -29,6 +30,7 @@ apply plugin: 'java'
 apply plugin: 'groovy'
 apply plugin: 'idea'
 apply plugin: 'org.jetbrains.intellij'
+apply plugin: "io.freefair.lombok"
 
 def isRunInCI=Boolean.valueOf(System.getenv('CI'))
 def spockVersion = ideaVersion.startsWith("14.") || ideaVersion.startsWith("15.")? "1.0-groovy-2.3" : "1.0-groovy-2.4"
@@ -84,6 +86,7 @@ subprojects{
     apply plugin: 'groovy'
     apply plugin: 'idea'
     apply plugin: 'jacoco'
+    apply plugin: "io.freefair.lombok"
     dependencies {
         testCompile("org.spockframework:spock-core:$spockVersion"){
             exclude group: 'org.codehaus.groovy'
@@ -186,6 +189,9 @@ dependencies {
         exclude group:'org.jetbrains.plugins', module: 'Scala'
     }
 
+    compileOnly 'org.projectlombok:lombok:1.18.12'
+    annotationProcessor 'org.projectlombok:lombok:1.18.12'
+
     testCompile 'junit:junit:4.12'
     testCompile("org.spockframework:spock-core:$spockVersion"){
         exclude group: 'org.codehaus.groovy'
@@ -205,4 +211,36 @@ tasks.coveralls {
 //    description = 'Uploads the aggregated coverage report to Coveralls'
 dependsOn jacocoRootReport
     onlyIf { isRunInCI}
+}
+task templateContextJavadocs(type: Javadoc, description: 'Generate javadocs for template context', group: 'Documentation') {
+    dependsOn delombok
+//    failOnError = false
+    destinationDir = file("$buildDir/docs/templateContextJavadoc")
+    title = "$project.name $version API"
+    options.author true
+    options.links 'http://docs.oracle.com/javase/8/docs/api/'
+    options.addStringOption 'Xdoclint:none', '-quiet'
+//    source = sourceSets.main.allJava
+    source += delombok
+    classpath = configurations.compile
+    include 'com/weirddev/testme/intellij/template/context/*'
+    exclude 'com/weirddev/testme/intellij/template/context/impl*'
+
+}
+task allJavadocs(type: Javadoc, description: 'Generate javadocs from all child projects as if it was a single project', group: 'Documentation') {
+    dependsOn delombok
+//    failOnError = false
+    destinationDir = file("$buildDir/docs/allJavadoc")
+    title = "$project.name $version API"
+    options.author true
+    options.links 'http://docs.oracle.com/javase/8/docs/api/'
+    options.addStringOption 'Xdoclint:none', '-quiet'
+    (subprojects+project).each { proj ->
+        proj.tasks.withType(Javadoc).each { javadocTask ->
+        source += javadocTask.source
+            classpath += javadocTask.classpath
+            excludes += "**/*.form"
+            excludes += "**/*.flex"
+        }
+    }
 }

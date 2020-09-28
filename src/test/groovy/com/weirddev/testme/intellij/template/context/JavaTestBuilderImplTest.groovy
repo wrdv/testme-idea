@@ -2,6 +2,7 @@ package com.weirddev.testme.intellij.template.context
 
 import com.weirddev.testme.intellij.configuration.TestMeConfig
 import com.weirddev.testme.intellij.template.FileTemplateConfig
+import com.weirddev.testme.intellij.template.context.impl.JavaTestBuilderImpl
 import com.weirddev.testme.intellij.utils.ClassNameUtils
 import spock.lang.Specification
 
