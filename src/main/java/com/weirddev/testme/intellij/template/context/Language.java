@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
+ * Supported languages
  * Date: 22/04/2017
  *
  * @author Yaron Yamin
@@ -19,6 +20,11 @@ public enum Language
     @NotNull
     private static final Logger LOG = Logger.getInstance(Language.class.getName());
 
+    /**
+     * safely find enum from name. fallback to {@link com.weirddev.testme.intellij.template.context.Language#Java}
+     * @param language possible Language enum name
+     * @return resolved Language enum from name
+     */
     public static Language safeValueOf(String language) {
         Optional<Language> optLang = Stream.of(Language.values()).filter(lang -> lang.name().toLowerCase().equals(language.toLowerCase())).findAny();
         return optLang.orElseGet(() -> {
