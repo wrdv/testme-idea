@@ -11,6 +11,7 @@ import com.weirddev.testme.intellij.utils.ClassNameUtils;
 import com.weirddev.testme.intellij.utils.JavaPsiTreeUtils;
 import com.weirddev.testme.intellij.utils.JavaTypeUtils;
 import com.weirddev.testme.intellij.utils.PropertyUtils;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,50 +19,107 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * A used type, object or primitive.
+ *
  * Date: 24/10/2016
  * @author Yaron Yamin
  */
 public class Type {
-    private final String canonicalName;
-    private final String name;
-    private final boolean isPrimitive;
-    private final String packageName;
-    private final List<Type> composedTypes;
-    private final boolean array;
-    private final boolean varargs;
-    private final List<String> enumValues;
-    private final boolean isEnum;
-    private final boolean isInterface;
-    private final boolean isAbstract;
     /**
-     * this is a static type/class or a Scala object
+     * Full canonical name including package
      */
-    private final boolean isStatic;
-    private final boolean isFinal;
-    private final List<Method> methods;
+    @Getter
+    private final String canonicalName;
+    /**
+     * Type's name
+     */
+    @Getter private final String name;
+    /**
+     * true - if this type is a primitive. i.e. int, boolean
+     */
+    @Getter private final boolean isPrimitive;
+    /**
+     * Type's package
+     */
+    @Getter private final String packageName;
+    /**
+     * Used types of generic params if relevant
+     */
+    @Getter private final List<Type> composedTypes;
+    /**
+     * true when type is an array
+     */
+    @Getter private final boolean array;
+    /**
+     * true when this type is a varar
+     */
+    @Getter private final boolean varargs;
+    /**
+     * enum name values. relevant for enum types
+     */
+    @Getter private final List<String> enumValues;
+    /**
+     * true if this type is an enum
+     */
+    @Getter private final boolean isEnum;
+    /**
+     * true if this type is an interface
+     */
+    @Getter private final boolean isInterface;
+    /**
+     * true if this type is an abstract class
+     */
+    @Getter private final boolean isAbstract;
+    /**
+     * true if this is a static type/class or a Scala Object
+     */
+    @Getter private final boolean isStatic;
+    /**
+     * true if type id defined as final
+     */
+    @Getter private final boolean isFinal;
+    /**
+     * types methods if relevant
+     */
+    @Getter private final List<Method> methods;
     /**
      * in case this is an inner class - the outer class where this type is defined
      */
-    private final Type parentContainerClass;
-    private final List<Field> fields;
-    private boolean dependenciesResolved =false;
-    private boolean dependenciesResolvable =false;
-    private boolean hasDefaultConstructor=false;
-    private List<Type> implementedInterfaces = new ArrayList<>();
+    @Getter private final Type parentContainerClass;
+    /**
+     * fields defined for this type
+     */
+    @Getter private final List<Field> fields;
+    /**
+     * true when all constructor dependencies, if exists, have been resolved by object graph introspection
+     */
+    @Getter private boolean dependenciesResolved =false;
+    /**
+     * used internally when building object graph
+     */
+    @Getter private boolean dependenciesResolvable =false;
+    /**
+     * true when type has a default constructor
+     */
+    @Getter private boolean hasDefaultConstructor=false;
+    /**
+     * interfaces implemented by this type if any
+     */
+    @Getter private List<Type> implementedInterfaces = new ArrayList<>();
     /**
      * true - if this is a scala case class
      */
-    private final boolean caseClass;
+    @Getter private final boolean caseClass;
     /**
      * true - if this is a scala sealed class
      */
-    private final boolean sealed;
+    @Getter private final boolean sealed;
     /**
      * relevant of scala sealed classes
      */
-    final List<String> childObjectsQualifiedNames;
+    @Getter private final List<String> childObjectsQualifiedNames;
 
-    Type(String canonicalName, String name, String packageName, boolean isPrimitive, boolean isInterface, boolean isAbstract, boolean array, boolean varargs, List<Type> composedTypes) {
+    public Type(String canonicalName, String name, String packageName, boolean isPrimitive, boolean isInterface, boolean isAbstract, boolean array, boolean varargs, List<Type> composedTypes) {
         this.canonicalName = canonicalName;
         this.name = name;
         this.isPrimitive = isPrimitive;
@@ -257,38 +315,6 @@ public class Type {
         return psiClass != null && psiClass.getModifierList() != null && psiClass.getModifierList().hasExplicitModifier(aStatic);
     }
 
-    public String getCanonicalName() {
-        return canonicalName;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public boolean isPrimitive() {
-        return isPrimitive;
-    }
-
-    public String getPackageName() {
-        return packageName;
-    }
-
-    public List<Type> getComposedTypes() {
-        return composedTypes;
-    }
-
-    public boolean isArray() {
-        return array;
-    }
-
-    public List<String> getEnumValues() {
-        return enumValues;
-    }
-
-    public boolean isEnum() {
-        return isEnum;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -302,11 +328,8 @@ public class Type {
         return canonicalName.hashCode();
     }
 
-    public boolean isVarargs() {
-        return varargs;
-    }
-
     /**
+     * Find methods that are constructors
      * @return Type's constructors sorted in revers order by no. of constructor params
      */
     public List<Method> findConstructors() {
@@ -322,64 +345,9 @@ public class Type {
         return constructors;
     }
 
-    public List<Method> getMethods() {
-        return methods;
-    }
-
-    public boolean isInterface() {
-        return isInterface;
-    }
-
-    public boolean isAbstract() {
-        return isAbstract;
-    }
-
-    public boolean isDependenciesResolved() {
-        return dependenciesResolved;
-    }
-
-    public boolean isHasDefaultConstructor() {
-        return hasDefaultConstructor;
-    }
-
-    public boolean isDependenciesResolvable() {
-        return dependenciesResolvable;
-    }
-
-    public boolean isStatic() {
-        return isStatic;
-    }
-
-    public Type getParentContainerClass() {
-        return parentContainerClass;
-    }
-
-    public List<Field> getFields() {
-        return fields;
-    }
-
-    public boolean isFinal() {
-        return isFinal;
-    }
-
     @Override
     public String toString() {
         return "Type{" + "canonicalName='" + canonicalName + '\'' + '}';
     }
 
-    public boolean isCaseClass() {
-        return caseClass;
-    }
-
-    public List<Type> getImplementedInterfaces() {
-        return implementedInterfaces;
-    }
-
-    public boolean isSealed() {
-        return sealed;
-    }
-
-    public List<String> getChildObjectsQualifiedNames() {
-        return childObjectsQualifiedNames;
-    }
 }

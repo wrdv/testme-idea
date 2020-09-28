@@ -10,6 +10,7 @@ import com.intellij.psi.impl.PsiManagerEx;
 import com.weirddev.testme.intellij.template.FileTemplateContext;
 import com.weirddev.testme.intellij.template.TypeDictionary;
 import com.weirddev.testme.intellij.template.context.*;
+import com.weirddev.testme.intellij.template.context.impl.TestBuilderImpl;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.SimpleDateFormat;

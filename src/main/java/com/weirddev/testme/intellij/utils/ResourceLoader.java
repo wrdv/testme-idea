@@ -12,7 +12,7 @@ import java.util.stream.Stream;
 
 /**
  *
- * @link https://stackoverflow.com/a/28057735
+ * see https://stackoverflow.com/a/28057735
  */
 public class ResourceLoader {
     public static Stream<Path> getDirResources(String path) throws URISyntaxException, IOException {
