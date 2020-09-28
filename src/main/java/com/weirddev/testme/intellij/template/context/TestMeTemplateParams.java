@@ -3,7 +3,7 @@ package com.weirddev.testme.intellij.template.context;
 import com.weirddev.testme.intellij.template.FileTemplateConfig;
 
 /**
- * custom params injected into Velocity context for test generation templates. Can be accessed from Velocity test templates with the $ operator. i.e. $TESTED_CLASS.canonicalName
+ * Custom params injected into Velocity context for test generation templates. Can be accessed from Velocity test templates with the $ operator. i.e. $TESTED_CLASS.canonicalName
  *
  * Date: 24/10/2016.
  * @author Yaron Yamin

@@ -2,18 +2,29 @@ package com.weirddev.testme.intellij.template.context;
 
 import com.intellij.psi.PsiType;
 import com.weirddev.testme.intellij.template.TypeDictionary;
+import lombok.Getter;
 
 /**
+ * A reference to a defined class construct, other than a method (i.e. field/variable).
+ *
  * Date: 06/05/2017
  *
  * @author Yaron Yamin
  *
- * A referene to a non method langauge construct (i.e. field/variable)
  */
 public class Reference {
-    private final String referenceName;
-    private final Type referenceType;
-    private final Type ownerType;
+    /**
+     * name given to reference
+     */
+    @Getter private final String referenceName;
+    /**
+     * Type of reference
+     */
+    @Getter private final Type referenceType;
+    /**
+     * Type of reference owner class
+     */
+    @Getter private final Type ownerType;
     private final String referenceId;
 
     public Reference(String referenceName, PsiType refType, PsiType psiOwnerType, TypeDictionary typeDictionary) {
@@ -21,18 +32,6 @@ public class Reference {
         referenceType = new Type(refType, null, typeDictionary, 1, false);
         ownerType = new Type(psiOwnerType, null, typeDictionary, 1, false);
         referenceId = ownerType.getCanonicalName() + referenceName + referenceType.getCanonicalName();
-    }
-
-    public String getReferenceName() {
-        return referenceName;
-    }
-
-    public Type getReferenceType() {
-        return referenceType;
-    }
-
-    public Type getOwnerType() {
-        return ownerType;
     }
 
     @Override

@@ -5,30 +5,32 @@ import com.intellij.psi.PsiType;
 import com.weirddev.testme.intellij.common.utils.LanguageUtils;
 import com.weirddev.testme.intellij.scala.resolvers.ScalaPsiTreeUtils;
 import com.weirddev.testme.intellij.template.TypeDictionary;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.Optional;
 
 /**
+ * Method argument
  * Date: 24/10/2016
  * @author Yaron Yamin
  */
 public class Param {
-    private final Type type;
-    private String name;
-    private final ArrayList<Field> assignedToFields;
+    /**
+     * argument type
+     */
+    @Getter final Type type;
+    /**
+     * argument name
+     */
+    @Getter private String name;
+    /**
+     * class field assigment to by this argument, if any.
+     */
+    @Getter private final ArrayList<Field> assignedToFields;
 
     public Param(PsiParameter psiParameter, Optional<PsiType> substitutedType, TypeDictionary typeDictionary, int maxRecursionDepth, ArrayList<Field> assignedToFields, boolean shouldResolveAllMethods) {
         this(resolveType(psiParameter, substitutedType,shouldResolveAllMethods, typeDictionary, maxRecursionDepth), psiParameter.getName(),assignedToFields);
-    }
-
-    private static Type resolveType(PsiParameter psiParameter, Optional<PsiType> substitutedType, boolean shouldResolveAllMethods, TypeDictionary typeDictionary, int maxRecursionDepth) {
-
-        Object element = null;
-        if (LanguageUtils.isScala(psiParameter.getLanguage())) {
-            element = ScalaPsiTreeUtils.resolveRelatedTypeElement(psiParameter);
-        }
-        return typeDictionary.getType(substitutedType.orElse(psiParameter.getType()), maxRecursionDepth, shouldResolveAllMethods,element);
     }
 
     public Param(Type type, String name, ArrayList<Field> assignedToFields) {
@@ -37,17 +39,6 @@ public class Param {
         this.assignedToFields = assignedToFields;
     }
 
-    public Type getType() {
-        return type;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public ArrayList<Field> getAssignedToFields() {
-        return assignedToFields;
-    }
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -66,5 +57,14 @@ public class Param {
     @Override
     public String toString() {
         return "Param{" + "name='" + name + ", type=" + type + '\'' + ", assignedToFields=" + assignedToFields + '}';
+    }
+
+    private static Type resolveType(PsiParameter psiParameter, Optional<PsiType> substitutedType, boolean shouldResolveAllMethods, TypeDictionary typeDictionary, int maxRecursionDepth) {
+
+        Object element = null;
+        if (LanguageUtils.isScala(psiParameter.getLanguage())) {
+            element = ScalaPsiTreeUtils.resolveRelatedTypeElement(psiParameter);
+        }
+        return typeDictionary.getType(substitutedType.orElse(psiParameter.getType()), maxRecursionDepth, shouldResolveAllMethods,element);
     }
 }

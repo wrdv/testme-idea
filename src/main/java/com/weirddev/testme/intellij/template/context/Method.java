@@ -29,12 +29,13 @@ import java.util.*;
 import java.util.stream.Stream;
 
 /**
+ * A class Method.
  * Date: 24/10/2016
  * @author Yaron Yamin
  */
 public class Method {
     private static final Logger LOG = Logger.getInstance(Method.class.getName());
-
+// todo - document and remove getters
     private final Type returnType;
     private final String name;
     private final String ownerClassCanonicalType;
