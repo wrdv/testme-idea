@@ -132,6 +132,11 @@ task jacocoRootReport(type: JacocoReport, group: 'Coverage reports') {
             destination file("${buildDir}/reports/jacoco")
         }
     }
+    afterEvaluate {
+        classDirectories = files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: 'com/weirddev/testme/intellij/ui/**')
+        })
+    }
 }
 
 def shouldInstrumentCode = !isRunInCI && !Boolean.valueOf(System.getProperty('skipCodeInstrumentation','false'))
