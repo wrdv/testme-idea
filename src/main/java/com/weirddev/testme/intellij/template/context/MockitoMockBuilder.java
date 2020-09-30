@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 
 /**
- * Utilities for Building string constructs of Mockito mock expressions
+ * Utilities for Building string constructs of Mockito mock expressions.
  * Date: 31/03/2017
  * @author Yaron Yamin
  */
