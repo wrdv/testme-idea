@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A used type, object or primitive.
+ * A used type - object or primitive.
  *
  * Date: 24/10/2016
  * @author Yaron Yamin

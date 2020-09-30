@@ -3,7 +3,7 @@ package com.weirddev.testme.intellij.template.context;
 import java.util.ArrayList;
 
 /**
- * Represents a synthetic parameter. not coded explicitly
+ * Represents a synthetic parameter. not coded explicitly.
  *
  * Date: 25/02/2017
  * @author Yaron Yamin

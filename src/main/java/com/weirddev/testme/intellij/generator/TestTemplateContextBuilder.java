@@ -127,7 +127,7 @@ public class TestTemplateContextBuilder {
 
     private void resolveMethodCalls(List<Method> methods, Method method) {
         final Set<MethodCall> calledMethodsByMethodCalls = new HashSet<MethodCall>();
-        final Set<MethodCall> methodsInMyFamilyTree= new HashSet<MethodCall>();
+//        final Set<MethodCall> methodsInMyFamilyTree= new HashSet<MethodCall>();
         for (MethodCall methodCall : method.getMethodCalls()) {
             final Method calledMethodFound = find(methods, methodCall.getMethod().getMethodId());//find originally resolved method since methods in resolved method call are resolved in a shallow manner
             if (calledMethodFound != null) {
@@ -137,7 +137,7 @@ public class TestTemplateContextBuilder {
                 } else {
                     methodCallFound = new MethodCall(calledMethodFound, methodCall.getMethodCallArguments());
                 }
-                methodsInMyFamilyTree.add(methodCallFound);
+//                methodsInMyFamilyTree.add(methodCallFound);
                 calledMethodsByMethodCalls.add(methodCallFound);
                 if (method.getOwnerClassCanonicalType()!=null && method.getOwnerClassCanonicalType().equals(methodCallFound.getMethod().getOwnerClassCanonicalType())) {
                     calledMethodsByMethodCalls.addAll(calledMethodFound.getMethodCalls());
@@ -146,7 +146,7 @@ public class TestTemplateContextBuilder {
         }
         method.getMethodCalls().removeAll(calledMethodsByMethodCalls);
         method.getMethodCalls().addAll(calledMethodsByMethodCalls);
-        method.getCalledFamilyMembers().addAll(methodsInMyFamilyTree);
+//        method.getCalledFamilyMembers().addAll(methodsInMyFamilyTree);
     }
 
     private Method find(List<Method> methods, String methodId) {

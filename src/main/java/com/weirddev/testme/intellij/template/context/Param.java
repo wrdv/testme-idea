@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 /**
- * Method argument
+ * Defined Method argument.
  * Date: 24/10/2016
  * @author Yaron Yamin
  */

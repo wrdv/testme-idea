@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Holds string constructs for composing a parameterized test call
+ * Holds string constructs for composing a parameterized test call.
  * Date: 10/11/2017
  *
  * @author Yaron Yamin

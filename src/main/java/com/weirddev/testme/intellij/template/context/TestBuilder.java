@@ -3,7 +3,7 @@ package com.weirddev.testme.intellij.template.context;
 import java.util.Map;
 
 /**
- * High level builder for composing test class implementation fragments
+ * High level builder for composing test class implementation fragments.
  * Date: 22/04/2017
  *
  * @author Yaron Yamin
@@ -55,7 +55,18 @@ public interface TestBuilder {
      * @throws Exception
      */
     String renderInitType(Type type, String defaultName, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues) throws Exception;
+
+    /**
+     * Parameter role
+     */
     enum ParamRole {
-        Input, Output
+        /**
+         * input parameter - a method argument
+         */
+        Input,
+        /**
+         * output parameter - method return value
+         */
+        Output
     }
 }

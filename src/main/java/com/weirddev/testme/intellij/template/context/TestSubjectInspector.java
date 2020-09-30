@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 /**
- * Classifies test subject type
+ * Classifies test subject type.
  * Date: 31/03/2017
  *
  * @author Yaron Yamin

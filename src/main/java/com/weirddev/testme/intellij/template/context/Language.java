@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * Supported languages
+ * Supported languages.
  * Date: 22/04/2017
  *
  * @author Yaron Yamin
