@@ -203,7 +203,7 @@ dependencies {
     }
     testCompileOnly group: 'org.scala-lang', name: 'scala-library', version: '2.10.6'
 }
-
+def javadocHeader = "<script>if (window.location.host !=null && window.location.host.indexOf('localhost')=== -1 ) {(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o), m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create', 'UA-90717649-1', 'auto');ga('send', 'pageview');}</script>"
 check.dependsOn integrationTest
 integrationTest.mustRunAfter test
 tasks.build.dependsOn(jacocoTestReport)
@@ -225,6 +225,8 @@ task templateContextJavadocs(type: Javadoc, description: 'Generate javadocs for 
     options.author true
     options.links 'http://docs.oracle.com/javase/8/docs/api/'
     options.addStringOption 'Xdoclint:none', '-quiet'
+    options.addBooleanOption "-allow-script-in-comments", true
+    options.header  = javadocHeader
 //    source = sourceSets.main.allJava
     source += delombok
     classpath = configurations.compile
@@ -239,6 +241,8 @@ task allJavadocs(type: Javadoc, description: 'Generate javadocs from all child p
     title = "$project.name $version API"
     options.author true
     options.links 'http://docs.oracle.com/javase/8/docs/api/'
+    options.addBooleanOption "-allow-script-in-comments", true
+    options.header  = javadocHeader
     options.addStringOption 'Xdoclint:none', '-quiet'
     (subprojects+project).each { proj ->
         proj.tasks.withType(Javadoc).each { javadocTask ->
