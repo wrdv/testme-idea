@@ -11,6 +11,7 @@ import org.apache.velocity.runtime.RuntimeSingleton;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,10 +38,10 @@ public class TestMePluginRegistration implements ApplicationComponent {
         KeymapManager keymapManager = application == null ? null : application.getService(KeymapManager.class);
         if (keymapManager != null) {
             KeyboardShortcut shortcut = new KeyboardShortcut(KeyStroke.getKeyStroke("ctrl shift T"), null);
-            Map<String, List<KeyboardShortcut>> conflicts = keymapManager.getActiveKeymap().getConflicts(GOTO_TEST_ACTION_ID, shortcut);
+            Map<String, List<KeyboardShortcut>> conflicts = safeGetConflicts(keymapManager, shortcut);
             if (conflicts.size() == 0) {
                 shortcut = new KeyboardShortcut(KeyStroke.getKeyStroke("meta shift T"), null);
-                conflicts = keymapManager.getActiveKeymap().getConflicts(GOTO_TEST_ACTION_ID, shortcut);
+                conflicts = safeGetConflicts(keymapManager, shortcut);
             }
             for (String actionId : conflicts.keySet()) {
                 LOG.info("removing conflicting shortcut of action "+actionId);
@@ -48,6 +49,18 @@ public class TestMePluginRegistration implements ApplicationComponent {
             }
         }
     }
+
+    @NotNull
+    private Map<String, List<KeyboardShortcut>> safeGetConflicts(KeymapManager keymapManager, KeyboardShortcut shortcut) {
+        try {
+            return keymapManager.getActiveKeymap().getConflicts(GOTO_TEST_ACTION_ID, shortcut);
+        } catch (Exception ex) {
+            LOG.warn("can't check for keyboard conflicts",ex);
+            return new HashMap<>();
+        }
+
+    }
+
     private void hackVelocity() throws Exception {
         AccessLevelReflectionUtils.replaceField(RuntimeSingleton.class.getDeclaredField("ri"), new HackedRuntimeInstance());
     }
