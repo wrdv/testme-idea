@@ -33,7 +33,7 @@ public interface TestMeTemplateParams {
      */
     String STRING_UTILS = "StringUtils";
     /**
-     * intance of {@link com.weirddev.testme.intellij.template.context.MockitoMockBuilder}
+     * instance of {@link com.weirddev.testme.intellij.template.context.MockitoMockBuilder}
      * @see MockitoMockBuilder
      */
     String MOCKITO_MOCK_BUILDER = "MockitoMockBuilder";

@@ -38,6 +38,7 @@ import com.intellij.util.PlatformUtils;
 import com.intellij.util.containers.JBIterable;
 import com.intellij.util.ui.JBUI;
 import com.weirddev.testme.intellij.TestMeBundle;
+import com.weirddev.testme.intellij.configuration.TestMeWebHelpProvider;
 import com.weirddev.testme.intellij.icon.TemplateNameFormatter;
 import com.weirddev.testme.intellij.template.TemplateRegistry;
 import com.weirddev.testme.intellij.ui.model.TestMeFileTemplate;
@@ -176,15 +177,7 @@ public final class TestTemplatesConfigurable implements SearchableConfigurable, 
 
   @Override
   public String getHelpTopic() {
-    int index = myTabbedPane.getSelectedIndex();
-    switch (index) {
-      case 0:
-        return "fileTemplates.templates";
-      case 1:
-        return "fileTemplates.includes";
-      default:
-        throw new IllegalStateException("wrong index: " + index);
-    }
+    return TestMeWebHelpProvider.templatesHelpId();
   }
 
   @Override
@@ -572,7 +565,7 @@ public final class TestTemplatesConfigurable implements SearchableConfigurable, 
   @Override
   @NotNull
   public String getId() {
-    return "fileTemplates";
+    return TestMeWebHelpProvider.templatesHelpId();
   }
 
   void changeScheme(@NotNull FileTemplatesScheme scheme) {
