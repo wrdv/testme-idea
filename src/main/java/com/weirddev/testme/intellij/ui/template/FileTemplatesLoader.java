@@ -22,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
 import com.intellij.ide.fileTemplates.impl.DefaultTemplate;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -41,6 +42,7 @@ class FileTemplatesLoader {
   private static final String DEFAULT_TEMPLATES_ROOT = TEMPLATES_DIR;
   private static final String DESCRIPTION_FILE_EXTENSION = "html";
   private static final String DESCRIPTION_EXTENSION_SUFFIX = "." + DESCRIPTION_FILE_EXTENSION;
+  private static final String DEFAULT_TEMPLATE_DESCRIPTION_FILENAME = "default.html";
 
   private final FTManager myTestTemplatesManager;
   private final FTManager myIncludesManager;//testMeIncludes
@@ -158,11 +160,11 @@ class FileTemplatesLoader {
 
     final Set<String> descriptionPaths = new HashSet<>();
     for (String path : children) {
-      if (path.equals("default.html")) {
-        result.setDefaultTemplateDescription(UrlClassLoader.internProtocol(new URL(UriUtil.trimTrailingSlashes(root.toExternalForm()) + "/" + path)));
+      if (path.equals(FileTemplatesLoader.TESTS_DIR+"/"+ DEFAULT_TEMPLATE_DESCRIPTION_FILENAME)) {
+        result.setDefaultTemplateDescription(toFullPath(root, path));
       }
-      else if (path.equals("includes/default.html")) {
-        result.setDefaultIncludeDescription(UrlClassLoader.internProtocol(new URL(UriUtil.trimTrailingSlashes(root.toExternalForm()) + "/" + path)));
+      else if (path.equals(FileTemplatesLoader.INCLUDES_DIR + "/"+ DEFAULT_TEMPLATE_DESCRIPTION_FILENAME)) {
+        result.setDefaultIncludeDescription(toFullPath(root, path));
       }
       else if (path.endsWith(DESCRIPTION_EXTENSION_SUFFIX)) {
         descriptionPaths.add(path);
@@ -182,16 +184,19 @@ class FileTemplatesLoader {
         String filename = path.substring(prefix.length(), path.length() - FTManager.TEMPLATE_EXTENSION_SUFFIX.length());
         String extension = FileUtilRt.getExtension(filename);
         String templateName = filename.substring(0, filename.length() - extension.length() - 1);
-        URL templateUrl = UrlClassLoader.internProtocol(new URL(UriUtil.trimTrailingSlashes(root.toExternalForm())+ "/" + path));
+        URL templateUrl = toFullPath(root, path);
         String descriptionPath = getDescriptionPath(prefix, templateName, extension, descriptionPaths);
-        URL descriptionUrl = descriptionPath == null ? null :
-                             UrlClassLoader.internProtocol(new URL(UriUtil.trimTrailingSlashes(root.toExternalForm()) + "/" + descriptionPath));
+        URL descriptionUrl = descriptionPath == null ? null : toFullPath(root, descriptionPath);
         assert templateUrl != null;
         result.getResult().putValue(prefix, new DefaultTemplate(templateName, extension, templateUrl, descriptionUrl));
         // FTManagers loop
         break;
       }
     }
+  }
+
+  private static URL toFullPath(@NotNull URL root, String path) throws MalformedURLException {
+    return UrlClassLoader.internProtocol(new URL(UriUtil.trimTrailingSlashes(root.toExternalForm()) + "/" + path));
   }
 
   private static boolean matchesPrefix(@NotNull String path, @NotNull String prefix) {
