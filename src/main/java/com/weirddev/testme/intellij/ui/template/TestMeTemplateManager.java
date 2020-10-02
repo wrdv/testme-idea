@@ -9,7 +9,10 @@ import com.intellij.ide.fileTemplates.impl.CustomFileTemplate;
 import com.intellij.ide.fileTemplates.impl.FileTemplateBase;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ApplicationNamesInfo;
-import com.intellij.openapi.components.*;
+import com.intellij.openapi.components.PersistentStateComponent;
+import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.components.State;
+import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileTypes.ex.FileTypeManagerEx;
 import com.intellij.openapi.project.Project;
@@ -35,7 +38,12 @@ import java.util.stream.Collectors;
 /**
  * @see com.intellij.ide.fileTemplates.impl.FileTemplateManagerImpl
  */
-@State(name = "TestMeTemplateManager", storages = @Storage(StoragePathMacros.WORKSPACE_FILE))
+@State(
+        name="TestMeTemplateManager",
+        storages = {
+                @Storage("TestMeTemplateManager.xml")
+        }
+)
 public class TestMeTemplateManager extends FileTemplateManager implements PersistentStateComponent<TestMeTemplateManager.State> {
   private static final Logger LOG = Logger.getInstance("#TestMeTemplateManager");
   public static final String TEST_TEMPLATES_CATEGORY = "Tests";

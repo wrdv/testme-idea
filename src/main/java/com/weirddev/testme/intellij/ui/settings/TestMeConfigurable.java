@@ -26,7 +26,7 @@ public class TestMeConfigurable implements SearchableConfigurable {
     @NotNull
     @Override
     public String getId() {
-        return TestMeWebHelpProvider.PREFERENCES_TEST_ME_HELP_ID;
+        return TestMeWebHelpProvider.PREFERENCES_TEST_ME_ID;
     }
 
     @Nls

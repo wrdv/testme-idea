@@ -17,9 +17,9 @@ public class TestMeWebHelpProvider extends WebHelpProvider {
 
     static final String SETTINGS_DOCS_URL = "https://weirddev.com/testme/%s/?utm_source=jetbrains&utm_medium=idea&utm_content=help-settings&utm_campaign=%s";
 
-    public static final String PREFERENCES_TEST_ME_HELP_PREFIX = "com.weirddev.testme";
-    public static final String PREFERENCES_TEST_ME_HELP_ID = "Settings";
-    public static final String TEMPLATES_TEST_ME_HELP_ID = "Templates";
+    public static final String PREFERENCES_TEST_ME_HELP_PREFIX = "com.weirddev.testme"; //plugin id
+    public static final String PREFERENCES_TEST_ME_ID = "preferences.TestMe";
+    public static final String TEMPLATES_TEST_ME_ID = "preferences.TestMe.templates";
 
     private static final Map<String,String> helpId2Uri = new HashMap<>();
 
@@ -40,11 +40,11 @@ public class TestMeWebHelpProvider extends WebHelpProvider {
     }
 
     public static String settingsHelpId() {
-        return PREFERENCES_TEST_ME_HELP_PREFIX + "."+PREFERENCES_TEST_ME_HELP_ID;
+        return PREFERENCES_TEST_ME_HELP_PREFIX + "."+ PREFERENCES_TEST_ME_ID;
     }
 
     public static String templatesHelpId() {
-        return PREFERENCES_TEST_ME_HELP_PREFIX + "."+TEMPLATES_TEST_ME_HELP_ID;
+        return PREFERENCES_TEST_ME_HELP_PREFIX + "."+ TEMPLATES_TEST_ME_ID;
     }
 
     @NotNull
