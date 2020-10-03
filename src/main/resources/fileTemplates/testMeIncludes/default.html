@@ -1,0 +1,33 @@
+<html>
+<body>
+<table width="100%" border="0" cellpadding="5" cellspacing="0" style="border-collapse: collapse">
+    <tr>
+        <td><font face="verdana" size="-1">In this template, you can specify a code fragment to be included into Test Generation file templates
+            (<i>Test Class</i> tab) with the help of the <b>#parse</b> directive.<br>
+            One template can be shared by several file templates.<br>
+            Along with static text, code and comments, you can also use predefined variables
+            that will then be expanded like macros into the corresponding values.</font><br>
+        </td>
+    </tr>
+</table>
+<table width="100%" border="0" cellpadding="5" cellspacing="0" style="border-collapse: collapse">
+    <tr>
+        <td colspan="3"><font face="verdana" size="-1">Predefined variables will take the following values:</font></td>
+    </tr>
+    <tr><td valign="top"><nobr><font face="verdana" size="-2"><b>${CLASS_NAME}</b></font></nobr></td><td width="10">&nbsp;</td><td width="100%" valign="top"><font face="verdana" size="-1">Test subject class name</font></td></tr>
+    <tr><td valign="top"><nobr><font face="verdana" size="-2"><b>${PACKAGE_NAME}</b></font></nobr></td><td width="10">&nbsp;</td><td width="100%" valign="top"><font face="verdana" size="-1">Test subject package name</font></td></tr>
+    <tr><td valign="top"><nobr><font face="verdana" size="-2"><b>${TESTED_CLASS_LANGUAGE}</b></font></nobr></td><td width="10">&nbsp;</td><td width="100%" valign="top"><font face="verdana" size="-1">Test subject class name</font></td></tr>
+    <tr><td valign="top"><nobr><font face="verdana" size="-2"><b>${MAX_RECURSION_DEPTH}</b></font></nobr></td><td width="10">&nbsp;</td><td width="100%" valign="top"><font face="verdana" size="-1">Configured max recursion depth for object graph introspection</font></td></tr>
+    <tr><td valign="top"><nobr><font face="verdana" size="-2"><b>${STRING_UTILS}</b></font></nobr></td><td width="10">&nbsp;</td><td width="100%" valign="top"><font face="verdana" size="-1"></font>Instance of <a href="https://weirddev.com/testme/javadoc/com/weirddev/testme/intellij/template/context/StringUtils.html">com.weirddev.testme.intellij.template.context.StringUtils</a></td></tr>
+    <tr><td valign="top"><nobr><font face="verdana" size="-2"><b>${TESTED_CLASS}</b></font></nobr></td><td width="10">&nbsp;</td><td width="100%" valign="top"><font face="verdana" size="-1"></font>Instance of <a href="https://weirddev.com/testme/javadoc/com/weirddev/testme/intellij/template/context/Type.html">com.weirddev.testme.intellij.template.context.Type</a> - representing Class of target test subject</td></tr>
+    <tr><td valign="top"><nobr><font face="verdana" size="-2"><b>${TEST_BUILDER}</b></font></nobr></td><td width="10">&nbsp;</td><td width="100%" valign="top"><font face="verdana" size="-1"></font>Instance of <a href="https://weirddev.com/testme/javadoc/com/weirddev/testme/intellij/template/context/TestBuilder.html">com.weirddev.testme.intellij.template.context.TestBuilder</a></td></tr>
+    <tr><td valign="top"><nobr><font face="verdana" size="-2"><b>${MOCKITO_MOCK_BUILDER}</b></font></nobr></td><td width="10">&nbsp;</td><td width="100%" valign="top"><font face="verdana" size="-1"></font>Instance of <a href="https://weirddev.com/testme/javadoc/com/weirddev/testme/intellij/template/context/MockitoMockBuilder.html">com.weirddev.testme.intellij.template.context.MockitoMockBuilder</a></td></tr>
+    <tr><td valign="top"><nobr><font face="verdana" size="-2"><b>${TEST_SUBJECT_UTILS}</b></font></nobr></td><td width="10">&nbsp;</td><td width="100%" valign="top"><font face="verdana" size="-1"></font>Instance of <a href="https://weirddev.com/testme/javadoc/com/weirddev/testme/intellij/template/context/TestSubjectInspector.html">com.weirddev.testme.intellij.template.context.TestSubjectInspector</td></tr>
+    <tr><td valign="top"><nobr><font face="verdana" size="-2"><b>${MONTH_NAME_EN}</b></font></nobr></td><td width="10">&nbsp;</td><td width="100%" valign="top"><font face="verdana" size="-1">Current English Month name.</font></td></tr>
+    <tr><td valign="top"><nobr><font face="verdana" size="-2"><b>${DAY_NUMERIC}</b></font></nobr></td><td width="10">&nbsp;</td><td width="100%" valign="top"><font face="verdana" size="-1">Current Day of month for numeric calculations. i.e. if today is January the 2nd then DAY_NUMERIC is 2</font></td></tr>
+    <tr><td valign="top"><nobr><font face="verdana" size="-2"><b>${HOUR_NUMERIC}</b></font></nobr></td><td width="10">&nbsp;</td><td width="100%" valign="top"><font face="verdana" size="-1">Current Hour for numeric calculations. i.e. if the current time is 09:45 then HOUR_NUMERIC is 9</font></td></tr>
+    <tr><td valign="top"><nobr><font face="verdana" size="-2"><b>${MINUTE_NUMERIC}</b></font></nobr></td><td width="10">&nbsp;</td><td width="100%" valign="top"><font face="verdana" size="-1">Current Minute for numeric calculations. i.e. if the current time is 09:05 then MINUTE_NUMERIC is 5</font></td></tr>
+    <tr><td valign="top"><nobr><font face="verdana" size="-2"><b>${SECOND_NUMERIC}</b></font></nobr></td><td width="10">&nbsp;</td><td width="100%" valign="top"><font face="verdana" size="-1">Current Second for numeric calculations. i.e. if the current time is 09:15:05 then SECOND_NUMERIC is 5</font></td></tr>
+</table>
+</body>
+</html>

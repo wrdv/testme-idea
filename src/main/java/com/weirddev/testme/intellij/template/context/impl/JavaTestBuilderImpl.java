@@ -1,4 +1,4 @@
-package com.weirddev.testme.intellij.template.context;
+package com.weirddev.testme.intellij.template.context.impl;
 
 import com.intellij.ide.hierarchy.HierarchyBrowserBaseEx;
 import com.intellij.ide.hierarchy.type.SubtypesHierarchyTreeStructure;
@@ -11,6 +11,7 @@ import com.intellij.psi.PsiClassType;
 import com.weirddev.testme.intellij.generator.TestBuilderUtil;
 import com.weirddev.testme.intellij.template.FileTemplateConfig;
 import com.weirddev.testme.intellij.template.TypeDictionary;
+import com.weirddev.testme.intellij.template.context.*;
 import com.weirddev.testme.intellij.utils.ClassNameUtils;
 import com.weirddev.testme.intellij.utils.Node;
 import org.jetbrains.annotations.NotNull;
@@ -27,7 +28,7 @@ import java.util.Map;
  */
 public class JavaTestBuilderImpl implements LangTestBuilder {
     private static final Logger LOG = Logger.getInstance(JavaTestBuilderImpl.class.getName());
-    private static Type DEFAULT_STRING_TYPE = new Type("java.lang.String", "String", "java.lang", false, false, false, false, false, new ArrayList<Type>());
+    private static Type DEFAULT_STRING_TYPE = new Type("java.lang.String", "String", "java.lang", false, false, false, false, false, new ArrayList<>());
     private final TestBuilder.ParamRole paramRole; //todo consider removing. not used anymore
     private final Method testedMethod;
     protected final String NEW_INITIALIZER = "new ";
@@ -47,14 +48,14 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
     @Override
     public String renderJavaCallParams(List<Param> params, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues) {
         final StringBuilder stringBuilder = new StringBuilder();
-        buildCallParams(null, params, replacementTypes, defaultTypeValues, stringBuilder,new Node<Param>(null,null,0));
+        buildCallParams(null, params, replacementTypes, defaultTypeValues, stringBuilder, new Node<>(null, null, 0));
         return stringBuilder.toString();
     }
 
     @Override
     public String renderJavaCallParam(Type type, String strValue, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues) {
         final StringBuilder stringBuilder = new StringBuilder();
-        buildCallParam(replacementTypes, defaultTypeValues, stringBuilder,new Node<Param>(new SyntheticParam(type, strValue,false),null,0));
+        buildCallParam(replacementTypes, defaultTypeValues, stringBuilder, new Node<>(new SyntheticParam(type, strValue, false), null, 0));
         return stringBuilder.toString();
     }
 
@@ -65,7 +66,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
         }
         final Type parentContainerClass = type.getParentContainerClass();
         if (parentContainerClass != null && !type.isStatic()) {
-            final Node<Param> parentContainerNode = new Node<Param>(new SyntheticParam(parentContainerClass, parentContainerClass.getName(), false), null, paramNode.getDepth());
+            final Node<Param> parentContainerNode = new Node<>(new SyntheticParam(parentContainerClass, parentContainerClass.getName(), false), null, paramNode.getDepth());
             buildCallParam(replacementTypes, defaultTypeValues, testBuilder,parentContainerNode);
             testBuilder.append(".");
         }
@@ -87,14 +88,14 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
         } else {
             final Type resolvedType=resolveChildTypeIfNeeded(type,fileTemplateConfig.getMaxRecursionDepth());
             if (!resolvedType.equals(type)) {
-                paramNode=new Node<Param>(new Param(resolvedType,paramNode.getData().getName(),paramNode.getData().getAssignedToFields()),paramNode.getParent(),paramNode.getDepth());
+                paramNode= new Node<>(new Param(resolvedType, paramNode.getData().getName(), paramNode.getData().getAssignedToFields()), paramNode.getParent(), paramNode.getDepth());
             }
             String typeName = resolveTypeName(resolvedType, replacementTypes);
             if (!resolvedType.getCanonicalName().equals(typeName)) {
                 final String[] typeInitExp = typeName.split("<VAL>");
                 if (typeInitExp.length == 0) {
                     Type genericTypeParam = safeGetComposedTypeAtIndex(resolvedType, 0);
-                    buildCallParam(replacementTypes, defaultTypeValues, testBuilder, new Node<Param>(new SyntheticParam(genericTypeParam, genericTypeParam.getName(), false), paramNode, paramNode.getDepth()));
+                    buildCallParam(replacementTypes, defaultTypeValues, testBuilder, new Node<>(new SyntheticParam(genericTypeParam, genericTypeParam.getName(), false), paramNode, paramNode.getDepth()));
                 }
                 else {
                     testBuilder.append(typeInitExp[0]);
@@ -103,7 +104,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
                         if (TestBuilderUtil.looksLikeObjectKeyInGroovyMap(typeInitExp[i], genericTypeParam.getCanonicalName())) {
                             testBuilder.append("(");
                         }
-                        buildCallParam(replacementTypes, defaultTypeValues, testBuilder, new Node<Param>(new SyntheticParam(genericTypeParam, genericTypeParam.getName(), false),paramNode,paramNode.getDepth()));
+                        buildCallParam(replacementTypes, defaultTypeValues, testBuilder, new Node<>(new SyntheticParam(genericTypeParam, genericTypeParam.getName(), false), paramNode, paramNode.getDepth()));
                         if (TestBuilderUtil.looksLikeObjectKeyInGroovyMap(typeInitExp[i], genericTypeParam.getCanonicalName())) {
                             testBuilder.append(")");
                         }
@@ -122,7 +123,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
                         typeName = resolveNestedClassTypeName(typeName);
                     }
                     testBuilder.append(typeName).append("(");
-                    buildCallParams(foundCtor,foundCtor==null?new ArrayList<Param>():foundCtor.getMethodParams(), replacementTypes, defaultTypeValues, testBuilder, paramNode);
+                    buildCallParams(foundCtor,foundCtor==null? new ArrayList<>():foundCtor.getMethodParams(), replacementTypes, defaultTypeValues, testBuilder, paramNode);
                     testBuilder.append(")");
                 }
 
@@ -183,7 +184,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
         final PsiClass psiClass = findClassInModule(type.getCanonicalName());
         if (psiClass != null) {
             final Object[] childElements = new SubtypesHierarchyTreeStructure(srcModule.getProject(), psiClass, HierarchyBrowserBaseEx.SCOPE_PROJECT/*"All"*/).getChildElements(new TypeHierarchyNodeDescriptor(srcModule.getProject(),null,psiClass,true));
-            if (childElements != null && childElements.length > 0 && childElements.length <= fileTemplateConfig.getMaxNumOfConcreteCandidatesToReplaceInterfaceParam()) {
+            if (childElements.length > 0 && childElements.length <= fileTemplateConfig.getMaxNumOfConcreteCandidatesToReplaceInterfaceParam()) {
                 for (Object childElement : childElements) {
                     Type childType = null;
                     if (childElement instanceof TypeHierarchyNodeDescriptor) {
@@ -222,7 +223,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
         if (params != null) {
             final Type ownerType = ownerParamNode.getData()==null?null: ownerParamNode.getData().getType();
             for (Param param : params) {
-                final Node<Param> paramNode = new Node<Param>(param, ownerParamNode, ownerParamNode.getDepth() + 1);
+                final Node<Param> paramNode = new Node<>(param, ownerParamNode, ownerParamNode.getDepth() + 1);
                 if (fileTemplateConfig.isIgnoreUnusedProperties() && testedMethod != null) {
                     if (isPropertyParam(paramNode.getData()) && ownerType != null && !isPropertyUsed(testedMethod, paramNode.getData(), ownerType)) {
                         LOG.debug("property unused "+paramNode.getData());
@@ -269,7 +270,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
     }
 
     boolean isPropertyParam(Param param) {
-        return param instanceof SyntheticParam && ((SyntheticParam) param).isProperty;
+        return param instanceof SyntheticParam && ((SyntheticParam) param).isProperty();
     }
 
     private boolean isShouldOptimizeConstructorInitialization(Type ownerType, Method constructor, List<? extends Param> params, String ownerTypeCanonicalName) {
@@ -399,7 +400,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
     }
 
     private List<Field> deductAffectedFields(Method constructor, Param param) {
-        final List<Field> affectedFields = new ArrayList<Field>();
+        final List<Field> affectedFields = new ArrayList<>();
         for (Field field : constructor.getIndirectlyAffectedFields()) {
             if (field.getType().equals(param.getType())) {
                 affectedFields.add(field);

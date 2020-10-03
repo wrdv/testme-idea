@@ -1,7 +1,7 @@
-<idea-plugin version="2">
+<idea-plugin>
   <id>com.weirddev.testme</id>
   <name>TestMe</name>
-  <version>3.0.3</version>
+  <version>4.0.0</version>
   <vendor email="testme@weirddev.com" url="http://weirddev.com">WeirdDev</vendor>
 
   <description><![CDATA[
@@ -19,23 +19,31 @@
     ]]></description>
 
   <change-notes><![CDATA[
-        <i>Main Changes in v3.0.3 (bugfix release):</i>
+        <i>Main Changes in v4.0.0:</i>
           <ul>
-            <li>Fix plugin load failure when IDEA runs on JDK 12+ - "couldn't initialize TestMe plugin". (reported by contra-bit on February 27 '20)</li>
+            <li>Configuration: Support customizable test code templates. (requested by dotJack / Kristjan on May 29 '19, mhuelfen on Jul 2 '19 and other users)</li>
+            <li>Fix logged error for incompatibility with IDEA 2020.1: "ERROR - Container.ComponentManagerImpl - class com.intellij.openapi.keymap.KeymapManager it is a service, use getService instead of getComponent". (reported by uweschaefer on June 14 '20)</li>
+            <li>Fix Ctrl+Shift+T keyboard conflict for GoTo Test action (reported by pengwang on Jul 20 '20)</li>
+            <li>Fix load time plugin registration exception in logs</li>
+            <li>Compatibility: IDEA 2019.1 is no longer supported. IDEA 2019.3.1 is now the minimal supported version</li>
           </ul>
         <a href="http://weirddev.com/testme/release-notes">Complete Release Notes listing</a>
     ]]>
   </change-notes>
   <!-- please see https://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
-  <idea-version since-build="191"/>
+  <idea-version since-build="193.5233.102"/>
   <depends>com.intellij.modules.java</depends>
   <depends>JUnit</depends>
-  <depends optional="true">org.intellij.groovy</depends>
-  <depends optional="true">org.intellij.scala</depends>
+  <depends optional="true" config-file="plugin-groovy.xml">org.intellij.groovy</depends>
+  <depends optional="true" config-file="plugin-scala.xml">org.intellij.scala</depends>
   <extensions defaultExtensionNs="com.intellij">
-    <applicationConfigurable groupId="other" displayName="TestMe" id="preferences.TestMe" instance="com.weirddev.testme.intellij.ui.settings.TestMeConfigurable" />
+    <applicationConfigurable parentId="root" displayName="TestMe" id="preferences.TestMe" instance="com.weirddev.testme.intellij.ui.settings.TestMeConfigurable"/>
+    <projectConfigurable  id="preferences.TestMe.templates"  parentId="preferences.TestMe"  displayName="TestMe Templates" provider="com.weirddev.testme.intellij.ui.template.TestTemplatesConfigurable$Provider"/>
     <applicationService serviceImplementation="com.weirddev.testme.intellij.configuration.TestMeConfigPersistent"/>
+    <applicationService serviceImplementation="com.weirddev.testme.intellij.ui.template.ExportableFileTemplateSettings" serviceInterface="com.weirddev.testme.intellij.ui.template.FileTemplateSettings"/>
     <webHelpProvider implementation="com.weirddev.testme.intellij.configuration.TestMeWebHelpProvider" id="com.weirddev.testme"/>
+    <projectService serviceImplementation="com.weirddev.testme.intellij.ui.template.TestMeTemplateManager"/>
+    <applicationService serviceImplementation="com.weirddev.testme.intellij.ui.template.TestMeTemplateManager"/>
   </extensions>
   <application-components>
     <component>
@@ -50,7 +58,7 @@
     <action id="testme.action.generators" class="com.weirddev.testme.intellij.action.TestMeAction"
             text="&amp;TestMe..." description="TestMe Unit test generators" icon="/icons/TestMe.png" >
       <keyboard-shortcut first-keystroke="alt shift Q" keymap="$default" />
-      <add-to-group group-id="GenerateGroup" relative-to-action="GenerateCopyright" anchor="after" />
+      <add-to-group group-id="GenerateGroup" anchor="last" />
       <add-to-group group-id="CodeMenu" anchor="first"/>
     </action>
     <!--<group id="testme.group.generators"-->

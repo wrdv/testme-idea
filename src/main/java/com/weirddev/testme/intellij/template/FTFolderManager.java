@@ -29,15 +29,14 @@ import java.util.Map;
         /**
      * @see FTManager#addDefaultTemplate(DefaultTemplate)
      */
-    void addDefaultTemplate(DefaultTemplate template) {
-//        myDefaultTemplates.add(template);
+    private void addDefaultTemplate(DefaultTemplate template) {
         createAndStoreBundledTemplate(template);
     }
 
     /**
      * @see FTManager#createAndStoreBundledTemplate(DefaultTemplate)
      */
-    BundledFileTemplate createAndStoreBundledTemplate(DefaultTemplate template) {
+    private BundledFileTemplate createAndStoreBundledTemplate(DefaultTemplate template) {
         final BundledFileTemplate bundled = new BundledFileTemplate(template, true);
         final String qName = bundled.getQualifiedName();
         final FileTemplateBase previous = getTemplates().put(qName, bundled);
@@ -48,7 +47,7 @@ import java.util.Map;
     /**
      * @see FileTemplatesLoader#loadDefaultsFromRoot(URL)
      */
-    void loadDefaultsFromRoot() throws IOException {
+    private void loadDefaultsFromRoot() throws IOException {
         final URL root = getClass().getClassLoader().getResource(fileTemplatesInternalIncludesDir);
         if (root == null) {
             return;
@@ -71,7 +70,7 @@ import java.util.Map;
     }
 
     @NotNull
-    String getExtension(@NotNull String fileName) {
+    private String getExtension(@NotNull String fileName) {
         int index = fileName.lastIndexOf('.');
         if (index < 0) return "";
         return fileName.substring(index + 1);
