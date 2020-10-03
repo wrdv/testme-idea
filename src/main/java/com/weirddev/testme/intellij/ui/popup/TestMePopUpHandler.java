@@ -28,6 +28,8 @@ import com.intellij.ui.popup.AbstractPopup;
 import com.intellij.ui.popup.HintUpdateSupply;
 import com.intellij.usages.UsageView;
 import com.intellij.util.Function;
+import com.weirddev.testme.intellij.icon.IconTokensReplacerImpl;
+import com.weirddev.testme.intellij.icon.TemplateNameFormatter;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -40,7 +42,7 @@ import java.util.Map;
 
 public abstract class TestMePopUpHandler implements CodeInsightActionHandler {
   private static final PsiElementListCellRenderer ourDefaultTargetElementRenderer = new DefaultPsiElementListCellRenderer();
-  private final DefaultListCellRenderer myActionElementRenderer = new TestMeActionCellRenderer();
+  private final DefaultListCellRenderer myActionElementRenderer = new TestMeActionCellRenderer(new TemplateNameFormatter(), new IconTokensReplacerImpl()); // todo DI
 
   @Override
   public boolean startInWriteAction() {
@@ -103,10 +105,10 @@ public abstract class TestMePopUpHandler implements CodeInsightActionHandler {
       public void run() {
         int[] ids = list.getSelectedIndices();
         if (ids == null || ids.length == 0) return;
-        Object[] selectedElements = list.getSelectedValues();
+        List<?> selectedElements = list.getSelectedValuesList();
         for (Object element : selectedElements) {
           if (element instanceof AdditionalAction) {
-            ((AdditionalAction)element).execute();
+            ((AdditionalAction)element).execute(editor.getProject());
           }
           else {
             Navigatable nav = element instanceof Navigatable ? (Navigatable)element : EditSourceUtil.getDescriptor((PsiElement)element);
@@ -197,7 +199,7 @@ public abstract class TestMePopUpHandler implements CodeInsightActionHandler {
 
     Icon getIcon();
 
-    void execute();
+    void execute(Project project);
   }
 
   public static class GotoData {

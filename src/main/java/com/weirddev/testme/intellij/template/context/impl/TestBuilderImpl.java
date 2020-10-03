@@ -1,9 +1,9 @@
-package com.weirddev.testme.intellij.template.context;
+package com.weirddev.testme.intellij.template.context.impl;
 
 import com.intellij.openapi.module.Module;
 import com.weirddev.testme.intellij.template.FileTemplateConfig;
-import com.weirddev.testme.intellij.template.LangTestBuilderFactory;
 import com.weirddev.testme.intellij.template.TypeDictionary;
+import com.weirddev.testme.intellij.template.context.*;
 
 import java.util.Map;
 
@@ -12,7 +12,7 @@ import java.util.Map;
  *
  * @author Yaron Yamin
  */
-public class TestBuilderImpl implements TestBuilder{
+public class TestBuilderImpl implements TestBuilder {
     
     private final LangTestBuilderFactory langTestBuilderFactory;
 
@@ -27,7 +27,7 @@ public class TestBuilderImpl implements TestBuilder{
 
     @Override
     public ParameterizedTestComponents buildPrameterizedTestComponents(Method method, Map<String, String> replacementTypesForReturn, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues) throws Exception {
-        //a temp solution for single dimmension parameters
+        //a temp solution for single dimension parameters
         final LangTestBuilder testBuilder = langTestBuilderFactory.createTestBuilder(method, ParamRole.Input);
         final ParameterizedTestComponents parameterizedTestComponents = new ParameterizedTestComponents();
         StringBuilder sb=new StringBuilder();

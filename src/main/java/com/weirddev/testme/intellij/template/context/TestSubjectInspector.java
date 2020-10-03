@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 /**
+ * Classifies test subject type.
  * Date: 31/03/2017
  *
  * @author Yaron Yamin
@@ -16,11 +17,11 @@ public class TestSubjectInspector
 {
     private static final Logger LOG = Logger.getInstance(TestSubjectInspector.class.getName());
 
-    private static final Set<String> JAVA_FUTURE_TYPES = new HashSet<String>(Arrays.asList("java.util.concurrent.Future", "java.util.concurrent.CompletableFuture", "java.util.concurrent.RunnableFuture",
+    private static final Set<String> JAVA_FUTURE_TYPES = new HashSet<>(Arrays.asList("java.util.concurrent.Future", "java.util.concurrent.CompletableFuture", "java.util.concurrent.RunnableFuture",
             "java.util.concurrent.ForkJoinTask.AdaptedRunnableAction", "java.util.concurrent.RunnableScheduledFuture", "java.util.concurrent.ScheduledThreadPoolExecutor.ScheduledFutureTask", "java.util.concurrent.FutureTask",
-            "java.util.concurrent.ExecutorCompletionService.QueueingFuture", "java.util.concurrent.ForkJoinTask.AdaptedRunnable", "java.util.concurrent.ForkJoinTask.AdaptedCallable","java.util.concurrent.ForkJoinTask",
-            "java.util.concurrent.ForkJoinTask.AdaptedRunnableAction", "java.util.concurrent.CountedCompleter","java.util.concurrent.RecursiveTask", "java.util.concurrent.ForkJoinTask.RunnableExecuteAction",
-            "java.util.concurrent.CompletableFuture.AsyncSupply","java.util.concurrent.RecursiveAction","java.util.concurrent.CompletableFuture.Completion","java.util.concurrent.ScheduledFuture", "java.util.concurrent.RunnableScheduledFuture"));
+            "java.util.concurrent.ExecutorCompletionService.QueueingFuture", "java.util.concurrent.ForkJoinTask.AdaptedRunnable", "java.util.concurrent.ForkJoinTask.AdaptedCallable", "java.util.concurrent.ForkJoinTask",
+            "java.util.concurrent.ForkJoinTask.AdaptedRunnableAction", "java.util.concurrent.CountedCompleter", "java.util.concurrent.RecursiveTask", "java.util.concurrent.ForkJoinTask.RunnableExecuteAction",
+            "java.util.concurrent.CompletableFuture.AsyncSupply", "java.util.concurrent.RecursiveAction", "java.util.concurrent.CompletableFuture.Completion", "java.util.concurrent.ScheduledFuture", "java.util.concurrent.RunnableScheduledFuture"));
     private static final Set<String> SCALA_FUTURE_TYPES = new HashSet<String>(Arrays.asList("scala.concurrent.Future","scala.concurrent.impl.Promise"));
     private boolean generateTestsForInheritedMethods;
 
@@ -38,23 +39,38 @@ public class TestSubjectInspector
         return false;
     }
 
+    /**
+     * @return true - if method should is testable according to it's access modifiers and TestMe configuration
+     */
     public boolean shouldBeTested(Method method) {
         return method.isTestable() && ( generateTestsForInheritedMethods || !method.isInherited());
     }
 
-    public boolean isMethodCalled(Method method, Method byTestedMethod) {
-        Set<MethodCall> methodCalls = byTestedMethod.getMethodCalls();
+    /**
+     *
+     * @param calledMethod a calledMethod, possible being called
+     * @param callerMethod a calledMethod, possibly calling another
+     * @return true - if callerMethod implementation invokes calledMethod
+     */
+    public boolean isMethodCalled(Method calledMethod, Method callerMethod) {
+        Set<MethodCall> methodCalls = callerMethod.getMethodCalls();
         boolean isMethodCalled = false;
         for (MethodCall methodCall : methodCalls) {
-            if (methodCall.getMethod().getMethodId().equals(method.getMethodId())) {
+            if (methodCall.getMethod().getMethodId().equals(calledMethod.getMethodId())) {
                 isMethodCalled = true;
                 break;
             }
         }
-        LOG.debug("method " + method.getMethodId() + " searched in " + methodCalls.size() + " method calls by tested method " + byTestedMethod.getMethodId() + " - is found:" + isMethodCalled);
+        LOG.debug("calledMethod " + calledMethod.getMethodId() + " searched in " + methodCalls.size() + " calledMethod calls by tested calledMethod " + callerMethod.getMethodId() + " - is found:" + isMethodCalled);
         return isMethodCalled;
     }
 
+    /**
+     *
+     * @param paramsMap test params for spock parameterized test
+     * @param methodHasReturn true - if test method returns anything
+     * @return formatted string of spock test method name with tested parameters
+     */
     public String formatSpockParamNamesTitle(Map<String, String> paramsMap, boolean methodHasReturn) {
         StringBuilder sb = new StringBuilder();
         final Set<String> paramNameKeys = paramsMap.keySet();
@@ -76,6 +92,12 @@ public class TestSubjectInspector
         return sb.toString();
     }
 
+    /**
+     * Consutrcuts a formatted string of parameterized params table for spock test. should probably be deprecated in the future, in favor of a method accepting paramsMap of Map<String,List<String>> for multiple values per input argument
+     * @param paramsMap map of test arguments. for constructing a single parameterized row.
+     * @param linePrefix prefix add to resulting test params, typically used for indentation when passing the required preceding white spaces
+     * @return formatted string of parameterized params table for spock test.
+     */
     public String formatSpockDataParameters(Map<String, String> paramsMap, String linePrefix) {//todo - should accept Map<String,List<String>> paramsMap instead
         StringBuilder sb = new StringBuilder();
         final Set<String> paramNameKeys = paramsMap.keySet();
@@ -112,6 +134,9 @@ public class TestSubjectInspector
         return sb.toString();
     }
 
+    /**
+     * @return true - if type is a Java future
+     */
     public boolean isJavaFuture(Type type) {
         for (String javaFutureType : JAVA_FUTURE_TYPES) {
             if (isSameGenericType(type, javaFutureType)) {
@@ -120,6 +145,10 @@ public class TestSubjectInspector
         }
         return isImplements(type, "java.util.concurrent.Future");
     }
+
+    /**
+     * @return true - if type is a Scala future
+     */
     public boolean isScalaFuture(Type type) {
         for (String javaFutureType : SCALA_FUTURE_TYPES) {
             if (isSameGenericType(type, javaFutureType)) {
@@ -128,6 +157,10 @@ public class TestSubjectInspector
         }
         return isImplements(type, "scala.concurrent.Future");
     }
+
+    /**
+     * @return true - if any method has a Scala future type being returned
+     */
     public boolean hasScalaFutureReturn(List<Method> methods) {
         for (Method method : methods) {
             if (shouldBeTested(method) && method.hasReturn() && isScalaFuture(method.getReturnType())) {
@@ -136,13 +169,27 @@ public class TestSubjectInspector
         }
         return false;
     }
+
+    /**
+     *  find an optimal constructor in type declaration. a constructor that seems best suited to initialize the type.
+     * @param type a Type that has constructors
+     * @return the optimal constructor found
+     */
     public @Nullable Method findOptimalConstructor(Type type){
         final Optional<Method> optPrimaryCtor = Optional.of(type.getMethods()).flatMap(methods -> methods.stream().filter(Method::isPrimaryConstructor).findAny());
         return optPrimaryCtor.orElse(findBiggestValidConstructor(type));
     }
+
+    /**
+     * @return list of Java SDK types that represent a future. as fully qualified class names
+     */
     public Set<String> getJavaFutureTypes() {
         return JAVA_FUTURE_TYPES;
     }
+
+    /**
+     * @return @return list of Scala SDK types that represent a future. as fully qualified class names
+     */
     public Set<String> getScalaFutureTypes() {
         return SCALA_FUTURE_TYPES;
     }

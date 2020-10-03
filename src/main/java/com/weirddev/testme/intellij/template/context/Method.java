@@ -10,10 +10,9 @@ import com.intellij.psi.search.searches.ReferencesSearch;
 import com.intellij.psi.util.MethodSignatureUtil;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.util.PsiUtil;
-import com.weirddev.testme.intellij.common.reflection.MethodReflectionUtils;
+import com.weirddev.testme.intellij.common.utils.LanguageUtils;
 import com.weirddev.testme.intellij.common.utils.PsiMethodUtils;
 import com.weirddev.testme.intellij.groovy.resolvers.GroovyPsiTreeUtils;
-import com.weirddev.testme.intellij.common.utils.LanguageUtils;
 import com.weirddev.testme.intellij.resolvers.to.MethodCallArg;
 import com.weirddev.testme.intellij.resolvers.to.ResolvedMethodCall;
 import com.weirddev.testme.intellij.resolvers.to.ResolvedReference;
@@ -22,6 +21,7 @@ import com.weirddev.testme.intellij.template.TypeDictionary;
 import com.weirddev.testme.intellij.utils.ClassNameUtils;
 import com.weirddev.testme.intellij.utils.JavaPsiTreeUtils;
 import com.weirddev.testme.intellij.utils.PropertyUtils;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,62 +29,125 @@ import java.util.*;
 import java.util.stream.Stream;
 
 /**
+ * A class Method.
  * Date: 24/10/2016
  * @author Yaron Yamin
  */
 public class Method {
     private static final Logger LOG = Logger.getInstance(Method.class.getName());
-
-    private final Type returnType;
-    private final String name;
-    private final String ownerClassCanonicalType;
-    private final List<Param> methodParams;
-    private final boolean isPrivate;
-    private final boolean isProtected;
-    private final boolean isDefault;
-    private final boolean isPublic;
-    private final boolean isAbstract;
-    private final boolean isNative;
-    private final boolean isStatic;
-    private final boolean isSetter;
-    private final boolean isGetter;
-    private final boolean constructor;
-    private final boolean overridden;
-    private final boolean inherited;
-    private final boolean isInInterface;
     /**
-     * true, if method is synthetically generated. currently only relevant for scala methods
+     * Method's return type
      */
-    private final boolean isSynthetic;
-    private final String propertyName;
+    @Getter private final Type returnType;
+    /**
+     * method name
+     */
+    @Getter private final String name;
+    /**
+     * method owner type cannonical name
+     */
+    @Getter private final String ownerClassCanonicalType;
+    /**
+     * method arguments
+     */
+    @Getter private final List<Param> methodParams;
+    /**
+     * true - if method has private modifier
+     */
+    @Getter private final boolean isPrivate;
+    /**
+     * true - if method has protected modifier
+     */
+    @Getter private final boolean isProtected;
+    /**
+     * true - if method has default (package-private access modifier)
+     */
+    @Getter private final boolean isDefault;
+    /**
+     * true - if method has public modifier
+     */
+    @Getter private final boolean isPublic;
+    /**
+     * true - if method is abstract
+     */
+    @Getter private final boolean isAbstract;
+    /**
+     * true - if method defined as native
+     */
+    @Getter private final boolean isNative;
+    /**
+     * true - if this is a static method
+     */
+    @Getter private final boolean isStatic;
+    /**
+     * true - if method is a setter
+     */
+    @Getter private final boolean isSetter;
+    /**
+     * true - if method is a getter
+     */
+    @Getter private final boolean isGetter;
+    /**
+     * true - if method is a constructor
+     */
+    @Getter private final boolean constructor;
+    /**
+     * true - if method is overridden in child class
+     */
+    @Getter private final boolean overridden;
+    /**
+     * true - if method is inherited from parent class
+     */
+    @Getter private final boolean inherited;
+    /**
+     * true - if owner type is an interface
+     */
+    @Getter private final boolean isInInterface;
+    /**
+     * true -  if method is synthetically generated. common for scala methods
+     */
+    @Getter private final boolean isSynthetic;
+    /**
+     * the underlying field property name. relevant for getter/setter
+     */
+    @Getter private final String propertyName;
     /**
      *true - when accessible from class under test
      */
-    private final boolean accessible;
+    @Getter private final boolean accessible;
     /**
      * true - is Primary Constructor (relevant for Scala)
      */
-    private final boolean primaryConstructor;
+    @Getter private final boolean primaryConstructor;
     /**
      * methods called directly from this method
      */
-    private Set<MethodCall> directMethodCalls = new HashSet<MethodCall>();
+    @Getter private Set<MethodCall> directMethodCalls = new HashSet<MethodCall>();
     /**
      * methods called directly from this method or on the call stack from this method via other methods belonging to the same type hierarchy
      */
-    private Set<MethodCall> methodCalls = new HashSet<MethodCall>();
+    @Getter private Set<MethodCall> methodCalls = new HashSet<MethodCall>();
     /**
      * methods referenced from this method. i.e.  SomeClassName::someMethodName
      */
-    private Set<Method> methodReferences = new HashSet<Method>();
+    @Getter private Set<Method> methodReferences = new HashSet<Method>();
     /**
      *  method calls of methods in this owner's class type or one of it's ancestor type. including indirectly called methods up to max method call search depth. ResolvedMethodCall objects of the class under test are deeply resolved
      *  @deprecated not used. might be removed
      */
-    private final Set<MethodCall> calledFamilyMembers=new HashSet<MethodCall>(); /*todo consider removing*/
-    private Set<Reference> internalReferences = new HashSet<Reference>();
-    private final String methodId;
-    private final Set<Field> indirectlyAffectedFields = new HashSet<Field>(); //Fields affected(assigned to ) by methods called from this method. calculated only for ctors. i.e. when delegating to other ctors
+//   @Getter  private final Set<MethodCall> calledFamilyMembers=new HashSet<MethodCall>();
+    /**
+     * references included in this method's implementation
+     */
+    @Getter private Set<Reference> internalReferences = new HashSet<Reference>();
+    /**
+     * formatted method id. a string used to uniquely discriminate this method from others
+     */
+    @Getter private final String methodId;
+    /**
+     *  Fields affected (assigned to) by methods called from this method. currently calculated only for constructors. i.e. when delegating to other constructors
+     */
+    @Getter private final Set<Field> indirectlyAffectedFields = new HashSet<Field>();
 
     public Method(PsiMethod psiMethod, PsiClass srcClass, int maxRecursionDepth,TypeDictionary typeDictionary) {
         isPrivate = psiMethod.hasModifierProperty(PsiModifier.PRIVATE);
@@ -119,6 +182,77 @@ public class Method {
         methodParams = extractMethodParams(psiMethod, methodSubstitutionMap, primaryConstructor, maxRecursionDepth, typeDictionary);
     }
 
+    static boolean isRelevant(PsiClass psiClass, PsiMethod psiMethod) {
+        boolean isRelevant = true;
+        final PsiClass containingClass = psiMethod.getContainingClass();
+        final PsiClass ownerClass = containingClass == null ? psiClass : containingClass;
+        if (ownerClass != null && isLanguageInherited(ownerClass.getQualifiedName())) {
+            isRelevant = false;
+        } else {
+            final String methodId = PsiMethodUtils.formatMethodId(psiMethod);
+            if (LanguageUtils.isGroovy(psiMethod.getLanguage())
+                    && (psiMethod.getClass().getCanonicalName().contains("GrGdkMethodImpl") || methodId.endsWith(".invokeMethod(java.lang.String,java.lang.Object)") || methodId.endsWith(".getProperty(java.lang.String)") || methodId
+                    .endsWith(".setProperty(java.lang.String,java.lang.Object)"))) {
+                isRelevant = false;
+            } else if(ownerClass!=null && ownerClass.getQualifiedName()!=null){
+                JavaPsiFacade facade = JavaPsiFacade.getInstance( ownerClass.getProject());
+                PsiClass[] possibleClasses = facade.findClasses(ownerClass.getQualifiedName(), GlobalSearchScope.projectScope(( ownerClass.getProject())));
+                if (possibleClasses.length == 0) {
+                    isRelevant = false;
+                }
+            }
+        }
+        return isRelevant;
+    }
+
+    /**
+     *
+     * true - if method has a return type
+     */
+    public boolean hasReturn(){
+        return returnType != null && !"void".equals(returnType.getName());
+    }
+
+    boolean isTestable(){
+        return !isLanguageInherited(ownerClassCanonicalType) && !isSetter() && !isGetter() && !isConstructor() &&((isDefault()|| isProtected() ) && !isInherited() || isPublic()) && !isOverridden() && !isInInterface() && !isAbstract() && !isSynthetic();
+    }
+
+    void resolveInternalReferences(PsiMethod psiMethod, TypeDictionary typeDictionary) {
+        if (!isLanguageInherited(getOwnerClassCanonicalType())) {
+            resolveCalledMethods(psiMethod, typeDictionary);
+            resolveReferences(psiMethod,typeDictionary);
+            resolveMethodReferences(psiMethod,typeDictionary);
+        }
+    }
+
+    private static boolean isLanguageInherited(String ownerClassCanonicalType) {
+        return "java.lang.Object".equals(ownerClassCanonicalType) || "java.lang.Class".equals(ownerClassCanonicalType) || "groovy.lang.GroovyObjectSupport".equals(ownerClassCanonicalType);
+    }
+
+    @Nullable
+    private Type resolveReturnType(PsiMethod psiMethod, List<Pair<PsiMethod, PsiSubstitutor>> methodSubstitutionMap, int maxRecursionDepth, TypeDictionary typeDictionary) {
+        final PsiType psiType = psiMethod.getReturnType();
+        if (psiType == null) {
+            return null;
+        } else {
+            final Optional<PsiType> substitutedType = findSubstitutedType(psiMethod, psiType, methodSubstitutionMap);
+            Object typeElement = null;
+            if (LanguageUtils.isScala(psiMethod.getLanguage())) {
+                typeElement = ScalaPsiTreeUtils.resolveReturnType(psiMethod);
+            }
+            return typeDictionary.getType(substitutedType.orElse(psiType), maxRecursionDepth, true,typeElement);
+        }
+    }
+    private static PsiField resolveLeftHandExpressionAsField(@NotNull PsiExpression expr) {
+        PsiElement parent = PsiTreeUtil.skipParentsOfType(expr, PsiParenthesizedExpression.class);
+        if (!(parent instanceof PsiAssignmentExpression)) {
+            return null;
+        }
+        final PsiAssignmentExpression psiAssignmentExpression = (PsiAssignmentExpression) parent;
+        final PsiReference reference = psiAssignmentExpression.getLExpression().getReference();
+        final PsiElement element = reference != null ? reference.resolve() : null;
+        return element == null || !(element instanceof PsiField) ? null : (PsiField)element ;
+    }
     private boolean isInterface(PsiMethod psiMethod) {
 //            //method inherited from an interface but implemented on the interface should not be considered as interface method
 //            return psiMethod.hasModifierProperty("abstract") || psiMethod.getContainingClass() != null && psiMethod.getContainingClass().isInterface();
@@ -133,22 +267,6 @@ public class Method {
             return false;
         }
     }
-
-    @Nullable
-    public Type resolveReturnType(PsiMethod psiMethod, List<Pair<PsiMethod, PsiSubstitutor>> methodSubstitutionMap, int maxRecursionDepth, TypeDictionary typeDictionary) {
-        final PsiType psiType = psiMethod.getReturnType();
-        if (psiType == null) {
-            return null;
-        } else {
-            final Optional<PsiType> substitutedType = findSubstitutedType(psiMethod, psiType, methodSubstitutionMap);
-            Object typeElement = null;
-            if (LanguageUtils.isScala(psiMethod.getLanguage())) {
-                typeElement = ScalaPsiTreeUtils.resolveReturnType(psiMethod);
-            }
-            return typeDictionary.getType(substitutedType.orElse(psiType), maxRecursionDepth, true,typeElement);
-        }
-    }
-
     @NotNull
     private List<Pair<PsiMethod, PsiSubstitutor>> findMethodSubstitutionMap(PsiMethod psiMethod, PsiClass srcClass) {
         if (isInherited() && isTestable() && srcClass != null && hasGenericType(psiMethod)) {
@@ -174,36 +292,6 @@ public class Method {
                 .flatMap(pair -> Optional.of(pair.second.substitute(psiType)));
     }
 
-    static boolean isRelevant(PsiClass psiClass, PsiMethod psiMethod) {
-        boolean isRelevant = true;
-        final PsiClass containingClass = psiMethod.getContainingClass();
-        final PsiClass ownerClass = containingClass == null ? psiClass : containingClass;
-        if (ownerClass != null && isLanguageInherited(ownerClass.getQualifiedName())) {
-            isRelevant = false;
-        } else {
-            final String methodId = PsiMethodUtils.formatMethodId(psiMethod);
-            if (LanguageUtils.isGroovy(psiMethod.getLanguage())
-                    && (psiMethod.getClass().getCanonicalName().contains("GrGdkMethodImpl") || methodId.endsWith(".invokeMethod(java.lang.String,java.lang.Object)") || methodId.endsWith(".getProperty(java.lang.String)") || methodId
-                    .endsWith(".setProperty(java.lang.String,java.lang.Object)"))) {
-                isRelevant = false;
-            } else if(ownerClass!=null && ownerClass.getQualifiedName()!=null){
-                JavaPsiFacade facade = JavaPsiFacade.getInstance( ownerClass.getProject());
-                PsiClass[] possibleClasses = facade.findClasses(ownerClass.getQualifiedName(), GlobalSearchScope.projectScope(( ownerClass.getProject())));
-                if (possibleClasses.length == 0) {
-                    isRelevant = false;
-                }
-            }
-        }
-        return isRelevant;
-    }
-
-    public void resolveInternalReferences(PsiMethod psiMethod, TypeDictionary typeDictionary) {
-        if (!isLanguageInherited(getOwnerClassCanonicalType())) {
-            resolveCalledMethods(psiMethod, typeDictionary);
-            resolveReferences(psiMethod,typeDictionary);
-            resolveMethodReferences(psiMethod,typeDictionary);
-        }
-    }
 
     private void resolveReferences(PsiMethod psiMethod, TypeDictionary typeDictionary) {
         if (LanguageUtils.isGroovy(psiMethod.getLanguage())) {
@@ -317,109 +405,6 @@ public class Method {
         return fields;
     }
 
-    public static PsiField resolveLeftHandExpressionAsField(@NotNull PsiExpression expr) {
-        PsiElement parent = PsiTreeUtil.skipParentsOfType(expr, PsiParenthesizedExpression.class);
-        if (!(parent instanceof PsiAssignmentExpression)) {
-            return null;
-        }
-        final PsiAssignmentExpression psiAssignmentExpression = (PsiAssignmentExpression) parent;
-        final PsiReference reference = psiAssignmentExpression.getLExpression().getReference();
-        final PsiElement element = reference != null ? reference.resolve() : null;
-        return element == null || !(element instanceof PsiField) ? null : (PsiField)element ;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public Type getReturnType() {
-        return returnType;
-    }
-
-    public List<Param> getMethodParams() {
-        return methodParams;
-    }
-
-    public boolean isPrivate() {
-        return isPrivate;
-    }
-
-    public boolean isProtected() {
-        return isProtected;
-    }
-
-    public boolean isDefault() {
-        return isDefault;
-    }
-
-    public boolean isPublic() {
-        return isPublic;
-    }
-
-    public boolean isAbstract() {
-        return isAbstract;
-    }
-
-    public boolean isNative() {
-        return isNative;
-    }
-
-    public boolean isStatic() {
-        return isStatic;
-    }
-    @Nullable
-    public String getOwnerClassCanonicalType() {
-        return ownerClassCanonicalType;
-    }
-
-    public boolean isSetter() {
-        return isSetter;
-    }
-
-    public boolean isGetter() {
-        return isGetter;
-    }
-
-    public boolean isConstructor() {
-        return constructor;
-    }
-
-    public boolean isOverridden() {
-        return overridden;
-    }
-
-    public boolean isInherited() {
-        return inherited;
-    }
-
-    public boolean isInInterface() {
-        return isInInterface;
-    }
-
-    public boolean isTestable(){
-        return !isLanguageInherited(ownerClassCanonicalType) && !isSetter() && !isGetter() && !isConstructor() &&((isDefault()|| isProtected() ) && !isInherited() || isPublic()) && !isOverridden() && !isInInterface() && !isAbstract() && !isSynthetic();
-    }
-
-    public static boolean isLanguageInherited(String ownerClassCanonicalType) {
-        return "java.lang.Object".equals(ownerClassCanonicalType) || "java.lang.Class".equals(ownerClassCanonicalType) || "groovy.lang.GroovyObjectSupport".equals(ownerClassCanonicalType);
-    }
-
-    public String getPropertyName() {
-        return propertyName;
-    }
-
-    public Set<MethodCall> getMethodCalls() {
-        return methodCalls;
-    }
-
-    public String getMethodId() {
-        return methodId;
-    }
-
-    public Set<Reference> getInternalReferences() {
-        return internalReferences;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -439,36 +424,9 @@ public class Method {
         return methodId.hashCode();
     }
 
-    public Set<MethodCall> getCalledFamilyMembers() {//todo get rid of this
-        return calledFamilyMembers;
-    }
-
     @Override
     public String toString() {
         return "Method{" + "methodId='" + methodId + '\'' + '}';
     }
 
-    public Set<Field> getIndirectlyAffectedFields() {
-        return indirectlyAffectedFields;
-    }
-
-    public boolean isAccessible() {
-        return accessible;
-    }
-
-    public Set<Method> getMethodReferences() {
-        return methodReferences;
-    }
-
-    public boolean hasReturn(){
-        return returnType != null && !"void".equals(returnType.getName());
-    }
-
-    public boolean isPrimaryConstructor() {
-        return primaryConstructor;
-    }
-
-    public boolean isSynthetic() {
-        return isSynthetic;
-    }
 }

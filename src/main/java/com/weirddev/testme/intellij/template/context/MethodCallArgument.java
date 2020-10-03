@@ -1,20 +1,21 @@
 package com.weirddev.testme.intellij.template.context;
 
+import lombok.Getter;
+
 /**
+ * Represents a Method call argument.
  * Date: 23/06/2017
  *
  * @author Yaron Yamin
  */
 public class MethodCallArgument {
-    private final String text;
+    /**
+     * textual expression of the argument passed to the method call
+     */
+    @Getter private final String text;
 
     public MethodCallArgument(String text) {
-
         this.text = text;
-    }
-
-    public String getText() {
-        return text;
     }
 
     @Override

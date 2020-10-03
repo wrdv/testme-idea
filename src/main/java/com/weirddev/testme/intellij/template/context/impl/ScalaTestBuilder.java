@@ -1,9 +1,10 @@
-package com.weirddev.testme.intellij.template.context;
+package com.weirddev.testme.intellij.template.context.impl;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.weirddev.testme.intellij.template.FileTemplateConfig;
 import com.weirddev.testme.intellij.template.TypeDictionary;
+import com.weirddev.testme.intellij.template.context.*;
 import com.weirddev.testme.intellij.utils.Node;
 import org.jetbrains.annotations.NotNull;
 

@@ -6,18 +6,38 @@ import com.intellij.psi.PsiModifier;
 import com.intellij.psi.PsiType;
 import com.weirddev.testme.intellij.template.TypeDictionary;
 import com.weirddev.testme.intellij.utils.ClassNameUtils;
+import lombok.Getter;
 
 /**
+ * Class field.
  * Date: 24/10/2016
  * @author Yaron Yamin
  */
 public class Field {
-    private final Type type;
-    private final boolean overridden;
-    private final boolean isFinal;
-    private final boolean isStatic;
-    private final String ownerClassCanonicalName;
-    private String name;
+    /**
+     * type of field
+     */
+    @Getter private final Type type;
+    /**
+     * true - if field is inherited and overridden in this type
+     */
+    @Getter private final boolean overridden;
+    /**
+     * field has final modifier
+     */
+    @Getter private final boolean isFinal;
+    /**
+     * field is static
+     */
+    @Getter private final boolean isStatic;
+    /**
+     * canonical name of type owning this field
+     */
+    @Getter private final String ownerClassCanonicalName;
+    /**
+     * name given to field
+     */
+    @Getter private String name;
 
     public Field(PsiField psiField, PsiClass srcClass, TypeDictionary typeDictionary, int maxRecursionDepth) {
         this.name = psiField.getName();
@@ -29,7 +49,7 @@ public class Field {
         isStatic = psiField.getModifierList() != null && psiField.getModifierList().hasExplicitModifier(PsiModifier.STATIC);
     }
 
-    public Type buildType(PsiType type, TypeDictionary typeDictionary, int maxRecursionDepth) {
+    private Type buildType(PsiType type, TypeDictionary typeDictionary, int maxRecursionDepth) {
         if (typeDictionary == null) {
             return new Type(type, null, null, 0, false);
         } else {
@@ -41,28 +61,6 @@ public class Field {
         String srcQualifiedName = srcClass.getQualifiedName();
         String fieldClsQualifiedName = psiField.getContainingClass()==null?null:psiField.getContainingClass().getQualifiedName();
         return (srcQualifiedName!=null && fieldClsQualifiedName!=null &&  !srcQualifiedName.equals(fieldClsQualifiedName)) && srcClass.findFieldByName(psiField.getName(), false)!=null;
-    }
-    public boolean isOverridden() {
-        return overridden;
-    }
-
-    public String getName() {
-        return name;
-    }
-    public Type getType() {
-        return type;
-    }
-
-    public boolean isFinal() {
-        return isFinal;
-    }
-
-    public boolean isStatic() {
-        return isStatic;
-    }
-
-    public String getOwnerClassCanonicalName() {
-        return ownerClassCanonicalName;
     }
 
     @Override

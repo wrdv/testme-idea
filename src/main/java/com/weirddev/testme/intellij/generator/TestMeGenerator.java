@@ -22,6 +22,7 @@ import com.intellij.psi.search.GlobalSearchScopesCore;
 import com.intellij.testIntegration.createTest.JavaTestGenerator;
 import com.intellij.util.IncorrectOperationException;
 import com.weirddev.testme.intellij.template.FileTemplateContext;
+import com.weirddev.testme.intellij.ui.template.TestMeTemplateManager;
 import org.apache.velocity.app.Velocity;
 import org.jetbrains.annotations.Nullable;
 
@@ -59,14 +60,19 @@ public class TestMeGenerator {
                         try {
                             final long start = new Date().getTime();
                             IdeDocumentHistory.getInstance(project).includeCurrentPlaceAsChangePlace();
-                            PsiClass targetClass = createTestClass(context);
+                            PsiFile targetClass = createTestClass(context);
                             if (targetClass == null) {
                                 return null;
                             }
                             try {
-                                final PsiElement optimalCursorLocation = testClassElementsLocator.findOptimalCursorLocation(targetClass);
-                                if (optimalCursorLocation != null) {
-                                    CodeInsightUtil.positionCursor(project, targetClass.getContainingFile(), optimalCursorLocation);
+                                PsiElement psiElement = resolveEmbeddedClass(targetClass);
+                                if (psiElement instanceof PsiClass) {
+                                    final PsiElement optimalCursorLocation = testClassElementsLocator.findOptimalCursorLocation((PsiClass) psiElement);
+                                    if (optimalCursorLocation != null) {
+                                        CodeInsightUtil.positionCursor(project, targetClass, optimalCursorLocation);
+                                    }
+                                } else {
+                                    CodeInsightUtil.positionCursor(project, targetClass, psiElement);
                                 }
                             } catch (Throwable e) {
                                 LOG.warn("unable to locate optimal cursor location post test generation",e);
@@ -85,7 +91,7 @@ public class TestMeGenerator {
     }
 
     @Nullable
-    private PsiClass createTestClass(FileTemplateContext context) {
+    private PsiFile createTestClass(FileTemplateContext context) {
         final PsiDirectory targetDirectory = context.getTargetDirectory();
         final PsiPackage aPackage = JavaDirectoryService.getInstance().getPackage(targetDirectory);
         if (aPackage != null) {
@@ -95,19 +101,19 @@ public class TestMeGenerator {
                 if (!FileModificationService.getInstance().preparePsiElementForWrite(classes[0])) {
                     return null;
                 }
-                return classes[0];
+                return classes[0].getContainingFile();
             }
         }
-        final PsiClass classFromTemplate = createTestClassFromCodeTemplate(context, targetDirectory);
+        final PsiFile classFromTemplate = createTestClassFromCodeTemplate(context, targetDirectory);
         if (classFromTemplate != null) {
             return classFromTemplate;
         }
-        return JavaDirectoryService.getInstance().createClass(targetDirectory, context.getTargetClass());
+        return JavaDirectoryService.getInstance().createClass(targetDirectory, context.getTargetClass()).getContainingFile();
     }
 
-    private PsiClass createTestClassFromCodeTemplate(final FileTemplateContext context, final PsiDirectory targetDirectory) {
+    private PsiFile createTestClassFromCodeTemplate(final FileTemplateContext context, final PsiDirectory targetDirectory) {
         final String templateName = context.getFileTemplateDescriptor().getFileName();
-        FileTemplateManager fileTemplateManager = FileTemplateManager.getInstance(targetDirectory.getProject());
+        FileTemplateManager fileTemplateManager = TestMeTemplateManager.getInstance(targetDirectory.getProject());
         Map<String, Object> templateCtxtParams = testTemplateContextBuilder.build(context, fileTemplateManager.getDefaultProperties());
         try {
             FileTemplate codeTemplate = fileTemplateManager.getInternalTemplate(templateName);
@@ -118,33 +124,22 @@ public class TestMeGenerator {
             LOG.debug("Done generating PsiElement from template "+codeTemplate.getName()+" in "+(new Date().getTime()-startGeneration)+" millis");
             final long startReformating = new Date().getTime();
             final PsiElement resolvedPsiElement=resolveEmbeddedClass(psiElement);
-            if (resolvedPsiElement instanceof PsiClass) {
-                PsiClass psiClass = (PsiClass) resolvedPsiElement;
-                JavaCodeStyleManager codeStyleManager = JavaCodeStyleManager.getInstance(targetDirectory.getProject());
-                if (context.getFileTemplateConfig().isOptimizeImports()) {
-                    codeStyleManager.optimizeImports(psiClass.getContainingFile());
-                }
-                if (context.getFileTemplateConfig().isReplaceFqn()) {
-                    codeStyleManager.shortenClassReferences(psiClass);
-                }
-                codeRefactorUtil.uncommentImports(psiClass, context.getProject());
-                if (context.getFileTemplateConfig().isReformatCode()) {
-                    final PsiFile containingFile = psiClass.getContainingFile();
-                    final TextRange textRange = containingFile.getTextRange();
-                    CodeStyleManager.getInstance(context.getProject()).reformatText(containingFile, textRange.getStartOffset(), textRange.getEndOffset());
-                }
-                LOG.debug("Done reformatting generated PsiClass in "+(new Date().getTime()-startReformating)+" millis");
-                final PsiElement formattedPsiElement=resolveEmbeddedClass(psiElement);
-                if (formattedPsiElement instanceof PsiClass) {
-                    return (PsiClass) formattedPsiElement;
-                } else {
-//                    flushOperations(context, psiClass);
-                    return psiClass;
-                }
-            } else {
-                return null;
+            final PsiFile psiFile = resolvedPsiElement instanceof PsiFile? (PsiFile) resolvedPsiElement : resolvedPsiElement.getContainingFile();
+            JavaCodeStyleManager codeStyleManager = JavaCodeStyleManager.getInstance(targetDirectory.getProject());
+            if (context.getFileTemplateConfig().isOptimizeImports()) {
+                codeStyleManager.optimizeImports(psiFile);
             }
-
+            if (context.getFileTemplateConfig().isReplaceFqn()) {
+                codeStyleManager.shortenClassReferences(psiFile);
+            }
+            codeRefactorUtil.uncommentImports(psiFile, context.getProject());
+            if (context.getFileTemplateConfig().isReformatCode()) {
+                final PsiFile containingFile = psiFile;
+                final TextRange textRange = containingFile.getTextRange();
+                CodeStyleManager.getInstance(context.getProject()).reformatText(containingFile, textRange.getStartOffset(), textRange.getEndOffset());
+            }
+            LOG.debug("Done reformatting generated PsiClass in "+(new Date().getTime()-startReformating)+" millis");
+                return psiFile;
         } catch (Exception e) {
             LOG.error("error generating test class",e);
             return null;
@@ -170,7 +165,7 @@ public class TestMeGenerator {
 
     @Nullable
     private PsiElement resolveEmbeddedClassRecursive(PsiElement psiElement, int recursionLevel) {
-        if (psiElement instanceof PsiClass) {
+        if (psiElement instanceof PsiClass || psiElement!=null && psiElement.getClass().getCanonicalName().equals("org.jetbrains.kotlin.psi.KtClass") ) {
             return psiElement;
         } else  if (recursionLevel <= 0) {
             return null;

@@ -7,3 +7,4 @@ build/
 hs_err_pid*
 classes
 out
+lombok.config

@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 
 /**
+ * Utilities for Building string constructs of Mockito mock expressions.
  * Date: 31/03/2017
  * @author Yaron Yamin
  */
@@ -71,12 +72,20 @@ public class  MockitoMockBuilder {
         this.stubMockMethodCallsReturnValues = stubMockMethodCallsReturnValues;
         this.testSubjectInspector = testSubjectInspector;
     }
+
+    /**
+     * true - field can be mocked
+     */
     @SuppressWarnings("unused")
     public boolean isMockable(Field field) {
         final boolean isMockable = !field.getType().isPrimitive() && !isWrapperType(field.getType()) && (!field.getType().isFinal() || isMockitoMockMakerInlineOn) && !field.isOverridden() && !field.getType().isArray() && !field.getType().isEnum();
         LOG.debug("field "+field.getType().getCanonicalName()+" "+field.getName()+" is mockable:"+isMockable);
         return isMockable;
     }
+
+    /**
+     * true - if argument can be mocked given the provided default types
+     */
     @SuppressWarnings("unused")
     public boolean isMockable(Param param, Map<String,String> defaultTypes) {
         final Type type = param.getType();
@@ -84,6 +93,10 @@ public class  MockitoMockBuilder {
         LOG.debug("param "+ type.getCanonicalName()+" "+param.getName()+" is mockable:"+isMockable);
         return isMockable;
     }
+
+    /**
+     * true - if any given field can be mocked
+     */
     @SuppressWarnings("unused")
     public boolean hasMockable(List<Field> fields) {
         for (Field field : fields) {
@@ -93,6 +106,10 @@ public class  MockitoMockBuilder {
         }
         return false;
     }
+
+    /**
+     * true - if method had any argument that can be mocked given the provided default types
+     */
     @SuppressWarnings("unused")
     public boolean hasMocks(Method ctor, Map<String,String> defaultTypes) {
         if (ctor == null) {
@@ -106,6 +123,13 @@ public class  MockitoMockBuilder {
         }
         return false;
     }
+
+    /**
+     * constructs an error message explaining why field cannot be mocked
+     * @param prefix add prefix to message
+     * @param field reported field
+     * @return an error message explaining why field cannot be mocked
+     */
     @SuppressWarnings("unused")
     public String getImmockabiliyReason(String prefix,Field field) {
         final String reasonMsgPrefix = prefix+"Field " + field.getName() + " of type " + field.getType().getName();
@@ -121,10 +145,10 @@ public class  MockitoMockBuilder {
     }
 
     /**
-     *
-     * @param params
-     * @param language String representation of com.weirddev.testme.intellij.template.context.Language
-     * @return
+     * constructs mocked arguments expression
+     * @param params method params being mocked
+     * @param language String representation of test code {@link com.weirddev.testme.intellij.template.context.Language}
+     * @return mocked arguments expression
      * @see Language
      */
     @SuppressWarnings("unused")
@@ -139,6 +163,12 @@ public class  MockitoMockBuilder {
         return sb.toString();
     }
 
+    /**
+     * resolves relevant mock matcher from param
+     * @param param being mocked
+     * @param language test code language
+     * @return relevant mock matcher for param
+     */
     @NotNull
     private String deductMatcherTypeMethod(Param param, Language language) {
         String matcherType;
@@ -158,6 +188,11 @@ public class  MockitoMockBuilder {
         return matcherType;
     }
 
+    /**
+     * true - if should stub tested method
+     * @param testMethod method being tested
+     * @param testedClassFields fields of owner type being tested
+     */
     @SuppressWarnings("unused")
     public boolean shouldStub(Method testMethod, List<Field> testedClassFields) {
         boolean shouldStub = false;
@@ -177,6 +212,13 @@ public class  MockitoMockBuilder {
         LOG.debug("method "+testMethod.getMethodId()+" should be stabbed:"+shouldStub);
         return shouldStub;
     }
+
+    /**
+     * true - if tested method should be stubbed
+     * @param testMethod - method being tested
+     * @param ctor - constructor of method return type
+     * @param defaultTypes - default type values
+     */
     @SuppressWarnings("unused")
     public boolean shouldStub(Method testMethod, Method ctor, Map<String,String> defaultTypes) {
         boolean shouldStub = false;
@@ -222,12 +264,15 @@ public class  MockitoMockBuilder {
 */
 
     /**
-        @return true - if Field should be mocked
-     */
+      *  @return true - if Field should be mocked
+      */
     public boolean isMockExpected(Field field) {
         return !field.getType().isPrimitive() && !isWrapperType(field.getType()) && !field.isStatic() && !field.isOverridden();
     }
 
+    /**
+     * true - if type is a wrapper for other type, such as a primitive
+     */
     private boolean isWrapperType(Type type) {
         return WRAPPER_TYPES.contains(type.getCanonicalName());
     }

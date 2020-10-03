@@ -41,11 +41,11 @@ public class TestMeActionHandlerTest extends TestMeGeneratorTestBase {
                 final TestMePopUpHandler.GotoData sourceAndTargetElements = actionHandler.getSourceAndTargetElements(getEditor(), getFile());
                 Assert.assertNotNull(sourceAndTargetElements);
                 final List<TemplateDescriptor> templateDescriptors = new TemplateRegistry().getTemplateDescriptors();
-                Assert.assertEquals(countEnabledTemplates(templateDescriptors),sourceAndTargetElements.additionalActions.size());
+                Assert.assertEquals(countEnabledTemplates(templateDescriptors) +1,sourceAndTargetElements.additionalActions.size());
                 final PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
                 propertiesComponent.setValue("create.test.in.the.same.root",String.valueOf(true));
-                Assert.assertEquals("<html><i>JUnit4</i></html><JUnit4><html>& <i>Mockito</i></html><Mockito>",sourceAndTargetElements.additionalActions.get(0).getText());
-                sourceAndTargetElements.additionalActions.get(0).execute();
+                Assert.assertEquals("<html><i>JUnit4</i><img src='/icons/junit.png'>& <i>Mockito</i><img src='/icons/mockito.png'></html>",sourceAndTargetElements.additionalActions.get(0).getText());
+                sourceAndTargetElements.additionalActions.get(0).execute(getProject());
                 verifyGeneratedTest(packageName, expectedTestClassName);
             }
         }, CodeInsightBundle.message("intention.create.test"), this);

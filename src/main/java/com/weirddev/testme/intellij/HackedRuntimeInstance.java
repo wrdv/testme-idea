@@ -3,6 +3,7 @@ package com.weirddev.testme.intellij;
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.openapi.diagnostic.Logger;
 import com.weirddev.testme.intellij.template.FTFolderManager;
+import com.weirddev.testme.intellij.ui.template.TestMeTemplateManager;
 import org.apache.commons.collections.ExtendedProperties;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.apache.velocity.runtime.RuntimeInstance;
@@ -12,6 +13,8 @@ import org.apache.velocity.runtime.resource.loader.ResourceLoader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * Motivation: use a hidden folder where included velocity templates can be referenced. the default IJ includes folder can be overridden by the user. overriding the included macros will break plugin functionality on upgrades
@@ -24,7 +27,8 @@ import java.io.UnsupportedEncodingException;
 
 public class HackedRuntimeInstance extends RuntimeInstance {
     private static final Logger LOG = Logger.getInstance(HackedRuntimeInstance.class.getName());
-    private FTFolderManager ftFolderManager = new FTFolderManager("fileTemplates/testMeIncludes");
+    public static final String FILE_TEMPLATES_TEST_ME_INCLUDES = "fileTemplates/testMeIncludes";
+    private FTFolderManager ftFolderManager = new FTFolderManager(FILE_TEMPLATES_TEST_ME_INCLUDES);
 
     @Override
     public void setProperty(String key, Object value) {
@@ -45,10 +49,10 @@ public class HackedRuntimeInstance extends RuntimeInstance {
 
             @Override
             public InputStream getResourceStream(String resourceName) throws ResourceNotFoundException {
-                final FileTemplate include = ftFolderManager.getTemplates().get(resourceName);
-                if (include == null) {
-                    throw new ResourceNotFoundException("Template not found: " + resourceName);
-                }
+                TestMeTemplateManager fileTemplateManager = TestMeTemplateManager.getDefaultInstance();
+                FileTemplate[] allPatterns = fileTemplateManager.getAllPatterns();
+                Optional<FileTemplate> optTemplate = Stream.of(allPatterns).filter(t -> resourceName.equals(t.getName() + "." + t.getExtension())).findAny();
+                final FileTemplate include = optTemplate.orElseThrow(() -> new ResourceNotFoundException("Template not found: " + resourceName));
                 final String text = include.getText();
                 try {
                     return new ByteArrayInputStream(text.getBytes(FileTemplate.ourEncoding));

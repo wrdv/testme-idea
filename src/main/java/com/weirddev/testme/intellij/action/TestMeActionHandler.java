@@ -16,7 +16,9 @@ import com.intellij.util.SmartList;
 import com.weirddev.testme.intellij.TestMeBundle;
 import com.weirddev.testme.intellij.template.TemplateDescriptor;
 import com.weirddev.testme.intellij.template.TemplateRegistry;
+import com.weirddev.testme.intellij.ui.popup.ConfigurationLinkAction;
 import com.weirddev.testme.intellij.ui.popup.TestMePopUpHandler;
+import com.weirddev.testme.intellij.ui.template.TestMeTemplateManager;
 import com.weirddev.testme.intellij.utils.TestSubjectResolverUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -46,12 +48,12 @@ public class TestMeActionHandler extends TestMePopUpHandler {
         if (sourceElement == null) return null;
         List<AdditionalAction> actions = new SmartList<AdditionalAction>();
         findNestedClassName(editor, file, (PsiNamedElement) sourceElement);
-        List<TemplateDescriptor> templateDescriptors = templateRegistry.getTemplateDescriptors();
+        TestMeTemplateManager fileTemplateManager = TestMeTemplateManager.getInstance(file.getProject());
+        List<TemplateDescriptor> templateDescriptors = fileTemplateManager.getTestTemplates();
         for (final TemplateDescriptor templateDescriptor : templateDescriptors) {
-            if (templateDescriptor.isEnabled()) {
-                actions.add(new TestMeAdditionalAction(templateDescriptor, editor, file) );
-            }
+            actions.add(new TestMeAdditionalAction(templateDescriptor, editor, file) );
         }
+        actions.add(new ConfigurationLinkAction());
         return new GotoData(sourceElement, actions);
     }
 
