@@ -21,7 +21,7 @@ class ${CLASS_NAME} {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
     }
 #end
 #foreach($method in $TESTED_CLASS.methods)
