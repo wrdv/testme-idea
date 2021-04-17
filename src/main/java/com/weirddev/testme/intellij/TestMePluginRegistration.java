@@ -3,9 +3,10 @@ package com.weirddev.testme.intellij;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.keymap.KeymapManager;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.startup.StartupActivity;
 import com.weirddev.testme.intellij.utils.AccessLevelReflectionUtils;
 import org.apache.velocity.runtime.RuntimeSingleton;
 import org.jetbrains.annotations.NotNull;
@@ -20,14 +21,14 @@ import java.util.Map;
  *
  * @author Yaron Yamin
  */
-public class TestMePluginRegistration implements ApplicationComponent {
+public class TestMePluginRegistration implements StartupActivity {
 
     private static final String GOTO_TEST_ACTION_ID = "GotoTest";
 
     private static final Logger LOG = Logger.getInstance(TestMePluginRegistration.class.getName());
 
     @Override
-    public void initComponent() {
+    public void runActivity(@NotNull Project project) {
         try {
             hackVelocity();
         } catch (Exception e) {
@@ -63,14 +64,5 @@ public class TestMePluginRegistration implements ApplicationComponent {
 
     private void hackVelocity() throws Exception {
         AccessLevelReflectionUtils.replaceField(RuntimeSingleton.class.getDeclaredField("ri"), new HackedRuntimeInstance());
-    }
-    @Override
-    public void disposeComponent() {
-    }
-
-    @NotNull
-    @Override
-    public String getComponentName() {
-        return "TestMe";
     }
 }
