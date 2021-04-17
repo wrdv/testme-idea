@@ -67,7 +67,7 @@ public class TargetDirectoryLocator{
     private PsiDirectory selectTargetDirectory(final String packageName, final Project myProject, final Module myTargetModule) throws IncorrectOperationException {
         final PackageWrapper targetPackage = new PackageWrapper(PsiManager.getInstance(myProject), packageName);
         final VirtualFile selectedRoot = new ReadAction<VirtualFile>() {
-            protected void run(Result<VirtualFile> result) throws Throwable {
+            protected void run(Result<? super VirtualFile> result) throws Throwable {
 //                final HashSet<VirtualFile> testFolders = new HashSet<VirtualFile>();
 //                CreateTestMeAction.checkForTestRoots(myTargetModule, testFolders);
                 final List<VirtualFile> testFolders = CreateTestMeAction.computeTestRoots(myTargetModule); // replaces above from v14
@@ -100,7 +100,7 @@ public class TargetDirectoryLocator{
         if (selectedRoot == null) return null;
 
         return new WriteCommandAction<PsiDirectory>(myProject, CodeInsightBundle.message("create.directory.command")) {
-            protected void run(Result<PsiDirectory> result) throws Throwable {
+            protected void run(Result<? super PsiDirectory> result) throws Throwable {
                 result.setResult(RefactoringUtil.createPackageDirectoryInSourceRoot(targetPackage, selectedRoot));
             }
         }.execute().getResultObject();
