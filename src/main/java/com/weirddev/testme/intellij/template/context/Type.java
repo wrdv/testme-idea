@@ -178,7 +178,7 @@ public class Type {
         canonicalName = ClassNameUtils.stripArrayVarargsDesignator(canonicalText);
         name = psiClass.getQualifiedName() == null ? null : ClassNameUtils.extractClassName(ClassNameUtils.stripArrayVarargsDesignator(psiClass.getQualifiedName()));
         packageName = ClassNameUtils.extractPackageName(canonicalName);
-        isPrimitive = psiClass instanceof PsiPrimitiveType;
+        isPrimitive = false;
         composedTypes = new ArrayList<>();
         isEnum = psiClass.isEnum();
         isInterface = psiClass.isInterface();
