@@ -79,7 +79,7 @@ public abstract class LightJavaCodeInsightFixtureTestCase extends UsefulTestCase
     public static final @NotNull LightProjectDescriptor JAVA_LATEST = new ProjectDescriptor(LanguageLevel.HIGHEST) {
         @Override
         public Sdk getSdk() {
-            return IdeaTestUtil.getMockJdk17();
+            return IdeaTestUtil.getMockJdk11();
         }
     };
 
@@ -97,7 +97,8 @@ public abstract class LightJavaCodeInsightFixtureTestCase extends UsefulTestCase
         myFixture.setTestDataPath(getTestDataPath());
         myFixture.setUp();
 
-        LanguageLevelProjectExtension.getInstance(getProject()).setLanguageLevel(LanguageLevel.JDK_1_6);
+        LanguageLevelProjectExtension.getInstance(getProject()).setLanguageLevel(LanguageLevel.JDK_11);
+//        LanguageLevelProjectExtension.getInstance(getProject()).setLanguageLevel(LanguageLevel.JDK_1_8);
     }
 
     @NotNull
@@ -131,7 +132,8 @@ public abstract class LightJavaCodeInsightFixtureTestCase extends UsefulTestCase
 
     @NotNull
     protected LightProjectDescriptor getProjectDescriptor() {
-        return JAVA_LATEST;
+//        return JAVA_LATEST;
+        return JAVA_11;
     }
 
     /**
