@@ -44,12 +44,8 @@
     <webHelpProvider implementation="com.weirddev.testme.intellij.configuration.TestMeWebHelpProvider" id="com.weirddev.testme"/>
     <projectService serviceImplementation="com.weirddev.testme.intellij.ui.template.TestMeTemplateManager"/>
     <applicationService serviceImplementation="com.weirddev.testme.intellij.ui.template.TestMeTemplateManager"/>
+    <postStartupActivity implementation="com.weirddev.testme.intellij.TestMePluginRegistration"/>
   </extensions>
-  <application-components>
-    <component>
-      <implementation-class>com.weirddev.testme.intellij.TestMePluginRegistration</implementation-class>
-    </component>
-  </application-components>
   <project-components>
   </project-components>
 
