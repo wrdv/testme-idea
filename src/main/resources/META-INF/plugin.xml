@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.weirddev.testme</id>
   <name>TestMe</name>
-  <version>4.0.1</version>
+  <version>5.0.0</version>
   <vendor email="testme@weirddev.com" url="http://weirddev.com">WeirdDev</vendor>
 
   <description><![CDATA[
@@ -19,9 +19,11 @@
     ]]></description>
 
   <change-notes><![CDATA[
-        <i>Main Changes in v4.0.1</i>
+        <i>Main Changes in v5.0.0</i>
           <ul>
-            <li>bugfix: compatibility error reported by donald001 on April 8 '21 in IDEA 2021.1:
+            <li>supporting IDEA 2021.1</li>
+            <li>Breaking changes: IDEA versions 2020.X and 2019.x are no longer supported (please use TestMe version 4.0.0)</li>
+            <li>Bugfix: compatibility error reported by donald001 on April 8 '21 in IDEA 2021.1:
                 Plugin ‘com.weirddev.testme’ failed to initialize and will be disabled. Please restart IntelliJ IDEA.
                  java.lang.NoSuchMethodError: ‘java.net.URL
              </li>
