@@ -69,7 +69,7 @@ public class TestMeGenerator {
                                 if (psiElement instanceof PsiClass) {
                                     final PsiElement optimalCursorLocation = testClassElementsLocator.findOptimalCursorLocation((PsiClass) psiElement);
                                     if (optimalCursorLocation != null) {
-//                                        CodeInsightUtil.positionCursor(project, targetClass, optimalCursorLocation);
+                                        CodeInsightUtil.positionCursor(project, targetClass, optimalCursorLocation);
                                     }
                                 } else {
                                     CodeInsightUtil.positionCursor(project, targetClass, psiElement);
