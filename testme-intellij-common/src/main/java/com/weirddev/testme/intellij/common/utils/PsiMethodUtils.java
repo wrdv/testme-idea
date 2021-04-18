@@ -13,7 +13,7 @@ public class PsiMethodUtils {
     public static String formatMethodId(PsiMethod psiMethod) {
         String name = psiMethod.getName();
         String ownerClassCanonicalType = psiMethod.getContainingClass() == null ? null : psiMethod.getContainingClass().getQualifiedName();
-        return ownerClassCanonicalType + "." + name + "(" + formatMethodParams(psiMethod.getParameterList().getParameters()) + ")";
+        return ownerClassCanonicalType + "#" + name + "(" + formatMethodParams(psiMethod.getParameterList().getParameters()) + ")";
     }
 
     static String formatMethodParams(PsiParameter[] parameters) {
