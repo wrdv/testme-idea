@@ -22,11 +22,14 @@
         <i>Main Changes in v5.0.0</i>
           <ul>
             <li>supporting IDEA 2021.1</li>
-            <li>Format test method id ( in velocity template: ${method.methodId} )  in compatibility with javadoc links format (with hash before method name instead of a dot). issue raised by tylerg-smt on April 14 '21
+            <li>bugfix: compatibility issue of illegal status on startup: "Should be called at least in the state COMPONENTSLOADED...". Fixed by <a href="https://github.com/wuweiran">Weiran Wu</a>. Reported by ryan1999 on Feb 18 '21
             </li>
-            <li>Bugfix: compatibility error reported by donald001 on April 8 '21 in IDEA 2021.1:
+            <li>Bugfix: critical startup error on IDEA 2021 due to sdk incompatibility:
                 Plugin ‘com.weirddev.testme’ failed to initialize and will be disabled. Please restart IntelliJ IDEA.
-                 java.lang.NoSuchMethodError: ‘java.net.URL
+                 java.lang.NoSuchMethodError: ‘java.net.URL.
+                reported by donald001 on April 8 '21 in IDEA 2021.1
+            </li>
+            <li>Format test method id ( in velocity template: ${method.methodId} )  in compatibility with javadoc links format (with hash before method name instead of a dot). Issue raised by tylerg-smt on April 14 '21
             </li>
             <li>Breaking changes: IDEA versions 2020.X and 2019.x are no longer supported (please use TestMe version 4.0.0)</li>
           </ul>
