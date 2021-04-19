@@ -64,9 +64,11 @@ public class TestMePluginRegistration implements StartupActivity {
 
     }
 
-    private void hackVelocity() throws Exception {
+    private synchronized void hackVelocity() throws Exception {
         Field riField = RuntimeSingleton.class.getDeclaredField("ri");
         Object oldRI = AccessLevelReflectionUtils.getField(riField, new RuntimeSingleton());
-        AccessLevelReflectionUtils.replaceField(riField, new HackedRuntimeInstance((RuntimeInstance)oldRI));
+        if (!(oldRI instanceof HackedRuntimeInstance)) {
+            AccessLevelReflectionUtils.replaceField(riField, new HackedRuntimeInstance((RuntimeInstance)oldRI));
+        }
     }
 }
