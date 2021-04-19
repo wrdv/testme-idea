@@ -1,7 +1,5 @@
 package com.example.services.impl
 
-import com.example.beans.JavaBean
-import com.example.foes.Fire
 import org.specs2.mutable.Specification
 
 /** created by TestMe integration test on MMXVI */
@@ -11,8 +9,8 @@ class FooTest extends Specification {
   "Foo" should {
 
     "fight" in {
-      val result = foo.fight(new Fire(), new com.example.foes.FireBall(new JavaBean()), new JavaBean())
-      result === new JavaBean()
+      val result = foo.fight(new com.example.foes.Fire(), new com.example.foes.FireBall(new com.example.beans.JavaBean()), new com.example.beans.JavaBean())
+      result === new com.example.beans.JavaBean()
     }
 
     "fight 2" in {
