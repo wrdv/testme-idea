@@ -51,7 +51,7 @@ public class TestMeGeneratorSpecs2Test extends TestMeGeneratorTestBase   {
     }
 
     public void testBean() {
-        doTestWithDefaults();
+        doTest();
     }
     public void testConstants() {
         doTestWithDefaults();
