@@ -8,10 +8,12 @@ import com.intellij.openapi.keymap.KeymapManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.StartupActivity;
 import com.weirddev.testme.intellij.utils.AccessLevelReflectionUtils;
+import org.apache.velocity.runtime.RuntimeInstance;
 import org.apache.velocity.runtime.RuntimeSingleton;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,6 +65,8 @@ public class TestMePluginRegistration implements StartupActivity {
     }
 
     private void hackVelocity() throws Exception {
-        AccessLevelReflectionUtils.replaceField(RuntimeSingleton.class.getDeclaredField("ri"), new HackedRuntimeInstance());
+        Field riField = RuntimeSingleton.class.getDeclaredField("ri");
+        Object oldRI = AccessLevelReflectionUtils.getField(riField, new RuntimeSingleton());
+        AccessLevelReflectionUtils.replaceField(riField, new HackedRuntimeInstance((RuntimeInstance)oldRI));
     }
 }
