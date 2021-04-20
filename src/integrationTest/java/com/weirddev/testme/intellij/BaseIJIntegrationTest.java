@@ -12,6 +12,7 @@ import com.intellij.testFramework.fixtures.DefaultLightProjectDescriptor;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * Date: 19/12/2016
@@ -61,7 +62,12 @@ abstract public class BaseIJIntegrationTest extends LightJavaCodeInsightFixtureT
         return new DefaultLightProjectDescriptor() {
             @Override
             public Sdk getSdk() {
-                return JavaSdk.getInstance().createJdk("java 1.8", new File(System.getProperty("java.home")).getParent(), false);
+//                return JavaSdk.getInstance().createJdk("java 1.11", new File(System.getProperty("java.home")).getParent(), false);
+                try {
+                    return JavaSdk.getInstance().createJdk("java 1.11", new File(System.getProperty("java.home")).getCanonicalPath(), false);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
 
             @Override

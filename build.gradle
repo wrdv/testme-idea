@@ -36,7 +36,8 @@ def isRunInCI=Boolean.valueOf(System.getenv('CI'))
 def spockVersion = ideaVersion.startsWith("14.") || ideaVersion.startsWith("15.")? "1.0-groovy-2.3" : "1.0-groovy-2.4"
 
 jacoco {
-    toolVersion = "0.7.6.201602180812"
+//    toolVersion = "0.7.6.201602180812"
+    toolVersion = "0.8.6"
 }
 allprojects{
     sourceCompatibility = jvmTargetVersion
@@ -48,8 +49,10 @@ allprojects{
     tasks.withType(JavaCompile) {
         options.encoding = 'UTF-8'
         if (!javaHome) {
-            javaHome =  System.getenv().JAVA_HOME//            javaHome =  'C:\\Program Files\\AdoptOpenJDK\\jdk-13.0.2.8-hotspot'
+            println "javaHome var not set. setting java home from JAVA_HOME env var"
+            javaHome =  System.getenv().JAVA_HOME //            javaHome =  'C:\\Program Files\\AdoptOpenJDK\\jdk-13.0.2.8-hotspot'
         }
+        println "JAVA_HOME=$javaHome"
 //        options.bootClasspath = "$javaHome/jre/lib/rt.jar"
     }
     testSets {
@@ -89,7 +92,7 @@ subprojects{
     apply plugin: "io.freefair.lombok"
     dependencies {
         testCompile("org.spockframework:spock-core:$spockVersion"){
-            exclude group: 'org.codehaus.groovy'
+//            exclude group: 'org.codehaus.groovy'
         }
     }
 }
@@ -199,9 +202,10 @@ dependencies {
 
     testCompile 'junit:junit:4.12'
     testCompile("org.spockframework:spock-core:$spockVersion"){
-        exclude group: 'org.codehaus.groovy'
+//        exclude group: 'org.codehaus.groovy'
     }
-    testCompileOnly group: 'org.scala-lang', name: 'scala-library', version: '2.10.6'
+//    testCompileOnly group: 'org.scala-lang', name: 'scala-library', version: '2.10.6'
+    testCompileOnly group: 'org.scala-lang', name: 'scala-library', version: '2.11.12'
 }
 def javadocHeader = ""
 check.dependsOn integrationTest
