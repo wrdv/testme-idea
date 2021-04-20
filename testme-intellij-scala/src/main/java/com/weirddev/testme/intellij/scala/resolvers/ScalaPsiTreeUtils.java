@@ -201,7 +201,7 @@ public class ScalaPsiTreeUtils {
                             final ScArgumentExprList args = methodCall.args();
                             final ArrayList<MethodCallArg> methodCallArguments = new ArrayList<>();
                             if(args!=null && args.exprs()!=null){
-                                final Seq<ScExpression> argSeq = args.exprs().seq();
+                                final Seq<ScExpression> argSeq = args.exprs();
                                 for (int i = 0; i <argSeq.length(); i++) {
                                     methodCallArguments.add(new MethodCallArg(argSeq.apply(i).getText().trim()));
                                 }

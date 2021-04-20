@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.weirddev.testme</id>
   <name>TestMe</name>
-  <version>4.0.0</version>
+  <version>5.0.0</version>
   <vendor email="testme@weirddev.com" url="http://weirddev.com">WeirdDev</vendor>
 
   <description><![CDATA[
@@ -19,19 +19,25 @@
     ]]></description>
 
   <change-notes><![CDATA[
-        <i>Main Changes in v4.0.0:</i>
+        <i>Main Changes in v5.0.0</i>
           <ul>
-            <li>Configuration: Support customizable test code templates. (requested by dotJack / Kristjan on May 29 '19, mhuelfen on Jul 2 '19 and other users)</li>
-            <li>Fix logged error for incompatibility with IDEA 2020.1: "ERROR - Container.ComponentManagerImpl - class com.intellij.openapi.keymap.KeymapManager it is a service, use getService instead of getComponent". (reported by uweschaefer on June 14 '20)</li>
-            <li>Fix Ctrl+Shift+T keyboard conflict for GoTo Test action (reported by pengwang on Jul 20 '20)</li>
-            <li>Fix load time plugin registration exception in logs</li>
-            <li>Compatibility: IDEA 2019.1 is no longer supported. IDEA 2019.3.1 is now the minimal supported version</li>
+            <li>supporting IDEA 2021.1</li>
+            <li>bugfix: compatibility issue of illegal status on startup: "Should be called at least in the state COMPONENTSLOADED...". Fixed by <a href="https://github.com/wuweiran">Weiran Wu</a>. Reported by ryan1999 on Feb 18 '21
+            </li>
+            <li>Bugfix: critical startup error on IDEA 2021 due to sdk incompatibility:
+                Plugin ‘com.weirddev.testme’ failed to initialize and will be disabled. Please restart IntelliJ IDEA.
+                 java.lang.NoSuchMethodError: ‘java.net.URL.
+                reported by donald001 on April 8 '21 in IDEA 2021.1
+            </li>
+            <li>Format test method id ( in velocity template: ${method.methodId} )  in compatibility with javadoc links format (with hash before method name instead of a dot). Issue raised by tylerg-smt on April 14 '21
+            </li>
+            <li>Breaking changes: IDEA versions 2020.X and 2019.x are no longer supported (please use TestMe version 4.0.0)</li>
           </ul>
         <a href="http://weirddev.com/testme/release-notes">Complete Release Notes listing</a>
     ]]>
   </change-notes>
   <!-- please see https://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
-  <idea-version since-build="193.5233.102"/>
+  <idea-version since-build="211"/>
   <depends>com.intellij.modules.java</depends>
   <depends>JUnit</depends>
   <depends optional="true" config-file="plugin-groovy.xml">org.intellij.groovy</depends>

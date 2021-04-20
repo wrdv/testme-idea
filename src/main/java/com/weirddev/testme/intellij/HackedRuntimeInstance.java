@@ -2,18 +2,19 @@ package com.weirddev.testme.intellij;
 
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.openapi.diagnostic.Logger;
-import com.weirddev.testme.intellij.template.FTFolderManager;
 import com.weirddev.testme.intellij.ui.template.TestMeTemplateManager;
 import org.apache.commons.collections.ExtendedProperties;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.apache.velocity.runtime.RuntimeInstance;
 import org.apache.velocity.runtime.resource.Resource;
 import org.apache.velocity.runtime.resource.loader.ResourceLoader;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Optional;
+import java.util.Vector;
 import java.util.stream.Stream;
 
 /**
@@ -27,22 +28,20 @@ import java.util.stream.Stream;
 
 public class HackedRuntimeInstance extends RuntimeInstance {
     private static final Logger LOG = Logger.getInstance(HackedRuntimeInstance.class.getName());
-    public static final String FILE_TEMPLATES_TEST_ME_INCLUDES = "fileTemplates/testMeIncludes";
-    private FTFolderManager ftFolderManager = new FTFolderManager(FILE_TEMPLATES_TEST_ME_INCLUDES);
+    private static final String TEST_ME_INCLUDES_DIR = "testMeIncludes";
+    private static final String RESOURCE_LOADER_KEY = "resource.loader";
 
-    @Override
-    public void setProperty(String key, Object value) {
-        if ("resource.loader".equals(key) && value instanceof String && !((String) value).contains("testMeIncludes")) {
-            setTestMeVelocityIncludesLoader(key, value);
-        } else {
-            super.setProperty(key, value);
+    public HackedRuntimeInstance(RuntimeInstance existingRi) {
+        Object resourceLoaderProperty = initFromRuntimeInstance(existingRi);
+        if(resourceLoaderProperty == null) {
+            super.setProperty(RESOURCE_LOADER_KEY, TEST_ME_INCLUDES_DIR);
+        } else if (resourceLoaderProperty instanceof String && !((String) resourceLoaderProperty).contains(TEST_ME_INCLUDES_DIR)) {
+            super.setProperty(RESOURCE_LOADER_KEY, resourceLoaderProperty + "," + TEST_ME_INCLUDES_DIR);
         }
-    }
-
-    private void setTestMeVelocityIncludesLoader(String key, Object value) {
-        LOG.debug("setting TestMe includes dir in Velocity");
-        super.setProperty(key, value + ",testMeIncludes");
-        super.setProperty("testMeIncludes.resource.loader.instance", new ResourceLoader() {
+        else if (resourceLoaderProperty instanceof Vector && !((Vector) resourceLoaderProperty).contains(TEST_ME_INCLUDES_DIR)) {
+            ((Vector) resourceLoaderProperty).add(TEST_ME_INCLUDES_DIR);
+        }
+        super.setProperty(TEST_ME_INCLUDES_DIR + ".resource.loader.instance", new ResourceLoader() {
             @Override
             public void init(ExtendedProperties configuration) {
             }
@@ -71,5 +70,26 @@ public class HackedRuntimeInstance extends RuntimeInstance {
                 return 0L;
             }
         });
+    }
+
+    @Nullable
+    private Object initFromRuntimeInstance(RuntimeInstance otherRi) {
+        if (otherRi == null) {
+            return null;
+        } else {
+            Object resourceLoaderProperty = otherRi.getProperty(RESOURCE_LOADER_KEY);
+            setConfiguration(otherRi.getConfiguration());
+            return resourceLoaderProperty;
+        }
+    }
+
+    @Override
+    public void setProperty(String key, Object value) {
+        if ("resource.loader".equals(key) && value instanceof String && !((String) value).contains(TEST_ME_INCLUDES_DIR)) {
+            LOG.debug("adding TestMe includes dir to Velocity");
+            super.setProperty("resource.loader", value + "," + TEST_ME_INCLUDES_DIR);
+        } else {
+            super.setProperty(key, value);
+        }
     }
 }

@@ -28,8 +28,8 @@ import java.util.List;
  * @author Yaron Yamin
  */
 public class TestMeGeneratorSpecs2Test extends TestMeGeneratorTestBase   {
-    public static final String SCALA_LIB_SUB_PATH = "org.scala-lang/scala-library/2.10.6/";
-    public static final String SCALA_LIB_NAME = "scala-library-2.10.6";
+    public static final String SCALA_LIB_SUB_PATH = "org.scala-lang/scala-library/2.11.12/";
+    public static final String SCALA_LIB_NAME = "scala-library-2.11.12";
 
     public TestMeGeneratorSpecs2Test() {
         super(TemplateRegistry.SPECS2_MOCKITO_SCALA_TEMPLATE, "testSpecs2", Language.Scala);
@@ -51,7 +51,7 @@ public class TestMeGeneratorSpecs2Test extends TestMeGeneratorTestBase   {
     }
 
     public void testBean() {
-        doTestWithDefaults();
+        doTest();
     }
     public void testConstants() {
         doTestWithDefaults();

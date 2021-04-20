@@ -1,17 +1,12 @@
 package com.weirddev.testme.intellij.template;
 
-import com.google.common.base.Strings;
 import com.intellij.openapi.diagnostic.Logger;
-import com.weirddev.testme.intellij.HackedRuntimeInstance;
 import com.weirddev.testme.intellij.icon.TemplateIcons;
 import com.weirddev.testme.intellij.template.context.Language;
-import com.weirddev.testme.intellij.utils.ResourceLoader;
-import org.apache.commons.io.FilenameUtils;
 
-import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Date: 10/12/2016

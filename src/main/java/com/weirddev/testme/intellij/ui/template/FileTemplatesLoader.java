@@ -1,6 +1,7 @@
 package com.weirddev.testme.intellij.ui.template;
 
 import com.intellij.ide.fileTemplates.FileTemplateManager;
+import com.intellij.ide.fileTemplates.impl.DefaultTemplate;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.ide.plugins.IdeaPluginDescriptorImpl;
 import com.intellij.ide.plugins.PluginManagerCore;
@@ -14,12 +15,11 @@ import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.project.ProjectKt;
 import com.intellij.util.UriUtil;
 import com.intellij.util.containers.MultiMap;
-import com.intellij.util.lang.UrlClassLoader;
 import com.weirddev.testme.intellij.utils.ResourceLoader;
+import com.weirddev.testme.intellij.utils.UrlClassLoaderUtils;
 import gnu.trove.THashSet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import com.intellij.ide.fileTemplates.impl.DefaultTemplate;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -196,7 +196,7 @@ class FileTemplatesLoader {
   }
 
   private static URL toFullPath(@NotNull URL root, String path) throws MalformedURLException {
-    return UrlClassLoader.internProtocol(new URL(UriUtil.trimTrailingSlashes(root.toExternalForm()) + "/" + path));
+    return UrlClassLoaderUtils.internProtocol(new URL(UriUtil.trimTrailingSlashes(root.toExternalForm()) + "/" + path));
   }
 
   private static boolean matchesPrefix(@NotNull String path, @NotNull String prefix) {
