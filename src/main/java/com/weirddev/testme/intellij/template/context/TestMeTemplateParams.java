@@ -26,22 +26,34 @@ public interface TestMeTemplateParams {
      * instance of {@link com.weirddev.testme.intellij.template.context.TestBuilder}
      * @see TestBuilder
      */
-    String TEST_BUILDER = "TestBuilder";
+    String TestBuilder = "TestBuilder";
     /**
      * instance of {@link com.weirddev.testme.intellij.template.context.StringUtils}
      * @see StringUtils
      */
-    String STRING_UTILS = "StringUtils";
+    String StringUtils = "StringUtils";
     /**
      * instance of {@link com.weirddev.testme.intellij.template.context.MockitoMockBuilder}
      * @see MockitoMockBuilder
      */
-    String MOCKITO_MOCK_BUILDER = "MockitoMockBuilder";
+    String MockitoMockBuilder = "MockitoMockBuilder";
     /**
      * instance of {@link com.weirddev.testme.intellij.template.context.TestSubjectInspector}
      * @see TestSubjectInspector
      */
-    String TEST_SUBJECT_UTILS = "TestSubjectUtils";
+    String TestSubjectUtils = "TestSubjectUtils";
+    /**
+     * JDK version of test module were test is being generated
+     * instance of {@link com.intellij.util.lang.JavaVersion}
+     * @see TestSubjectInspector
+     */
+    String JAVA_VERSION = "JAVA_VERSION";
+    /**
+     * Jar file paths of test module's dependencies
+     * instance of {@link java.util.List<String>}
+     * @see TestSubjectInspector
+     */
+    String TestedClasspathJars = "TestedClasspathJars";
     /**
      * configured max recursion depth for object graph introspection
      * @see FileTemplateConfig#getMaxRecursionDepth()
