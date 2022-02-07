@@ -4,7 +4,10 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.weirddev.testme.intellij.generator.TestBuilderUtil;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nullable;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Utilities for Building string constructs of Mockito mock expressions.
@@ -15,6 +18,7 @@ import java.util.*;
 public class  MockitoMockBuilder {
     private static final Logger LOG = Logger.getInstance(MockitoMockBuilder.class.getName());
     private static final Map<String, String> TYPE_TO_ARG_MATCHERS;
+    private static final Pattern SEMVER_PATTERN = Pattern.compile("^(\\d*)\\.(\\d*)\\.*");
 
     static {
         TYPE_TO_ARG_MATCHERS = new HashMap<>();
@@ -63,14 +67,40 @@ public class  MockitoMockBuilder {
     /**
      * true when mock-maker-inline option is opted-in on the target test module classpath
      */
-    private boolean isMockitoMockMakerInlineOn;
-    private boolean stubMockMethodCallsReturnValues;
-    private TestSubjectInspector testSubjectInspector;
+    private final boolean isMockitoMockMakerInlineOn;
+    private final boolean stubMockMethodCallsReturnValues;
+    private final TestSubjectInspector testSubjectInspector;
+    @Nullable
+    private final String mockitoCoreVersion;
+    private final Integer mockitoCoreMajorVersion;
+    private final Integer mockitoCoreMinorVersion;
 
-    public MockitoMockBuilder(boolean isMockitoMockMakerInlineOn, boolean stubMockMethodCallsReturnValues, TestSubjectInspector testSubjectInspector) {
+    public MockitoMockBuilder(boolean isMockitoMockMakerInlineOn, boolean stubMockMethodCallsReturnValues, TestSubjectInspector testSubjectInspector, @Nullable String mockitoCoreVersion) {
         this.isMockitoMockMakerInlineOn = isMockitoMockMakerInlineOn;
         this.stubMockMethodCallsReturnValues = stubMockMethodCallsReturnValues;
         this.testSubjectInspector = testSubjectInspector;
+        this.mockitoCoreVersion = mockitoCoreVersion;
+        if (mockitoCoreVersion != null) {
+            Matcher matcher = SEMVER_PATTERN.matcher(mockitoCoreVersion);
+            if (matcher.find()) {
+                this.mockitoCoreMajorVersion = safeParseInteger(matcher.group(1));
+                this.mockitoCoreMinorVersion = safeParseInteger(matcher.group(2));
+                return;
+            }
+        }
+        this.mockitoCoreMajorVersion = null;
+        this.mockitoCoreMinorVersion = null;
+
+    }
+
+    private Integer safeParseInteger(String intStr) {
+        if (intStr != null) {
+            try {
+                return Integer.parseInt(intStr);
+            }
+            catch (Exception ignore){}
+        }
+        return null;
     }
 
     /**
@@ -277,4 +307,23 @@ public class  MockitoMockBuilder {
         return WRAPPER_TYPES.contains(type.getCanonicalName());
     }
 
+    /**
+     * Mockito core version. in case mockito-core jar can be found on the target test module classpath. null otherwise
+     */
+    @Nullable
+    public String getMockitoCoreVersion() {
+        return mockitoCoreVersion;
+    }
+
+    /**
+     * @return Mockito init mocks method name. typically "initMocks" or "openMocks" depending on Mockito version
+     */
+    public String getInitMocksMethod() {
+        if (mockitoCoreMajorVersion != null && mockitoCoreMinorVersion != null && ((mockitoCoreMajorVersion == 3  && mockitoCoreMinorVersion >= 4) || mockitoCoreMajorVersion > 3) ) {
+            return "openMocks";
+        }
+        else {
+            return "initMocks";
+        }
+    }
 }

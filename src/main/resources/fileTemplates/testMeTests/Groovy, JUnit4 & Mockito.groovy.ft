@@ -21,7 +21,7 @@ class ${CLASS_NAME} {
 
     @Before
     void setUp() {
-        MockitoAnnotations.initMocks(this)
+        MockitoAnnotations.${MockitoMockBuilder.initMocksMethod}(this)
     }
 #end
 #foreach($method in $TESTED_CLASS.methods)
