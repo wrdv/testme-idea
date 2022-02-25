@@ -43,7 +43,9 @@ public class TestTemplateContextBuilder {
         ctxtParams.put(TestMeTemplateParams.MAX_RECURSION_DEPTH, maxRecursionDepth);
         ctxtParams.put(TestMeTemplateParams.StringUtils, new StringUtils());
         final TypeDictionary typeDictionary = new TypeDictionary(context.getSrcClass(), context.getTargetPackage());
-        ctxtParams.put(TestMeTemplateParams.TestBuilder, new TestBuilderImpl(context.getLanguage(), context.getSrcModule(), typeDictionary, context.getFileTemplateConfig()));
+        JavaVersion javaVersion = getJavaVersion(context.getTestModule());
+        ctxtParams.put(TestMeTemplateParams.JAVA_VERSION, javaVersion);
+        ctxtParams.put(TestMeTemplateParams.TestBuilder, new TestBuilderImpl(context.getLanguage(), context.getSrcModule(), typeDictionary, context.getFileTemplateConfig(), javaVersion));
         final PsiClass targetClass = context.getSrcClass();
         if (targetClass != null && targetClass.isValid()) {
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_LANGUAGE, targetClass.getLanguage().getID());
@@ -55,7 +57,6 @@ public class TestTemplateContextBuilder {
         }
         final TestSubjectInspector testSubjectInspector = new TestSubjectInspector(context.getFileTemplateConfig().isGenerateTestsForInheritedMethods());
         ctxtParams.put(TestMeTemplateParams.TestSubjectUtils, testSubjectInspector);
-        ctxtParams.put(TestMeTemplateParams.JAVA_VERSION, getJavaVersion(context.getTestModule()));
         List<String> classpathJars = resolveClasspathJars(context);
         ctxtParams.put(TestMeTemplateParams.MockitoMockBuilder, mockBuilderFactory.createMockitoMockBuilder(context, testSubjectInspector, classpathJars));
         ctxtParams.put(TestMeTemplateParams.TestedClasspathJars, classpathJars);
