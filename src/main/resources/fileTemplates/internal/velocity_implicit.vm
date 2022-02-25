@@ -1,0 +1,14 @@
+#* @implicitly included *#
+#* @vtlvariable name="TestBuilder" type="com.weirddev.testme.intellij.template.context.TestBuilder" *#
+#* @vtlvariable name="StringUtils" type="com.weirddev.testme.intellij.template.context.StringUtils" *#
+#* @vtlvariable name="testedClass" type="com.weirddev.testme.intellij.template.context.Type" *#
+#* @vtlvariable name="SECOND_NUMERIC" type="java.lang.Integer" *#
+#* @vtlvariable name="MINUTE_NUMERIC" type="java.lang.Integer" *#
+#* @vtlvariable name="HOUR_NUMERIC" type="java.lang.Integer" *#
+#* @vtlvariable name="DAY_NUMERIC" type="java.lang.Integer" *#
+#* @vtlvariable name="MONTH_NAME_EN" type="java.lang.String" *#
+#* @vtlvariable name="YEAR" type="java.lang.String" *#
+#* @vtlvariable name="TestSubjectUtils" type="com.weirddev.testme.intellij.template.context.TestSubjectInspector" *#
+#* @vtlvariable name="CLASS_NAME" type="java.lang.String" *#
+#* @vtlvariable name="MockitoMockBuilder" type="com.weirddev.testme.intellij.template.context.MockitoMockBuilder" *#
+#* /fileTemplates/testMeIncludes/*.ft *#

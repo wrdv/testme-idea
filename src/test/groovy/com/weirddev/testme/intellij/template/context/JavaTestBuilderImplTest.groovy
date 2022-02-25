@@ -3,8 +3,8 @@ package com.weirddev.testme.intellij.template.context
 import com.weirddev.testme.intellij.configuration.TestMeConfig
 import com.weirddev.testme.intellij.template.FileTemplateConfig
 import com.weirddev.testme.intellij.template.context.impl.JavaTestBuilderImpl
-import com.weirddev.testme.intellij.utils.ClassNameUtils
 import spock.lang.Specification
+import spock.lang.Unroll
 
 /**
  * Date: 2/16/2017
@@ -20,48 +20,45 @@ class JavaTestBuilderImplTest extends Specification {
                                        "java.util.NavigableMap": "new java.util.TreeMap<TYPES>(new java.util.HashMap<TYPES>(){{put(<VAL>,<VAL>);}})",
                                        "java.util.List"        : "java.util.Arrays.<TYPES>asList(<VAL>)"
     ]
-    def testBuilder = new JavaTestBuilderImpl(null, TestBuilder.ParamRole.Input, new FileTemplateConfig(new TestMeConfig()), null, null)
 
-    def "stripGenerics"() {
+    @Unroll
+    def "resolveType Output type where canonicalName=#canonicalName and replacementMap=#replacementMap then expect: #result"() {
+        given:
+        def testBuilder = new JavaTestBuilderImpl(null, TestBuilder.ParamRole.Output, new FileTemplateConfig(new TestMeConfig()), null, null)
 
         expect:
-        ClassNameUtils.stripGenerics(canonicalName) == result
+        testBuilder.resolveTypeName(new Type(canonicalName, "Set", "java.util", false, false, false, false, false, []), replacementMap as HashMap) == result
 
         where:
-        canonicalName               | result
-        "java.util.Set"             | "java.util.Set"
-        "java.util.Set<Fire>"       | "java.util.Set"
-        "java.util.Set<List<Fire>>" | "java.util.Set"
+        result                                                              | canonicalName                 | replacementMap
+        "java.util.HashSet<Fire>"                                           | "java.util.Set<Fire>"         | ["java.util.Set": "java.util.HashSet<TYPES>"]
+        "java.util.HashSet<List<Fire>>"                                     | "java.util.Set<List<Fire>>"   | ["java.util.Set": "java.util.HashSet<TYPES>"]
+        "new java.util.HashSet<List<Fire>>(java.util.Arrays.asList(<VAL>))" | "java.util.Set<List<Fire>>"   | ["java.util.SetZ": "java.util.HashSet<TYPES>"]
+        "new java.util.HashSet<List<Fire>>(java.util.Arrays.asList(<VAL>))" | "java.util.Set<List<Fire>>"   | []
+        "java.util.HashSet"                                                 | "java.util.Set<List<Fire>>"   | ["java.util.Set": "java.util.HashSet"]
+        "java.util.Arrays.asList"                                           | "java.util.Set<Fire>"         | ["java.util.Set": "java.util.Arrays.asList"]
+        "HashSet<Fire>"                                                     | "Set<Fire>"                   | ["Set": "HashSet<TYPES>"]
+        "<VAL>"                                                             | "java.util.concurrent.Future" | []
     }
 
-    def "extractGenerics"() {
+    @Unroll
+    def "resolveType Input type where canonicalName=#canonicalName and replacementMap=#replacementMap then expect: #result"() {
+        given:
+        def testBuilder = new JavaTestBuilderImpl(null, TestBuilder.ParamRole.Input, new FileTemplateConfig(new TestMeConfig()), null, null)
 
         expect:
-        ClassNameUtils.extractGenerics(canonicalName) == result
+        testBuilder.resolveTypeName(new Type(canonicalName, "Set", "java.util", false, false, false, false, false, []), replacementMap as HashMap) == result
 
         where:
-        canonicalName               | result
-        "java.util.Set"             | ""
-        "java.util.Set<Fire>"       | "<Fire>"
-        "java.util.Set<List<Fire>>" | "<List<Fire>>"
-    }
-
-    def "resolveType"() {
-        expect:
-        result == testBuilder.resolveTypeName(new Type(canonicalName, "Set", "java.util", false, false, false, false, false, []), replacementMap as HashMap)
-
-        where:
-        result                          | canonicalName               | replacementMap
-        "java.util.HashSet<Fire>"       | "java.util.Set<Fire>"       | ["java.util.Set": "java.util.HashSet<TYPES>"]
-        "java.util.HashSet<List<Fire>>" | "java.util.Set<List<Fire>>" | ["java.util.Set": "java.util.HashSet<TYPES>"]
-        "java.util.Set<List<Fire>>"     | "java.util.Set<List<Fire>>" | ["java.util.SetZ": "java.util.HashSet<TYPES>"]
-        "java.util.Set<List<Fire>>"     | "java.util.Set<List<Fire>>" | []
-        "java.util.HashSet"             | "java.util.Set<List<Fire>>" | ["java.util.Set": "java.util.HashSet"]
-        "java.util.Arrays.asList"       | "java.util.Set<Fire>"       | ["java.util.Set": "java.util.Arrays.asList"]
-        "HashSet<Fire>"                 | "Set<Fire>"                 | ["Set": "HashSet<TYPES>"]
+        result                                                              | canonicalName                 | replacementMap
+        "java.util.HashSet<List<Fire>>"                                     | "java.util.Set<List<Fire>>"   | ["java.util.Set": "java.util.HashSet<TYPES>"]
+        "new java.util.HashSet<List<Fire>>(java.util.Arrays.asList(<VAL>))" | "java.util.Set<List<Fire>>"   | ["java.util.SetZ": "java.util.HashSet<TYPES>"]
+        "java.util.concurrent.CompletableFuture.completedFuture(<VAL>)"     | "java.util.concurrent.Future" | []
     }
 
     def "renderJavaCallParam - generic collection"() {
+        given:
+        def testBuilder = new JavaTestBuilderImpl(null, TestBuilder.ParamRole.Input, new FileTemplateConfig(new TestMeConfig()), null, null)
         expect:
         testBuilder.renderJavaCallParam(type, "paramName", globalReplacementMap, [:]) == result
 

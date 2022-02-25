@@ -252,21 +252,58 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
     protected Method findValidConstructor(Type type, Map<String, String> replacementTypes, boolean hasEmptyConstructor) {
         Method foundCtor = null;
         for (Method method : type.findConstructors()) {
-            if (TestBuilderUtil.isValidConstructor(type, method,hasEmptyConstructor,replacementTypes)) {
+            if (isValidConstructor(type, method,hasEmptyConstructor,replacementTypes)) {
                 foundCtor = method;
                 break;
             }
         }
         return foundCtor;
     }
+
+    public boolean isValidConstructor(Type type, Method constructor, boolean hasEmptyConstructor, Map<String, String> replacementTypes) {
+        if (!constructor.isAccessible() || type.isInterface() || type.isAbstract()) return false;
+        final List<Param> methodParams = constructor.getMethodParams();
+        for (Param methodParam : methodParams) {
+            final Type methodParamType = methodParam.getType();
+            if (methodParamType.equals(type) && hasEmptyConstructor) {
+                return false;
+            }
+            //todo revise this logic - interface param might be resolved to concrete type
+            String canonicalName = methodParamType.getCanonicalName();
+            if ((methodParamType.isInterface() || methodParamType.isAbstract()) && resolveReplacementType(replacementTypes, ClassNameUtils.stripGenerics(canonicalName)) == null && hasEmptyConstructor) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     String resolveTypeName(Type type, Map<String, String> replacementTypes) {
         String canonicalName = type.getCanonicalName();
-        String sanitizedCanonicalName = ClassNameUtils.stripGenerics(canonicalName);
-        if (replacementTypes != null && replacementTypes.get(sanitizedCanonicalName) != null) {
-            String replacedSanitizedCanonicalName = replacementTypes.get(sanitizedCanonicalName);
-            canonicalName = replacedSanitizedCanonicalName.replace("<TYPES>", ClassNameUtils.extractGenerics(canonicalName));
+        String replacementType = resolveReplacementType(replacementTypes, ClassNameUtils.stripGenerics(canonicalName));
+        if (replacementType == null) {
+            return canonicalName;
         }
-        return canonicalName;
+        else {
+            return replacementType.replace("<TYPES>", ClassNameUtils.extractGenerics(canonicalName));
+        }
+    }
+
+    private String resolveReplacementType(Map<String, String> replacementTypes, String canonicalTypeName) {
+        if (replacementTypes != null && replacementTypes.get(canonicalTypeName) != null) { //todo what about replacementTypes for return?
+            return replacementTypes.get(canonicalTypeName); //todo check if java 9
+        } else if (this.paramRole == TestBuilder.ParamRole.Output ) {
+            if(TestBuilderTypes.getLegacyJavaReplacementTypesForReturn().get(canonicalTypeName) != null){
+                return TestBuilderTypes.getLegacyJavaReplacementTypesForReturn().get(canonicalTypeName);
+            }
+            else {
+                return null;
+            }
+        } else if (TestBuilderTypes.getLegacyJavaReplacementTypes().get(canonicalTypeName) != null) {
+            return TestBuilderTypes.getLegacyJavaReplacementTypes().get(canonicalTypeName);
+        }
+        else {
+            return null;
+        }
     }
 
     boolean isPropertyParam(Param param) {
