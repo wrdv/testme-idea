@@ -39,7 +39,7 @@ public class TestBuilderTypes {
         LEGACY_JAVA_REPLACEMENT_TYPES_FOR_RETURN.putAll(LEGACY_JAVA_COLLECTION_TYPES);
         for (String javaFutureType : JAVA_FUTURE_TYPES) {
             LEGACY_JAVA_REPLACEMENT_TYPES.put(javaFutureType, "java.util.concurrent.CompletableFuture.completedFuture(<VAL>)");
-            LEGACY_JAVA_REPLACEMENT_TYPES_FOR_RETURN.put(javaFutureType, "<VAL>");
+            LEGACY_JAVA_REPLACEMENT_TYPES_FOR_RETURN.put(javaFutureType, "<VAL>");  //todo consider handling futures separately and avoid duplicating all replacement types
         }
 
     }

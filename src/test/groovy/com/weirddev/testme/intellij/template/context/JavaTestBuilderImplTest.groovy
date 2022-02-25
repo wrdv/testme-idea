@@ -1,5 +1,6 @@
 package com.weirddev.testme.intellij.template.context
 
+import com.intellij.util.lang.JavaVersion
 import com.weirddev.testme.intellij.configuration.TestMeConfig
 import com.weirddev.testme.intellij.template.FileTemplateConfig
 import com.weirddev.testme.intellij.template.context.impl.JavaTestBuilderImpl
@@ -24,30 +25,49 @@ class JavaTestBuilderImplTest extends Specification {
     @Unroll
     def "resolveType Output type where canonicalName=#canonicalName and replacementMap=#replacementMap then expect: #result"() {
         given:
-        def testBuilder = new JavaTestBuilderImpl(null, TestBuilder.ParamRole.Output, new FileTemplateConfig(new TestMeConfig()), null, null)
+        def testBuilder = new JavaTestBuilderImpl(null, TestBuilder.ParamRole.Output, new FileTemplateConfig(new TestMeConfig()), null, null, JavaVersion.parse("8.0.5"),[:],replacementMap)
 
         expect:
-        testBuilder.resolveTypeName(new Type(canonicalName, "Set", "java.util", false, false, false, false, false, []), replacementMap as HashMap) == result
+        testBuilder.resolveTypeName(new Type(canonicalName, "Set", "java.util", false, false, false, false, false, [])) == result
 
         where:
         result                                                              | canonicalName                 | replacementMap
         "java.util.HashSet<Fire>"                                           | "java.util.Set<Fire>"         | ["java.util.Set": "java.util.HashSet<TYPES>"]
         "java.util.HashSet<List<Fire>>"                                     | "java.util.Set<List<Fire>>"   | ["java.util.Set": "java.util.HashSet<TYPES>"]
         "new java.util.HashSet<List<Fire>>(java.util.Arrays.asList(<VAL>))" | "java.util.Set<List<Fire>>"   | ["java.util.SetZ": "java.util.HashSet<TYPES>"]
-        "new java.util.HashSet<List<Fire>>(java.util.Arrays.asList(<VAL>))" | "java.util.Set<List<Fire>>"   | []
+        "new java.util.HashSet<List<Fire>>(java.util.Arrays.asList(<VAL>))" | "java.util.Set<List<Fire>>"   | [:]
         "java.util.HashSet"                                                 | "java.util.Set<List<Fire>>"   | ["java.util.Set": "java.util.HashSet"]
         "java.util.Arrays.asList"                                           | "java.util.Set<Fire>"         | ["java.util.Set": "java.util.Arrays.asList"]
         "HashSet<Fire>"                                                     | "Set<Fire>"                   | ["Set": "HashSet<TYPES>"]
-        "<VAL>"                                                             | "java.util.concurrent.Future" | []
+        "<VAL>"                                                             | "java.util.concurrent.Future" | [:]
+    }
+    @Unroll
+    def "resolveType JAVA 9 Output type where canonicalName=#canonicalName and replacementMap=#replacementMap then expect: #result"() {
+        given:
+        def testBuilder = new JavaTestBuilderImpl(null, TestBuilder.ParamRole.Output, new FileTemplateConfig(new TestMeConfig()), null, null, JavaVersion.parse("9.0.5"),[:], replacementMap)
+
+        expect:
+        testBuilder.resolveTypeName(new Type(canonicalName, "Set", "java.util", false, false, false, false, false, [])) == result
+
+        where:
+        result                                                              | canonicalName                 | replacementMap
+        "java.util.HashSet<Fire>"                                           | "java.util.Set<Fire>"         | ["java.util.Set": "java.util.HashSet<TYPES>"]
+        "java.util.HashSet<List<Fire>>"                                     | "java.util.Set<List<Fire>>"   | ["java.util.Set": "java.util.HashSet<TYPES>"]
+        "new java.util.HashSet<List<Fire>>(java.util.Arrays.asList(<VAL>))" | "java.util.Set<List<Fire>>"   | ["java.util.SetZ": "java.util.HashSet<TYPES>"]
+        "new java.util.HashSet<List<Fire>>(java.util.Arrays.asList(<VAL>))" | "java.util.Set<List<Fire>>"   | [:]
+        "java.util.HashSet"                                                 | "java.util.Set<List<Fire>>"   | ["java.util.Set": "java.util.HashSet"]
+        "java.util.Arrays.asList"                                           | "java.util.Set<Fire>"         | ["java.util.Set": "java.util.Arrays.asList"]
+        "HashSet<Fire>"                                                     | "Set<Fire>"                   | ["Set": "HashSet<TYPES>"]
+        "<VAL>"                                                             | "java.util.concurrent.Future" | [:]
     }
 
     @Unroll
     def "resolveType Input type where canonicalName=#canonicalName and replacementMap=#replacementMap then expect: #result"() {
         given:
-        def testBuilder = new JavaTestBuilderImpl(null, TestBuilder.ParamRole.Input, new FileTemplateConfig(new TestMeConfig()), null, null)
+        def testBuilder = new JavaTestBuilderImpl(null, TestBuilder.ParamRole.Input, new FileTemplateConfig(new TestMeConfig()), null, null, JavaVersion.parse("8.0.5"),null, replacementMap as HashMap)
 
         expect:
-        testBuilder.resolveTypeName(new Type(canonicalName, "Set", "java.util", false, false, false, false, false, []), replacementMap as HashMap) == result
+        testBuilder.resolveTypeName(new Type(canonicalName, "Set", "java.util", false, false, false, false, false, [])) == result
 
         where:
         result                                                              | canonicalName                 | replacementMap
@@ -58,9 +78,23 @@ class JavaTestBuilderImplTest extends Specification {
 
     def "renderJavaCallParam - generic collection"() {
         given:
-        def testBuilder = new JavaTestBuilderImpl(null, TestBuilder.ParamRole.Input, new FileTemplateConfig(new TestMeConfig()), null, null)
+        def testBuilder = new JavaTestBuilderImpl(null, TestBuilder.ParamRole.Input, new FileTemplateConfig(new TestMeConfig()), null, null,JavaVersion.parse("8.0.5"),[:] as Map,[:] as Map)
         expect:
-        testBuilder.renderJavaCallParam(type, "paramName", globalReplacementMap, [:]) == result
+        testBuilder.renderJavaCallParam(type, "paramName") == result
+
+        where:
+        result                                                                                                                                                    | type
+        "new java.util.LinkedList<java.util.List<com.example.foes.Fear>>(java.util.Arrays.asList(java.util.Arrays.<com.example.foes.Fear>asList(null)))"          | queueWithTypeParams
+        "new java.util.HashSet(java.util.Arrays.asList(\"String\"))"                                                                                              | new Type("java.util.Set", "Set", "java.util", false, false, false, false, false, [])
+        "new java.util.HashMap<java.lang.String,com.example.foes.Fear>(){{put(\"String\",null);}}"                                                                | new Type("java.util.Map<java.lang.String,com.example.foes.Fear>", "Map", "java.util", false, false, false, false, false, [stringType, fearType])
+        "new java.util.HashMap(){{put(\"String\",\"String\");}}"                                                                                                  | new Type("java.util.Map", "Map", "java.util", false, false, false, false, false, [])
+        "new java.util.TreeMap<java.lang.String,com.example.foes.Fear>(new java.util.HashMap<java.lang.String,com.example.foes.Fear>(){{put(\"String\",null);}})" | new Type("java.util.NavigableMap<java.lang.String,com.example.foes.Fear>", "NavigableMap", "java.util", false, false, false, false, false, [stringType, fearType])
+    }
+    def "renderJavaCallParam - JAVA 9 generic collection"() {
+        given:
+        def testBuilder = new JavaTestBuilderImpl(null, TestBuilder.ParamRole.Input, new FileTemplateConfig(new TestMeConfig()), null, null,JavaVersion.parse("9.0.5"),[:] as Map, [:] as Map)
+        expect:
+        testBuilder.renderJavaCallParam(type, "paramName") == result
 
         where:
         result                                                                                                                                                    | type

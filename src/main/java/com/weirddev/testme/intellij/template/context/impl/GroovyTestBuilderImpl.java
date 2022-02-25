@@ -2,6 +2,7 @@ package com.weirddev.testme.intellij.template.context.impl;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
+import com.intellij.util.lang.JavaVersion;
 import com.weirddev.testme.intellij.template.FileTemplateConfig;
 import com.weirddev.testme.intellij.template.TypeDictionary;
 import com.weirddev.testme.intellij.template.context.*;
@@ -22,37 +23,37 @@ import java.util.Map;
 public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
     private static final Logger LOG = Logger.getInstance(GroovyTestBuilderImpl.class.getName());
 
-    public GroovyTestBuilderImpl(Method method, TestBuilder.ParamRole paramRole, FileTemplateConfig fileTemplateConfig, Module srcModule, TypeDictionary typeDictionary) {
-        super(method, paramRole, fileTemplateConfig, srcModule, typeDictionary);
+    public GroovyTestBuilderImpl(Method method, TestBuilder.ParamRole paramRole, FileTemplateConfig fileTemplateConfig, Module srcModule, TypeDictionary typeDictionary, JavaVersion javaVersion, Map<String, String> defaultTypeValues, Map<String, String> typesOverrides) {
+        super(method, paramRole, fileTemplateConfig, srcModule, typeDictionary, javaVersion, defaultTypeValues, typesOverrides);
     }
 
     @Override
-    protected void buildCallParam(Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Param> paramNode) {
+    protected void buildCallParam(StringBuilder testCodeString, Node<Param> paramNode) {
         final Type type = paramNode.getData().getType();
         if (isPropertyParam(paramNode.getData())) {
-            testBuilder.append(paramNode.getData().getName()).append(" : ");
+            testCodeString.append(paramNode.getData().getName()).append(" : ");
         }
         if (type.isArray()) {
-            testBuilder.append("[");
+            testCodeString.append("[");
         }
-        buildJavaParam(replacementTypes, defaultTypeValues, testBuilder, paramNode);
+        buildJavaParam(testCodeString, paramNode);
         if (type.isArray()) {
-            testBuilder.append("] as ").append(type.getCanonicalName()).append("[]");
+            testCodeString.append("] as ").append(type.getCanonicalName()).append("[]");
         }
     }
 
     @Override
-    protected void buildCallParams(Method constructor, List<? extends Param> params, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Param> ownerParamNode) {
+    protected void buildCallParams(Method constructor, List<? extends Param> params, StringBuilder testBuilder, Node<Param> ownerParamNode) {
         final Type parentContainerClass = ownerParamNode.getData()!=null?ownerParamNode.getData().getType().getParentContainerClass():null;
         final boolean isNonStaticNestedClass = parentContainerClass != null && !ownerParamNode.getData().getType().isStatic();
         if (params != null && params.size()>0 || isNonStaticNestedClass) {
             if (isNonStaticNestedClass) {
                 final Node<Param> parentContainerNode = new Node<Param>(new SyntheticParam(parentContainerClass, parentContainerClass.getName(), false), null, ownerParamNode.getDepth());
-                buildCallParam(replacementTypes, defaultTypeValues, testBuilder,parentContainerNode);
+                buildCallParam(testBuilder,parentContainerNode);
                 testBuilder.append(LangTestBuilder.PARAMS_SEPARATOR);
             }
             final int origLength = testBuilder.length();
-            super.buildCallParams(constructor,params, replacementTypes, defaultTypeValues, testBuilder, ownerParamNode);
+            super.buildCallParams(constructor,params, testBuilder, ownerParamNode);
             if (isNonStaticNestedClass) {
                 if (origLength == testBuilder.length()) {
                     testBuilder.delete(testBuilder.length() - LangTestBuilder.PARAMS_SEPARATOR.length(),testBuilder.length());
@@ -61,7 +62,7 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
         } else if(ownerParamNode.getData()!=null){
             List<SyntheticParam> syntheticParams = findProperties(ownerParamNode.getData().getType());
             if (syntheticParams.size() > 0) {
-                buildCallParams(null, syntheticParams, replacementTypes, defaultTypeValues, testBuilder, ownerParamNode);
+                buildCallParams(null, syntheticParams, testBuilder, ownerParamNode);
             }
         }
     }
@@ -103,8 +104,8 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
 
     @Nullable
     @Override
-    protected Method findValidConstructor(Type type, Map<String, String> replacementTypes, boolean hasEmptyConstructor) {
-        final Method constructor = super.findValidConstructor(type, replacementTypes, hasEmptyConstructor);
+    protected Method findValidConstructor(Type type, boolean hasEmptyConstructor) {
+        final Method constructor = super.findValidConstructor(type, hasEmptyConstructor);
         if (constructor == null) {
             return null;
         } else if (hasEmptyConstructor) {

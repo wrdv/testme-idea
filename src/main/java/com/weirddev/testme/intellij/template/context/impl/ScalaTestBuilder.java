@@ -1,7 +1,7 @@
 package com.weirddev.testme.intellij.template.context.impl;
 
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
+import com.intellij.util.lang.JavaVersion;
 import com.weirddev.testme.intellij.template.FileTemplateConfig;
 import com.weirddev.testme.intellij.template.TypeDictionary;
 import com.weirddev.testme.intellij.template.context.*;
@@ -17,11 +17,10 @@ import java.util.Map;
  */
 public class ScalaTestBuilder extends JavaTestBuilderImpl {
 
-    private static final Logger LOG = Logger.getInstance(ScalaTestBuilder.class.getName());
     public static final String VALUE_TYPE_SUFFIX = ".Value";
 
-    public ScalaTestBuilder(Method testedMethod, TestBuilder.ParamRole paramRole, FileTemplateConfig fileTemplateConfig, Module srcModule, TypeDictionary typeDictionary) {
-        super(testedMethod, paramRole, fileTemplateConfig, srcModule, typeDictionary);
+    public ScalaTestBuilder(Method testedMethod, TestBuilder.ParamRole paramRole, FileTemplateConfig fileTemplateConfig, Module srcModule, TypeDictionary typeDictionary, JavaVersion javaVersion, Map<String, String> defaultTypeValues, Map<String, String> typesOverrides) {
+        super(testedMethod, paramRole, fileTemplateConfig, srcModule, typeDictionary, javaVersion, defaultTypeValues, typesOverrides);
     }
 
     @NotNull
@@ -35,20 +34,20 @@ public class ScalaTestBuilder extends JavaTestBuilderImpl {
         return NEW_INITIALIZER;
     }
     @Override
-    protected void buildCallParam(Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Param> paramNode) {
+    protected void buildCallParam(StringBuilder testCodeString, Node<Param> paramNode) {
         final Type type = paramNode.getData().getType();
         if (type.isArray()) {
-            testBuilder.append("Array(");
+            testCodeString.append("Array(");
         }
         final Type parentContainerClass = type.getParentContainerClass();
         if (parentContainerClass != null && !type.isStatic()) {
             final Node<Param> parentContainerNode = new Node<Param>(new SyntheticParam(parentContainerClass, parentContainerClass.getName(), false), null, paramNode.getDepth());
-            buildCallParam(replacementTypes, defaultTypeValues, testBuilder,parentContainerNode);
-            testBuilder.append(".");
+            buildCallParam(testCodeString,parentContainerNode);
+            testCodeString.append(".");
         }
-        buildJavaParam(replacementTypes, defaultTypeValues, testBuilder,paramNode);
+        buildJavaParam(testCodeString,paramNode);
         if (type.isArray()) {
-            testBuilder.append(")");
+            testCodeString.append(")");
         }
     }
 
