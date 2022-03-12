@@ -30,6 +30,7 @@ import java.util.Map;
 public class JavaTestBuilderImpl implements LangTestBuilder {
     private static final Logger LOG = Logger.getInstance(JavaTestBuilderImpl.class.getName());
     private static final Type DEFAULT_STRING_TYPE = new Type("java.lang.String", "String", "java.lang", false, false, false, false, false, new ArrayList<>());
+    private static final int JAVA_9_VERSION = 9;
     private final TestBuilder.ParamRole paramRole;
     private final Method testedMethod;
     protected final String NEW_INITIALIZER = "new ";
@@ -295,20 +296,32 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
     }
 
     private String resolveConcreteType(String canonicalTypeName) {
-        if (typesOverrides != null && typesOverrides.get(canonicalTypeName) != null) { //todo what about typesOverrides for return?
-            return typesOverrides.get(canonicalTypeName); //todo check if java 9
-        } else if (this.paramRole == TestBuilder.ParamRole.Output ) {
-            if(TestBuilderTypes.getLegacyJavaReplacementTypesForReturn().get(canonicalTypeName) != null){
-                return TestBuilderTypes.getLegacyJavaReplacementTypesForReturn().get(canonicalTypeName);
-            }
-            else {
-                return null;
-            }
-        } else if (TestBuilderTypes.getLegacyJavaReplacementTypes().get(canonicalTypeName) != null) {
-            return TestBuilderTypes.getLegacyJavaReplacementTypes().get(canonicalTypeName);
+        if (typesOverrides != null && typesOverrides.get(canonicalTypeName) != null) {
+            return typesOverrides.get(canonicalTypeName);
+        }
+        if (this.paramRole == TestBuilder.ParamRole.Output ) {
+            return resolveConcreteTypeForReturn(canonicalTypeName);
         }
         else {
-            return null;
+            return resolveConcreteTypeForInput(canonicalTypeName);
+        }
+    }
+
+    private String resolveConcreteTypeForInput(String canonicalTypeName) {
+        if (javaVersion.isAtLeast(JAVA_9_VERSION)) {
+            return TestBuilderTypes.getJava9ReplacementTypes().get(canonicalTypeName);
+        }
+        else {
+            return TestBuilderTypes.getLegacyJavaReplacementTypes().get(canonicalTypeName);
+        }
+    }
+
+    private String resolveConcreteTypeForReturn(String canonicalTypeName) {
+        if (javaVersion.isAtLeast(JAVA_9_VERSION)) {
+            return TestBuilderTypes.getJava9ReplacementTypesForReturn().get(canonicalTypeName);
+        }
+        else {
+            return TestBuilderTypes.getLegacyJavaReplacementTypesForReturn().get(canonicalTypeName);
         }
     }
 

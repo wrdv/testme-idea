@@ -29,32 +29,32 @@ public class FooTest {
 
     @Test
     public void testFight() throws Exception {
-        List<Fire> result = foo.fight(Arrays.<Fire>asList(new Fire()), new HashSet<Fire>(Arrays.asList(new Fire())), new HashMap<String, Ice>(){{put("String",new Ice());}}, Arrays.<String>asList("String"), Arrays.<List<String>>asList(Arrays.<String>asList("String")), new LinkedList<List<Fear>>(Arrays.asList(Arrays.<Fear>asList(new Fear()))), new LinkedList<Fear>(Arrays.asList(new Fear())));
-        Assert.assertEquals(Arrays.<Fire>asList(new Fire()), result);
+        List<Fire> result = foo.fight(List.of(new Fire()), Set.of(new Fire()), Map.of("String",new Ice()), List.of("String"), List.of(List.of("String")), new LinkedList<>(List.of(List.of(new Fear()))), new LinkedList<>(List.of(new Fear())));
+        Assert.assertEquals(List.of(new Fire()), result);
     }
 
     @Test
     public void testFightConcreteTypes() throws Exception {
-        List<Fire> result = foo.fightConcreteTypes(new ArrayList<Fire>(Arrays.asList(new Fire())), new HashSet<Fire>(Arrays.asList(new Fire())), new HashMap<String, Ice>(){{put("String",new Ice());}}, new Vector(Arrays.asList(Arrays.<String>asList("String"))), new TreeSet<Fear>(Arrays.asList(new Fear())), new Stack<Fear>(){{push(new Fear());}});
-        Assert.assertEquals(Arrays.<Fire>asList(new Fire()), result);
+        List<Fire> result = foo.fightConcreteTypes(new ArrayList<>(List.of(new Fire())), new HashSet<>(List.of(new Fire())), new HashMap<>(Map.of("String",new Ice())), new Vector<>(List.of(List.of("String"))), new TreeSet<>(List.of(new Fear())), new Stack<>(){{push(new Fear());}});
+        Assert.assertEquals(List.of(new Fire()), result);
     }
 
     @Test
     public void testTypeless() throws Exception {
-        List result = foo.typeless(Arrays.asList("String"), new HashSet(Arrays.asList("String")), new HashMap(){{put("String","String");}}, Arrays.asList("String"), Arrays.<List>asList(Arrays.asList("String")), new LinkedList<List>(Arrays.asList(Arrays.asList("String"))));
-        Assert.assertEquals(Arrays.asList("String"), result);
+        List result = foo.typeless(List.of("String"), Set.of("String"), Map.of("String","String"), List.of("String"), List.of(List.of("String")), new LinkedList<>(List.of(List.of("String"))));
+        Assert.assertEquals(List.of("String"), result);
     }
 
     @Test
     public void testMiscColls() throws Exception {
-        NavigableMap<String, Fire> result = foo.miscColls(new TreeMap<String, Fire>(new HashMap<String, Fire>(){{put("String",new Fire());}}), new TreeSet<Fire>(Arrays.asList(new Fire())), new Vector(Arrays.asList("String")), new TreeSet<Fire>(Arrays.asList(new Fire())));
-        Assert.assertEquals(new TreeMap<String, Fire>(new HashMap<String, Fire>(){{put("String",new Fire());}}), result);
+        NavigableMap<String, Fire> result = foo.miscColls(new TreeMap<>(Map.of("String",new Fire())), new TreeSet<>(List.of(new Fire())), new Vector<>(List.of("String")), new TreeSet<>(List.of(new Fire())));
+        Assert.assertEquals(new TreeMap<>(Map.of("String",new Fire())), result);
     }
 
     @Test
     public void testObjectMaps() throws Exception {
-        HashMap<Fire, Fire> result = foo.objectMaps(new TreeMap<Boolean, String>(new HashMap<Boolean, String>(){{put(Boolean.TRUE,"String");}}), new HashMap<Integer, Boolean>(){{put(Integer.valueOf(0),Boolean.TRUE);}}, new HashMap<Fire, Fire>(){{put(new Fire(),new Fire());}});
-        Assert.assertEquals(new HashMap<Fire, Fire>(){{put(new Fire(),new Fire());}}, result);
+        HashMap<Fire, Fire> result = foo.objectMaps(new TreeMap<>(Map.of(Boolean.TRUE,"String")), Map.of(Integer.valueOf(0),Boolean.TRUE), new HashMap<>(Map.of(new Fire(),new Fire())));
+        Assert.assertEquals(new HashMap<>(Map.of(new Fire(),new Fire())), result);
     }
 }
 
