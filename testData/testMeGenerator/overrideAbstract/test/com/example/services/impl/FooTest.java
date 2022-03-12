@@ -5,8 +5,6 @@ import com.example.foes.Ice;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,9 +23,7 @@ public class FooTest {
     @Test
     public void testU2() throws Exception {
         Map<Ice, Fire> result = foo.u2();
-        Assert.assertEquals(new HashMap<Ice, Fire>() {{
-            put(new Ice(), new Fire());
-        }}, result);
+        Assert.assertEquals(Map.of(new Ice(), new Fire()), result);
     }
 
     @Test
@@ -44,7 +40,7 @@ public class FooTest {
     @Test
     public void testGetMeMyTees() throws Exception {
         List<Fire> result = foo.getMeMyTees(new Fire());
-        Assert.assertEquals(Arrays.<Fire>asList(new Fire()), result);
+        Assert.assertEquals(List.of(new Fire()), result);
     }
 }
 
