@@ -17,4 +17,10 @@ public class Foo{
         return new int[]{fires.length};
     }
 
+    public String routerSearch(String dstIp, String[][] ipTable){
+        return ipTable[0][0];
+    }
+    public String a3dimSearch(String dstIp, String[][][] ipTable){
+        return ipTable[0][0][0];
+    }
 }
