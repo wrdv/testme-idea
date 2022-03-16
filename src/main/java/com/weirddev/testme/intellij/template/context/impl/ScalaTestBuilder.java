@@ -36,8 +36,9 @@ public class ScalaTestBuilder extends JavaTestBuilderImpl {
     @Override
     protected void buildCallParam(StringBuilder testCodeString, Node<Param> paramNode) {
         final Type type = paramNode.getData().getType();
+        int arrayDimensions = type.getArrayDimensions();
         if (type.isArray()) {
-            testCodeString.append("Array(");
+            testCodeString.append("Array(".repeat(arrayDimensions));
         }
         final Type parentContainerClass = type.getParentContainerClass();
         if (parentContainerClass != null && !type.isStatic()) {
@@ -47,7 +48,7 @@ public class ScalaTestBuilder extends JavaTestBuilderImpl {
         }
         buildJavaParam(testCodeString,paramNode);
         if (type.isArray()) {
-            testCodeString.append(")");
+            testCodeString.append(")".repeat(arrayDimensions));
         }
     }
 

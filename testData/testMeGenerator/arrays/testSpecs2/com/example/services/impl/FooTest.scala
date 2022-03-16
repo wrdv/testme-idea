@@ -23,6 +23,16 @@ class FooTest extends Specification {
         result === Array(1)
       }
 
+      "router Search" in {
+        val result = foo.routerSearch("dstIp", Array(Array("ipTable")))
+        result === "replaceMeWithExpectedResult"
+      }
+
+      "a3dim Search" in {
+        val result = foo.a3dimSearch("dstIp", Array(Array(Array("ipTable"))))
+        result === "replaceMeWithExpectedResult"
+      }
+
   }
 }
 

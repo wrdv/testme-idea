@@ -33,12 +33,13 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
         if (isPropertyParam(paramNode.getData())) {
             testCodeString.append(paramNode.getData().getName()).append(" : ");
         }
+        int arrayDimensions = type.getArrayDimensions();
         if (type.isArray()) {
-            testCodeString.append("[");
+            testCodeString.append("[".repeat(arrayDimensions));
         }
         buildJavaParam(testCodeString, paramNode);
         if (type.isArray()) {
-            testCodeString.append("] as ").append(type.getCanonicalName()).append("[]");
+            testCodeString.append("]".repeat(arrayDimensions)).append(" as ").append(type.getCanonicalName()).append("[]".repeat(arrayDimensions));
         }
     }
 

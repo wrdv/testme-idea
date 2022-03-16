@@ -29,7 +29,7 @@ import java.util.Map;
  */
 public class JavaTestBuilderImpl implements LangTestBuilder {
     private static final Logger LOG = Logger.getInstance(JavaTestBuilderImpl.class.getName());
-    private static final Type DEFAULT_STRING_TYPE = new Type("java.lang.String", "String", "java.lang", false, false, false, false, false, new ArrayList<>());
+    private static final Type DEFAULT_STRING_TYPE = new Type("java.lang.String", "String", "java.lang", false, false, false, false, 0, false, new ArrayList<>());
     private static final int JAVA_9_VERSION = 9;
     private final TestBuilder.ParamRole paramRole;
     private final Method testedMethod;
@@ -68,8 +68,11 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
 
     protected void buildCallParam(StringBuilder testCodeString, Node<Param> paramNode) {
         final Type type = paramNode.getData().getType();
+        int arrayDimensions = type.getArrayDimensions();
         if (type.isArray()) {
-            testCodeString.append(NEW_INITIALIZER).append(type.getCanonicalName()).append("[]{");
+            for (int i = arrayDimensions; i > 0; i--) {
+                testCodeString.append(NEW_INITIALIZER).append(type.getCanonicalName()).append("[]".repeat(i)).append("{");
+            }
         }
         final Type parentContainerClass = type.getParentContainerClass();
         if (parentContainerClass != null && !type.isStatic()) {
@@ -79,7 +82,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
         }
         buildJavaParam(testCodeString,paramNode);
         if (type.isArray()) {
-            testCodeString.append("}");
+            testCodeString.append("}".repeat(arrayDimensions));
         }
     }
     void buildJavaParam(StringBuilder testBuilder, Node<Param> paramNode) {

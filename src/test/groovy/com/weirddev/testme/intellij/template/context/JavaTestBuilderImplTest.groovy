@@ -12,9 +12,9 @@ import spock.lang.Unroll
  * @author Yaron Yamin
  */
 class JavaTestBuilderImplTest extends Specification {
-    static Type fearType = new Type("com.example.foes.Fear", "Fear", "com.example.foes", false, false, false, false, false, [])
-    static Type stringType = new Type("java.lang.String", "String", "java.lang", false, false, false, false, false, [])
-    static Type queueWithTypeParams = new Type("java.util.Queue<java.util.List<com.example.foes.Fear>>", "Queue<List<Fear>>", "java.util", false, false, false, false, false, [new Type("java.util.List<com.example.foes.Fear>", "List<Fear>", "java.util", false, false, false, false, false, [fearType])])
+    static Type fearType = new Type("com.example.foes.Fear", "Fear", "com.example.foes", false, false, false, false, 0, false, [])
+    static Type stringType = new Type("java.lang.String", "String", "java.lang", false, false, false, false, 0, false, [])
+    static Type queueWithTypeParams = new Type("java.util.Queue<java.util.List<com.example.foes.Fear>>", "Queue<List<Fear>>", "java.util", false, false, false, false, 0, false, [new Type("java.util.List<com.example.foes.Fear>", "List<Fear>", "java.util", false, false, false, false, 0, false, [fearType])])
     static Map globalReplacementMap = ["java.util.Queue"       : "new java.util.LinkedList<TYPES>(java.util.Arrays.asList(<VAL>))",
                                        "java.util.Set"         : "new java.util.HashSet<TYPES>(java.util.Arrays.asList(<VAL>))",
                                        "java.util.Map"         : "new java.util.HashMap<TYPES>(){{put(<VAL>,<VAL>);}}",
@@ -28,7 +28,7 @@ class JavaTestBuilderImplTest extends Specification {
         def testBuilder = new JavaTestBuilderImpl(null, TestBuilder.ParamRole.Output, new FileTemplateConfig(new TestMeConfig()), null, null, JavaVersion.parse("8.0.5"), [:], replacementMap)
 
         expect:
-        testBuilder.resolveTypeName(new Type(canonicalName, "Set", "java.util", false, false, false, false, false, [])) == result
+        testBuilder.resolveTypeName(new Type(canonicalName, "Set", "java.util", false, false, false, false, 0, false, [])) == result
 
         where:
         result                                                              | canonicalName                 | replacementMap
@@ -48,7 +48,7 @@ class JavaTestBuilderImplTest extends Specification {
         def testBuilder = new JavaTestBuilderImpl(null, TestBuilder.ParamRole.Output, new FileTemplateConfig(new TestMeConfig()), null, null, JavaVersion.parse("9.0.5"), [:], replacementMap)
 
         expect:
-        testBuilder.resolveTypeName(new Type(canonicalName, "Set", "java.util", false, false, false, false, false, [])) == result
+        testBuilder.resolveTypeName(new Type(canonicalName, "Set", "java.util", false, false, false, false, 0, false, [])) == result
 
         where:
         result                          | canonicalName                 | replacementMap
@@ -68,7 +68,7 @@ class JavaTestBuilderImplTest extends Specification {
         def testBuilder = new JavaTestBuilderImpl(null, TestBuilder.ParamRole.Input, new FileTemplateConfig(new TestMeConfig()), null, null, JavaVersion.parse("8.0.5"), null, replacementMap as HashMap)
 
         expect:
-        testBuilder.resolveTypeName(new Type(canonicalName, "Set", "java.util", false, false, false, false, false, [])) == result
+        testBuilder.resolveTypeName(new Type(canonicalName, "Set", "java.util", false, false, false, false, 0, false, [])) == result
 
         where:
         result                                                              | canonicalName                 | replacementMap
@@ -86,10 +86,10 @@ class JavaTestBuilderImplTest extends Specification {
         where:
         result                                                                                                                                                    | type
         "new java.util.LinkedList<java.util.List<com.example.foes.Fear>>(java.util.Arrays.asList(java.util.Arrays.<com.example.foes.Fear>asList(null)))"          | queueWithTypeParams
-        "new java.util.HashSet(java.util.Arrays.asList(\"String\"))"                                                                                              | new Type("java.util.Set", "Set", "java.util", false, false, false, false, false, [])
-        "new java.util.HashMap<java.lang.String,com.example.foes.Fear>(){{put(\"String\",null);}}"                                                                | new Type("java.util.Map<java.lang.String,com.example.foes.Fear>", "Map", "java.util", false, false, false, false, false, [stringType, fearType])
-        "new java.util.HashMap(){{put(\"String\",\"String\");}}"                                                                                                  | new Type("java.util.Map", "Map", "java.util", false, false, false, false, false, [])
-        "new java.util.TreeMap<java.lang.String,com.example.foes.Fear>(new java.util.HashMap<java.lang.String,com.example.foes.Fear>(){{put(\"String\",null);}})" | new Type("java.util.NavigableMap<java.lang.String,com.example.foes.Fear>", "NavigableMap", "java.util", false, false, false, false, false, [stringType, fearType])
+        "new java.util.HashSet(java.util.Arrays.asList(\"String\"))"                                                                                              | new Type("java.util.Set", "Set", "java.util", false, false, false, false, 0, false, [])
+        "new java.util.HashMap<java.lang.String,com.example.foes.Fear>(){{put(\"String\",null);}}"                                                                | new Type("java.util.Map<java.lang.String,com.example.foes.Fear>", "Map", "java.util", false, false, false, false, 0, false, [stringType, fearType])
+        "new java.util.HashMap(){{put(\"String\",\"String\");}}"                                                                                                  | new Type("java.util.Map", "Map", "java.util", false, false, false, false, 0, false, [])
+        "new java.util.TreeMap<java.lang.String,com.example.foes.Fear>(new java.util.HashMap<java.lang.String,com.example.foes.Fear>(){{put(\"String\",null);}})" | new Type("java.util.NavigableMap<java.lang.String,com.example.foes.Fear>", "NavigableMap", "java.util", false, false, false, false, 0, false, [stringType, fearType])
     }
 
     def "renderJavaCallParam - JAVA 9 generic collection"() {
@@ -101,9 +101,9 @@ class JavaTestBuilderImplTest extends Specification {
         where:
         result                                                                   | type
         "new java.util.LinkedList<>(java.util.List.of(java.util.List.of(null)))" | queueWithTypeParams
-        "java.util.Set.of(\"String\")"                                           | new Type("java.util.Set", "Set", "java.util", false, false, false, false, false, [])
-        "java.util.Map.of(\"String\",null)"                                      | new Type("java.util.Map<java.lang.String,com.example.foes.Fear>", "Map", "java.util", false, false, false, false, false, [stringType, fearType])
-        "java.util.Map.of(\"String\",\"String\")"                                | new Type("java.util.Map", "Map", "java.util", false, false, false, false, false, [])
-        "new java.util.TreeMap<>(java.util.Map.of(\"String\",null))"             | new Type("java.util.NavigableMap<java.lang.String,com.example.foes.Fear>", "NavigableMap", "java.util", false, false, false, false, false, [stringType, fearType])
+        "java.util.Set.of(\"String\")"                                           | new Type("java.util.Set", "Set", "java.util", false, false, false, false, 0, false, [])
+        "java.util.Map.of(\"String\",null)"                                      | new Type("java.util.Map<java.lang.String,com.example.foes.Fear>", "Map", "java.util", false, false, false, false, 0, false, [stringType, fearType])
+        "java.util.Map.of(\"String\",\"String\")"                                | new Type("java.util.Map", "Map", "java.util", false, false, false, false, 0, false, [])
+        "new java.util.TreeMap<>(java.util.Map.of(\"String\",null))"             | new Type("java.util.NavigableMap<java.lang.String,com.example.foes.Fear>", "NavigableMap", "java.util", false, false, false, false, 0, false, [stringType, fearType])
     }
 }
