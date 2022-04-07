@@ -209,25 +209,22 @@ public class Type {
     }
 
     public void resolveDependencies(@Nullable TypeDictionary typeDictionary, int maxRecursionDepth, PsiType psiType, boolean shouldResolveAllMethods) {
-        resolveDependencies(typeDictionary, maxRecursionDepth, PsiUtil.resolveClassInType(psiType), psiType.getCanonicalText(), shouldResolveAllMethods);
-    }
-
-    public void resolveDependencies(@Nullable TypeDictionary typeDictionary, int maxRecursionDepth, PsiClass psiClass, String canonicalText, boolean shouldResolveAllMethods) {
-        if (psiClass != null && maxRecursionDepth>0 && !canonicalText.startsWith("java.") && !canonicalText.startsWith("scala.") /*todo consider replacing with just java.util.* || java.lang.*  */&& typeDictionary!=null) {
+        PsiClass psiClass = PsiUtil.resolveClassInType(psiType);
+        String canonicalText = psiType.getCanonicalText();
+        if (psiClass != null && maxRecursionDepth >0 && !canonicalText.startsWith("java.") && !canonicalText.startsWith("scala.") /*todo consider replacing with just java.util.* || java.lang.*  */&& typeDictionary !=null) {
             if (psiClass.getConstructors().length == 0) {
                  hasDefaultConstructor=true; //todo check if parent ctors are also retrieved by getConstructors()
             }
-            final PsiMethod[] methods = psiClass.getAllMethods();
-                for (PsiMethod psiMethod : methods) {
+            for (PsiMethod psiMethod : psiClass.getAllMethods()) {
                     if ( (shouldResolveAllMethods || ( PropertyUtils.isPropertySetter(psiMethod) || PropertyUtils.isPropertyGetter(psiMethod)) && !isGroovyLangProperty(psiMethod) || psiMethod.isConstructor()) && Method.isRelevant(psiClass, psiMethod)){
-                        final Method method = new Method(psiMethod, psiClass, maxRecursionDepth - 1, typeDictionary);
+                        final Method method = new Method(psiMethod, psiClass, maxRecursionDepth - 1, typeDictionary, psiType);
                         method.resolveInternalReferences(psiMethod, typeDictionary);
                         this.methods.add(method);
                     }
 
                 }
-            resolveFields(psiClass,typeDictionary,maxRecursionDepth - 1);
-            resolveImplementedInterfaces(psiClass,typeDictionary,shouldResolveAllMethods,maxRecursionDepth - 1);
+            resolveFields(psiClass, typeDictionary, maxRecursionDepth - 1);
+            resolveImplementedInterfaces(psiClass, typeDictionary, shouldResolveAllMethods, maxRecursionDepth - 1);
             dependenciesResolved=true;
         }
     }
@@ -302,17 +299,11 @@ public class Type {
                             psiClass = ScalaPsiTreeUtils.resolvePsiClass(canonicalText,project,null);
                         }
                         if (psiClass == null) {
-//                        else{
                             types.add(typeDictionary.getType(psiTypeArg, maxRecursionDepth, false, composedElement));
                         } else {
                             types.add(typeDictionary.getType(psiClass, maxRecursionDepth, false));
                         }
                     }
-//                } else {
-//                    for (PsiClass psiClass : psiClasses) {
-//                        types.add(typeDictionary.getType(psiClass, maxRecursionDepth, false));
-//                    }
-//                }
             }
         }
         return types;

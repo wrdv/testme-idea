@@ -1,5 +1,7 @@
 package com.example.services.impl
 
+import com.example.beans.Result
+import com.example.beans.ResultPage
 import com.example.foes.Fire
 import com.example.foes.Ice
 import com.example.foes.Pokemon
@@ -65,6 +67,24 @@ class FooTest extends Specification {
         where:
         up                                            | coolDown                                     || expectedResult
         CompletableFuture.completedFuture(new Fire()) | CompletableFuture.completedFuture(new Ice()) || 0
+    }
+
+    @Unroll
+    def "find"() {
+        expect:
+        foo.find() == expectedResult
+
+        where:
+        expectedResult << new ResultPage<Pokemon>(0, [new Pokemon()])
+    }
+
+    @Unroll
+    def "resolve Result"() {
+        expect:
+        foo.resolveResult() == expectedResult
+
+        where:
+        expectedResult << new Result<Pokemon>(new Pokemon())
     }
 }
 

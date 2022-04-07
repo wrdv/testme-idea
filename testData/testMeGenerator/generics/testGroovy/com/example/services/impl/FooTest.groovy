@@ -1,5 +1,7 @@
 package com.example.services.impl
 
+import com.example.beans.Result
+import com.example.beans.ResultPage
 import com.example.foes.Fire
 import com.example.foes.Ice
 import com.example.foes.Pokemon
@@ -51,6 +53,18 @@ class FooTest {
     void testWarm() {
         CompletableFuture<Integer> result = foo.warm(CompletableFuture.completedFuture(new Fire()), CompletableFuture.completedFuture(new Ice()))
         assert result.get() == 0
+    }
+
+    @Test
+    void testFind() {
+        ResultPage<Pokemon> result = foo.find()
+        assert result == new ResultPage<Pokemon>(0, [new Pokemon()])
+    }
+
+    @Test
+    void testResolveResult() {
+        Result<Pokemon> result = foo.resolveResult()
+        assert result == new Result<Pokemon>(new Pokemon())
     }
 }
 
