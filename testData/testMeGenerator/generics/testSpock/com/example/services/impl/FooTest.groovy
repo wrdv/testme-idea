@@ -1,5 +1,7 @@
 package com.example.services.impl
 
+import com.example.beans.Result
+import com.example.beans.ResultPage
 import com.example.foes.Fire
 import com.example.foes.Ice
 import com.example.foes.Pokemon
@@ -58,6 +60,22 @@ class FooTest extends Specification {
 
         then:
         result.get() == 0
+    }
+
+    def "test find"() {
+        when:
+        ResultPage<Pokemon> result = foo.find()
+
+        then:
+        result == new ResultPage<Pokemon>(0, [new Pokemon()])
+    }
+
+    def "test resolve Result"() {
+        when:
+        Result<Pokemon> result = foo.resolveResult()
+
+        then:
+        result == new Result<Pokemon>(new Pokemon())
     }
 }
 

@@ -1,5 +1,7 @@
 package com.example.services.impl;
 
+import com.example.beans.Result;
+import com.example.beans.ResultPage;
 import com.example.foes.Fire;
 import com.example.foes.Ice;
 import com.example.foes.Pokemon;
@@ -57,6 +59,18 @@ public class FooTest {
     public void testWarm() throws Exception {
         CompletableFuture<Integer> result = foo.warm(CompletableFuture.completedFuture(new Fire()), CompletableFuture.completedFuture(new Ice()));
         Assert.assertEquals(Integer.valueOf(0), result.get());
+    }
+
+    @Test
+    public void testFind() throws Exception {
+        ResultPage<Pokemon> result = foo.find();
+        Assert.assertEquals(new ResultPage<Pokemon>(0, List.of(new Pokemon())), result);
+    }
+
+    @Test
+    public void testResolveResult() throws Exception {
+        Result<Pokemon> result = foo.resolveResult();
+        Assert.assertEquals(new Result<Pokemon>(new Pokemon()), result);
     }
 }
 

@@ -6,6 +6,8 @@ import com.example.foes.Fire;
 import com.example.foes.Ice;
 import com.example.foes.Pokemon;
 import com.example.warriers.FooFighter;
+import com.example.beans.Result;
+import com.example.beans.ResultPage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,5 +47,13 @@ public class Foo{
     }
     public CompletableFuture<Integer> warm(Future<Fire> up,FutureTask<Ice> coolDown){
         return CompletableFuture.completedFuture(666)
+    }
+
+    public ResultPage<Pokemon> find(){
+        return new ResultPage<Pokemon>(4,List.of(new Pokemon()))
+    }
+
+    public Result<Pokemon> resolveResult(){
+        return new Result<>(new Pokemon());
     }
 }
