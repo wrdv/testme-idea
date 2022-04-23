@@ -25,6 +25,18 @@ class FooTest {
         int[] result = foo.fireCounter([new Fire()] as Fire[])
         assert result == [0] as int[]
     }
+
+    @Test
+    void testRouterSearch() {
+        String result = foo.routerSearch("dstIp", [["ipTable"]] as String[][])
+        assert result == "replaceMeWithExpectedResult"
+    }
+
+    @Test
+    void testA3dimSearch() {
+        String result = foo.a3dimSearch("dstIp", [[["ipTable"]]] as String[][][])
+        assert result == "replaceMeWithExpectedResult"
+    }
 }
 
 //Generated with love by TestMe :) Please report issues and submit feature requests at: http://weirddev.com/forum#!/testme

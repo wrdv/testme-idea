@@ -8,6 +8,7 @@ import com.intellij.openapi.module.Module;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiClassType;
+import com.intellij.util.lang.JavaVersion;
 import com.weirddev.testme.intellij.generator.TestBuilderUtil;
 import com.weirddev.testme.intellij.template.FileTemplateConfig;
 import com.weirddev.testme.intellij.template.TypeDictionary;
@@ -28,54 +29,63 @@ import java.util.Map;
  */
 public class JavaTestBuilderImpl implements LangTestBuilder {
     private static final Logger LOG = Logger.getInstance(JavaTestBuilderImpl.class.getName());
-    private static Type DEFAULT_STRING_TYPE = new Type("java.lang.String", "String", "java.lang", false, false, false, false, false, new ArrayList<>());
-    private final TestBuilder.ParamRole paramRole; //todo consider removing. not used anymore
+    private static final Type DEFAULT_STRING_TYPE = new Type("java.lang.String", "String", "java.lang", false, false, false, false, 0, false, new ArrayList<>());
+    private static final int JAVA_9_VERSION = 9;
+    private final TestBuilder.ParamRole paramRole;
     private final Method testedMethod;
     protected final String NEW_INITIALIZER = "new ";
-    private Module srcModule;
-    private TypeDictionary typeDictionary;
+    private final Module srcModule;
+    private final TypeDictionary typeDictionary;
     protected FileTemplateConfig fileTemplateConfig;
+    private JavaVersion javaVersion;
+    private final Map<String, String> defaultTypeValues;
+    private final Map<String, String> typesOverrides;
 
-    public JavaTestBuilderImpl(Method testedMethod, TestBuilder.ParamRole paramRole, FileTemplateConfig fileTemplateConfig, Module srcModule, TypeDictionary typeDictionary) {
+    public JavaTestBuilderImpl(Method testedMethod, TestBuilder.ParamRole paramRole, FileTemplateConfig fileTemplateConfig, Module srcModule, TypeDictionary typeDictionary, JavaVersion javaVersion, Map<String, String> defaultTypeValues, Map<String, String> typesOverrides) {
         this.testedMethod = testedMethod;
         this.srcModule = srcModule;
         this.typeDictionary = typeDictionary;
         this.paramRole = paramRole;
         this.fileTemplateConfig = fileTemplateConfig;
+        this.javaVersion = javaVersion;
+        this.defaultTypeValues = defaultTypeValues;
+        this.typesOverrides = typesOverrides;
     }
 
-    //TODO consider managing maps outside of template
     @Override
-    public String renderJavaCallParams(List<Param> params, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues) {
+    public String renderJavaCallParams(List<Param> params) {
         final StringBuilder stringBuilder = new StringBuilder();
-        buildCallParams(null, params, replacementTypes, defaultTypeValues, stringBuilder, new Node<>(null, null, 0));
+        buildCallParams(null, params, stringBuilder, new Node<>(null, null, 0));
         return stringBuilder.toString();
     }
 
     @Override
-    public String renderJavaCallParam(Type type, String strValue, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues) {
+    public String renderJavaCallParam(Type type, String strValue) {
         final StringBuilder stringBuilder = new StringBuilder();
-        buildCallParam(replacementTypes, defaultTypeValues, stringBuilder, new Node<>(new SyntheticParam(type, strValue, false), null, 0));
+        buildCallParam(stringBuilder, new Node<>(new SyntheticParam(type, strValue, false), null, 0));
         return stringBuilder.toString();
     }
 
-    protected void buildCallParam(Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Param> paramNode) {
+    protected void buildCallParam(StringBuilder testCodeString, Node<Param> paramNode) {
         final Type type = paramNode.getData().getType();
+        int arrayDimensions = type.getArrayDimensions();
         if (type.isArray()) {
-            testBuilder.append(NEW_INITIALIZER).append(type.getCanonicalName()).append("[]{");
+            for (int i = arrayDimensions; i > 0; i--) {
+                testCodeString.append(NEW_INITIALIZER).append(type.getCanonicalName()).append("[]".repeat(i)).append("{");
+            }
         }
         final Type parentContainerClass = type.getParentContainerClass();
         if (parentContainerClass != null && !type.isStatic()) {
             final Node<Param> parentContainerNode = new Node<>(new SyntheticParam(parentContainerClass, parentContainerClass.getName(), false), null, paramNode.getDepth());
-            buildCallParam(replacementTypes, defaultTypeValues, testBuilder,parentContainerNode);
-            testBuilder.append(".");
+            buildCallParam(testCodeString,parentContainerNode);
+            testCodeString.append(".");
         }
-        buildJavaParam(replacementTypes, defaultTypeValues, testBuilder,paramNode);
+        buildJavaParam(testCodeString,paramNode);
         if (type.isArray()) {
-            testBuilder.append("}");
+            testCodeString.append("}".repeat(arrayDimensions));
         }
     }
-    void buildJavaParam(Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Param> paramNode) {
+    void buildJavaParam(StringBuilder testBuilder, Node<Param> paramNode) {
         final Type type = paramNode.getData().getType();
         final String canonicalName = type.getCanonicalName();
         if (defaultTypeValues.get(canonicalName) != null) {
@@ -90,12 +100,12 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
             if (!resolvedType.equals(type)) {
                 paramNode= new Node<>(new Param(resolvedType, paramNode.getData().getName(), paramNode.getData().getAssignedToFields()), paramNode.getParent(), paramNode.getDepth());
             }
-            String typeName = resolveTypeName(resolvedType, replacementTypes);
+            String typeName = resolveTypeName(resolvedType);
             if (!resolvedType.getCanonicalName().equals(typeName)) {
                 final String[] typeInitExp = typeName.split("<VAL>");
                 if (typeInitExp.length == 0) {
                     Type genericTypeParam = safeGetComposedTypeAtIndex(resolvedType, 0);
-                    buildCallParam(replacementTypes, defaultTypeValues, testBuilder, new Node<>(new SyntheticParam(genericTypeParam, genericTypeParam.getName(), false), paramNode, paramNode.getDepth()));
+                    buildCallParam(testBuilder, new Node<>(new SyntheticParam(genericTypeParam, genericTypeParam.getName(), false), paramNode, paramNode.getDepth()));
                 }
                 else {
                     testBuilder.append(typeInitExp[0]);
@@ -104,7 +114,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
                         if (TestBuilderUtil.looksLikeObjectKeyInGroovyMap(typeInitExp[i], genericTypeParam.getCanonicalName())) {
                             testBuilder.append("(");
                         }
-                        buildCallParam(replacementTypes, defaultTypeValues, testBuilder, new Node<>(new SyntheticParam(genericTypeParam, genericTypeParam.getName(), false), paramNode, paramNode.getDepth()));
+                        buildCallParam(testBuilder, new Node<>(new SyntheticParam(genericTypeParam, genericTypeParam.getName(), false), paramNode, paramNode.getDepth()));
                         if (TestBuilderUtil.looksLikeObjectKeyInGroovyMap(typeInitExp[i], genericTypeParam.getCanonicalName())) {
                             testBuilder.append(")");
                         }
@@ -114,7 +124,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
             }
             else if (shouldContinueRecursion(paramNode)) {
                 final boolean hasEmptyConstructor = TestBuilderUtil.hasValidEmptyConstructor(resolvedType);
-                Method foundCtor = findValidConstructor(resolvedType, replacementTypes, hasEmptyConstructor);
+                Method foundCtor = findValidConstructor(resolvedType, hasEmptyConstructor);
                 if (foundCtor == null && !hasEmptyConstructor || !resolvedType.isDependenciesResolved()) {
                     testBuilder.append("null");
                 } else {
@@ -123,7 +133,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
                         typeName = resolveNestedClassTypeName(typeName);
                     }
                     testBuilder.append(typeName).append("(");
-                    buildCallParams(foundCtor,foundCtor==null? new ArrayList<>():foundCtor.getMethodParams(), replacementTypes, defaultTypeValues, testBuilder, paramNode);
+                    buildCallParams(foundCtor,foundCtor==null? new ArrayList<>():foundCtor.getMethodParams(), testBuilder, paramNode);
                     testBuilder.append(")");
                 }
 
@@ -218,7 +228,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
         return JavaPsiFacade.getInstance(srcModule.getProject()).findClass(fqName, srcModule.getModuleRuntimeScope(true));
     }
 
-    protected void buildCallParams(Method constructor, List<? extends Param> params, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues, StringBuilder testBuilder, Node<Param> ownerParamNode) {
+    protected void buildCallParams(Method constructor, List<? extends Param> params, StringBuilder testBuilder, Node<Param> ownerParamNode) {
         final int origLength = testBuilder.length();
         if (params != null) {
             final Type ownerType = ownerParamNode.getData()==null?null: ownerParamNode.getData().getType();
@@ -237,7 +247,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
                         }
                     }
                 }
-                buildCallParam(replacementTypes, defaultTypeValues, testBuilder, paramNode);
+                buildCallParam(testBuilder, paramNode);
                 testBuilder.append(PARAMS_SEPARATOR);
             }
             if (origLength < testBuilder.length()) {
@@ -249,24 +259,73 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
      * @param type Input assumption: type constructors are sorted in descending order by no of arguments
      */
     @Nullable
-    protected Method findValidConstructor(Type type, Map<String, String> replacementTypes, boolean hasEmptyConstructor) {
+    protected Method findValidConstructor(Type type, boolean hasEmptyConstructor) {
         Method foundCtor = null;
         for (Method method : type.findConstructors()) {
-            if (TestBuilderUtil.isValidConstructor(type, method,hasEmptyConstructor,replacementTypes)) {
+            if (isValidConstructor(type, method,hasEmptyConstructor)) {
                 foundCtor = method;
                 break;
             }
         }
         return foundCtor;
     }
-    String resolveTypeName(Type type, Map<String, String> replacementTypes) {
-        String canonicalName = type.getCanonicalName();
-        String sanitizedCanonicalName = ClassNameUtils.stripGenerics(canonicalName);
-        if (replacementTypes != null && replacementTypes.get(sanitizedCanonicalName) != null) {
-            String replacedSanitizedCanonicalName = replacementTypes.get(sanitizedCanonicalName);
-            canonicalName = replacedSanitizedCanonicalName.replace("<TYPES>", ClassNameUtils.extractGenerics(canonicalName));
+
+    public boolean isValidConstructor(Type type, Method constructor, boolean hasEmptyConstructor) {
+        if (!constructor.isAccessible() || type.isInterface() || type.isAbstract()) return false;
+        final List<Param> methodParams = constructor.getMethodParams();
+        for (Param methodParam : methodParams) {
+            final Type methodParamType = methodParam.getType();
+            if (methodParamType.equals(type) && hasEmptyConstructor) {
+                return false;
+            }
+            //todo revise this logic - interface param might be resolved to concrete type
+            String canonicalName = methodParamType.getCanonicalName();
+            if ((methodParamType.isInterface() || methodParamType.isAbstract()) && resolveConcreteType(ClassNameUtils.stripGenerics(canonicalName)) == null && hasEmptyConstructor) {
+                return false;
+            }
         }
-        return canonicalName;
+        return true;
+    }
+
+    String resolveTypeName(Type type) {
+        String canonicalName = type.getCanonicalName();
+        String replacementType = resolveConcreteType(ClassNameUtils.stripGenerics(canonicalName));
+        if (replacementType == null) {
+            return canonicalName;
+        }
+        else {
+            return replacementType.replace("<TYPES>", ClassNameUtils.extractGenerics(canonicalName));
+        }
+    }
+
+    private String resolveConcreteType(String canonicalTypeName) {
+        if (typesOverrides != null && typesOverrides.get(canonicalTypeName) != null) {
+            return typesOverrides.get(canonicalTypeName);
+        }
+        if (this.paramRole == TestBuilder.ParamRole.Output ) {
+            return resolveConcreteTypeForReturn(canonicalTypeName);
+        }
+        else {
+            return resolveConcreteTypeForInput(canonicalTypeName);
+        }
+    }
+
+    private String resolveConcreteTypeForInput(String canonicalTypeName) {
+        if (javaVersion.isAtLeast(JAVA_9_VERSION)) {
+            return TestBuilderTypes.getJava9ReplacementTypes().get(canonicalTypeName);
+        }
+        else {
+            return TestBuilderTypes.getLegacyJavaReplacementTypes().get(canonicalTypeName);
+        }
+    }
+
+    private String resolveConcreteTypeForReturn(String canonicalTypeName) {
+        if (javaVersion.isAtLeast(JAVA_9_VERSION)) {
+            return TestBuilderTypes.getJava9ReplacementTypesForReturn().get(canonicalTypeName);
+        }
+        else {
+            return TestBuilderTypes.getLegacyJavaReplacementTypesForReturn().get(canonicalTypeName);
+        }
     }
 
     boolean isPropertyParam(Param param) {

@@ -14,7 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.Arrays;
+import java.util.List;
 
 import static org.mockito.Mockito.*;
 
@@ -34,20 +34,20 @@ public class FooTest {
 
     @Test
     public void testFind() throws Exception {
-        BigBean result = foo.find(Arrays.<BeanByCtor>asList(new BeanByCtor("myName", new Ice(), null, 0d)), new ImGroovy());
+        BigBean result = foo.find(List.of(new BeanByCtor("myName", new Ice(), null, 0d)), new ImGroovy());
         Assert.assertEquals(new BigBean(null, new Many("family", "members", null), null), result);
     }
 
     @Test
     public void testUseGroovyTypeWithCtor() throws Exception {
-        Many result = foo.useGroovyTypeWithCtor(new ImGroovyWithTupleCtor("myName", null, Arrays.<JavaBean>asList(new JavaBean())));
+        Many result = foo.useGroovyTypeWithCtor(new ImGroovyWithTupleCtor("myName", null, List.of(new JavaBean())));
         Assert.assertEquals(new Many("family", "members", null), result);
     }
 
     @Test
     public void testReturnGroovyType() throws Exception {
         ImGroovyWithTupleCtor result = foo.returnGroovyType(new ImGroovy());
-        Assert.assertEquals(new ImGroovyWithTupleCtor(null, new Ice(), Arrays.<JavaBean>asList(new JavaBean())), result);
+        Assert.assertEquals(new ImGroovyWithTupleCtor(null, new Ice(), List.of(new JavaBean())), result);
     }
 }
 

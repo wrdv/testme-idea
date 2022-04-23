@@ -12,7 +12,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.Arrays;
+import java.util.List;
 
 import static org.mockito.Mockito.*;
 
@@ -32,7 +32,7 @@ public class FooTest {
 
     @Test
     public void testFindWithDelegatedCalls() throws Exception {
-        DelegateCtor result = foo.findWithDelegatedCalls(Arrays.<BeanByCtor>asList(new BeanByCtor("myName", new Ice(), null, 0d)), new ImGroovy());
+        DelegateCtor result = foo.findWithDelegatedCalls(List.of(new BeanByCtor("myName", new Ice(), null, 0d)), new ImGroovy());
         Assert.assertEquals(new DelegateCtor("youre", "asCold", null, new Fire()), result);
     }
 }

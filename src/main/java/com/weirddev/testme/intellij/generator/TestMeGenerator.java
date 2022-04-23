@@ -42,7 +42,7 @@ public class TestMeGenerator {
     private static final Logger LOG = Logger.getInstance(TestMeGenerator.class.getName());
 
     public TestMeGenerator() {
-        this(new TestClassElementsLocator(), new TestTemplateContextBuilder(),new CodeRefactorUtil());
+        this(new TestClassElementsLocator(), new TestTemplateContextBuilder(new MockBuilderFactory()),new CodeRefactorUtil());
     }
     
     TestMeGenerator(TestClassElementsLocator testClassElementsLocator, TestTemplateContextBuilder testTemplateContextBuilder, CodeRefactorUtil codeRefactorUtil) {

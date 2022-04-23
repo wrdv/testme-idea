@@ -18,7 +18,7 @@ class ${CLASS_NAME}  extends Specification {
 #if($hasMocks)
 
     def setup() {
-        MockitoAnnotations.initMocks(this)
+        MockitoAnnotations.${MockitoMockBuilder.initMocksMethod}(this)
     }
 #end
 #foreach($method in $TESTED_CLASS.methods)

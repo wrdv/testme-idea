@@ -3,6 +3,8 @@
 .idea/
 *.iws
 *.ipr
+*.log
+*.log.*
 build/
 hs_err_pid*
 classes

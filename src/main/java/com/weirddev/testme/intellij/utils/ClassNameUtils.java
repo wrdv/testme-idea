@@ -17,7 +17,9 @@ public class ClassNameUtils {
     public static boolean isArray(String canonicalName) {
         return canonicalName.endsWith("[]");
     }
-
+    public static int arrayDimensions(String canonicalName) {
+        return canonicalName.split("\\[]", -1).length - 1;
+    }
     public static String extractClassName(@NotNull String fqName) {
         fqName = extractContainerType(fqName);
         int i = fqName.lastIndexOf('.');

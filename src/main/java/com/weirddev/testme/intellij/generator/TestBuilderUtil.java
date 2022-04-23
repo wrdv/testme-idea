@@ -38,22 +38,6 @@ public class TestBuilderUtil {
         return false;
     }
 
-    public static boolean isValidConstructor(Type type, Method constructor, boolean hasEmptyConstructor, Map<String, String> replacementTypes) {
-        if (!constructor.isAccessible() || type.isInterface() || type.isAbstract()) return false;
-        final List<Param> methodParams = constructor.getMethodParams();
-        for (Param methodParam : methodParams) {
-            final Type methodParamType = methodParam.getType();
-            if (methodParamType.equals(type) && hasEmptyConstructor) {
-                return false;
-            }
-            //todo revise this logic - interface param might be resolved to concrete type
-            if ((methodParamType.isInterface() || methodParamType.isAbstract()) && (replacementTypes == null || replacementTypes.get(ClassNameUtils.stripGenerics(methodParamType.getCanonicalName())) == null) && hasEmptyConstructor) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     public static boolean isStringType(String canonicalName) {
         return STRING_TYPES.contains(canonicalName);
     }
