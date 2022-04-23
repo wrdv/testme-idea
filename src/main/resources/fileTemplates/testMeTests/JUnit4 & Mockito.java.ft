@@ -22,7 +22,7 @@ public class ${CLASS_NAME} {
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.${MockitoMockBuilder.initMocksMethod}(this);
     }
 #end
 #foreach($method in $TESTED_CLASS.methods)

@@ -25,6 +25,18 @@ class FooTest {
         int[] result = foo.fireCounter(new Fire[]{new Fire()});
         Assertions.assertArrayEquals(new int[]{0}, result);
     }
+
+    @Test
+    void testRouterSearch(){
+        String result = foo.routerSearch("dstIp", new String[][]{new String[]{"ipTable"}});
+        Assertions.assertEquals("replaceMeWithExpectedResult", result);
+    }
+
+    @Test
+    void testA3dimSearch(){
+        String result = foo.a3dimSearch("dstIp", new String[][][]{new String[][]{new String[]{"ipTable"}}});
+        Assertions.assertEquals("replaceMeWithExpectedResult", result);
+    }
 }
 
 //Generated with love by TestMe :) Please report issues and submit feature requests at: http://weirddev.com/forum#!/testme

@@ -20,7 +20,7 @@ intellij {
 
 
 dependencies {
-    compile(project(':testme-intellij-common')){
+    implementation(project(':testme-intellij-common')){
         exclude group:'com.jetbrains', module: 'ideaIC'
         exclude group:'org.jetbrains.plugins', module: 'junit'
         exclude group:'org.jetbrains.plugins', module: 'properties'

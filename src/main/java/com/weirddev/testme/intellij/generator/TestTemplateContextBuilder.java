@@ -1,20 +1,24 @@
 package com.weirddev.testme.intellij.generator;
 
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.module.ResourceFileUtil;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.impl.scopes.ModuleWithDependenciesScope;
+import com.intellij.openapi.projectRoots.Sdk;
+import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
-import com.intellij.psi.impl.PsiManagerEx;
+import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.util.lang.JavaVersion;
 import com.weirddev.testme.intellij.template.FileTemplateContext;
 import com.weirddev.testme.intellij.template.TypeDictionary;
 import com.weirddev.testme.intellij.template.context.*;
 import com.weirddev.testme.intellij.template.context.impl.TestBuilderImpl;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Date: 20/11/2016
@@ -23,6 +27,11 @@ import java.util.*;
  */
 public class TestTemplateContextBuilder {
     private static final Logger logger = Logger.getInstance(TestTemplateContextBuilder.class.getName());
+    private final MockBuilderFactory mockBuilderFactory;
+
+    public TestTemplateContextBuilder(MockBuilderFactory mockBuilderFactory) {
+        this.mockBuilderFactory = mockBuilderFactory;
+    }
 
     public Map<String, Object> build(FileTemplateContext context, Properties defaultProperties) {
         final long start = new Date().getTime();
@@ -32,9 +41,11 @@ public class TestTemplateContextBuilder {
         ctxtParams.put(TestMeTemplateParams.PACKAGE_NAME, context.getTargetPackage().getQualifiedName());
         int maxRecursionDepth = context.getFileTemplateConfig().getMaxRecursionDepth();
         ctxtParams.put(TestMeTemplateParams.MAX_RECURSION_DEPTH, maxRecursionDepth);
-        ctxtParams.put(TestMeTemplateParams.STRING_UTILS, new StringUtils());
+        ctxtParams.put(TestMeTemplateParams.StringUtils, new StringUtils());
         final TypeDictionary typeDictionary = new TypeDictionary(context.getSrcClass(), context.getTargetPackage());
-        ctxtParams.put(TestMeTemplateParams.TEST_BUILDER, new TestBuilderImpl(context.getLanguage(), context.getSrcModule(), typeDictionary, context.getFileTemplateConfig()));
+        JavaVersion javaVersion = getJavaVersion(context.getTestModule());
+        ctxtParams.put(TestMeTemplateParams.JAVA_VERSION, javaVersion);
+        ctxtParams.put(TestMeTemplateParams.TestBuilder, new TestBuilderImpl(context.getLanguage(), context.getSrcModule(), typeDictionary, context.getFileTemplateConfig(), javaVersion));
         final PsiClass targetClass = context.getSrcClass();
         if (targetClass != null && targetClass.isValid()) {
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_LANGUAGE, targetClass.getLanguage().getID());
@@ -45,28 +56,36 @@ public class TestTemplateContextBuilder {
             }
         }
         final TestSubjectInspector testSubjectInspector = new TestSubjectInspector(context.getFileTemplateConfig().isGenerateTestsForInheritedMethods());
-        ctxtParams.put(TestMeTemplateParams.TEST_SUBJECT_UTILS, testSubjectInspector);
-        ctxtParams.put(TestMeTemplateParams.MOCKITO_MOCK_BUILDER, createMockitoMockBuilder(context, testSubjectInspector));
+        ctxtParams.put(TestMeTemplateParams.TestSubjectUtils, testSubjectInspector);
+        List<String> classpathJars = resolveClasspathJars(context);
+        ctxtParams.put(TestMeTemplateParams.MockitoMockBuilder, mockBuilderFactory.createMockitoMockBuilder(context, testSubjectInspector, classpathJars));
+        ctxtParams.put(TestMeTemplateParams.TestedClasspathJars, classpathJars);
         logger.debug("Done building Test Template context in "+(new Date().getTime()-start)+" millis");
         return ctxtParams;
     }
 
     @NotNull
-    private MockitoMockBuilder createMockitoMockBuilder(FileTemplateContext context, TestSubjectInspector testSubjectInspector) {
-        boolean found = false;
-//        final VirtualFile mockMakerVFile = ResourceFileUtil.findResourceFileInScope("mockito-extensions/org.mockito.plugins.MockMaker", context.getProject(), context.getTestModule().getModuleWithDependenciesAndLibrariesScope(true));
-        final VirtualFile mockMakerVFile = ResourceFileUtil.findResourceFileInDependents(context.getTestModule(), "mockito-extensions/org.mockito.plugins.MockMaker");
-        logger.debug("found mockito MockMaker in test module classpath:"+mockMakerVFile);
-        if (mockMakerVFile != null) {
-            final PsiFile mockMakerPsiFile = ((PsiManagerEx) PsiManager.getInstance(context.getProject())).getFileManager().getCachedPsiFile(mockMakerVFile);
-            if (mockMakerPsiFile != null) {
-                final String mockFileText = mockMakerPsiFile.getText();
-                found = StringUtils.hasLine(mockFileText,"mock-maker-inline");
-                logger.debug("mockito MockMaker content:"+ mockFileText);
-                logger.debug("is mock-maker-inline turned on:"+ found);
-            }
+    private List<String> resolveClasspathJars(FileTemplateContext context) {
+        GlobalSearchScope searchScope = context.getTestModule().getModuleWithDependenciesAndLibrariesScope(true);
+        if (searchScope instanceof ModuleWithDependenciesScope) {
+            ModuleWithDependenciesScope moduleWithDependenciesScope = (ModuleWithDependenciesScope) searchScope;
+            return moduleWithDependenciesScope.getRoots().stream().map(VirtualFile::getName).filter(name -> name.endsWith(".jar")).collect(Collectors.toList());
         }
-        return new MockitoMockBuilder(found,context.getFileTemplateConfig().isStubMockMethodCallsReturnValues(), testSubjectInspector);
+        else {
+            return List.of();
+        }
+    }
+
+    @Nullable
+    private JavaVersion getJavaVersion(Module testModule) {
+        ModuleRootManager moduleRootManager = ModuleRootManager.getInstance(testModule);
+        Sdk sdk = moduleRootManager.getSdk();
+        if (sdk != null && sdk.getSdkType().getName().toLowerCase().contains("java")) {
+            return JavaVersion.tryParse(sdk.getVersionString());
+        }
+        else {
+            return null;
+        }
     }
 
     void populateDateFields(Map<String, Object> ctxtParams, Calendar calendar) {

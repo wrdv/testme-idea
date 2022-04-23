@@ -4,7 +4,6 @@ import com.weirddev.testme.intellij.template.context.Param;
 import com.weirddev.testme.intellij.template.context.Type;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Date: 17/02/2017
@@ -13,7 +12,7 @@ import java.util.Map;
  */
 public interface LangTestBuilder {
     String PARAMS_SEPARATOR = ", ";
-    String renderJavaCallParams(List<Param> params, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues);
+    String renderJavaCallParams(List<Param> params);
 
-    String renderJavaCallParam(Type type, String strValue, Map<String, String> replacementTypes, Map<String, String> defaultTypeValues);
+    String renderJavaCallParam(Type type, String strValue);
 }

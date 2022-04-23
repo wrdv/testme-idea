@@ -1,5 +1,7 @@
 package com.example.services.impl;
 
+import com.example.beans.Result;
+import com.example.beans.ResultPage;
 import com.example.foes.Fire;
 import com.example.foes.Ice;
 import com.example.foes.Pokemon;
@@ -11,7 +13,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
@@ -35,7 +40,7 @@ public class FooTest {
 
     @Test
     public void testFight() throws Exception {
-        String result = foo.fight(new ArrayList<Fire>(Arrays.asList(new Fire())), "foeName");
+        String result = foo.fight(new ArrayList<>(List.of(new Fire())), "foeName");
         Assert.assertEquals("replaceMeWithExpectedResult", result);
     }
 
@@ -54,6 +59,18 @@ public class FooTest {
     public void testWarm() throws Exception {
         CompletableFuture<Integer> result = foo.warm(CompletableFuture.completedFuture(new Fire()), CompletableFuture.completedFuture(new Ice()));
         Assert.assertEquals(Integer.valueOf(0), result.get());
+    }
+
+    @Test
+    public void testFind() throws Exception {
+        ResultPage<Pokemon> result = foo.find();
+        Assert.assertEquals(new ResultPage<Pokemon>(0, List.of(new Pokemon())), result);
+    }
+
+    @Test
+    public void testResolveResult() throws Exception {
+        Result<Pokemon> result = foo.resolveResult();
+        Assert.assertEquals(new Result<Pokemon>(new Pokemon()), result);
     }
 }
 

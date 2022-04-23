@@ -134,7 +134,7 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
 
     @NotNull
     private TestTemplateContextBuilder mockTestTemplateContextBuilder() {
-        return new TestTemplateContextBuilder(){
+        return new TestTemplateContextBuilder(new MockBuilderFactory()){
             @Override
             public Map<String, Object> build(FileTemplateContext context, Properties defaultProperties) {
                 Properties mockedDefaultProperties = new Properties();

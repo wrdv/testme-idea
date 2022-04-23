@@ -16,14 +16,8 @@ import java.util.*;
 public class TestSubjectInspector
 {
     private static final Logger LOG = Logger.getInstance(TestSubjectInspector.class.getName());
-
-    private static final Set<String> JAVA_FUTURE_TYPES = new HashSet<>(Arrays.asList("java.util.concurrent.Future", "java.util.concurrent.CompletableFuture", "java.util.concurrent.RunnableFuture",
-            "java.util.concurrent.ForkJoinTask.AdaptedRunnableAction", "java.util.concurrent.RunnableScheduledFuture", "java.util.concurrent.ScheduledThreadPoolExecutor.ScheduledFutureTask", "java.util.concurrent.FutureTask",
-            "java.util.concurrent.ExecutorCompletionService.QueueingFuture", "java.util.concurrent.ForkJoinTask.AdaptedRunnable", "java.util.concurrent.ForkJoinTask.AdaptedCallable", "java.util.concurrent.ForkJoinTask",
-            "java.util.concurrent.ForkJoinTask.AdaptedRunnableAction", "java.util.concurrent.CountedCompleter", "java.util.concurrent.RecursiveTask", "java.util.concurrent.ForkJoinTask.RunnableExecuteAction",
-            "java.util.concurrent.CompletableFuture.AsyncSupply", "java.util.concurrent.RecursiveAction", "java.util.concurrent.CompletableFuture.Completion", "java.util.concurrent.ScheduledFuture", "java.util.concurrent.RunnableScheduledFuture"));
-    private static final Set<String> SCALA_FUTURE_TYPES = new HashSet<String>(Arrays.asList("scala.concurrent.Future","scala.concurrent.impl.Promise"));
-    private boolean generateTestsForInheritedMethods;
+    private static final Set<String> SCALA_FUTURE_TYPES = Set.of("scala.concurrent.Future","scala.concurrent.impl.Promise");
+    private final boolean generateTestsForInheritedMethods;
 
     public TestSubjectInspector(boolean generateTestsForInheritedMethods) {
 
@@ -138,7 +132,7 @@ public class TestSubjectInspector
      * @return true - if type is a Java future
      */
     public boolean isJavaFuture(Type type) {
-        for (String javaFutureType : JAVA_FUTURE_TYPES) {
+        for (String javaFutureType : TestBuilderTypes.JAVA_FUTURE_TYPES) {
             if (isSameGenericType(type, javaFutureType)) {
                 return true;
             }
@@ -184,7 +178,7 @@ public class TestSubjectInspector
      * @return list of Java SDK types that represent a future. as fully qualified class names
      */
     public Set<String> getJavaFutureTypes() {
-        return JAVA_FUTURE_TYPES;
+        return TestBuilderTypes.JAVA_FUTURE_TYPES;
     }
 
     /**
