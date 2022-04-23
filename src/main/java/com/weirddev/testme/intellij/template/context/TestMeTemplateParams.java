@@ -58,7 +58,7 @@ public interface TestMeTemplateParams {
      * configured max recursion depth for object graph introspection
      * @see FileTemplateConfig#getMaxRecursionDepth()
      */
-    String MAX_RECURSION_DEPTH = "DEFAULT_MAX_RECURSION_DEPTH";
+    String MAX_RECURSION_DEPTH = "MAX_RECURSION_DEPTH";
     /**
      * Current English Month name. format MMMM
      */
