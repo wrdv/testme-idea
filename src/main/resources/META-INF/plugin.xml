@@ -19,7 +19,7 @@
     ]]></description>
 
   <change-notes><![CDATA[
-        <i>Main Changes in v5.0.1</i>
+        <i>Main Changes in v5.1.0</i>
           <ul>
             <li>mock generation: generate Mockito openMocks() instead of deprecated initMocks() method if mockito-core version in target test module classpath is >= 3.4 version. issue raised by aoudiamoncef on March 3 '21 (https://github.com/wrdv/testme-idea/pull/11)</li>
             <li>test params generation: support java 9 collection initialization methods if project is using JDK 9</li>
