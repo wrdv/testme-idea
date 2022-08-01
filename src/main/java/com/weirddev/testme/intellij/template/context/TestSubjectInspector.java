@@ -87,7 +87,7 @@ public class TestSubjectInspector
     }
 
     /**
-     * Consutrcuts a formatted string of parameterized params table for spock test. should probably be deprecated in the future, in favor of a method accepting paramsMap of Map<String,List<String>> for multiple values per input argument
+     * Constructs a formatted string of parameterized params table for spock test. should probably be deprecated in the future, in favor of a method accepting paramsMap of Map&lt;String,List&lt;String&gt;&gt; for multiple values per input argument
      * @param paramsMap map of test arguments. for constructing a single parameterized row.
      * @param linePrefix prefix add to resulting test params, typically used for indentation when passing the required preceding white spaces
      * @return formatted string of parameterized params table for spock test.
