@@ -131,7 +131,7 @@ public class Method {
      * methods referenced from this method. i.e.  SomeClassName::someMethodName
      */
     @Getter private final Set<Method> methodReferences = new HashSet<>();
-    /**
+    /*
      *  method calls of methods in this owner's class type or one of it's ancestor type. including indirectly called methods up to max method call search depth. ResolvedMethodCall objects of the class under test are deeply resolved
      *  @deprecated not used. might be removed
      */

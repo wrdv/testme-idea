@@ -55,8 +55,8 @@ class FooTest extends Specification {
         foo.lookInto(backTo, theFuture).get() == expectedResult
 
         where:
-        backTo                                      | theFuture                                   || expectedResult
-        CompletableFuture.completedFuture("String") | CompletableFuture.completedFuture("String") || "String"
+        backTo                                      | theFuture                                      || expectedResult
+        CompletableFuture.completedFuture("backTo") | CompletableFuture.completedFuture("theFuture") || "expectedResult"
     }
 
     @Unroll
