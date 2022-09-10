@@ -49,7 +49,7 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
         final boolean isNonStaticNestedClass = parentContainerClass != null && !ownerParamNode.getData().getType().isStatic();
         if (params != null && params.size()>0 || isNonStaticNestedClass) {
             if (isNonStaticNestedClass) {
-                final Node<Param> parentContainerNode = new Node<Param>(new SyntheticParam(parentContainerClass, parentContainerClass.getName(), false), null, ownerParamNode.getDepth());
+                final Node<Param> parentContainerNode = new Node<Param>(new SyntheticParam(parentContainerClass, parentContainerClass.getName()), null, ownerParamNode.getDepth());
                 buildCallParam(testBuilder,parentContainerNode);
                 testBuilder.append(LangTestBuilder.PARAMS_SEPARATOR);
             }
@@ -76,7 +76,7 @@ public class GroovyTestBuilderImpl extends JavaTestBuilderImpl {
             if (method.isSetter()&&  method.getMethodParams().size()>0 &&method.getPropertyName()!=null) {
                 final SyntheticParam syntheticParam = syntheticParams.get(method.getPropertyName());
                 if (syntheticParam == null || !propertyMatchesField(type,syntheticParam)) {
-                    syntheticParams.put(method.getPropertyName(),new SyntheticParam(method.getMethodParams().get(0).getType(), method.getPropertyName(),true));
+                    syntheticParams.put(method.getPropertyName(),new SyntheticParam(method.getMethodParams().get(0).getType(), method.getPropertyName(), SyntheticParam.UsageContext.Property));
                 }
             }
         }

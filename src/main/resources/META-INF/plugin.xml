@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.weirddev.testme</id>
   <name>TestMe</name>
-  <version>5.1.0</version>
+  <version>5.2.0</version>
   <vendor email="testme@weirddev.com" url="http://weirddev.com">WeirdDev</vendor>
 
   <description><![CDATA[
@@ -19,12 +19,9 @@
     ]]></description>
 
   <change-notes><![CDATA[
-        <i>Main Changes in v5.1.0</i>
+        <i>Main Changes in v5.2.0</i>
           <ul>
-            <li>mock generation: generate Mockito openMocks() instead of deprecated initMocks() method if mockito-core version in target test module classpath is >= 3.4 version. issue raised by aoudiamoncef on March 3 '21 (https://github.com/wrdv/testme-idea/pull/11)</li>
-            <li>test params generation: support java 9 collection initialization methods if project is using JDK 9</li>
-            <li>bugfix: should generate n-multi dimension array instead of single dimension array for relevant types (raised by ageovb on Jun 2 2021)</li>
-            <li>test params generation: substitute generic type parameters of nested generic objects (raised by ben2020 on 27 Mar 2020)</li>   </ul>
+            <li>test generator: use argument name as string value for generic type parameters</li>
           </ul>
         <a href="http://weirddev.com/testme/release-notes">Complete Release Notes listing</a>
     ]]>

@@ -45,8 +45,8 @@ class FooTest {
 
     @Test
     void testLookInto() {
-        Future result = foo.lookInto(CompletableFuture.completedFuture("String"), CompletableFuture.completedFuture("String"))
-        assert result.get() == "String"
+        Future result = foo.lookInto(CompletableFuture.completedFuture("backTo"), CompletableFuture.completedFuture("theFuture"))
+        assert result.get() == "replaceMeWithExpectedResult"
     }
 
     @Test

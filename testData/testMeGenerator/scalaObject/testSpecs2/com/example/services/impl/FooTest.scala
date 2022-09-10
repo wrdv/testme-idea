@@ -16,7 +16,7 @@ class FooTest extends Specification {
 
     "fight With Map" in {
       val result = Foo.fightWithMap(Some("optFire"))
-      Await.result(result, 10.seconds) === Some("Option")
+      Await.result(result, 10.seconds) === Some("replaceMeWithExpectedResult")
     }
 
   }

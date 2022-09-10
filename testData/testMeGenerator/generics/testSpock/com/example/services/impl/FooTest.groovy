@@ -48,10 +48,10 @@ class FooTest extends Specification {
 
     def "test look Into"() {
         when:
-        Future result = foo.lookInto(CompletableFuture.completedFuture("String"), CompletableFuture.completedFuture("String"))
+        Future result = foo.lookInto(CompletableFuture.completedFuture("backTo"), CompletableFuture.completedFuture("theFuture"))
 
         then:
-        result.get() == "String"
+        result.get() == "replaceMeWithExpectedResult"
     }
 
     def "test warm"() {

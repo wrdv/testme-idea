@@ -24,7 +24,7 @@ class FooTest extends Specification with Mockito {
     "fight With Map" in {
       fooFighter.fight(any) returns "fightResponse"
       val result = foo.fightWithMap(Some("optFire"))
-      Await.result(result, 10.seconds) === Some("Option")
+      Await.result(result, 10.seconds) === Some("replaceMeWithExpectedResult")
     }
 
   }

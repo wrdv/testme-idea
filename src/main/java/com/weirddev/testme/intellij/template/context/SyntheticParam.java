@@ -1,5 +1,6 @@
 package com.weirddev.testme.intellij.template.context;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 
 /**
@@ -10,18 +11,27 @@ import java.util.ArrayList;
  */
 public class SyntheticParam extends Param {
 
-    private final boolean isProperty;
+    @Nullable
+    private final UsageContext usageContext;
 
-    public SyntheticParam(Type type, String name, boolean isProperty) {
+    public SyntheticParam(Type type, String name, UsageContext usageContext) {
         super(type, name,new ArrayList<Field>());
-        this.isProperty = isProperty;
+        this.usageContext = usageContext;
+    }
+    public SyntheticParam(Type type, String name) {
+        super(type, name,new ArrayList<Field>());
+        this.usageContext = null;
     }
 
     /**
      *
      * @return true when represents a bean property
      */
-    public boolean isProperty() {
-        return isProperty;
+    public enum UsageContext {
+        Property, Generic
+    }
+
+    public UsageContext getUsageContext() {
+        return usageContext;
     }
 }
