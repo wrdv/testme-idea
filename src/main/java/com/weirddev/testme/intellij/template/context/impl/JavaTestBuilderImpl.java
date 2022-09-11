@@ -30,7 +30,6 @@ import java.util.Set;
  */
 public class JavaTestBuilderImpl implements LangTestBuilder {
     private static final Logger LOG = Logger.getInstance(JavaTestBuilderImpl.class.getName());
-    private static final Set DEFAULT_NAMES = Set.of("String", "Object");
     private static final Type DEFAULT_STRING_TYPE = new Type("java.lang.String", "String", "java.lang", false, false, false, false, 0, false, new ArrayList<>());
     private static final int JAVA_9_VERSION = 9;
     private final TestBuilder.ParamRole paramRole;
