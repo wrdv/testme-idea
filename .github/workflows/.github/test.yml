@@ -51,15 +51,15 @@ jobs:
         flag-name: run-${{ matrix.IDEA_VERSION }}-with-plugins-${{ matrix.WITH_IDEA_PLUGINS }}
         parallel: true
 
-finish:
-  needs: build
-  runs-on: ubuntu-latest
-  steps:
-    - name: Coveralls Complete
-      uses: coverallsapp/github-action@master
-      with:
-        github-token: ${{ secrets.github_token }}
-        parallel-finished: true
+  finish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Coveralls Complete
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.github_token }}
+          parallel-finished: true
 
 #    - name: "on failure - print report"
 #      if: failure()
