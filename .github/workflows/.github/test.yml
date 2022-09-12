@@ -1,0 +1,73 @@
+name: Test
+on:
+  pull_request:
+  push:
+    branches:
+      - '**'
+    paths-ignore:
+      - '*.md'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        IDEA_VERSION: [2021.1, 2022.1.4]
+        WITH_IDEA_PLUGINS: [true, false]
+        include:
+          - IDEA_VERSION: 2021.1
+            SCALA_PLUGIN_VERSION: 2021.1.16
+            
+          - IDEA_VERSION: 2021.1
+            WITH_IDEA_PLUGINS: true
+            UPLOAD_TEST_RESULTS: true
+
+          - IDEA_VERSION: 2022.1.4
+            SCALA_PLUGIN_VERSION: 2022.1.17
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up JDK 11
+      uses: actions/setup-java@v3
+      with:
+        java-version: 11
+        distribution: 'adopt'
+
+    - name: Run tests
+      uses: gradle/gradle-build-action@v2
+      with:
+        arguments: |
+          check
+          jacocoRootReport
+          -PideaVersion=${{ matrix.IDEA_VERSION }} 
+          -PscalaPluginVersion=${{ matrix.SCALA_PLUGIN_VERSION }}
+          -PenableIdeaGroovyPlugin=${{ matrix.WITH_IDEA_PLUGINS }}
+          -PenableIdeaScalaPlugin=${{ matrix.WITH_IDEA_PLUGINS }}
+
+    - name: Coveralls In Parallel
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.github_token }}
+        flag-name: run-${{ matrix.IDEA_VERSION }}-with-plugins-${{ matrix.WITH_IDEA_PLUGINS }}
+        parallel: true
+
+finish:
+  needs: build
+  runs-on: ubuntu-latest
+  steps:
+    - name: Coveralls Complete
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.github_token }}
+        parallel-finished: true
+
+#    - name: "on failure - print report"
+#      if: failure()
+#      run: ./print_surefire_reports.sh
+#
+#    - name: "on success - upload coveralls"
+#      if: success() && ${{ matrix.UPLOAD_TEST_RESULTS }} 
+#      uses: gradle/gradle-build-action@v2
+#      with:
+#        arguments: coveralls
+
