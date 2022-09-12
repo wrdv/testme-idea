@@ -18,7 +18,7 @@ jobs:
         include:
           - IDEA_VERSION: 2021.1
             SCALA_PLUGIN_VERSION: 2021.1.16
-            
+
           - IDEA_VERSION: 2021.1
             WITH_IDEA_PLUGINS: true
             UPLOAD_TEST_RESULTS: true
@@ -45,7 +45,10 @@ jobs:
           -PscalaPluginVersion=${{ matrix.SCALA_PLUGIN_VERSION }}
           -PenableIdeaGroovyPlugin=${{ matrix.WITH_IDEA_PLUGINS }}
           -PenableIdeaScalaPlugin=${{ matrix.WITH_IDEA_PLUGINS }}
-
+    - name: On failure - print report
+      if: failure()
+#      if: steps.run-test.outcome != 'success'
+      run: ./print_surefire_reports.sh
 #    - name: Report Coveralls
 #      if: success()
 #      uses: coverallsapp/github-action@master
@@ -68,15 +71,6 @@ jobs:
         with:
           arguments: coveralls
 
-      - name: action-slack
-        if: failure() && steps.test-app.outcome != 'success'
-        run: |
-          echo "Run action-slack"
-          echo "Result of test-app was '${{ steps.test-app.outcome }}'"
-
-      - name: On failure - print report
-        if: steps.run-test.outcome != 'success'
-        run: ./print_surefire_reports.sh
 #
 #    - name: "on success - upload coveralls"
 #      if: success() && ${{ matrix.UPLOAD_TEST_RESULTS }} 
