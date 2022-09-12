@@ -35,6 +35,7 @@ jobs:
         distribution: 'adopt'
 
     - name: Run tests
+      id: run-test
       uses: gradle/gradle-build-action@v2
       with:
         arguments: |
@@ -67,9 +68,15 @@ jobs:
         with:
           arguments: coveralls
 
-#    - name: "on failure - print report"
-#      if: failure()
-#      run: ./print_surefire_reports.sh
+      - name: action-slack
+        if: failure() && steps.test-app.outcome != 'success'
+        run: |
+          echo "Run action-slack"
+          echo "Result of test-app was '${{ steps.test-app.outcome }}'"
+
+      - name: On failure - print report
+        if: steps.run-test.outcome != 'success'
+        run: ./print_surefire_reports.sh
 #
 #    - name: "on success - upload coveralls"
 #      if: success() && ${{ matrix.UPLOAD_TEST_RESULTS }} 
