@@ -8,7 +8,7 @@ on:
       - '*.md'
 jobs:
   build:
-    name: test IDEA ${{IDEA_VERSION}} with plugins:${{WITH_IDEA_PLUGINS}}
+    name: test IDEA ${{matrix.IDEA_VERSION}} with plugins:${{matrix.WITH_IDEA_PLUGINS}}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
