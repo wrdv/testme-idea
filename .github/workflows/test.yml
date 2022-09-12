@@ -44,7 +44,8 @@ jobs:
           -PenableIdeaGroovyPlugin=${{ matrix.WITH_IDEA_PLUGINS }}
           -PenableIdeaScalaPlugin=${{ matrix.WITH_IDEA_PLUGINS }}
 
-    - name: Coveralls In Parallel
+    - name: Report Coveralls
+      if: success()
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.github_token }}
