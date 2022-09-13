@@ -1,7 +1,7 @@
 # TestMe IJ IDEA Plugin
 [//]: # ([![Build Status]&#40;https://travis-ci.org/wrdv/testme-idea.svg?branch=master&#41;]&#40;https://travis-ci.org/wrdv/testme-idea&#41;)
 [![Build Status](https://github.com/wrdv/testme-idea/actions)](https://github.com/wrdv/testme-idea/actions/workflows/test.yml/badge.svg?event=push)
-[![Coverage Status](https://coveralls.io/repos/github/wrdv/testme-idea/badge.svg?branch=master)](https://coveralls.io/github/wrdv/testme-idea?branch=master)
+[![Coverage Status](https://coveralls.io/github/wrdv/testme-idea?branch=master)](https://coveralls.io/repos/github/wrdv/testme-idea/badge.svg?branch=master)
 
 Auto Generate Unit Tests in Java, Groovy or Scala.
 No more boilerplate!
