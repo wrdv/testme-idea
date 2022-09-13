@@ -1,7 +1,5 @@
 package com.weirddev.testme.intellij.template
 
-import com.weirddev.testme.intellij.common.utils.LanguageUtils
-import com.weirddev.testme.intellij.template.context.Language
 import org.junit.Test
 
 /**
