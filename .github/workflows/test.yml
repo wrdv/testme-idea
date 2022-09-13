@@ -56,10 +56,20 @@ jobs:
           name: IDEA ${{matrix.IDEA_VERSION}} with plugins:${{matrix.WITH_IDEA_PLUGINS}} - Test Results
           path: build/test-results/**/*.xml
           reporter: java-junit
+      - uses: actions/upload-artifact@v2
+        if: success() || failure()
+        with:
+          name: test result artifacts
+          path: build/reports/**/*.*
+
       - name: On failure - print report
         #      if: failure()
         if: ( success() || failure() ) && steps.run-test.outcome != 'success'
         run: ./print_surefire_reports.sh
+      - name: Coveralls upload
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: coveralls
   #    - name: Report Coveralls
   #      if: success()
   #      uses: coverallsapp/github-action@master
@@ -67,19 +77,19 @@ jobs:
   #        github-token: ${{ secrets.github_token }}
   #        flag-name: run-${{ matrix.IDEA_VERSION }}-with-plugins-${{ matrix.WITH_IDEA_PLUGINS }}
   #        parallel: true
-  finish:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      #      - name: Coveralls Complete
-      #        uses: coverallsapp/github-action@master
-      #        with:
-      #          github-token: ${{ secrets.github_token }}
-      #          parallel-finished: true
-      - name: Coveralls upload
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: coveralls
+#  finish:
+#    needs: build
+#    runs-on: ubuntu-latest
+#    steps:
+#      #      - name: Coveralls Complete
+#      #        uses: coverallsapp/github-action@master
+#      #        with:
+#      #          github-token: ${{ secrets.github_token }}
+#      #          parallel-finished: true
+#      - name: Coveralls upload
+#        uses: gradle/gradle-build-action@v2
+#        with:
+#          arguments: coveralls
 
 #
 #    - name: "on success - upload coveralls"
