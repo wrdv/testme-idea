@@ -50,7 +50,7 @@ jobs:
         uses: dorny/test-reporter@v1.5.0
         if: success() || failure()
         with:
-          name: Unit Tests
+          name: IDEA ${{matrix.IDEA_VERSION}} with plugins:${{matrix.WITH_IDEA_PLUGINS}} - Test Results
           path: build/test-results/test/*.xml
           reporter: java-junit
       - name: On failure - print report
@@ -64,19 +64,19 @@ jobs:
   #        github-token: ${{ secrets.github_token }}
   #        flag-name: run-${{ matrix.IDEA_VERSION }}-with-plugins-${{ matrix.WITH_IDEA_PLUGINS }}
   #        parallel: true
-#  finish:
-#    needs: build
-#    runs-on: ubuntu-latest
-#    steps:
-#      #      - name: Coveralls Complete
-#      #        uses: coverallsapp/github-action@master
-#      #        with:
-#      #          github-token: ${{ secrets.github_token }}
-#      #          parallel-finished: true
-#      - name: Coveralls upload
-#        uses: gradle/gradle-build-action@v2
-#        with:
-#          arguments: coveralls
+  finish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      #      - name: Coveralls Complete
+      #        uses: coverallsapp/github-action@master
+      #        with:
+      #          github-token: ${{ secrets.github_token }}
+      #          parallel-finished: true
+      - name: Coveralls upload
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: coveralls
 
 #
 #    - name: "on success - upload coveralls"
