@@ -51,11 +51,11 @@ jobs:
         if: success() || failure()
         with:
           name: IDEA ${{matrix.IDEA_VERSION}} with plugins:${{matrix.WITH_IDEA_PLUGINS}} - Test Results
-          path: build/test-results/test/*.xml
+          path: build/test-results/** /*.xml
           reporter: java-junit
       - name: On failure - print report
         #      if: failure()
-        if: steps.run-test.outcome != 'success'
+        if: ( success() || failure() ) && steps.run-test.outcome != 'success'
         run: ./print_surefire_reports.sh
   #    - name: Report Coveralls
   #      if: success()
