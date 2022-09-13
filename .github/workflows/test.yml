@@ -13,15 +13,18 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        IDEA_VERSION: [ 2021.1, 2022.1.4 ]
+        IDEA_VERSION: [ 2021.1, 2022.1.4, 2022.2.1 ]
         WITH_IDEA_PLUGINS: [ true, false ]
         include:
           - IDEA_VERSION: 2021.1
             SCALA_PLUGIN_VERSION: 2021.1.16
 
+          - IDEA_VERSION: 2022.2.1
+            SCALA_PLUGIN_VERSION: 2022.2.13
+
           - IDEA_VERSION: 2021.1
             WITH_IDEA_PLUGINS: true
-            UPLOAD_TEST_RESULTS: true
+#            UPLOAD_TEST_RESULTS: true
 
           - IDEA_VERSION: 2022.1.4
             SCALA_PLUGIN_VERSION: 2022.1.17
@@ -51,7 +54,7 @@ jobs:
         if: success() || failure()
         with:
           name: IDEA ${{matrix.IDEA_VERSION}} with plugins:${{matrix.WITH_IDEA_PLUGINS}} - Test Results
-          path: build/test-results/** /*.xml
+          path: build/test-results/**/*.xml
           reporter: java-junit
       - name: On failure - print report
         #      if: failure()
