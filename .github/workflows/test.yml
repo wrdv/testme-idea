@@ -47,12 +47,12 @@ jobs:
             -PenableIdeaScalaPlugin=${{ matrix.WITH_IDEA_PLUGINS }}
 
       - name: Test Results
-          uses: dorny/test-reporter@v1.5
-          if: success() || failure()
-          with:
-            name: Unit Tests
-            path: build/test-results/test/*.xml
-            reporter: java-junit
+        uses: dorny/test-reporter@v1.5
+        if: success() || failure()
+        with:
+          name: Unit Tests
+          path: build/test-results/test/*.xml
+          reporter: java-junit
       - name: On failure - print report
         #      if: failure()
         if: steps.run-test.outcome != 'success'
