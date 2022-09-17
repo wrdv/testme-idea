@@ -62,7 +62,7 @@ jobs:
         uses: actions/upload-artifact@v2
         if: success() || failure()
         with:
-          name: test results ${{matrix.IDEA_VERSION}} plugins:${{matrix.WITH_IDEA_PLUGINS}}
+          name: test results ${{matrix.IDEA_VERSION}} plugins=${{matrix.WITH_IDEA_PLUGINS}}
           path: build/reports/**
 
       - name: On failure - log report
