@@ -1,7 +1,6 @@
 # TestMe IJ IDEA Plugin
-[//]: # ([![Build Status]&#40;https://travis-ci.org/wrdv/testme-idea.svg?branch=master&#41;]&#40;https://travis-ci.org/wrdv/testme-idea&#41;)
 [![Build Status](https://github.com/wrdv/testme-idea/actions/workflows/test.yml/badge.svg?event=push)](https://github.com/wrdv/testme-idea/actions)
-[![Coverage Status](https://coveralls.io/repos/github/wrdv/testme-idea/badge.svg?branch=master)](https://coveralls.io/github/wrdv/testme-idea?branch=master)
+[![coverage](https://codecov.io/gh/wrdv/testme-idea/branch/master/graph/badge.svg)](https://codecov.io/gh/wrdv/testme-idea)
 
 Auto Generate Unit Tests in Java, Groovy or Scala.
 No more boilerplate!
@@ -9,7 +8,7 @@ No more boilerplate!
 ### Main Features
 - Auto generate Java, Scala or Groovy test code with JUnit 4/5, TestNG, Spock or Specs2 frameworks
 - Auto generate Mockito mocks
-- Generate test params and assertion statements
+- Generate test params and assertion statem§ents
 - Generate relevant mocked return statements
 - Integrates with IDEA menus: Code->TestMe, Code->Generate
 
