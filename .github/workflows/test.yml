@@ -29,7 +29,8 @@ jobs:
           - IDEA_VERSION: 2022.1.4
             SCALA_PLUGIN_VERSION: 2022.1.17
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
 
       - name: Set up JDK 11
         uses: actions/setup-java@v3
@@ -49,27 +50,39 @@ jobs:
             -PenableIdeaGroovyPlugin=${{ matrix.WITH_IDEA_PLUGINS }}
             -PenableIdeaScalaPlugin=${{ matrix.WITH_IDEA_PLUGINS }}
 
-      - name: Test Results
+      - name: Test Report
         uses: dorny/test-reporter@v1.5.0
         if: success() || failure()
         with:
           name: IDEA ${{matrix.IDEA_VERSION}} with plugins:${{matrix.WITH_IDEA_PLUGINS}} - Test Results
           path: build/test-results/**/*.xml
           reporter: java-junit
-      - uses: actions/upload-artifact@v2
+
+      - name: Test Results artifacts
+        uses: actions/upload-artifact@v2
         if: success() || failure()
         with:
-          name: test result artifacts
-          path: build/reports/**/*.*
+          name: test results ${{matrix.IDEA_VERSION}} plugins:${{matrix.WITH_IDEA_PLUGINS}}
+          path: build/reports/**
 
-      - name: On failure - print report
+      - name: On failure - log report
         #      if: failure()
         if: ( success() || failure() ) && steps.run-test.outcome != 'success'
         run: ./print_surefire_reports.sh
-      - name: Coveralls upload
-        uses: gradle/gradle-build-action@v2
+
+#      - name: Coveralls upload
+#        uses: gradle/gradle-build-action@v2
+#        with:
+#          arguments: coveralls
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v3
         with:
-          arguments: coveralls
+#          files: ./coverage1.xml,./coverage2.xml # optional
+#          flags: unittests # optional
+#          name: codecov-umbrella # optional
+          fail_ci_if_error: true # optional (default = false)
+          verbose: true # optional (default = false)
+
   #    - name: Report Coveralls
   #      if: success()
   #      uses: coverallsapp/github-action@master
