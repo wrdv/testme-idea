@@ -1,33 +1,20 @@
-name: CI
+name: Test
 on:
-  pull_request:
-  push:
-    branches:
-      - '**'
-    paths-ignore:
-      - '*.md'
+  workflow_call:
+    inputs:
+      IDEA_VERSION:
+        required: true
+        type: string
+      WITH_IDEA_PLUGINS:
+        required: true
+        type: string
+      SCALA_PLUGIN_VERSION:
+        required: false
+        type: string
 jobs:
-  build:
+  test:
     name: test IDEA ${{matrix.IDEA_VERSION}} with plugins:${{matrix.WITH_IDEA_PLUGINS}}
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        IDEA_VERSION: [ 2021.1, 2022.1.4, 2022.2.1 ]
-        WITH_IDEA_PLUGINS: [ true, false ]
-        include:
-          - IDEA_VERSION: 2021.1
-            SCALA_PLUGIN_VERSION: 2021.1.16
-
-          - IDEA_VERSION: 2022.2.1
-            SCALA_PLUGIN_VERSION: 2022.2.13
-
-          - IDEA_VERSION: 2021.1
-            WITH_IDEA_PLUGINS: true
-#            UPLOAD_TEST_RESULTS: true
-
-          - IDEA_VERSION: 2022.1.4
-            SCALA_PLUGIN_VERSION: 2022.1.17
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -70,10 +57,6 @@ jobs:
         if: ( success() || failure() ) && steps.run-test.outcome != 'success'
         run: ./print_surefire_reports.sh
 
-#      - name: Coveralls upload
-#        uses: gradle/gradle-build-action@v2
-#        with:
-#          arguments: coveralls
       - name: Upload to Codecov
         uses: codecov/codecov-action@v3
         with:
@@ -82,32 +65,3 @@ jobs:
 #          name: codecov-umbrella # optional
           fail_ci_if_error: true # optional (default = false)
           verbose: true # optional (default = false)
-
-  #    - name: Report Coveralls
-  #      if: success()
-  #      uses: coverallsapp/github-action@master
-  #      with:
-  #        github-token: ${{ secrets.github_token }}
-  #        flag-name: run-${{ matrix.IDEA_VERSION }}-with-plugins-${{ matrix.WITH_IDEA_PLUGINS }}
-  #        parallel: true
-#  finish:
-#    needs: build
-#    runs-on: ubuntu-latest
-#    steps:
-#      #      - name: Coveralls Complete
-#      #        uses: coverallsapp/github-action@master
-#      #        with:
-#      #          github-token: ${{ secrets.github_token }}
-#      #          parallel-finished: true
-#      - name: Coveralls upload
-#        uses: gradle/gradle-build-action@v2
-#        with:
-#          arguments: coveralls
-
-#
-#    - name: "on success - upload coveralls"
-#      if: success() && ${{ matrix.UPLOAD_TEST_RESULTS }} 
-#      uses: gradle/gradle-build-action@v2
-#      with:
-#        arguments: coveralls
-
