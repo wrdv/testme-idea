@@ -1,0 +1,34 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches:
+      - '**'
+    paths-ignore:
+      - '*.md'
+
+jobs:
+  triggerTest:
+    strategy:
+      fail-fast: false
+      matrix:
+        IDEA_VERSION: [ 2021.1, 2022.1.4, 2022.2.1 ]
+        WITH_IDEA_PLUGINS: [ true, false ]
+        include:
+          - IDEA_VERSION: 2021.1
+            SCALA_PLUGIN_VERSION: 2021.1.16
+
+          - IDEA_VERSION: 2022.2.1
+            SCALA_PLUGIN_VERSION: 2022.2.13
+
+          - IDEA_VERSION: 2021.1
+            WITH_IDEA_PLUGINS: true
+          #            UPLOAD_TEST_RESULTS: true
+
+          - IDEA_VERSION: 2022.1.4
+            SCALA_PLUGIN_VERSION: 2022.1.17
+    uses: .github/workflows/test.yml
+    with:
+      IDEA_VERSION: ${{ matrix.IDEA_VERSION }}
+      WITH_IDEA_PLUGINS: ${{ matrix.WITH_IDEA_PLUGINS }}
+      SCALA_PLUGIN_VERSION: ${{ matrix.SCALA_PLUGIN_VERSION }}
