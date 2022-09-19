@@ -27,7 +27,7 @@ jobs:
 
           - IDEA_VERSION: 2022.1.4
             SCALA_PLUGIN_VERSION: 2022.1.17
-    uses: .github/workflows/test.yml
+    uses: ./.github/workflows/test.yml
     with:
       IDEA_VERSION: ${{ matrix.IDEA_VERSION }}
       WITH_IDEA_PLUGINS: ${{ matrix.WITH_IDEA_PLUGINS }}
