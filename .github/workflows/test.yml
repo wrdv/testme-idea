@@ -13,7 +13,7 @@ on:
         type: string
 jobs:
   test:
-    name: test IDEA ${{matrix.IDEA_VERSION}} with plugins:${{matrix.WITH_IDEA_PLUGINS}}
+    name: test IDEA ${{inputs.IDEA_VERSION}} with plugins:${{inputs.WITH_IDEA_PLUGINS}}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -32,16 +32,16 @@ jobs:
           arguments: |
             check
             jacocoRootReport
-            -PideaVersion=${{ matrix.IDEA_VERSION }} 
-            -PscalaPluginVersion=${{ matrix.SCALA_PLUGIN_VERSION }}
-            -PenableIdeaGroovyPlugin=${{ matrix.WITH_IDEA_PLUGINS }}
-            -PenableIdeaScalaPlugin=${{ matrix.WITH_IDEA_PLUGINS }}
+            -PideaVersion=${{ inputs.IDEA_VERSION }} 
+            -PscalaPluginVersion=${{ inputs.SCALA_PLUGIN_VERSION }}
+            -PenableIdeaGroovyPlugin=${{ inputs.WITH_IDEA_PLUGINS }}
+            -PenableIdeaScalaPlugin=${{ inputs.WITH_IDEA_PLUGINS }}
 
       - name: Test Report
         uses: dorny/test-reporter@v1.5.0
         if: success() || failure()
         with:
-          name: IDEA ${{matrix.IDEA_VERSION}} with plugins:${{matrix.WITH_IDEA_PLUGINS}} - Test Results
+          name: IDEA ${{inputs.IDEA_VERSION}} with plugins:${{inputs.WITH_IDEA_PLUGINS}} - Test Results
           path: build/test-results/**/*.xml
           reporter: java-junit
 
@@ -49,7 +49,7 @@ jobs:
         uses: actions/upload-artifact@v2
         if: success() || failure()
         with:
-          name: test results ${{matrix.IDEA_VERSION}} plugins=${{matrix.WITH_IDEA_PLUGINS}}
+          name: test results ${{inputs.IDEA_VERSION}} plugins=${{inputs.WITH_IDEA_PLUGINS}}
           path: build/reports/**
 
       - name: On failure - log report
