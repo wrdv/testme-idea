@@ -33,6 +33,7 @@ class ${CLASS_NAME}  extends Specification {
         when:
         #grRenderMethodCall($method,$TESTED_CLASS.name)
 
+
         then:
 #if($method.hasReturn())        #grRenderAssert($method)#{else}false//todo - validate something
 #end

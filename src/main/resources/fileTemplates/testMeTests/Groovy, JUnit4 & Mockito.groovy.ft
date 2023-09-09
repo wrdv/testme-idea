@@ -33,8 +33,9 @@ class ${CLASS_NAME} {
 #grRenderMockStubs($method,$TESTED_CLASS.fields)
 
 #end
-        #grRenderMethodCall($method,$TESTED_CLASS.name)
-#if($method.hasReturn())        assert #grRenderAssert($method)
+$TAB$TAB#grRenderMethodCall($method,$TESTED_CLASS.name)
+#if($method.hasReturn())
+        assert #grRenderAssert($method)
 #end
     }
 #end

@@ -3,8 +3,8 @@ package com.weirddev.testme.intellij.template.context;
 import com.intellij.openapi.diagnostic.Logger;
 import com.weirddev.testme.intellij.generator.TestBuilderUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

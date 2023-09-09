@@ -6,11 +6,14 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.keymap.KeymapManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.startup.StartupActivity;
+import com.intellij.openapi.startup.ProjectActivity;
 import com.weirddev.testme.intellij.utils.AccessLevelReflectionUtils;
+import kotlin.Unit;
+import kotlin.coroutines.Continuation;
 import org.apache.velocity.runtime.RuntimeInstance;
 import org.apache.velocity.runtime.RuntimeSingleton;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.lang.reflect.Field;
@@ -23,19 +26,20 @@ import java.util.Map;
  *
  * @author Yaron Yamin
  */
-public class TestMePluginRegistration implements StartupActivity {
+public class TestMePluginRegistration implements ProjectActivity {
 
     private static final String GOTO_TEST_ACTION_ID = "GotoTest";
 
     private static final Logger LOG = Logger.getInstance(TestMePluginRegistration.class.getName());
 
+    @Nullable
     @Override
-    public void runActivity(@NotNull Project project) {
+    public Object execute(@NotNull Project project, @NotNull Continuation<? super Unit> continuation) {
         try {
             hackVelocity();
         } catch (Exception e) {
             LOG.error("couldn't initialize TestMe plugin",e);
-            return;
+            return null;
         }
         Application application = ApplicationManager.getApplication();
         KeymapManager keymapManager = application == null ? null : application.getService(KeymapManager.class);
@@ -51,6 +55,7 @@ public class TestMePluginRegistration implements StartupActivity {
                 keymapManager.getActiveKeymap().removeShortcut(actionId,shortcut);
             }
         }
+        return null;
     }
 
     @NotNull

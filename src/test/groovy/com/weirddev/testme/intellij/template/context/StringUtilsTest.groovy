@@ -9,6 +9,11 @@ import org.junit.Test
 class StringUtilsTest {
 
     @Test
+    void testCapitalizeFirstLetter() {
+        String result = StringUtils.capitalizeFirstLetter("replaceMeWithExpectedResult")
+        assert result == "ReplaceMeWithExpectedResult"
+    }
+    @Test
     void testDeCapitalizeFirstLetter() {
         String result = StringUtils.deCapitalizeFirstLetter("ReplaceMeWithExpectedResult")
         assert result == "replaceMeWithExpectedResult"

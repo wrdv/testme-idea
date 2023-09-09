@@ -36,10 +36,9 @@ class ${CLASS_NAME}  extends Specification {
         #grRenderParameterizedMethodCall($method, $TESTED_CLASS.name, $paraTestComponents.methodClassParamsStr)#{if}($TestSubjectUtils.isJavaFuture($method.returnType)).get()#{end}#if($method.hasReturn()) == expectedResult
 #end
 #if(!$method.hasReturn())
-
         assert expectedResult == false //todo - validate something
-#end
 
+#end
         where:
         $TestSubjectUtils.formatSpockDataParameters($paraTestComponents.paramsMap, "        ")
     }

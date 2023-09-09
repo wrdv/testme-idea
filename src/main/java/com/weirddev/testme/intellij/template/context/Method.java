@@ -22,8 +22,7 @@ import com.weirddev.testme.intellij.utils.ClassNameUtils;
 import com.weirddev.testme.intellij.utils.JavaPsiTreeUtils;
 import com.weirddev.testme.intellij.utils.PropertyUtils;
 import lombok.Getter;
-import javax.annotation.Nullable;
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -244,7 +243,7 @@ public class Method {
         }
     }
 
-    private static PsiField resolveLeftHandExpressionAsField(@Nonnull PsiExpression expr) {
+    private static PsiField resolveLeftHandExpressionAsField(PsiExpression expr) {
         PsiElement parent = PsiTreeUtil.skipParentsOfType(expr, PsiParenthesizedExpression.class);
         if (!(parent instanceof PsiAssignmentExpression)) {
             return null;
@@ -267,8 +266,7 @@ public class Method {
             return false;
         }
     }
-    @Nonnull
-    private Optional<PsiSubstitutor> findMethodSubstitutor(PsiMethod psiMethod, PsiClass srcClass, @javax.annotation.Nullable  PsiType ownerClassPsiType) {
+    private Optional<PsiSubstitutor> findMethodSubstitutor(PsiMethod psiMethod, PsiClass srcClass, @Nullable  PsiType ownerClassPsiType) {
 //        if (/*isInherited() && */(isTestable() || isConstructor()) && srcClass != null && hasGenericType(psiMethod)) {
         if (isInherited() && isTestable() && srcClass != null && hasGenericType(psiMethod)) {
             //todo debug simpler case, check if logic can be simplified without relying to method name first

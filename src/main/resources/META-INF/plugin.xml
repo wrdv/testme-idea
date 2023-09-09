@@ -21,13 +21,14 @@
   <change-notes><![CDATA[
         <i>Main Changes in v5.2.0</i>
           <ul>
+            <li>Support IDEA version 2023.2</li>
             <li>test generator: use argument name as string value for generic type parameters</li>
           </ul>
         <a href="http://weirddev.com/testme/release-notes">Complete Release Notes listing</a>
     ]]>
   </change-notes>
   <!-- please see https://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
-  <idea-version since-build="211"/>
+  <idea-version since-build="232"/>
   <depends>com.intellij.modules.java</depends>
   <depends>JUnit</depends>
   <depends optional="true" config-file="plugin-groovy.xml">org.intellij.groovy</depends>
@@ -46,7 +47,7 @@
   </project-components>
 
   <actions>
-    <action id="GotoTest" class="com.weirddev.testme.intellij.action.GotoTestOrCodeActionExt"  overrides="true"/>
+<!--    <action id="GotoTest" class="com.weirddev.testme.intellij.action.GotoTestOrCodeActionExt"  overrides="true"/>-->
     <action id="testme.action.generators" class="com.weirddev.testme.intellij.action.TestMeAction"
             text="&amp;TestMe..." description="TestMe Unit test generators" icon="/icons/TestMe.png" >
       <keyboard-shortcut first-keystroke="alt shift Q" keymap="$default" />

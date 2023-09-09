@@ -38,6 +38,7 @@ public class TestTemplateContextBuilder {
         HashMap<String, Object> ctxtParams = initTemplateContext(defaultProperties);
         populateDateFields(ctxtParams, Calendar.getInstance());
         ctxtParams.put(TestMeTemplateParams.CLASS_NAME, context.getTargetClass());
+        ctxtParams.put("TAB", "    ");
         ctxtParams.put(TestMeTemplateParams.PACKAGE_NAME, context.getTargetPackage().getQualifiedName());
         int maxRecursionDepth = context.getFileTemplateConfig().getMaxRecursionDepth();
         ctxtParams.put(TestMeTemplateParams.MAX_RECURSION_DEPTH, maxRecursionDepth);
