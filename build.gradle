@@ -8,12 +8,11 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 //}
 
 plugins {
-    id "org.jetbrains.intellij" version "1.7.0"
+    id "org.jetbrains.intellij" version "1.15.0"
     id 'jacoco'
-    id 'org.unbroken-dome.test-sets' version '2.1.1'
-//    id 'net.saliman.cobertura' version '2.3.1'
-    id 'com.github.kt3k.coveralls' version '2.12.0'
-    id "io.freefair.lombok" version "5.3.3.3"
+    id 'org.unbroken-dome.test-sets' version '4.0.0'
+    id 'com.github.kt3k.coveralls' version '2.8.2'
+    id "io.freefair.lombok" version "8.3"
 }
 //cobertura.coverageFormats = ['html', 'xml'] // coveralls plugin depends on xml format report
 //def buildTrigger = System.getenv('TRAVIS_EVENT_TYPE')
@@ -35,8 +34,7 @@ def isRunInCI=Boolean.valueOf(System.getenv('CI'))
 def spockVersion = ideaVersion.startsWith("2021")?   "1.0-groovy-2.4" : "2.2-groovy-3.0"
 
 jacoco {
-//    toolVersion = "0.7.6.201602180812"
-    toolVersion = "0.8.6"
+    toolVersion = "0.8.10"
 }
 allprojects{
     sourceCompatibility = jvmTargetVersion
@@ -65,6 +63,7 @@ allprojects{
         reports.html.enabled = !isRunInCI
     }
     tasks.withType(Test) {
+        systemProperty 'java.awt.headless', 'true'
         systemProperty 'enableIdeaGroovyPlugin', enableIdeaGroovyPlugin
         systemProperty 'enableIdeaScalaPlugin', enableIdeaScalaPlugin
         reports.html.destination = file("${reporting.baseDir}/${name}")
@@ -231,7 +230,7 @@ task templateContextJavadocs(type: Javadoc, description: 'Generate javadocs for 
     options.header  = javadocHeader
 //    source = sourceSets.main.allJava
     source += delombok
-    classpath = configurations.compile
+//    classpath = configurations.compile  //should default to project.sourceSets.main.compileClasspath
     include 'com/weirddev/testme/intellij/template/context/*'
     exclude 'com/weirddev/testme/intellij/template/context/impl*'
 

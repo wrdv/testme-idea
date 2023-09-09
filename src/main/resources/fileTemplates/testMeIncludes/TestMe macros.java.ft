@@ -81,7 +81,7 @@ assertEquals(result#{if}($TestSubjectUtils.isJavaFuture($method.returnType)).get
 #end##
 ##
 #macro(renderMethodCall $method,$testedClassName)
-#renderJavaReturnVar($method.returnType)#if($method.static)$testedClassName#{else}$StringUtils.deCapitalizeFirstLetter($testedClassName)#end.${method.name}($TestBuilder.renderMethodParams($method,$replacementTypes,$defaultTypeValues));
+#renderJavaReturnVar($method.returnType)#if($method.static)$testedClassName#{else}$StringUtils.deCapitalizeFirstLetter($testedClassName)#end.${method.name}($TestBuilder.renderMethodParams($method,$replacementTypes,$defaultTypeValues));##
 #end
 ##
 #macro(renderMockStubs $method $testedClassFields)

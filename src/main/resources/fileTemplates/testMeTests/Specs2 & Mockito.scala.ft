@@ -33,8 +33,9 @@ class ${CLASS_NAME} extends Specification #if($hasMocks) with Mockito#end{
 #if($MockitoMockBuilder.shouldStub($method,$constructor,$scDefaultTypeValues))
 #scRenderMockStubs($method, $constructor)
 #end
-        #scRenderMethodCall($method,$TESTED_CLASS)
-#if($method.hasReturn())        #scRenderAssert($method)#{else}false//todo - validate something
+$TAB$TAB#scRenderMethodCall($method,$TESTED_CLASS)
+#if($method.hasReturn())
+$TAB$TAB#scRenderAssert($method)#{else}false//todo - validate something
 #end
       }
 #end

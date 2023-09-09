@@ -3,11 +3,11 @@
 ##
 ################## Macros #####################
 #macro(renderTestMethodName $methodName)
-test$StringUtils.capitalizeFirstLetter($methodName)#testMethodSuffix($methodName,"")
+test$StringUtils.capitalizeFirstLetter($methodName)#testMethodSuffix($methodName,"")##
 #end
 ##
 #macro(renderTestMethodNameAsWords $methodName)
-$StringUtils.camelCaseToWords($methodName)#testMethodSuffix($methodName," ")
+$StringUtils.camelCaseToWords($methodName)#testMethodSuffix($methodName," ")##
 #end
 ##
 #macro(testMethodSuffix $methodName, $prefix)

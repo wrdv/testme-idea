@@ -34,8 +34,9 @@ public class ${CLASS_NAME} {
 #renderMockStubs($method,$TESTED_CLASS.fields)
 
 #end
-        #renderMethodCall($method,$TESTED_CLASS.name)
-#if($method.hasReturn())        Assert.#renderJUnitAssert($method)#end
+$TAB$TAB#renderMethodCall($method,$TESTED_CLASS.name)
+#if($method.hasReturn())
+        Assert.#renderJUnitAssert($method)#end
     }
 #end
 #end

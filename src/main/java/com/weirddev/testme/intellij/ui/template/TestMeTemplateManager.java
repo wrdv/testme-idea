@@ -9,12 +9,10 @@ import com.intellij.ide.fileTemplates.impl.CustomFileTemplate;
 import com.intellij.ide.fileTemplates.impl.FileTemplateBase;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ApplicationNamesInfo;
-import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.components.State;
-import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.components.*;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileTypes.ex.FileTypeManagerEx;
+import com.intellij.openapi.project.DefaultProjectFactory;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.project.ProjectKt;
@@ -59,11 +57,11 @@ public class TestMeTemplateManager extends FileTemplateManager implements Persis
   private final TemplateRegistry templateRegistry = new TemplateRegistry(); //todo consider making this a service
 
   public static TestMeTemplateManager getInstance(@NotNull Project project){
-    return ServiceManager.getService(project, TestMeTemplateManager.class);
+    return project.getService(TestMeTemplateManager.class);
   }
 
   public static TestMeTemplateManager getDefaultInstance(){
-    return ServiceManager.getService(TestMeTemplateManager.class);
+    return TestMeTemplateManager.getInstance(DefaultProjectFactory.getInstance().getDefaultProject());
   }
 
   TestMeTemplateManager(
