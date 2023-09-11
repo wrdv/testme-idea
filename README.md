@@ -12,7 +12,7 @@ No more boilerplate!
 - Generate relevant mocked return statements
 - Integrates with IDEA menus: Code->TestMe, Code->Generate
 
-For a more detailed documentation, please refer to http://weirddev.com/testme/
+For a more detailed documentation, please refer to https://weirddev.com/testme/
 
 ### Installation/Usage
 Installation available from JetBrains plugins repository:
@@ -21,11 +21,11 @@ Installation available from JetBrains plugins repository:
 
 
 ### Issue Tracking
-You're welcome to report issues and raise feature requests at [TestMe project forum](http://weirddev.com/forum#!/testme)
+You're welcome to report issues and raise feature requests at [TestMe project forum](https://weirddev.com/forum#!/testme)
 
 ### Contributing/Developing
 Please refer to [`CONTRIBUTING.md`](./CONTRIBUTING.md) file.
 
 
 ### License
-Copyright (c) 2017 - 2019 [WeirdDev](http://weirddev.com). Licensed for free usage under the terms and conditions of AGPLv3 - [GNU Affero General Public License v3](https://www.gnu.org/licenses/agpl-3.0.en.html).
+Copyright (c) 2017 - 2019 [WeirdDev](https://weirddev.com). Licensed for free usage under the terms and conditions of AGPLv3 - [GNU Affero General Public License v3](https://www.gnu.org/licenses/agpl-3.0.en.html).
