@@ -59,7 +59,7 @@ class FileTemplatesLoader {
     Path configDir = Paths.get(project == null || project.isDefault()
                                ? PathManager.getConfigPath()
                                : UriUtil.trimTrailingSlashes(Objects.requireNonNull(ProjectKt.getStateStore(project).getDirectoryStorePath(true))), TEMPLATES_DIR);
-
+    //deprecation...ProjectKt.getStateStore(project).getProjectFilePath().toString() ?!
     myTestTemplatesManager = new FTManager(TestMeTemplateManager.TEST_TEMPLATES_CATEGORY, configDir.resolve(TESTS_DIR), true);
     myIncludesManager = new FTManager(FileTemplateManager.INCLUDES_TEMPLATES_CATEGORY, configDir.resolve(INCLUDES_DIR));
     myAllManagers = new FTManager[]{
@@ -80,14 +80,6 @@ class FileTemplatesLoader {
     for (FTManager manager : myAllManagers) {
       manager.setDefaultTemplates(result.getResult().get(managerToPrefix.get(manager)));
       manager.loadCustomizedContent();
-    }
-  }
-
-  private Path resolveInternalTemplatesRoot() {
-    try {
-      return ResourceLoader.getPath("/" + TEMPLATES_DIR+"/"+ TESTS_DIR);
-    } catch (URISyntaxException | IOException e) {
-      throw new RuntimeException(e);
     }
   }
 
@@ -121,12 +113,12 @@ class FileTemplatesLoader {
 
   @NotNull
   private static FileTemplateLoadResult loadDefaultTemplates(@NotNull List<String> prefixes) {
-    FileTemplateLoadResult result = new FileTemplateLoadResult(MultiMap.createSmart());
+    FileTemplateLoadResult result = new FileTemplateLoadResult(new MultiMap<>());
     Set<URL> processedUrls = new THashSet<>();
     Set<ClassLoader> processedLoaders = new HashSet<>();
     IdeaPluginDescriptor[] plugins = PluginManagerCore.getPlugins();
     for (PluginDescriptor plugin : plugins) {
-      if (plugin instanceof IdeaPluginDescriptorImpl && ((IdeaPluginDescriptorImpl)plugin).isEnabled()) {
+      if (plugin instanceof IdeaPluginDescriptorImpl && plugin.isEnabled()) {
         final ClassLoader loader = plugin.getPluginClassLoader();
         if (loader instanceof PluginClassLoader && ((PluginClassLoader)loader).getUrls().isEmpty() ||
             !processedLoaders.add(loader)) {
