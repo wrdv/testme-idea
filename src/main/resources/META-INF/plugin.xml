@@ -1,8 +1,8 @@
 <idea-plugin>
   <id>com.weirddev.testme</id>
   <name>TestMe</name>
-  <version>5.2.0</version>
-  <vendor email="testme@weirddev.com" url="http://weirddev.com">WeirdDev</vendor>
+  <version>6.0.0</version>
+  <vendor email="testme@weirddev.com" url="https://weirddev.com">WeirdDev</vendor>
 
   <description><![CDATA[
    <p>Auto Generate Unit Tests in Java, Groovy or Scala.</p>
@@ -15,16 +15,16 @@
      <li>Integrates with IDEA menus: Code->TestMe, Code->Generate</li>
      <li>Configure custom test code generation: Preferences -> TestMe -> TestMe Templates</li>
    </ul>
-   <p>You're welcome to report issues and raise feature requests at <a href="http://weirddev.com/forum#!/testme">TestMe project forum</a></p>
+   <p>You're welcome to report issues and raise feature requests at <a href="https://weirddev.com/forum#!/testme">TestMe project forum</a></p>
     ]]></description>
 
   <change-notes><![CDATA[
-        <i>Main Changes in v5.2.0</i>
+        <i>Main Changes:</i>
           <ul>
             <li>Support IDEA version 2023.2</li>
             <li>test generator: use argument name as string value for generic type parameters</li>
           </ul>
-        <a href="http://weirddev.com/testme/release-notes">Complete Release Notes listing</a>
+        <a href="https://weirddev.com/testme/release-notes">Complete Release Notes listing</a>
     ]]>
   </change-notes>
   <!-- please see https://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
