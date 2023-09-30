@@ -1,6 +1,7 @@
 package com.weirddev.testme.intellij.common.utils;
 
 import com.intellij.ide.plugins.PluginManager;
+import com.intellij.ide.plugins.PluginManagerCore;
 import com.intellij.lang.Language;
 import com.intellij.openapi.extensions.PluginId;
 
@@ -16,7 +17,8 @@ public class LanguageUtils {
     private static final String SCALA_LANGUAGE_ID = "Scala";
 
     public static boolean isPluginEnabled(String pluginId){
-        return PluginManager.isPluginInstalled(PluginId.getId(pluginId)) && !PluginManager.getDisabledPlugins().contains(pluginId);
+        PluginId id = PluginId.getId(pluginId);
+        return PluginManager.isPluginInstalled(id) && !PluginManagerCore.isDisabled(id);
     }
 
     public static boolean isGroovy(Language language) {

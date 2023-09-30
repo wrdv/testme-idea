@@ -55,8 +55,8 @@ class FooTest extends Specification {
         foo.lookInto(backTo, theFuture).get() == expectedResult
 
         where:
-        backTo                                      | theFuture                                   || expectedResult
-        CompletableFuture.completedFuture("String") | CompletableFuture.completedFuture("String") || "String"
+        backTo                                      | theFuture                                      || expectedResult
+        CompletableFuture.completedFuture("backTo") | CompletableFuture.completedFuture("theFuture") || "expectedResult"
     }
 
     @Unroll
@@ -88,4 +88,4 @@ class FooTest extends Specification {
     }
 }
 
-//Generated with love by TestMe :) Please report issues and submit feature requests at: http://weirddev.com/forum#!/testme
+//Generated with love by TestMe :) Please report issues and submit feature requests at: https://weirddev.com/forum#!/testme

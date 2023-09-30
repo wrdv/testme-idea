@@ -51,8 +51,8 @@ public class FooTest {
 
     @Test
     public void testLookInto() throws Exception {
-        Future result = foo.lookInto(CompletableFuture.completedFuture("String"), CompletableFuture.completedFuture("String"));
-        Assert.assertEquals("String", result.get());
+        Future result = foo.lookInto(CompletableFuture.completedFuture("backTo"), CompletableFuture.completedFuture("theFuture"));
+        Assert.assertEquals("replaceMeWithExpectedResult", result.get());
     }
 
     @Test
@@ -74,4 +74,4 @@ public class FooTest {
     }
 }
 
-//Generated with love by TestMe :) Please report issues and submit feature requests at: http://weirddev.com/forum#!/testme
+//Generated with love by TestMe :) Please report issues and submit feature requests at: https://weirddev.com/forum#!/testme

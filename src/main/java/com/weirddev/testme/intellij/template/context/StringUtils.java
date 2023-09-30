@@ -11,6 +11,13 @@ package com.weirddev.testme.intellij.template.context;
 public class StringUtils extends org.apache.velocity.util.StringUtils {
 
     /**
+     * @return the input data string where first letter converted to upper case
+     */
+    public static String capitalizeFirstLetter(String data) {
+        return data.substring(0, 1).toUpperCase() + data.substring(1);
+    }
+
+    /**
      * @return the input data string where first letter converted to lower case
      */
     public static String deCapitalizeFirstLetter(String data) {

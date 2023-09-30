@@ -22,8 +22,7 @@ import com.weirddev.testme.intellij.utils.ClassNameUtils;
 import com.weirddev.testme.intellij.utils.JavaPsiTreeUtils;
 import com.weirddev.testme.intellij.utils.PropertyUtils;
 import lombok.Getter;
-import javax.annotation.Nullable;
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -131,7 +130,7 @@ public class Method {
      * methods referenced from this method. i.e.  SomeClassName::someMethodName
      */
     @Getter private final Set<Method> methodReferences = new HashSet<>();
-    /**
+    /*
      *  method calls of methods in this owner's class type or one of it's ancestor type. including indirectly called methods up to max method call search depth. ResolvedMethodCall objects of the class under test are deeply resolved
      *  @deprecated not used. might be removed
      */
@@ -244,7 +243,7 @@ public class Method {
         }
     }
 
-    private static PsiField resolveLeftHandExpressionAsField(@Nonnull PsiExpression expr) {
+    private static PsiField resolveLeftHandExpressionAsField(PsiExpression expr) {
         PsiElement parent = PsiTreeUtil.skipParentsOfType(expr, PsiParenthesizedExpression.class);
         if (!(parent instanceof PsiAssignmentExpression)) {
             return null;
@@ -267,8 +266,7 @@ public class Method {
             return false;
         }
     }
-    @Nonnull
-    private Optional<PsiSubstitutor> findMethodSubstitutor(PsiMethod psiMethod, PsiClass srcClass, @javax.annotation.Nullable  PsiType ownerClassPsiType) {
+    private Optional<PsiSubstitutor> findMethodSubstitutor(PsiMethod psiMethod, PsiClass srcClass, @Nullable  PsiType ownerClassPsiType) {
 //        if (/*isInherited() && */(isTestable() || isConstructor()) && srcClass != null && hasGenericType(psiMethod)) {
         if (isInherited() && isTestable() && srcClass != null && hasGenericType(psiMethod)) {
             //todo debug simpler case, check if logic can be simplified without relying to method name first

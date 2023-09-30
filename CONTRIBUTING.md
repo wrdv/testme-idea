@@ -1,7 +1,7 @@
 ## Contributing to TestMe IJ Plugin Project
 
 Contributions are welcomed :)
-Unless your intended contribution bares minor effort - it is highly recommended to post an issue/feature request first on the [project forum](http://weirddev.com/forum#!/testme) -
+Unless your intended contribution bares minor effort - it is highly recommended to post an issue/feature request first on the [project forum](https://weirddev.com/forum#!/testme) -
 the changes you plan might not fit well with planned features on the project road map or with existing functionality, so it's better to start a debate and agree on the suggested changes.
 We just don't want to waste your time and effort on a pull request that didn't get to be approved and merged into the project main branch :(
 

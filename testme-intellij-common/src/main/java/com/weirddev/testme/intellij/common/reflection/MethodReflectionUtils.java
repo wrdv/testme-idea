@@ -3,9 +3,7 @@ package com.weirddev.testme.intellij.common.reflection;
 import com.intellij.openapi.diagnostic.Logger;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 
 /**
  * Date: 30/12/2017
@@ -67,12 +65,12 @@ public class MethodReflectionUtils {
         try {
             returnTypeMethod = owner.getClass().getMethod(methodName);
         } catch (NoSuchMethodException e) {
-            LOG.info("first method search failed",e);
+            LOG.info("first method search failed:"+e.getMessage());
             if (fallbackMethodName != null) {
                 try {
                     returnTypeMethod = owner.getClass().getMethod(fallbackMethodName);
                 } catch (NoSuchMethodException e1) {
-                    LOG.warn("second method search failed",e);
+                    LOG.warn("second method search failed:"+e.getMessage());
                 }
             }
         }

@@ -81,11 +81,11 @@
 #end
 ##
 #macro(grRenderAssert $method)
-result#if($TestSubjectUtils.isJavaFuture($method.returnType)).get()#end == $TestBuilder.renderReturnParam($method,$method.returnType,"replaceMeWithExpectedResult",$grReplacementTypesForReturn,$grDefaultTypeValues)
+result#if($TestSubjectUtils.isJavaFuture($method.returnType)).get()#end == $TestBuilder.renderReturnParam($method,$method.returnType,"replaceMeWithExpectedResult",$grReplacementTypesForReturn,$grDefaultTypeValues)##
 #end
 ##
 #macro(grRenderMethodCall $method,$testedClassName)
-#renderJavaReturnVar($method.returnType)#if($method.static)$testedClassName#{else}$StringUtils.deCapitalizeFirstLetter($testedClassName)#end.${method.name}($TestBuilder.renderMethodParams($method,$grReplacementTypes,$grDefaultTypeValues))
+#renderJavaReturnVar($method.returnType)#if($method.static)$testedClassName#{else}$StringUtils.deCapitalizeFirstLetter($testedClassName)#end.${method.name}($TestBuilder.renderMethodParams($method,$grReplacementTypes,$grDefaultTypeValues))##
 #end
 ##
 #macro(grRenderParameterizedMethodCall $method,$testedClassName $methodClassParamsStr)

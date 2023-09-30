@@ -1,6 +1,7 @@
 package com.weirddev.testme.intellij.icon;
 
 import com.intellij.openapi.util.IconLoader;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
@@ -10,12 +11,18 @@ import javax.swing.*;
  * @author Yaron Yamin
  */
 public interface Icons {
-    Icon GROOVY = IconLoader.getIcon("/icons/groovy.png");
-    Icon SCALA = IconLoader.getIcon("/icons/scala.png");
-    Icon MOCKITO = IconLoader.getIcon("/icons/mockito.png");
-    Icon JUNIT4 = IconLoader.getIcon("/icons/junit.png");
-    Icon JUNIT5 = IconLoader.getIcon("/icons/junit5.png");
-    Icon JUNIT4_DARK = IconLoader.getIcon("/icons/junit_dark.png");
-    Icon TEST_ME = IconLoader.getIcon("/icons/TestMe.png");
-    Icon TESTNG = IconLoader.getIcon("/icons/testNG.png");
+    Icon GROOVY = getIcon("/icons/groovy.png");
+    Icon SCALA = getIcon("/icons/scala.png");
+    Icon MOCKITO = getIcon("/icons/mockito.png");
+    Icon JUNIT4 = getIcon("/icons/junit.png");
+    Icon JUNIT5 = getIcon("/icons/junit5.png");
+    Icon JUNIT4_DARK = getIcon("/icons/junit_dark.png");
+    Icon TEST_ME = getIcon("/icons/TestMe.png");
+    Icon TESTNG = getIcon("/icons/testNG.png");
+
+    @NotNull
+    private static Icon getIcon(String path) {
+        return IconLoader.getIcon(path, Icons.class.getClassLoader());
+    }
+
 }

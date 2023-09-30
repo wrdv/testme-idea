@@ -10,13 +10,13 @@ def enabledPlugins = ['java','junit','properties',"org.intellij.scala:$scalaPlug
 enabledPlugins = filterPlugins(enabledPlugins)
 
 intellij {
-    pluginName 'TestMe'
+    pluginName = 'TestMe'
     instrumentCode = shouldInstrumentCode
-    version ideaVersion
-    type ideaType
-    downloadSources true
-    sameSinceUntilBuild false
-    updateSinceUntilBuild false
+    version = ideaVersion
+    type = ideaType
+    downloadSources = true
+    sameSinceUntilBuild = false
+    updateSinceUntilBuild = false
     plugins = enabledPlugins
 }
 dependencies {

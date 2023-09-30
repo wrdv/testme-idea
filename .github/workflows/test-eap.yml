@@ -1,0 +1,22 @@
+name: Test EAP
+on:
+  schedule:
+    - cron:  '0 12 * * *'  # execute daily at 12:00
+
+jobs:
+  triggerTest:
+    strategy:
+      fail-fast: false
+      matrix:
+        WITH_IDEA_PLUGINS: [ true, false]
+        include:
+          - IDEA_VERSION: LATEST-EAP-SNAPSHOT
+
+          - WITH_IDEA_PLUGINS: true
+            SCALA_PLUGIN_VERSION: 2023.2.23
+
+    uses: ./.github/workflows/test.yml
+    with:
+      IDEA_VERSION: ${{ matrix.IDEA_VERSION }}
+      WITH_IDEA_PLUGINS: ${{ matrix.WITH_IDEA_PLUGINS }}
+      SCALA_PLUGIN_VERSION: ${{ matrix.SCALA_PLUGIN_VERSION }}
