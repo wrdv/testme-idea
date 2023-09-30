@@ -34,4 +34,4 @@ public class InnerStaticClassWithMemberTest {
     }
 }
 
-//Generated with love by TestMe :) Please report issues and submit feature requests at: http://weirddev.com/forum#!/testme
+//Generated with love by TestMe :) Please report issues and submit feature requests at: https://weirddev.com/forum#!/testme

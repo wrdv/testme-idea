@@ -12,8 +12,7 @@ import java.net.URL;
  **/
 public class UrlClassLoaderUtils {
     /**
-     * Interns a value of the {@link URL#protocol} ("file" or "jar") and {@link URL#host} (empty string) fields.
-     * @see com.intellij.util.lang.UrlClassLoader#internProtocol(java.net.URL)
+     * Interns a value of the {@link java.net.URL#protocol} ("file" or "jar") and {@link java.net.URL#host} (empty string) fields.
      */
     public static URL internProtocol(@NotNull URL url) {
         String protocol = url.getProtocol();

@@ -8,11 +8,10 @@ import org.apache.velocity.exception.ResourceNotFoundException;
 import org.apache.velocity.runtime.RuntimeInstance;
 import org.apache.velocity.runtime.resource.Resource;
 import org.apache.velocity.runtime.resource.loader.ResourceLoader;
+import org.apache.velocity.util.ExtProperties;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.util.Optional;
 import java.util.Vector;
 import java.util.stream.Stream;
@@ -43,21 +42,31 @@ public class HackedRuntimeInstance extends RuntimeInstance {
         }
         super.setProperty(TEST_ME_INCLUDES_DIR + ".resource.loader.instance", new ResourceLoader() {
             @Override
-            public void init(ExtendedProperties configuration) {
+            public void init(ExtProperties extProperties) {
             }
 
+//            @Override
+//            public InputStream getResourceStream(String resourceName) throws ResourceNotFoundException {
+//                TestMeTemplateManager fileTemplateManager = TestMeTemplateManager.getDefaultInstance();
+//                FileTemplate[] allPatterns = fileTemplateManager.getAllPatterns();
+//                Optional<FileTemplate> optTemplate = Stream.of(allPatterns).filter(t -> resourceName.equals(t.getName() + "." + t.getExtension())).findAny();
+//                final FileTemplate include = optTemplate.orElseThrow(() -> new ResourceNotFoundException("Template not found: " + resourceName));
+//                final String text = include.getText();
+//                try {
+//                    return new ByteArrayInputStream(text.getBytes(FileTemplate.ourEncoding));
+//                } catch (UnsupportedEncodingException e) {
+//                    throw new RuntimeException(e);
+//                }
+//            }
+
             @Override
-            public InputStream getResourceStream(String resourceName) throws ResourceNotFoundException {
+            public Reader getResourceReader(String source, String encoding) throws ResourceNotFoundException {
                 TestMeTemplateManager fileTemplateManager = TestMeTemplateManager.getDefaultInstance();
                 FileTemplate[] allPatterns = fileTemplateManager.getAllPatterns();
-                Optional<FileTemplate> optTemplate = Stream.of(allPatterns).filter(t -> resourceName.equals(t.getName() + "." + t.getExtension())).findAny();
-                final FileTemplate include = optTemplate.orElseThrow(() -> new ResourceNotFoundException("Template not found: " + resourceName));
+                Optional<FileTemplate> optTemplate = Stream.of(allPatterns).filter(t -> source.equals(t.getName() + "." + t.getExtension())).findAny();
+                final FileTemplate include = optTemplate.orElseThrow(() -> new ResourceNotFoundException("Template not found: " + source));
                 final String text = include.getText();
-                try {
-                    return new ByteArrayInputStream(text.getBytes(FileTemplate.ourEncoding));
-                } catch (UnsupportedEncodingException e) {
-                    throw new RuntimeException(e);
-                }
+                return new StringReader(text);
             }
 
             @Override

@@ -27,11 +27,10 @@ public class ScalaTestBuilder extends JavaTestBuilderImpl {
     @Override
     protected String resolveInitializerKeyword(Type type, Method foundCtor) {
 //        if (type.isCaseClass() && foundCtor.isPrimaryConstructor()) {
-//            return "";
+//            return ""; //disable for now due to issue with FQDN not being replaced by IDEA without new operator
 //        } else {
-//            return NEW_INITIALIZER;
+            return NEW_INITIALIZER;
 //        }
-        return NEW_INITIALIZER;
     }
     @Override
     protected void buildCallParam(StringBuilder testCodeString, Node<Param> paramNode) {
@@ -42,7 +41,7 @@ public class ScalaTestBuilder extends JavaTestBuilderImpl {
         }
         final Type parentContainerClass = type.getParentContainerClass();
         if (parentContainerClass != null && !type.isStatic()) {
-            final Node<Param> parentContainerNode = new Node<Param>(new SyntheticParam(parentContainerClass, parentContainerClass.getName(), false), null, paramNode.getDepth());
+            final Node<Param> parentContainerNode = new Node<Param>(new SyntheticParam(parentContainerClass, parentContainerClass.getName()), null, paramNode.getDepth());
             buildCallParam(testCodeString,parentContainerNode);
             testCodeString.append(".");
         }

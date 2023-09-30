@@ -21,6 +21,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Date: 2/16/2017
@@ -62,7 +63,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
     @Override
     public String renderJavaCallParam(Type type, String strValue) {
         final StringBuilder stringBuilder = new StringBuilder();
-        buildCallParam(stringBuilder, new Node<>(new SyntheticParam(type, strValue, false), null, 0));
+        buildCallParam(stringBuilder, new Node<>(new SyntheticParam(type, strValue), null, 0));
         return stringBuilder.toString();
     }
 
@@ -76,7 +77,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
         }
         final Type parentContainerClass = type.getParentContainerClass();
         if (parentContainerClass != null && !type.isStatic()) {
-            final Node<Param> parentContainerNode = new Node<>(new SyntheticParam(parentContainerClass, parentContainerClass.getName(), false), null, paramNode.getDepth());
+            final Node<Param> parentContainerNode = new Node<>(new SyntheticParam(parentContainerClass, parentContainerClass.getName()), null, paramNode.getDepth());
             buildCallParam(testCodeString,parentContainerNode);
             testCodeString.append(".");
         }
@@ -92,7 +93,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
 
             testBuilder.append(defaultTypeValues.get(canonicalName));
         } else if (TestBuilderUtil.isStringType(canonicalName)) {
-            testBuilder.append("\"").append(resolveStringValue(paramNode)).append("\"");
+            testBuilder.append("\"").append(resolveName(paramNode)).append("\"");
         } else if (hasEnumValues(type)) {
             renderEnumValue(testBuilder, type);
         } else {
@@ -105,7 +106,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
                 final String[] typeInitExp = typeName.split("<VAL>");
                 if (typeInitExp.length == 0) {
                     Type genericTypeParam = safeGetComposedTypeAtIndex(resolvedType, 0);
-                    buildCallParam(testBuilder, new Node<>(new SyntheticParam(genericTypeParam, genericTypeParam.getName(), false), paramNode, paramNode.getDepth()));
+                    buildCallParam(testBuilder, new Node<>(new SyntheticParam(genericTypeParam, genericTypeParam.getName(), SyntheticParam.UsageContext.Generic), paramNode, paramNode.getDepth()));
                 }
                 else {
                     testBuilder.append(typeInitExp[0]);
@@ -114,7 +115,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
                         if (TestBuilderUtil.looksLikeObjectKeyInGroovyMap(typeInitExp[i], genericTypeParam.getCanonicalName())) {
                             testBuilder.append("(");
                         }
-                        buildCallParam(testBuilder, new Node<>(new SyntheticParam(genericTypeParam, genericTypeParam.getName(), false), paramNode, paramNode.getDepth()));
+                        buildCallParam(testBuilder, new Node<>(new SyntheticParam(genericTypeParam, genericTypeParam.getName(), SyntheticParam.UsageContext.Generic), paramNode, paramNode.getDepth()));
                         if (TestBuilderUtil.looksLikeObjectKeyInGroovyMap(typeInitExp[i], genericTypeParam.getCanonicalName())) {
                             testBuilder.append(")");
                         }
@@ -152,12 +153,14 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
         final String canonicalName = type.getCanonicalName();
         testBuilder.append(canonicalName).append(".").append(enumValue);
     }
-
-    private String resolveStringValue(Node<Param> paramNode) {
-        final Param data = paramNode.getData();
-        return "Object".equals(data.getName())&& paramNode.getParent()!=null ?paramNode.getParent().getData().getName():data.getName();
+    private String resolveName(Node<Param> paramNode) {
+        if (paramNode.getData() instanceof SyntheticParam && ((SyntheticParam) paramNode.getData()).getUsageContext() == SyntheticParam.UsageContext.Generic && paramNode.getParent()!=null) {
+            return resolveName(paramNode.getParent());
+        }
+        else{
+            return paramNode.getData().getName();
+        }
     }
-
     private Type safeGetComposedTypeAtIndex(Type resolvedType, int i) {
         Type genericTypeParam;
         if (resolvedType.getComposedTypes().size() > i) {
@@ -329,7 +332,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
     }
 
     boolean isPropertyParam(Param param) {
-        return param instanceof SyntheticParam && ((SyntheticParam) param).isProperty();
+        return param instanceof SyntheticParam && ((SyntheticParam) param).getUsageContext() == SyntheticParam.UsageContext.Property;
     }
 
     private boolean isShouldOptimizeConstructorInitialization(Type ownerType, Method constructor, List<? extends Param> params, String ownerTypeCanonicalName) {
@@ -363,7 +366,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
     private boolean isUnused(Type ownerType, Method testedMethod, List<Field> fields) {
         int unusedFieldsCount=0;
         for (Field field : fields) {
-            if (!isPropertyUsed(testedMethod, new SyntheticParam(field.getType(),field.getName(),true), ownerType)) {
+            if (!isPropertyUsed(testedMethod, new SyntheticParam(field.getType(),field.getName(), SyntheticParam.UsageContext.Property), ownerType)) {
                 unusedFieldsCount++;
             }
         }

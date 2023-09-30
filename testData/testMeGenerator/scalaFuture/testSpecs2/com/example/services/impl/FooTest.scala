@@ -10,17 +10,17 @@ class FooTest extends Specification {
 
   "Foo" should {
 
-    "find Me A Better Future" in {
-      val result = foo.findMeABetterFuture(Some("hopes"))
-      Await.result(result, 10.seconds) === "replaceMeWithExpectedResult"
-    }
-
     "look Into The Future" in {
       val result = foo.lookIntoTheFuture(scala.concurrent.Future.successful(1))
       Await.result(result, 10.seconds) === 1.1f
     }
 
+    "find Me A Better Future" in {
+      val result = foo.findMeABetterFuture(Some("hopes"))
+      Await.result(result, 10.seconds) === "replaceMeWithExpectedResult"
+    }
+
   }
 }
 
-//Generated with love by TestMe :) Please report issues and submit feature requests at: http://weirddev.com/forum#!/testme
+//Generated with love by TestMe :) Please report issues and submit feature requests at: https://weirddev.com/forum#!/testme

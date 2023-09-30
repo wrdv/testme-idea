@@ -84,12 +84,12 @@ class JavaTestBuilderImplTest extends Specification {
         testBuilder.renderJavaCallParam(type, "paramName") == result
 
         where:
-        result                                                                                                                                                    | type
-        "new java.util.LinkedList<java.util.List<com.example.foes.Fear>>(java.util.Arrays.asList(java.util.Arrays.<com.example.foes.Fear>asList(null)))"          | queueWithTypeParams
-        "new java.util.HashSet(java.util.Arrays.asList(\"String\"))"                                                                                              | new Type("java.util.Set", "Set", "java.util", false, false, false, false, 0, false, [])
-        "new java.util.HashMap<java.lang.String,com.example.foes.Fear>(){{put(\"String\",null);}}"                                                                | new Type("java.util.Map<java.lang.String,com.example.foes.Fear>", "Map", "java.util", false, false, false, false, 0, false, [stringType, fearType])
-        "new java.util.HashMap(){{put(\"String\",\"String\");}}"                                                                                                  | new Type("java.util.Map", "Map", "java.util", false, false, false, false, 0, false, [])
-        "new java.util.TreeMap<java.lang.String,com.example.foes.Fear>(new java.util.HashMap<java.lang.String,com.example.foes.Fear>(){{put(\"String\",null);}})" | new Type("java.util.NavigableMap<java.lang.String,com.example.foes.Fear>", "NavigableMap", "java.util", false, false, false, false, 0, false, [stringType, fearType])
+        result                                                                                                                                                       | type
+        "new java.util.LinkedList<java.util.List<com.example.foes.Fear>>(java.util.Arrays.asList(java.util.Arrays.<com.example.foes.Fear>asList(null)))"             | queueWithTypeParams
+        "new java.util.HashSet(java.util.Arrays.asList(\"paramName\"))"                                                                                              | new Type("java.util.Set", "Set", "java.util", false, false, false, false, 0, false, [])
+        "new java.util.HashMap<java.lang.String,com.example.foes.Fear>(){{put(\"paramName\",null);}}"                                                                | new Type("java.util.Map<java.lang.String,com.example.foes.Fear>", "Map", "java.util", false, false, false, false, 0, false, [stringType, fearType])
+        "new java.util.HashMap(){{put(\"paramName\",\"paramName\");}}"                                                                                               | new Type("java.util.Map", "Map", "java.util", false, false, false, false, 0, false, [])
+        "new java.util.TreeMap<java.lang.String,com.example.foes.Fear>(new java.util.HashMap<java.lang.String,com.example.foes.Fear>(){{put(\"paramName\",null);}})" | new Type("java.util.NavigableMap<java.lang.String,com.example.foes.Fear>", "NavigableMap", "java.util", false, false, false, false, 0, false, [stringType, fearType])
     }
 
     def "renderJavaCallParam - JAVA 9 generic collection"() {
@@ -101,9 +101,9 @@ class JavaTestBuilderImplTest extends Specification {
         where:
         result                                                                   | type
         "new java.util.LinkedList<>(java.util.List.of(java.util.List.of(null)))" | queueWithTypeParams
-        "java.util.Set.of(\"String\")"                                           | new Type("java.util.Set", "Set", "java.util", false, false, false, false, 0, false, [])
-        "java.util.Map.of(\"String\",null)"                                      | new Type("java.util.Map<java.lang.String,com.example.foes.Fear>", "Map", "java.util", false, false, false, false, 0, false, [stringType, fearType])
-        "java.util.Map.of(\"String\",\"String\")"                                | new Type("java.util.Map", "Map", "java.util", false, false, false, false, 0, false, [])
-        "new java.util.TreeMap<>(java.util.Map.of(\"String\",null))"             | new Type("java.util.NavigableMap<java.lang.String,com.example.foes.Fear>", "NavigableMap", "java.util", false, false, false, false, 0, false, [stringType, fearType])
+        "java.util.Set.of(\"paramName\")"                                        | new Type("java.util.Set", "Set", "java.util", false, false, false, false, 0, false, [])
+        "java.util.Map.of(\"paramName\",null)"                                   | new Type("java.util.Map<java.lang.String,com.example.foes.Fear>", "Map", "java.util", false, false, false, false, 0, false, [stringType, fearType])
+        "java.util.Map.of(\"paramName\",\"paramName\")"                          | new Type("java.util.Map", "Map", "java.util", false, false, false, false, 0, false, [])
+        "new java.util.TreeMap<>(java.util.Map.of(\"paramName\",null))"          | new Type("java.util.NavigableMap<java.lang.String,com.example.foes.Fear>", "NavigableMap", "java.util", false, false, false, false, 0, false, [stringType, fearType])
     }
 }
