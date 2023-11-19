@@ -1,7 +1,6 @@
 package com.weirddev.testme.intellij.ui.popup;
 
 import com.intellij.ui.JBColor;
-import com.intellij.util.ui.UIUtil;
 import com.weirddev.testme.intellij.action.TestMeAdditionalAction;
 import com.weirddev.testme.intellij.icon.IconTokensReplacer;
 import com.weirddev.testme.intellij.icon.IconTokensReplacerImpl;
