@@ -3,7 +3,6 @@ package com.weirddev.testme.intellij.ui.popup;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.IconLoader;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
