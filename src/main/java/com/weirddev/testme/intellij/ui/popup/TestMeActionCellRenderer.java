@@ -88,7 +88,7 @@ public class TestMeActionCellRenderer extends DefaultListCellRenderer {
         DefaultListCellRenderer defaultListCellRenderer = new DefaultListCellRenderer();
         Component listCellRendererComponent = defaultListCellRenderer.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
         defaultListCellRenderer.setText(iconizedLabel.getText());
-        defaultListCellRenderer.setIcon(isSelected || UIUtil.isUnderDarcula() ? iconizedLabel.getDarkIcon():iconizedLabel.getIcon());
+        defaultListCellRenderer.setIcon(isSelected || !JBColor.isBright() ? iconizedLabel.getDarkIcon():iconizedLabel.getIcon());
         defaultListCellRenderer.setBorder(new EmptyBorder(0,0,0,0));
         return listCellRendererComponent;
     }
