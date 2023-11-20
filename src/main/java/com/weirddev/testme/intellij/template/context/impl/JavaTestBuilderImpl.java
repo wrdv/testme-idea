@@ -21,7 +21,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Date: 2/16/2017
@@ -200,10 +199,8 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
             if (childElements.length > 0 && childElements.length <= fileTemplateConfig.getMaxNumOfConcreteCandidatesToReplaceInterfaceParam()) {
                 for (Object childElement : childElements) {
                     Type childType = null;
-                    if (childElement instanceof TypeHierarchyNodeDescriptor) {
-                        final TypeHierarchyNodeDescriptor hierarchyNodeDescriptor = ((TypeHierarchyNodeDescriptor) childElement);
-                        if (hierarchyNodeDescriptor.getPsiClass() instanceof PsiClass) {
-                            final PsiClass childPsiClass = (PsiClass) hierarchyNodeDescriptor.getPsiClass();
+                    if (childElement instanceof TypeHierarchyNodeDescriptor hierarchyNodeDescriptor) {
+                        if (hierarchyNodeDescriptor.getPsiClass() instanceof PsiClass childPsiClass && childPsiClass.getQualifiedName() != null) {
                             if (findClassInModule(childPsiClass.getQualifiedName()) != null) {
                                 final PsiClassType psiChildType = JavaPsiFacade.getInstance(srcModule.getProject()).getElementFactory().createType(childPsiClass);//todo verify behaviour with groovy classes
                                 childType = typeDictionary.getType(psiChildType, fileTemplateConfig.getMaxRecursionDepth(), true);

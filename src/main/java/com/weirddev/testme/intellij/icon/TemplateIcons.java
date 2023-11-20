@@ -36,8 +36,8 @@ public enum TemplateIcons {
     TemplateIcons(String iconClasspath, String darkIconFilename) {
         this.iconClasspath = iconClasspath;
         this.darkIconClasspath = darkIconFilename;
-        this.icon = IconLoader.getIcon(iconClasspath);
-        this.darkIcon = IconLoader.getIcon(darkIconFilename);
+        this.icon = IconLoader.getIcon(iconClasspath, TemplateIcons.class.getClassLoader());
+        this.darkIcon = IconLoader.getIcon(darkIconFilename, TemplateIcons.class.getClassLoader());
     }
 
     public Icon getIcon() {

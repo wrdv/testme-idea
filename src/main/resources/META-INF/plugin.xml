@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.weirddev.testme</id>
   <name>TestMe</name>
-  <version>6.0.0</version>
+  <version>6.0.1</version>
   <vendor email="testme@weirddev.com" url="https://weirddev.com">WeirdDev</vendor>
 
   <description><![CDATA[
@@ -19,10 +19,9 @@
     ]]></description>
 
   <change-notes><![CDATA[
-        <i>Main Changes:</i>
+        <i>Bugfix version:</i>
           <ul>
-            <li>Support IDEA version 2023.2</li>
-            <li>test generator: use argument name as string value for generic type parameters</li>
+            <li>Support IDEA version 2023.3 - fix issue with TestMe context menu fails to open due to error: return value of "com.intellij.openapi.util.IconPathPatcher.getContextClass(String)" is null</li>
           </ul>
         <a href="https://weirddev.com/testme/release-notes">Complete Release Notes listing</a>
     ]]>

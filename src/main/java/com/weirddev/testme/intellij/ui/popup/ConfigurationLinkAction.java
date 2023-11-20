@@ -1,8 +1,8 @@
 package com.weirddev.testme.intellij.ui.popup;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.IconLoader;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -20,7 +20,7 @@ public class ConfigurationLinkAction implements TestMePopUpHandler.AdditionalAct
 
     @Override
     public Icon getIcon() {
-        return IconLoader.getIcon("/general/Configure.png");
+        return AllIcons.General.Settings;
     }
 
     @Override

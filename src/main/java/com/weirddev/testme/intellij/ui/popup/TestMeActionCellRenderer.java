@@ -1,7 +1,6 @@
 package com.weirddev.testme.intellij.ui.popup;
 
 import com.intellij.ui.JBColor;
-import com.intellij.util.ui.UIUtil;
 import com.weirddev.testme.intellij.action.TestMeAdditionalAction;
 import com.weirddev.testme.intellij.icon.IconTokensReplacer;
 import com.weirddev.testme.intellij.icon.IconTokensReplacerImpl;
@@ -88,7 +87,7 @@ public class TestMeActionCellRenderer extends DefaultListCellRenderer {
         DefaultListCellRenderer defaultListCellRenderer = new DefaultListCellRenderer();
         Component listCellRendererComponent = defaultListCellRenderer.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
         defaultListCellRenderer.setText(iconizedLabel.getText());
-        defaultListCellRenderer.setIcon(isSelected || UIUtil.isUnderDarcula() ? iconizedLabel.getDarkIcon():iconizedLabel.getIcon());
+        defaultListCellRenderer.setIcon(isSelected || !JBColor.isBright() ? iconizedLabel.getDarkIcon():iconizedLabel.getIcon());
         defaultListCellRenderer.setBorder(new EmptyBorder(0,0,0,0));
         return listCellRendererComponent;
     }
