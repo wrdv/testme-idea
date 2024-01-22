@@ -11,10 +11,10 @@ jobs:
         WITH_IDEA_PLUGINS: [ true, false]
         include:
           - IDEA_VERSION: LATEST-EAP-SNAPSHOT
-            SCALA_PLUGIN_VERSION: 2023.3.2
+            SCALA_PLUGIN_VERSION: 2024.1.1
 
           - IDEA_VERSION: LATEST-EAP-SNAPSHOT
-            SCALA_PLUGIN_VERSION: 2023.3.2
+            SCALA_PLUGIN_VERSION: 2024.1.1
             WITH_IDEA_PLUGINS: true
 
     uses: ./.github/workflows/test.yml
