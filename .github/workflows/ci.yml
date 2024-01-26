@@ -13,16 +13,23 @@ jobs:
       fail-fast: false
       matrix:
 #        IDEA_VERSION: [ 2021.1, 2022.1.4, 2022.2.1 ]
-        IDEA_VERSION: [ 2023.2 ]
+        IDEA_VERSION: [ 2023.2, LATEST-EAP-SNAPSHOT ]
         WITH_IDEA_PLUGINS: [ true, false ]
+        SCALA_PLUGIN_VERSION: [2023.2.23, 2024.1.1]
         include:
           - IDEA_VERSION: 2023.2
             SCALA_PLUGIN_VERSION: 2023.2.23
+            WITH_IDEA_PLUGINS: false
 
 #          - IDEA_VERSION: 2022.2.1
 #            SCALA_PLUGIN_VERSION: 2022.2.13
 
           - IDEA_VERSION: 2023.2
+            SCALA_PLUGIN_VERSION: 2023.2.23
+            WITH_IDEA_PLUGINS: true
+
+          - IDEA_VERSION: LATEST-EAP-SNAPSHOT
+            SCALA_PLUGIN_VERSION: 2024.1.1
             WITH_IDEA_PLUGINS: true
           #            UPLOAD_TEST_RESULTS: true
 
