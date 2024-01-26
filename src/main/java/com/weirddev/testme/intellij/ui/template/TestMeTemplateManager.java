@@ -23,7 +23,7 @@ import com.weirddev.testme.intellij.template.TemplateDescriptor;
 import com.weirddev.testme.intellij.template.TemplateRegistry;
 import com.weirddev.testme.intellij.template.TemplateRole;
 import com.weirddev.testme.intellij.template.context.Language;
-import org.apache.commons.lang.StringUtils;
+import com.weirddev.testme.intellij.template.context.StringUtils;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -80,7 +80,8 @@ public class TestMeTemplateManager extends FileTemplateManager implements Persis
       @NotNull
       @Override
       public String getTemplatesDir() {
-        return FileUtilRt.toSystemDependentName(ProjectKt.getStateStore(project).getDirectoryStorePath(false) + "/" + TEMPLATES_DIR);
+          assert project != null;
+          return FileUtilRt.toSystemDependentName(Objects.requireNonNull(ProjectKt.getStateStore(project).getDirectoryStorePath()).toFile().getPath() + "/" + TEMPLATES_DIR);
       }
 
       @NotNull
@@ -245,7 +246,7 @@ public class TestMeTemplateManager extends FileTemplateManager implements Persis
   @NotNull
   private Language resolveLanguage(FileTemplateBase t) {
     try {
-        return Language.valueOf(StringUtils.capitalize(t.getExtension().toLowerCase()));
+      return Language.valueOf(StringUtils.capitalizeFirstLetter(t.getExtension().toLowerCase()));
     } catch (IllegalArgumentException ignore) {
         return Language.Java;
     }

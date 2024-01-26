@@ -15,7 +15,6 @@ import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.project.ProjectKt;
 import com.intellij.util.UriUtil;
 import com.intellij.util.containers.MultiMap;
-import com.weirddev.testme.intellij.utils.ResourceLoader;
 import com.weirddev.testme.intellij.utils.UrlClassLoaderUtils;
 import gnu.trove.THashSet;
 import org.jetbrains.annotations.NotNull;
@@ -23,7 +22,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -58,7 +56,7 @@ class FileTemplatesLoader {
   FileTemplatesLoader(@Nullable Project project) {
     Path configDir = Paths.get(project == null || project.isDefault()
                                ? PathManager.getConfigPath()
-                               : UriUtil.trimTrailingSlashes(Objects.requireNonNull(ProjectKt.getStateStore(project).getDirectoryStorePath(true))), TEMPLATES_DIR);
+                               : UriUtil.trimTrailingSlashes(Objects.requireNonNull(ProjectKt.getStateStore(project).getDirectoryStorePath()).toFile().getPath()), TEMPLATES_DIR);
     //deprecation...ProjectKt.getStateStore(project).getProjectFilePath().toString() ?!
     myTestTemplatesManager = new FTManager(TestMeTemplateManager.TEST_TEMPLATES_CATEGORY, configDir.resolve(TESTS_DIR), true);
     myIncludesManager = new FTManager(FileTemplateManager.INCLUDES_TEMPLATES_CATEGORY, configDir.resolve(INCLUDES_DIR));
