@@ -10,18 +10,15 @@ class ClassNameUtilsTest {
 
     @Test
     void testIsArray() {
-        boolean result = ClassNameUtils.isArray("canonicalName")
-        assert result == false
+        assert !ClassNameUtils.isArray("canonicalName")
     }
     @Test
     void testVarargsFalse() {
-        boolean result = ClassNameUtils.isVarargs("canonicalName..")
-        assert result == false
+        assert !ClassNameUtils.isVarargs("canonicalName..")
     }
     @Test
     void testVarargsTrue() {
-        boolean result = ClassNameUtils.isVarargs("com.median.canonicalName...")
-        assert result == true
+        assert ClassNameUtils.isVarargs("com.median.canonicalName...")
     }
 
     @Test
@@ -88,4 +85,4 @@ class ClassNameUtilsTest {
     }
 }
 
-//Generated with love by TestMe :) Please report issues and submit feature requests at: https://weirddev.com/forum#!/testme
+//Generated with love by TestMe :) Please raise issues & feature requests at: https://weirddev.com/forum#!/testme
