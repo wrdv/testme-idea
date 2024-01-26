@@ -24,7 +24,7 @@ Installation available from JetBrains plugins repository:
 
 
 ### Issue Tracking
-You're welcome to report issues and raise feature requests at [TestMe project forum](https://weirddev.com/forum#!/testme)
+Issues and feature requests are welcomed at [TestMe project forum](https://weirddev.com/forum#!/testme)
 
 ### Contributing/Developing
 Please refer to [`CONTRIBUTING.md`](./CONTRIBUTING.md) file.

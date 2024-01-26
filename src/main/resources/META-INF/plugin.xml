@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.weirddev.testme</id>
   <name>TestMe</name>
-  <version>6.0.1</version>
+  <version>6.0.2</version>
   <vendor email="testme@weirddev.com" url="https://weirddev.com">WeirdDev</vendor>
 
   <description><![CDATA[
@@ -15,14 +15,13 @@
      <li>Integrates with IDEA menus: Code->TestMe, Code->Generate</li>
      <li>Configure custom test code generation: Preferences -> TestMe -> TestMe Templates</li>
    </ul>
-   <p>You're welcome to report issues and raise feature requests at <a href="https://weirddev.com/forum#!/testme">TestMe project forum</a></p>
+   <p>Issues and feature requests are welcomed at <a href="https://weirddev.com/forum#!/testme">TestMe project forum</a></p>
     ]]></description>
 
   <change-notes><![CDATA[
-        <i>Bugfix version:</i>
-          <ul>
-            <li>Support IDEA version 2023.3 - fix issue with TestMe context menu fails to open due to error: return value of "com.intellij.openapi.util.IconPathPatcher.getContextClass(String)" is null</li>
-          </ul>
+        <ul>
+          <li>Support IDEA 2024.1 EAP 1 version - replace removed SDK methods</li>
+        </ul>
         <a href="https://weirddev.com/testme/release-notes">Complete Release Notes listing</a>
     ]]>
   </change-notes>
