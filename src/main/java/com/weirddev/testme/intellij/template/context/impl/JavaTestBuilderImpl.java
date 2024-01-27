@@ -37,7 +37,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
     private final Module srcModule;
     private final TypeDictionary typeDictionary;
     protected FileTemplateConfig fileTemplateConfig;
-    private JavaVersion javaVersion;
+    @Nullable private final JavaVersion javaVersion;
     private final Map<String, String> defaultTypeValues;
     private final Map<String, String> typesOverrides;
 
@@ -311,7 +311,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
     }
 
     private String resolveConcreteTypeForInput(String canonicalTypeName) {
-        if (javaVersion.isAtLeast(JAVA_9_VERSION)) {
+        if (javaVersion == null || javaVersion.isAtLeast(JAVA_9_VERSION)) {
             return TestBuilderTypes.getJava9ReplacementTypes().get(canonicalTypeName);
         }
         else {
@@ -320,7 +320,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
     }
 
     private String resolveConcreteTypeForReturn(String canonicalTypeName) {
-        if (javaVersion.isAtLeast(JAVA_9_VERSION)) {
+        if (javaVersion == null || javaVersion.isAtLeast(JAVA_9_VERSION)) {
             return TestBuilderTypes.getJava9ReplacementTypesForReturn().get(canonicalTypeName);
         }
         else {
