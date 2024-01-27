@@ -57,7 +57,6 @@ class FileTemplatesLoader {
     Path configDir = Paths.get(project == null || project.isDefault()
                                ? PathManager.getConfigPath()
                                : UriUtil.trimTrailingSlashes(Objects.requireNonNull(ProjectKt.getStateStore(project).getDirectoryStorePath()).toFile().getPath()), TEMPLATES_DIR);
-    //deprecation...ProjectKt.getStateStore(project).getProjectFilePath().toString() ?!
     myTestTemplatesManager = new FTManager(TestMeTemplateManager.TEST_TEMPLATES_CATEGORY, configDir.resolve(TESTS_DIR), true);
     myIncludesManager = new FTManager(FileTemplateManager.INCLUDES_TEMPLATES_CATEGORY, configDir.resolve(INCLUDES_DIR));
     myAllManagers = new FTManager[]{
