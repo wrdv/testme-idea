@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.weirddev.testme</id>
   <name>TestMe</name>
-  <version>6.0.2</version>
+  <version>6.0.3</version>
   <vendor email="testme@weirddev.com" url="https://weirddev.com">WeirdDev</vendor>
 
   <description><![CDATA[
@@ -20,7 +20,7 @@
 
   <change-notes><![CDATA[
         <ul>
-          <li>Support IDEA 2024.1 EAP 1 version - replace removed SDK methods</li>
+          <li>bugfix: NPE on javaVersion.isAtLeast() during renderMethodParams() from template macro - raised by juliantheil on 23 Nov 2023</li>
         </ul>
         <a href="https://weirddev.com/testme/release-notes">Complete Release Notes listing</a>
     ]]>
