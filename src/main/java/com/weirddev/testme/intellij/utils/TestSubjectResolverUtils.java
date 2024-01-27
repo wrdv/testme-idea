@@ -1,7 +1,6 @@
 package com.weirddev.testme.intellij.utils;
 
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.extensions.Extensions;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.psi.*;
@@ -40,18 +39,14 @@ public class TestSubjectResolverUtils {
     }
 
     private static boolean canBeTested(PsiElement element) {
+        if (element == null) return false;
         if (TestFinderHelper.findSourceElement(element) == null) return false;
         if (TestFinderHelper.isTest(element)) return false;
-        if (Extensions.getExtensions(TestFramework.EXTENSION_NAME).length == 0) return false;
-        if (element == null) return false;
-
+        if (TestFramework.EXTENSION_NAME.getExtensionList().isEmpty()) return false;
         PsiClass psiClass = CreateTestMeAction.getContainingClass(element);
-
         if (psiClass == null) return false;
-
         Module srcModule = ModuleUtilCore.findModuleForPsiElement(psiClass);
         return srcModule != null && !(psiClass.isAnnotationType() || psiClass instanceof PsiAnonymousClass || psiClass.getModifierList() != null && psiClass.getModifierList().hasExplicitModifier(PsiModifier.PRIVATE));
-
     }
 
 }
