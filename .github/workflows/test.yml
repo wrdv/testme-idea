@@ -38,13 +38,12 @@ jobs:
             -PenableIdeaScalaPlugin=${{ inputs.WITH_IDEA_PLUGINS }}
 
       - name: Test Report
-        uses: dorny/test-reporter@v1.5.0
-        if: success() || failure()
+        uses: dorny/test-reporter@v1
+        if: always()
         with:
           name: IDEA ${{inputs.IDEA_VERSION}} with plugins:${{inputs.WITH_IDEA_PLUGINS}} - Test Results
           path: build/test-results/**/*.xml
           reporter: java-junit
-
       - name: Test Results artifacts
         uses: actions/upload-artifact@v2
         if: success() || failure()
