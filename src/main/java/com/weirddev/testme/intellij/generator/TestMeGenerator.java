@@ -120,6 +120,7 @@ public class TestMeGenerator {
             codeTemplate.setReformatCode(false);
             Velocity.setProperty( Velocity.VM_MAX_DEPTH, 200);
             final long startGeneration = new Date().getTime();
+            VelocityInitializer.verifyRuntimeSetup();
             final PsiElement psiElement = FileTemplateUtil.createFromTemplate(codeTemplate, context.getTargetClass(), templateCtxtParams, targetDirectory, null);
             LOG.debug("Done generating PsiElement from template "+codeTemplate.getName()+" in "+(new Date().getTime()-startGeneration)+" millis");
             final long startReformating = new Date().getTime();
