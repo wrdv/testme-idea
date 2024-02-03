@@ -39,9 +39,9 @@ jobs:
 
       - name: Test Report
         uses: dorny/test-reporter@v1
-        if: always()
+        if: success() || failure()
         with:
-          name: IDEA ${{inputs.IDEA_VERSION}} with plugins:${{inputs.WITH_IDEA_PLUGINS}} - Test Results
+          name: Test Results (${{inputs.IDEA_VERSION}},${{inputs.WITH_IDEA_PLUGINS}})
           path: build/test-results/**/*.xml
           reporter: java-junit
       - name: Test Results artifacts
