@@ -210,8 +210,10 @@ public class Type {
 
     public void resolveDependencies(@Nullable TypeDictionary typeDictionary, int maxRecursionDepth, PsiType psiType, boolean shouldResolveAllMethods) {
         PsiClass psiClass = PsiUtil.resolveClassInType(psiType);
-        String canonicalText = psiType.getCanonicalText();
-        if (psiClass != null && maxRecursionDepth >0 && !canonicalText.startsWith("java.") && !canonicalText.startsWith("scala.") /*todo consider replacing with just java.util.* || java.lang.*  */&& typeDictionary !=null) {
+        //Need to resolve methods of dependant libs for mocking. consider performance hit...
+//        String canonicalText = psiType.getCanonicalText();
+//        if (psiClass != null && maxRecursionDepth >0 && !canonicalText.startsWith("java.") && !canonicalText.startsWith("scala.") /*todo consider replacing with just java.util.* || java.lang.*  */&& typeDictionary !=null) {
+        if (psiClass != null && maxRecursionDepth >0 && typeDictionary !=null) {
             if (psiClass.getConstructors().length == 0) {
                  hasDefaultConstructor=true; //todo check if parent ctors are also retrieved by getConstructors()
             }

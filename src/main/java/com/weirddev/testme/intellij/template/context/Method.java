@@ -4,7 +4,6 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.Pair;
 import com.intellij.psi.*;
 import com.intellij.psi.impl.source.PsiClassReferenceType;
-import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.LocalSearchScope;
 import com.intellij.psi.search.searches.ReferencesSearch;
 import com.intellij.psi.util.MethodSignatureUtil;
@@ -193,13 +192,15 @@ public class Method {
                     && (psiMethod.getClass().getCanonicalName().contains("GrGdkMethodImpl") || methodId.endsWith(".invokeMethod(java.lang.String,java.lang.Object)") || methodId.endsWith(".getProperty(java.lang.String)") || methodId
                     .endsWith(".setProperty(java.lang.String,java.lang.Object)"))) {
                 isRelevant = false;
-            } else if(ownerClass!=null && ownerClass.getQualifiedName()!=null){
+            }
+            // Need to resolve methods of mocked dependencies from imported libs. consider performance hit..
+            /* else if(ownerClass!=null && ownerClass.getQualifiedName()!=null){
                 JavaPsiFacade facade = JavaPsiFacade.getInstance( ownerClass.getProject());
-                PsiClass[] possibleClasses = facade.findClasses(ownerClass.getQualifiedName(), GlobalSearchScope.projectScope(( ownerClass.getProject())));
+                PsiClass[] possibleClasses = facade.findClasses(ownerClass.getQualifiedName(), GlobalSearchScope.projectScope(ownerClass.getProject()));// todo - test with GlobalSearchScope.allScope(ownerClass.getProject()). Alt. skip the check ?
                 if (possibleClasses.length == 0) {
                     isRelevant = false;
                 }
-            }
+            }*/
         }
         return isRelevant;
     }

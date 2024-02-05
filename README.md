@@ -1,5 +1,5 @@
 # TestMe IntelliJ Plugin
-[![Build Status](https://github.com/wrdv/testme-idea/actions/workflows/test.yml/badge.svg?event=push)](https://github.com/wrdv/testme-idea/actions)
+[![Build Status](https://github.com/wrdv/testme-idea/actions/workflows/ci.yml/badge.svg?event=push)](https://github.com/wrdv/testme-idea/actions)
 [![coverage](https://codecov.io/gh/wrdv/testme-idea/branch/master/graph/badge.svg)](https://codecov.io/gh/wrdv/testme-idea)
 ![Downloads](https://img.shields.io/jetbrains/plugin/d/9471)
 ![Rating](https://img.shields.io/jetbrains/plugin/r/rating/9471)
