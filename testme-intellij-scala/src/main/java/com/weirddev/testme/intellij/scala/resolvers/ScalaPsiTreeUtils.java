@@ -44,6 +44,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable;
 import scala.Option;
 import scala.collection.Seq;
 import scala.util.Either;
+import scala.util.Right;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -165,17 +166,22 @@ public class ScalaPsiTreeUtils {
 //                if (scTypeTypeResult != null && !scTypeTypeResult.isEmpty()) {
 //                    scType = scTypeTypeResult.get();
 //                }
-                Object resultObj = MethodReflectionUtils.invokeMethodReflectivelyWithFallback(function, Object.class /*TypeResult.class*/, "returnTypeInner", "returnType");
-                if (resultObj != null) {
-                    //fallback to a more advanced IDEA scala plugin api
-                    scType = MethodReflectionUtils.invokeMethodReflectivelyWithFallback(resultObj, Object.class, "get", null);
-                    if (scType == null) {
-                        Object typeWrapper = MethodReflectionUtils.invokeMethodReflectivelyWithFallback(resultObj, Object.class, "right", null);
-                        if (typeWrapper != null) {
-                            scType = MethodReflectionUtils.invokeMethodReflectivelyWithFallback(typeWrapper, Object.class, "get", null);
-                        }
-                    }
+                if (function.returnType().isRight()) {
+                    scType = function.returnType().right().get();
                 }
+//                Object resultObj = MethodReflectionUtils.invokeMethodReflectivelyWithFallback(function, Object.class /*TypeResult.class*/, "returnTypeInner", "returnType");
+//                if (resultObj != null) {
+//                    resultObj
+//                    //fallback to a more advanced IDEA scala plugin api
+//                    scType = MethodReflectionUtils.invokeMethodReflectivelyWithFallback(resultObj, Object.class, "get", null);
+////                    if (scType == null && resultObj instanceof Right<?,?>) {
+//                    if (scType == null) {
+//                        Object typeWrapper = MethodReflectionUtils.invokeMethodReflectivelyWithFallback(resultObj, Object.class, "right", null);
+//                        if (typeWrapper != null) {
+//                            scType = MethodReflectionUtils.invokeMethodReflectivelyWithFallback(typeWrapper, Object.class, "get", null);
+//                        }
+//                    }
+//                }
             }
         }
         return scType;

@@ -386,7 +386,8 @@ public class Method {
         final ArrayList<Field> fields = new ArrayList<>();
         try {
             if (!psiMethod.hasModifierProperty(PsiModifier.STATIC)) {
-                for (PsiReference reference : ReferencesSearch.search(psiParameter, new LocalSearchScope(new PsiMethod[]{psiMethod}))) {
+                LocalSearchScope searchScope = LanguageUtils.isScala(psiMethod.getLanguage()) && psiMethod.getContainingClass()!=null ? new LocalSearchScope(psiMethod.getContainingClass()) : new LocalSearchScope(psiMethod);
+                for (PsiReference reference : ReferencesSearch.search(psiParameter, searchScope)) {
                     final PsiElement element = reference.getElement();
                     PsiField psiField = null;
                     if (LanguageUtils.isGroovy(element.getLanguage())) {
