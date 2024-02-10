@@ -21,6 +21,7 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.GlobalSearchScopesCore;
 import com.intellij.testIntegration.createTest.JavaTestGenerator;
 import com.intellij.util.IncorrectOperationException;
+import com.weirddev.testme.intellij.builder.MethodReferencesBuilder;
 import com.weirddev.testme.intellij.template.FileTemplateContext;
 import com.weirddev.testme.intellij.ui.template.TestMeTemplateManager;
 import org.apache.velocity.app.Velocity;
@@ -42,7 +43,7 @@ public class TestMeGenerator {
     private static final Logger LOG = Logger.getInstance(TestMeGenerator.class.getName());
 
     public TestMeGenerator() {
-        this(new TestClassElementsLocator(), new TestTemplateContextBuilder(new MockBuilderFactory()),new CodeRefactorUtil());
+        this(new TestClassElementsLocator(), new TestTemplateContextBuilder(new MockBuilderFactory(), new MethodReferencesBuilder()),new CodeRefactorUtil());
     }
     
     TestMeGenerator(TestClassElementsLocator testClassElementsLocator, TestTemplateContextBuilder testTemplateContextBuilder, CodeRefactorUtil codeRefactorUtil) {

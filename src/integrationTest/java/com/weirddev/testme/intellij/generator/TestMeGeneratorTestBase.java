@@ -5,6 +5,7 @@ import com.intellij.ide.fileTemplates.FileTemplateDescriptor;
 import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.psi.*;
 import com.weirddev.testme.intellij.BaseIJIntegrationTest;
+import com.weirddev.testme.intellij.builder.MethodReferencesBuilder;
 import com.weirddev.testme.intellij.configuration.TestMeConfig;
 import com.weirddev.testme.intellij.template.FileTemplateConfig;
 import com.weirddev.testme.intellij.template.FileTemplateContext;
@@ -134,7 +135,7 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
 
     @NotNull
     private TestTemplateContextBuilder mockTestTemplateContextBuilder() {
-        return new TestTemplateContextBuilder(new MockBuilderFactory()){
+        return new TestTemplateContextBuilder(new MockBuilderFactory(), new MethodReferencesBuilder()){
             @Override
             public Map<String, Object> build(FileTemplateContext context, Properties defaultProperties) {
                 Properties mockedDefaultProperties = new Properties();

@@ -3,6 +3,7 @@ package com.weirddev.testme.intellij.template.context;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
 import com.intellij.psi.util.PsiUtil;
+import com.weirddev.testme.intellij.builder.MethodBuilder;
 import com.weirddev.testme.intellij.common.utils.LanguageUtils;
 import com.weirddev.testme.intellij.scala.resolvers.ScalaPsiTreeUtils;
 import com.weirddev.testme.intellij.scala.resolvers.ScalaTypeUtils;
@@ -218,7 +219,7 @@ public class Type {
                  hasDefaultConstructor=true; //todo check if parent ctors are also retrieved by getConstructors()
             }
             for (PsiMethod psiMethod : psiClass.getAllMethods()) {
-                    if ( (shouldResolveAllMethods || ( PropertyUtils.isPropertySetter(psiMethod) || PropertyUtils.isPropertyGetter(psiMethod)) && !isGroovyLangProperty(psiMethod) || psiMethod.isConstructor()) && Method.isRelevant(psiClass, psiMethod)){
+                    if ( (shouldResolveAllMethods || ( PropertyUtils.isPropertySetter(psiMethod) || PropertyUtils.isPropertyGetter(psiMethod)) && !isGroovyLangProperty(psiMethod) || psiMethod.isConstructor()) && MethodBuilder.isRelevant(psiClass, psiMethod)){
                         final Method method = new Method(psiMethod, psiClass, maxRecursionDepth - 1, typeDictionary, psiType);
                         method.resolveInternalReferences(psiMethod, typeDictionary);
                         this.methods.add(method);
