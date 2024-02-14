@@ -8,10 +8,7 @@ import com.weirddev.testme.intellij.common.utils.LanguageUtils;
 import com.weirddev.testme.intellij.scala.resolvers.ScalaPsiTreeUtils;
 import com.weirddev.testme.intellij.scala.resolvers.ScalaTypeUtils;
 import com.weirddev.testme.intellij.template.TypeDictionary;
-import com.weirddev.testme.intellij.utils.ClassNameUtils;
-import com.weirddev.testme.intellij.utils.JavaPsiTreeUtils;
-import com.weirddev.testme.intellij.utils.JavaTypeUtils;
-import com.weirddev.testme.intellij.utils.PropertyUtils;
+import com.weirddev.testme.intellij.utils.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -150,7 +147,7 @@ public class Type {
         sealed = false;
         childObjectsQualifiedNames = new ArrayList<>();
     }
-
+//todo refactor: extract all logic to TypeFactory
 
     public Type(PsiType psiType, @Nullable Object typePsiElement, @Nullable TypeDictionary typeDictionary, int maxRecursionDepth, boolean shouldResolveAllMethods) {
         String canonicalText = JavaTypeUtils.resolveCanonicalName(psiType,typePsiElement);
@@ -212,26 +209,34 @@ public class Type {
 
     public void resolveDependencies(@Nullable TypeDictionary typeDictionary, int maxRecursionDepth, PsiType psiType, boolean shouldResolveAllMethods) {
         PsiClass psiClass = PsiUtil.resolveClassInType(psiType);
-        //Need to resolve methods of dependant libs for mocking. consider performance hit...
-//        String canonicalText = psiType.getCanonicalText();
+//        todo Need to resolve methods of dependant libs for mocking. consider performance hit...
+        String canonicalText = psiType.getCanonicalText();
 //        if (psiClass != null && maxRecursionDepth >0 && !canonicalText.startsWith("java.") && !canonicalText.startsWith("scala.") /*todo consider replacing with just java.util.* || java.lang.*  */&& typeDictionary !=null) {
         if (psiClass != null && maxRecursionDepth >0 && typeDictionary !=null) {
             if (psiClass.getConstructors().length == 0) {
                  hasDefaultConstructor=true; //todo check if parent ctors are also retrieved by getConstructors()
             }
             for (PsiMethod psiMethod : psiClass.getAllMethods()) {
-                    if ( (shouldResolveAllMethods || ( PropertyUtils.isPropertySetter(psiMethod) || PropertyUtils.isPropertyGetter(psiMethod)) && !isGroovyLangProperty(psiMethod) || psiMethod.isConstructor()) && MethodFactory.isRelevant(psiMethod, psiClass)){
-                        final Method method = MethodFactory.createMethod(psiMethod, psiClass, maxRecursionDepth - 1, typeDictionary, psiType);
+                if (isPropertyRelated(psiMethod) || psiMethod.isConstructor() || typeDictionary.isRelevant(psiMethod, psiClass) ){
+                    final Method method = MethodFactory.createMethod(psiMethod, psiClass, maxRecursionDepth - 1, typeDictionary, psiType);
+                    if (typeDictionary.isTestSubject(psiClass) || typeDictionary.isRelevant(psiMethod, psiClass)) {//todo main... ctor may not be called from subject but may be passed to tested methods
                         MethodFactory.resolveInternalReferences(typeDictionary, psiMethod, method);
-                        this.methods.add(method);
                     }
-
+                    this.methods.add(method);
                 }
-            resolveFields(psiClass, typeDictionary, maxRecursionDepth - 1);
+            }
+            if (!TypeUtils.isLanguageBaseClass(psiClass.getQualifiedName()) && !TypeUtils.isBasicType(psiClass.getQualifiedName())) {
+                resolveFields(psiClass, typeDictionary, maxRecursionDepth - 1);
+            }
             resolveImplementedInterfaces(psiClass, typeDictionary, shouldResolveAllMethods, maxRecursionDepth - 1);
             dependenciesResolved=true;
         }
     }
+
+    private boolean isPropertyRelated(PsiMethod psiMethod) {
+        return (PropertyUtils.isPropertySetter(psiMethod) || PropertyUtils.isPropertyGetter(psiMethod)) && !isGroovyLangProperty(psiMethod);
+    }
+
     private void resolveFields(@NotNull PsiClass psiClass, TypeDictionary typeDictionary, int maxRecursionDepth) {
         for (PsiField psiField : psiClass.getAllFields()) {
             if(!"groovy.lang.MetaClass".equals(psiField.getType().getCanonicalText())){

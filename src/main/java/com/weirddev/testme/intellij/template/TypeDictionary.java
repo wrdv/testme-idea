@@ -1,17 +1,20 @@
 package com.weirddev.testme.intellij.template;
 
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiMethod;
-import com.intellij.psi.PsiPackage;
-import com.intellij.psi.PsiType;
+import com.intellij.psi.*;
 import com.intellij.psi.util.PsiUtil;
+import com.weirddev.testme.intellij.builder.MethodFactory;
+import com.weirddev.testme.intellij.cache.Cache;
+import com.weirddev.testme.intellij.cache.LruCache;
+import com.weirddev.testme.intellij.common.utils.LanguageUtils;
+import com.weirddev.testme.intellij.common.utils.PsiMethodUtils;
+import com.weirddev.testme.intellij.resolvers.to.ResolvedMethodCall;
 import com.weirddev.testme.intellij.template.context.Type;
 import com.weirddev.testme.intellij.utils.JavaTypeUtils;
+import com.weirddev.testme.intellij.utils.TypeUtils;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -21,15 +24,99 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class TypeDictionary {
     private static final Logger LOG = Logger.getInstance(TypeDictionary.class.getName());
-    Map<String, Type> typeDictionary = new HashMap<String, Type>();
-    private final PsiClass srcClass;
+    private static final int MAX_RELEVANT_METHOD_IDS_CACHE = 5000;
+    private final Cache<String, Boolean> relevantMethodIdsCache;
+    private final long startTimestamp;
+    private final Set<String> testSubjectTypesNames;
+    Map<String, Type> typeDictionary = new HashMap<>();//todo standardize as Cache
+    private final PsiClass testSubjectClass;
     private final PsiPackage targetPackage;
+    private final Set<ResolvedMethodCall> methodCallsFromTestSubject;
+    private final List<String> testSubjectMethodParamsType;
     private AtomicInteger newTypeCounter = new AtomicInteger();
     private AtomicInteger existingTypeHitsCounter = new AtomicInteger();
 
-    public TypeDictionary(PsiClass srcClass, PsiPackage targetPackage) {
-        this.srcClass = srcClass;
+    private TypeDictionary(PsiClass srcClass, PsiPackage targetPackage, Set<ResolvedMethodCall> methodCallsFromTestSubject, List<String> testSubjectMethodParamsType) {
+        this.testSubjectClass = srcClass;
+        this.testSubjectTypesNames = resolveTypesNames(srcClass);
         this.targetPackage = targetPackage;
+        this.methodCallsFromTestSubject = methodCallsFromTestSubject;
+        this.testSubjectMethodParamsType = testSubjectMethodParamsType;
+        this.relevantMethodIdsCache = new LruCache<>(MAX_RELEVANT_METHOD_IDS_CACHE);
+        startTimestamp = System.currentTimeMillis();
+    }
+
+    private Set<String> resolveTypesNames(PsiClass srcClass) {
+        HashSet<String> typesNames = new HashSet<>();
+        for(PsiClass clazz = srcClass; clazz != null && !TypeUtils.isLanguageBaseClass(clazz.getQualifiedName()); clazz = clazz.getSuperClass()) {
+            typesNames.add(clazz.getQualifiedName());
+        }
+        return typesNames;
+    }
+
+    public static TypeDictionary create(PsiClass srcClass, PsiPackage targetPackage){
+        Set<ResolvedMethodCall> methodCallsFromTestSubject = new HashSet<>();
+        if (srcClass != null) {
+            for (PsiMethod method : srcClass.getAllMethods()) {
+                List<ResolvedMethodCall> methodCalls = MethodFactory.resolvedMethodCalls(method);
+                LOG.debug("resolved method calls ", method.getName(), methodCalls);
+                methodCallsFromTestSubject.addAll(methodCalls);
+            }
+        }
+        List<String> testSubjectMethodParamsType = srcClass == null ? List.of() :  Arrays.stream(srcClass.getAllMethods()).flatMap(psiMethod1 -> Arrays.stream(psiMethod1.getParameterList().getParameters()).map(p -> p.getType().getCanonicalText()).filter(TypeUtils::isBasicType)).toList();
+        return new TypeDictionary(srcClass, targetPackage, methodCallsFromTestSubject, testSubjectMethodParamsType);
+    }
+
+    /**
+     * check if method might be relevant for constructs in unit test
+     *
+     * @param psiMethod                  method to check
+     * @param psiClass                   owner class of method
+     * @return true if method might be relevant for constructs in unit test
+     */
+    public boolean isRelevant(PsiMethod psiMethod, @Nullable PsiClass psiClass) {
+        return relevantMethodIdsCache.getOrCompute(PsiMethodUtils.formatMethodId(psiMethod), () -> computeIsRelevant(psiMethod, psiClass) );
+//        return computeIsRelevant(psiMethod, psiClass);
+    }
+
+    private boolean computeIsRelevant(PsiMethod psiMethod, @Nullable PsiClass psiClass) {
+        final PsiClass ownerClass = psiMethod.getContainingClass() == null ? psiClass : psiMethod.getContainingClass();
+        final String methodId = PsiMethodUtils.formatMethodId(psiMethod);
+        if(!isTestSubject(ownerClass) && !calledFromTestSubject(methodId) && !isCtorOfUsedType(psiMethod)){
+            return false;//todo ConvertedBean c'tor not called from test subject but is used in test subject - so it's c'tor is relevant
+        }
+        if (LanguageUtils.isGroovy(psiMethod.getLanguage())
+                && (psiMethod.getClass().getCanonicalName().contains("GrGdkMethodImpl") ||
+                methodId.endsWith(".invokeMethod(java.lang.String,java.lang.Object)") || methodId.endsWith(".getProperty(java.lang.String)") ||
+                methodId.endsWith(".setProperty(java.lang.String,java.lang.Object)"))) {
+            return false;
+        }
+        if (ownerClass != null && TypeUtils.isLanguageBaseClass(ownerClass.getQualifiedName())) {
+            return false;
+        }
+
+// todo Need to resolve methods of mocked dependencies from imported libs. consider performance hit..
+
+//         if(ownerClass!=null && ownerClass.getQualifiedName()!=null){
+//            JavaPsiFacade facade = JavaPsiFacade.getInstance( ownerClass.getProject());
+//            PsiClass[] possibleClasses = facade.findClasses(ownerClass.getQualifiedName(), GlobalSearchScope.projectScope(ownerClass.getProject()));// todo - test with GlobalSearchScope.allScope(ownerClass.getProject()). Alt. skip the check ?
+//            if (possibleClasses.length == 0) {
+//                return false;
+//            }
+//        }
+        return true;
+    }
+
+    private boolean isCtorOfUsedType(PsiMethod psiMethod) {
+        return psiMethod.isConstructor() && psiMethod.getContainingClass() != null && testSubjectMethodParamsType.contains(psiMethod.getContainingClass().getQualifiedName())  ;
+    }
+
+    private boolean calledFromTestSubject(String methodId) {
+        return methodCallsFromTestSubject.stream().anyMatch(resolvedMethodCall -> resolvedMethodCall.getMethodId().equals(methodId));
+    }
+
+    public  boolean isTestSubject(PsiClass psiClass) {
+        return psiClass != null && testSubjectTypesNames.contains(psiClass.getQualifiedName());
     }
 
     @Nullable
@@ -53,7 +140,7 @@ public class TypeDictionary {
         if  (canonicalText != null) {
             type = typeDictionary.get(canonicalText);
             if (type == null || !type.isDependenciesResolvable() && shouldResolveAllMethods && maxRecursionDepth > 1) {
-                LOG.debug(newTypeCounter.incrementAndGet() + ". Creating new type object for:" + canonicalText + " maxRecursionDepth:" + maxRecursionDepth);
+                LOG.debug(newTypeCounter.incrementAndGet() + ". Creating new Type for:" + canonicalText + " maxRecursionDepth:" + maxRecursionDepth);
                 if (element instanceof PsiType) {
                     final PsiType psiType = (PsiType) element;
                     type = new Type(psiType, typeElement, this, maxRecursionDepth, shouldResolveAllMethods);
@@ -65,7 +152,7 @@ public class TypeDictionary {
                     typeDictionary.put(canonicalText, type);
                 }
             } else {
-                LOG.debug(existingTypeHitsCounter.incrementAndGet() + ". Found existing type object for:" + canonicalText + " maxRecursionDepth:" + maxRecursionDepth);
+                LOG.debug(existingTypeHitsCounter.incrementAndGet() + ". Found existing Type for:" + canonicalText + " maxRecursionDepth:" + maxRecursionDepth);
             }
         }
         return type;
@@ -73,5 +160,9 @@ public class TypeDictionary {
 
     public boolean isAccessible(PsiMethod psiMethod) {
         return PsiUtil.isAccessibleFromPackage(psiMethod, targetPackage) && (psiMethod.getContainingClass() == null || PsiUtil.isAccessibleFromPackage(psiMethod.getContainingClass(), targetPackage));
+    }
+    public void logStatistics() {
+        LOG.info("**** Statistics: took %dms. type hits/req:%d/%d method relevancy cache %s".formatted(
+                startTimestamp - System.currentTimeMillis(),newTypeCounter.get(), newTypeCounter.get() + existingTypeHitsCounter.get(), relevantMethodIdsCache.getUsageStats()));
     }
 }

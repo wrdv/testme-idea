@@ -23,6 +23,10 @@ public class MethodReferencesBuilder {
         for (Method method : methods) {
             resolveFieldsAffectedByCtor(method.getReturnType(),maxMethodCallsDepth);
         }
+        List<Type> methodParamTypes = methods.stream().flatMap(method -> method.getMethodParams().stream().map(Param::getType)).toList();
+        for (Type methodParamType : methodParamTypes) {
+            resolveFieldsAffectedByCtor(methodParamType,maxMethodCallsDepth);
+        }
         logger.debug("Resolved internal references in test template context");
     }
 

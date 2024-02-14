@@ -2,6 +2,9 @@ package com.weirddev.testme.intellij.resolvers.to;
 
 import com.intellij.psi.PsiMethod;
 import com.weirddev.testme.intellij.common.utils.PsiMethodUtils;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 
 import java.util.List;
 
@@ -10,39 +13,15 @@ import java.util.List;
  *
  * @author Yaron Yamin
  */
+@Getter @EqualsAndHashCode(onlyExplicitlyIncluded = true) @ToString(onlyExplicitlyIncluded = true)
 public class ResolvedMethodCall {
     private final PsiMethod psiMethod;
     private final List<MethodCallArg> methodCallArguments;
-    private final String methodId;
+    @EqualsAndHashCode.Include @ToString.Include private final String methodId;
 
     public ResolvedMethodCall(PsiMethod psiMethod, List<MethodCallArg> methodCallArguments) {
         this.psiMethod = psiMethod;
         this.methodCallArguments = methodCallArguments;
         methodId = PsiMethodUtils.formatMethodId(psiMethod);
     }
-
-    public PsiMethod getPsiMethod() {
-        return psiMethod;
-    }
-
-    public List<MethodCallArg> getMethodCallArguments() {
-        return methodCallArguments;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ResolvedMethodCall)) return false;
-
-        ResolvedMethodCall that = (ResolvedMethodCall) o;
-
-        return methodId.equals(that.methodId);
-    }
-
-    @Override
-    public int hashCode() {
-        return methodId.hashCode();
-    }
-
-
 }

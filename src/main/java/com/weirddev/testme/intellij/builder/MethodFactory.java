@@ -21,6 +21,7 @@ import com.weirddev.testme.intellij.template.context.*;
 import com.weirddev.testme.intellij.utils.ClassNameUtils;
 import com.weirddev.testme.intellij.utils.JavaPsiTreeUtils;
 import com.weirddev.testme.intellij.utils.PropertyUtils;
+import com.weirddev.testme.intellij.utils.TypeUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -61,42 +62,22 @@ public class MethodFactory {
 
     }
     public static void resolveInternalReferences(@NotNull TypeDictionary typeDictionary, PsiMethod psiMethod, Method method) {
-        if (!MethodFactory.isLanguageInherited(method.getOwnerClassCanonicalType())) {
-            method.getDirectMethodCalls().addAll(MethodFactory.resolveCalledMethods(psiMethod, typeDictionary));
-            method.getMethodCalls().addAll(method.getDirectMethodCalls());
-            method.getInternalReferences().addAll(MethodFactory.resolveReferences(psiMethod,typeDictionary));
-            method.getMethodReferences().addAll(MethodFactory.resolveMethodReferences(psiMethod,typeDictionary));
-        }
+        method.getDirectMethodCalls().addAll(MethodFactory.resolveCalledMethods(psiMethod, typeDictionary));
+        method.getMethodCalls().addAll(method.getDirectMethodCalls());
+        method.getInternalReferences().addAll(MethodFactory.resolveReferences(psiMethod,typeDictionary));
+        method.getMethodReferences().addAll(MethodFactory.resolveMethodReferences(psiMethod,typeDictionary));
     }
-    /**
-     * check if method might be relevant for constructs in unit test
-     *
-     * @param psiMethod method to check
-     * @param psiClass owner class of method
-     * @return true if method might be relevant for constructs in unit test
-     */
-    public static boolean isRelevant(PsiMethod psiMethod, @Nullable PsiClass psiClass) {
-        final PsiClass containingClass = psiMethod.getContainingClass();
-        final PsiClass ownerClass = containingClass == null ? psiClass : containingClass;
-        if (ownerClass != null && isLanguageInherited(ownerClass.getQualifiedName())) {
-            return false;
-        } else {
-            final String methodId = PsiMethodUtils.formatMethodId(psiMethod);
-            if (LanguageUtils.isGroovy(psiMethod.getLanguage())
-                    && (psiMethod.getClass().getCanonicalName().contains("GrGdkMethodImpl") || methodId.endsWith(".invokeMethod(java.lang.String,java.lang.Object)") || methodId.endsWith(".getProperty(java.lang.String)") || methodId
-                    .endsWith(".setProperty(java.lang.String,java.lang.Object)"))) {
-                return false;
-            }
-            // Need to resolve methods of mocked dependencies from imported libs. consider performance hit..
-            /* else if(ownerClass!=null && ownerClass.getQualifiedName()!=null){
-                JavaPsiFacade facade = JavaPsiFacade.getInstance( ownerClass.getProject());
-                PsiClass[] possibleClasses = facade.findClasses(ownerClass.getQualifiedName(), GlobalSearchScope.projectScope(ownerClass.getProject()));// todo - test with GlobalSearchScope.allScope(ownerClass.getProject()). Alt. skip the check ?
-                if (possibleClasses.length == 0) {
-                    isRelevant = false;
-                }
-            }*/
+
+    public static List<ResolvedMethodCall> resolvedMethodCalls(PsiMethod psiMethod) {
+        if (LanguageUtils.isGroovy(psiMethod.getLanguage())) {
+            return GroovyPsiTreeUtils.findMethodCalls(psiMethod).stream().toList();
         }
-        return true;
+        else if (LanguageUtils.isScala(psiMethod.getLanguage())) {
+            return ScalaPsiTreeUtils.findMethodCalls(psiMethod);
+        }
+        else {
+            return JavaPsiTreeUtils.findMethodCalls(psiMethod);
+        }
     }
     private static Set<Reference> resolveReferences(PsiMethod psiMethod, TypeDictionary typeDictionary) {
         Set<Reference> references = new HashSet<>();
@@ -119,7 +100,7 @@ public class MethodFactory {
     private static Set<Method> resolveMethodReferences(PsiMethod psiMethod, TypeDictionary typeDictionary) {
         final Set<Method> methodReferences = new HashSet<>();
         for (PsiMethod resolvedMethodReference : JavaPsiTreeUtils.findMethodReferences(psiMethod)) {
-            if (isRelevant(resolvedMethodReference, null)) {
+            if (typeDictionary.isRelevant(resolvedMethodReference, null)) {
                 methodReferences.add(MethodFactory.createMethod(resolvedMethodReference, resolvedMethodReference.getContainingClass(), 1, typeDictionary, null));
             }
         }
@@ -131,7 +112,7 @@ public class MethodFactory {
         final Set<MethodCall> directMethodCalls = new HashSet<>();
         List<ResolvedMethodCall> methodCalls = resolvedMethodCalls(psiMethod);
         for (ResolvedMethodCall resolvedMethodCall : methodCalls) {
-            if (isRelevant(resolvedMethodCall.getPsiMethod(), null)) {
+            if (typeDictionary.isRelevant(resolvedMethodCall.getPsiMethod(), null)) {
                 directMethodCalls.add(new MethodCall(MethodFactory.createMethod(resolvedMethodCall.getPsiMethod(), null, 1, typeDictionary, null),convertArgs(resolvedMethodCall.getMethodCallArguments())));
             }
         }
@@ -152,17 +133,6 @@ public class MethodFactory {
         }
     }
 
-    private static List<ResolvedMethodCall> resolvedMethodCalls(PsiMethod psiMethod) {
-        if (LanguageUtils.isGroovy(psiMethod.getLanguage())) {
-            return GroovyPsiTreeUtils.findMethodCalls(psiMethod).stream().toList();
-        }
-        else if (LanguageUtils.isScala(psiMethod.getLanguage())) {
-            return ScalaPsiTreeUtils.findMethodCalls(psiMethod);
-        }
-        else {
-            return JavaPsiTreeUtils.findMethodCalls(psiMethod);
-        }
-    }
     private static List<MethodCallArgument> convertArgs(List<MethodCallArg> methodCallArguments) {
         final ArrayList<MethodCallArgument> methodCallArgs = new ArrayList<>();
         if (methodCallArguments != null) {
@@ -171,10 +141,6 @@ public class MethodFactory {
             }
         }
         return methodCallArgs;
-    }
-
-    private static boolean isLanguageInherited(String ownerClassCanonicalType) {
-        return "java.lang.Object".equals(ownerClassCanonicalType) || "java.lang.Class".equals(ownerClassCanonicalType) || "groovy.lang.GroovyObjectSupport".equals(ownerClassCanonicalType);
     }
 
     private static PsiField resolveLeftHandExpressionAsField(PsiExpression expr) {
@@ -284,7 +250,7 @@ public class MethodFactory {
     }
 
     private static boolean isTestable(PsiMethod psiMethod, @Nullable PsiClass srcClass){
-        return !isLanguageInherited(resolveOwnerClassName(psiMethod)) && !PropertyUtils.isPropertySetter(psiMethod) && !PropertyUtils.isPropertyGetter(psiMethod) &&
+        return !TypeUtils.isLanguageBaseClass(resolveOwnerClassName(psiMethod)) && !PropertyUtils.isPropertySetter(psiMethod) && !PropertyUtils.isPropertyGetter(psiMethod) &&
                 !psiMethod.isConstructor() && isVisibleForTest(psiMethod, srcClass) && !isOverriddenInChild(psiMethod, srcClass)
                 && !isInterface(psiMethod) && !psiMethod.hasModifierProperty(PsiModifier.ABSTRACT) && !isSyntheticMethod(psiMethod);
     }

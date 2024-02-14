@@ -46,7 +46,7 @@ public class TestTemplateContextBuilder {
         int maxRecursionDepth = context.getFileTemplateConfig().getMaxRecursionDepth();
         ctxtParams.put(TestMeTemplateParams.MAX_RECURSION_DEPTH, maxRecursionDepth);
         ctxtParams.put(TestMeTemplateParams.StringUtils, new StringUtils());
-        final TypeDictionary typeDictionary = new TypeDictionary(context.getSrcClass(), context.getTargetPackage());
+        final TypeDictionary typeDictionary = TypeDictionary.create(context.getSrcClass(), context.getTargetPackage());
         JavaVersion javaVersion = getJavaVersion(context.getTestModule());
         ctxtParams.put(TestMeTemplateParams.JAVA_VERSION, javaVersion);
         ctxtParams.put(TestMeTemplateParams.TestBuilder, new TestBuilderImpl(context.getLanguage(), context.getSrcModule(), typeDictionary, context.getFileTemplateConfig(), javaVersion));
@@ -54,6 +54,7 @@ public class TestTemplateContextBuilder {
         if (targetClass != null && targetClass.isValid()) {
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_LANGUAGE, targetClass.getLanguage().getID());
             final Type type = typeDictionary.getType(Type.resolveType(targetClass), maxRecursionDepth, true);
+            typeDictionary.logStatistics();
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS, type);
             if (type != null) {
                 methodReferencesBuilder.resolveMethodReferences(maxRecursionDepth, type.getMethods());

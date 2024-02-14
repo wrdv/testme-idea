@@ -359,15 +359,16 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
     boolean shouldOptimizeConstructorInitialization(int nTotalTypeUsages, int nBeanUsages) {
         return 0 < nBeanUsages && (nTotalTypeUsages * (fileTemplateConfig.getMinPercentOfInteractionWithPropertiesToTriggerConstructorOptimization() / 100f) <= ((float)nBeanUsages) );
     }
-
     private boolean isUnused(Type ownerType, Method testedMethod, List<Field> fields) {
-        int unusedFieldsCount=0;
+        if (fields.isEmpty()) {
+            return false;
+        }
         for (Field field : fields) {
-            if (!isPropertyUsed(testedMethod, new SyntheticParam(field.getType(),field.getName(), SyntheticParam.UsageContext.Property), ownerType)) {
-                unusedFieldsCount++;
+            if (isPropertyUsed(testedMethod, new SyntheticParam(field.getType(),field.getName(), SyntheticParam.UsageContext.Property), ownerType)) {
+                return false;
             }
         }
-        return fields.size() > 0 && fields.size() == unusedFieldsCount;
+        return true;
     }
 
     private boolean isPropertyUsed(@NotNull Method testedMethod, Param propertyParam, Type ownerType) {
@@ -451,7 +452,7 @@ public class JavaTestBuilderImpl implements LangTestBuilder {
 
     private List<Field> deductAssignedToFields(Method constructor, Param param) {
         final ArrayList<Field> assignedToFields = param.getAssignedToFields();
-        if (assignedToFields.size() == 0 ) {
+        if (assignedToFields.isEmpty()) {
             return deductAffectedFields(constructor,param);
         } else {
             return assignedToFields;

@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 
 public class  MockitoMockBuilder {
     private static final Logger LOG = Logger.getInstance(MockitoMockBuilder.class.getName());
-    private static final Map<String, String> TYPE_TO_ARG_MATCHERS;
+    public static final Map<String, String> TYPE_TO_ARG_MATCHERS;
     private static final Pattern SEMVER_PATTERN = Pattern.compile("^(\\d*)\\.(\\d*)\\.*");
 
     static {
