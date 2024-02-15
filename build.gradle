@@ -31,7 +31,8 @@ apply plugin: 'idea'
 apply plugin: 'org.jetbrains.intellij'
 
 def isRunInCI=Boolean.valueOf(System.getenv('CI'))
-def spockVersion = ideaVersion.startsWith("2021")?   "1.0-groovy-2.4" : "2.2-groovy-3.0"
+//def spockVersion = ideaVersion.startsWith("2021")?   "1.0-groovy-2.4" : "2.2-groovy-3.0" //can't run spock 2.0 on Junit 4 engine
+def spockVersion =    "1.0-groovy-2.4"
 
 jacoco {
     toolVersion = "0.8.10"

@@ -11,6 +11,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.function.Supplier;
+
 import static org.mockito.Mockito.*;
 
 /**
@@ -19,6 +21,8 @@ import static org.mockito.Mockito.*;
 class FooTest {
     @Mock
     FooFighter fooFighter;
+    @Mock
+    Supplier<Integer> result;
     @Mock
     Logger logger;
     @InjectMocks
@@ -32,6 +36,7 @@ class FooTest {
     @Test
     void testFight() {
         when(fooFighter.surrender(any(), any(), anyInt())).thenReturn(new ConvertedBean());
+        when(result.get()).thenReturn(Integer.valueOf(0));
 
         String result = foo.fight(new Fire(), "foeName");
         Assertions.assertEquals("replaceMeWithExpectedResult", result);

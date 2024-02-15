@@ -41,21 +41,26 @@ public class TestMePluginRegistration implements ProjectActivity {
             LOG.error("couldn't initialize TestMe plugin",e);
             return null;
         }
+        //removeKeyboardConflicts();//avoid removing conflicts. has negative impact on user conf. probably no needed anymore as action is not un-registered and reassigned as before
+        return null;
+    }
+
+    private void removeKeyboardConflicts() {
         Application application = ApplicationManager.getApplication();
         KeymapManager keymapManager = application == null ? null : application.getService(KeymapManager.class);
-        if (keymapManager != null) {
-            KeyboardShortcut shortcut = new KeyboardShortcut(KeyStroke.getKeyStroke("ctrl shift T"), null);
-            Map<String, List<KeyboardShortcut>> conflicts = safeGetConflicts(keymapManager, shortcut);
-            if (conflicts.size() == 0) {
-                shortcut = new KeyboardShortcut(KeyStroke.getKeyStroke("meta shift T"), null);
-                conflicts = safeGetConflicts(keymapManager, shortcut);
-            }
-            for (String actionId : conflicts.keySet()) {
-                LOG.info("removing conflicting shortcut of action "+actionId);
-                keymapManager.getActiveKeymap().removeShortcut(actionId,shortcut);
-            }
+        if (keymapManager == null) {
+            return;
         }
-        return null;
+        KeyboardShortcut shortcut = new KeyboardShortcut(KeyStroke.getKeyStroke("ctrl shift T"), null);
+        Map<String, List<KeyboardShortcut>> conflicts = safeGetConflicts(keymapManager, shortcut);
+        if (conflicts.isEmpty()) {
+            shortcut = new KeyboardShortcut(KeyStroke.getKeyStroke("meta shift T"), null);
+            conflicts = safeGetConflicts(keymapManager, shortcut);
+        }
+        for (String actionId : conflicts.keySet()) {
+            LOG.info("removing conflicting shortcut of action "+actionId);
+            keymapManager.getActiveKeymap().removeShortcut(actionId,shortcut);
+        }
     }
 
     @NotNull

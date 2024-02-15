@@ -4,7 +4,7 @@ on:
     - cron:  '0 12 * * *'  # execute daily at 12:00
 
 jobs:
-  triggerTest:
+  test:
     strategy:
       fail-fast: false
       matrix:

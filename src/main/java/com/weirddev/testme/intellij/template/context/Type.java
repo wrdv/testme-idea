@@ -3,15 +3,15 @@ package com.weirddev.testme.intellij.template.context;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
 import com.intellij.psi.util.PsiUtil;
+import com.weirddev.testme.intellij.builder.MethodFactory;
 import com.weirddev.testme.intellij.common.utils.LanguageUtils;
 import com.weirddev.testme.intellij.scala.resolvers.ScalaPsiTreeUtils;
 import com.weirddev.testme.intellij.scala.resolvers.ScalaTypeUtils;
 import com.weirddev.testme.intellij.template.TypeDictionary;
-import com.weirddev.testme.intellij.utils.ClassNameUtils;
-import com.weirddev.testme.intellij.utils.JavaPsiTreeUtils;
-import com.weirddev.testme.intellij.utils.JavaTypeUtils;
-import com.weirddev.testme.intellij.utils.PropertyUtils;
+import com.weirddev.testme.intellij.utils.*;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,105 +24,107 @@ import java.util.List;
  * Date: 24/10/2016
  * @author Yaron Yamin
  */
+@Getter @ToString(onlyExplicitlyIncluded = true) @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Type {
     /**
      * Full canonical name including package
      */
-    @Getter
+    @EqualsAndHashCode.Include @ToString.Include
     private final String canonicalName;
     /**
      * Type's name
      */
-    @Getter private final String name;
+    private final String name;
     /**
      * true - if this type is a primitive. i.e. int, boolean
      */
-    @Getter private final boolean isPrimitive;
+    private final boolean isPrimitive;
     /**
      * Type's package
      */
-    @Getter private final String packageName;
+    private final String packageName;
     /**
      * Used types of generic params if relevant
      */
-    @Getter private final List<Type> composedTypes;
+    private final List<Type> composedTypes;
     /**
      * true when type is an array
      */
-    @Getter private final boolean array;
+    private final boolean array;
     /**
      * no. of array dimensions. relevant only in case this type is an array
      */
-    @Getter private final int arrayDimensions;
+    private final int arrayDimensions;
     /**
      * true when this type is a varar
      */
-    @Getter private final boolean varargs;
-    /**
-     * enum name values. relevant for enum types
-     */
-    @Getter private final List<String> enumValues;
+    private final boolean varargs;
     /**
      * true if this type is an enum
      */
-    @Getter private final boolean isEnum;
+    private final boolean isEnum;
+    /**
+     * enum name values. relevant for enum types
+     */
+    private final List<String> enumValues;
     /**
      * true if this type is an interface
      */
-    @Getter private final boolean isInterface;
+    private final boolean isInterface;
     /**
      * true if this type is an abstract class
      */
-    @Getter private final boolean isAbstract;
+    private final boolean isAbstract;
     /**
      * true if this is a static type/class or a Scala Object
      */
-    @Getter private final boolean isStatic;
+    private final boolean isStatic;
     /**
      * true if type id defined as final
      */
-    @Getter private final boolean isFinal;
-    /**
-     * types methods if relevant
-     */
-    @Getter private final List<Method> methods;
+    private final boolean isFinal;
     /**
      * in case this is an inner class - the outer class where this type is defined
      */
-    @Getter private final Type parentContainerClass;
-    /**
-     * fields defined for this type
-     */
-    @Getter private final List<Field> fields;
+    private final Type parentContainerClass;
     /**
      * true when all constructor dependencies, if exists, have been resolved by object graph introspection
      */
-    @Getter private boolean dependenciesResolved =false;
+    private boolean dependenciesResolved =false;
     /**
      * used internally when building object graph
      */
-    @Getter private boolean dependenciesResolvable =false;
+    private boolean dependenciesResolvable =false;
     /**
      * true when type has a default constructor
      */
-    @Getter private boolean hasDefaultConstructor=false;
-    /**
-     * interfaces implemented by this type if any
-     */
-    @Getter private List<Type> implementedInterfaces = new ArrayList<>();
+    private boolean hasDefaultConstructor=false;
     /**
      * true - if this is a scala case class
      */
-    @Getter private final boolean caseClass;
+    private final boolean caseClass;
     /**
      * true - if this is a scala sealed class
      */
-    @Getter private final boolean sealed;
+    private final boolean sealed;
+    /**
+     * type's methods if relevant
+     */
+    private final List<Method> methods;
+    /**
+     * fields defined for this type
+     */
+    private final List<Field> fields;
+    /**
+     * interfaces implemented by this type if any
+     */
+    private final List<Type> implementedInterfaces = new ArrayList<>();
     /**
      * relevant of scala sealed classes
      */
-    @Getter private final List<String> childObjectsQualifiedNames;
+    private final List<String> childObjectsQualifiedNames;
 
+    @Deprecated
     public Type(String canonicalName, String name, String packageName, boolean isPrimitive, boolean isInterface, boolean isAbstract, boolean array, int arrayDimensions, boolean varargs, List<Type> composedTypes) {
         this.canonicalName = canonicalName;
         this.name = name;
@@ -145,12 +147,9 @@ public class Type {
         sealed = false;
         childObjectsQualifiedNames = new ArrayList<>();
     }
+//todo refactor: extract all logic to TypeFactory
 
-    Type(String canonicalName) {
-        this(ClassNameUtils.extractContainerType(canonicalName), ClassNameUtils.extractClassName(canonicalName), ClassNameUtils.extractPackageName(canonicalName),false, false,false, ClassNameUtils.isArray(canonicalName), ClassNameUtils.arrayDimensions(canonicalName), ClassNameUtils.isVarargs(canonicalName),null);
-    }
-
-    public Type(PsiType psiType, Object typePsiElement, @Nullable TypeDictionary typeDictionary, int maxRecursionDepth, boolean shouldResolveAllMethods) {
+    public Type(PsiType psiType, @Nullable Object typePsiElement, @Nullable TypeDictionary typeDictionary, int maxRecursionDepth, boolean shouldResolveAllMethods) {
         String canonicalText = JavaTypeUtils.resolveCanonicalName(psiType,typePsiElement);
         array = ClassNameUtils.isArray(canonicalText);
         arrayDimensions = ClassNameUtils.arrayDimensions(canonicalText);
@@ -210,23 +209,32 @@ public class Type {
 
     public void resolveDependencies(@Nullable TypeDictionary typeDictionary, int maxRecursionDepth, PsiType psiType, boolean shouldResolveAllMethods) {
         PsiClass psiClass = PsiUtil.resolveClassInType(psiType);
+//        todo Need to resolve methods of dependant libs for mocking. consider performance hit...
         String canonicalText = psiType.getCanonicalText();
-        if (psiClass != null && maxRecursionDepth >0 && !canonicalText.startsWith("java.") && !canonicalText.startsWith("scala.") /*todo consider replacing with just java.util.* || java.lang.*  */&& typeDictionary !=null) {
+//        if (psiClass != null && maxRecursionDepth >0 && !canonicalText.startsWith("java.") && !canonicalText.startsWith("scala.") /*todo consider replacing with just java.util.* || java.lang.*  */&& typeDictionary !=null) {
+        if (psiClass != null && maxRecursionDepth >0 && typeDictionary !=null) {
             if (psiClass.getConstructors().length == 0) {
                  hasDefaultConstructor=true; //todo check if parent ctors are also retrieved by getConstructors()
             }
             for (PsiMethod psiMethod : psiClass.getAllMethods()) {
-                    if ( (shouldResolveAllMethods || ( PropertyUtils.isPropertySetter(psiMethod) || PropertyUtils.isPropertyGetter(psiMethod)) && !isGroovyLangProperty(psiMethod) || psiMethod.isConstructor()) && Method.isRelevant(psiClass, psiMethod)){
-                        final Method method = new Method(psiMethod, psiClass, maxRecursionDepth - 1, typeDictionary, psiType);
-                        method.resolveInternalReferences(psiMethod, typeDictionary);
-                        this.methods.add(method);
+                if (isPropertyRelated(psiMethod) || psiMethod.isConstructor() || typeDictionary.isRelevant(psiMethod, psiClass) ){
+                    final Method method = MethodFactory.createMethod(psiMethod, psiClass, maxRecursionDepth - 1, typeDictionary, psiType);
+                    if (typeDictionary.isTestSubject(psiClass) || typeDictionary.isRelevant(psiMethod, psiClass)) {//todo main... ctor may not be called from subject but may be passed to tested methods
+                        MethodFactory.resolveInternalReferences(typeDictionary, psiMethod, method);
                     }
-
+                    this.methods.add(method);
                 }
-            resolveFields(psiClass, typeDictionary, maxRecursionDepth - 1);
+            }
+            if (!TypeUtils.isLanguageBaseClass(psiClass.getQualifiedName()) && !TypeUtils.isBasicType(psiClass.getQualifiedName())) {
+                resolveFields(psiClass, typeDictionary, maxRecursionDepth - 1);
+            }
             resolveImplementedInterfaces(psiClass, typeDictionary, shouldResolveAllMethods, maxRecursionDepth - 1);
             dependenciesResolved=true;
         }
+    }
+
+    private boolean isPropertyRelated(PsiMethod psiMethod) {
+        return (PropertyUtils.isPropertySetter(psiMethod) || PropertyUtils.isPropertyGetter(psiMethod)) && !isGroovyLangProperty(psiMethod);
     }
 
     private void resolveFields(@NotNull PsiClass psiClass, TypeDictionary typeDictionary, int maxRecursionDepth) {
@@ -313,19 +321,6 @@ public class Type {
         return psiClass != null && psiClass.getModifierList() != null && psiClass.getModifierList().hasExplicitModifier(aStatic);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || !(o instanceof Type)) return false;
-        Type type = (Type) o;
-        return canonicalName.equals(type.canonicalName);
-    }
-
-    @Override
-    public int hashCode() {
-        return canonicalName.hashCode();
-    }
-
     /**
      * Find methods that are constructors
      * @return Type's constructors sorted in revers order by no. of constructor params
@@ -341,11 +336,6 @@ public class Type {
             return o2.getMethodParams().size() - o1.getMethodParams().size();
         });
         return constructors;
-    }
-
-    @Override
-    public String toString() {
-        return "Type{" + "canonicalName='" + canonicalName + '\'' + '}';
     }
 
 }

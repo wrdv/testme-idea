@@ -125,11 +125,11 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
         skipTestIfGroovyPluginDisabled();//this tested feature does not require Groovy IJ plugin but the test cases use Groovy objects
         doTest(true,true,true, MIN_PERCENT_OF_EXCESSIVE_SETTERS_TO_PREFER_DEFAULT_CTOR, true, false);
     }
-    public void testIgnoreUnusedCtorArgumentsIdentifyMethodReference() {
+    public void testIgnoreUnusedCtorArgumentsIdentifyMethodReference() { //todo testFind method - new BeanByCtor("myName", new Ice(),... should be called instead of new BeanByCtor("myName", null,
         skipTestIfGroovyPluginDisabled();//this tested feature does not require Groovy IJ plugin but the test cases use Groovy objects
         doTest(true,true,true, MIN_PERCENT_OF_EXCESSIVE_SETTERS_TO_PREFER_DEFAULT_CTOR, true, false);
     }
-    public void testIgnoreUnusedCtorArgumentsWhenDelegatedCalls() {
+    public void testIgnoreUnusedCtorArgumentsWhenDelegatedCalls() {//todo Assert.assertEquals(new DelegateCtor("youre", "asCold", null - should be called -  instead of Assert.assertEquals(new DelegateCtor("youre", "asCold", new Ice()
         skipTestIfGroovyPluginDisabled();//this tested feature does not require Groovy IJ plugin but the test cases use Groovy objects
         doTest(true,true,true, MIN_PERCENT_OF_EXCESSIVE_SETTERS_TO_PREFER_DEFAULT_CTOR, true, false);
     }
