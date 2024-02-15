@@ -34,7 +34,7 @@ public class FooTest {
 
     @Test
     public void testFind() throws Exception {
-        BigBean result = foo.find(List.of(new BeanByCtor("myName", new Ice(), null, 0d)), new ImGroovy());
+        BigBean result = foo.find(List.of(new BeanByCtor("myName", null, null, 0d)), new ImGroovy());
         Assert.assertEquals(new BigBean(null, new Many("family", "members", null), null), result);
     }
 

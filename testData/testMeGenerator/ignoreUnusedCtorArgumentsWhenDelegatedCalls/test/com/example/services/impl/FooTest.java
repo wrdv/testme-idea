@@ -33,7 +33,7 @@ public class FooTest {
     @Test
     public void testFindWithDelegatedCalls() throws Exception {
         DelegateCtor result = foo.findWithDelegatedCalls(List.of(new BeanByCtor("myName", new Ice(), null, 0d)), new ImGroovy());
-        Assert.assertEquals(new DelegateCtor("youre", "asCold", null, new Fire()), result);
+        Assert.assertEquals(new DelegateCtor("youre", "asCold", new Ice(), new Fire()), result);
     }
 }
 

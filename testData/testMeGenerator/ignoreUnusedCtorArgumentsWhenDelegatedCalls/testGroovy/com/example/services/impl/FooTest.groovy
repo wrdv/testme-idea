@@ -28,7 +28,7 @@ class FooTest {
     @Test
     void testFindWithDelegatedCalls() {
         DelegateCtor result = foo.findWithDelegatedCalls([new BeanByCtor("myName", new Ice(), null, 0d)], new ImGroovy(groove: new Groove(someString: "someString")))
-        assert result == new DelegateCtor("youre", "asCold", null, new Fire())
+        assert result == new DelegateCtor("youre", "asCold", new Ice(), new Fire())
     }
 }
 

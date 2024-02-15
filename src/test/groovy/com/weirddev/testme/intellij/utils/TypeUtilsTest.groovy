@@ -5,7 +5,6 @@ import spock.lang.Unroll
 
 class TypeUtilsTest extends Specification {
 
-
     @Unroll
     def "is Language Base Class where typeCanonicalName=#typeCanonicalName then expect: #expectedResult"() {
         expect:
