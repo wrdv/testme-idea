@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 /** created by TestMe integration test on MMXVI */
 class FooTest {
     //Field fooFighter of type FooFighter[] - was not mocked since Mockito doesn't mock arrays
-    Foo foo= new Foo();
+    Foo foo = new Foo();
 
     @Test
     void testFight(){

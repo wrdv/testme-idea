@@ -161,14 +161,14 @@ public class  MockitoMockBuilder {
      * @return an error message explaining why field cannot be mocked
      */
     @SuppressWarnings("unused")
-    public String getImmockabiliyReason(String prefix,Field field) {
+    public String getImmockabiliyReason(String prefix,Field field) {//consider deprecating when supporting explicit type initialization
         final String reasonMsgPrefix = prefix+"Field " + field.getName() + " of type " + field.getType().getName();
         if (field.getType().isFinal() && !isMockitoMockMakerInlineOn && isMockExpected(field)) {
             return reasonMsgPrefix + " - was not mocked since Mockito doesn't mock a Final class when 'mock-maker-inline' option is not set";
         } else if (field.getType().isArray()) {
             return reasonMsgPrefix + "[] - was not mocked since Mockito doesn't mock arrays";
-        } else if (field.getType().isEnum()) {
-            return reasonMsgPrefix + " - was not mocked since Mockito doesn't mock enums";
+//        } else if (field.getType().isEnum()) { //msg makes sense only when test subject is not an enum. can't test such condition since test subject not being passed.
+//            return reasonMsgPrefix + " - was not mocked since Mockito doesn't mock enums";
         } else {
             return "";
         }

@@ -15,7 +15,7 @@ import static org.mockito.Mockito.*
 class FooTest {
     @Mock
     FooFighter fooFighter
-    //Field result of type Result - was not mocked since Mockito doesn't mock enums
+    
     @InjectMocks
     Foo foo
 
