@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.weirddev.testme</id>
   <name>TestMe</name>
-  <version>6.1.0</version>
+  <version>6.1.1.eap</version>
   <vendor email="testme@weirddev.com" url="https://weirddev.com">WeirdDev</vendor>
 
   <description><![CDATA[
@@ -20,10 +20,8 @@
 
   <change-notes><![CDATA[
         <ul>
-          <li>Support IDEA EAP 2024.1 - adapt to new velocity initialization mechanism</li>
-          <li>Avoid overriding Goto Test keyboard shortcut conflicts (reported by geld0r on Jan 11 '24')</li>
-          <li>Improve mock response generation when test subject dependency class originates from a lib</li>
-          <li>Scala support: fix method reference search error. remove backward compatibility with outdated scala plugin SDK</li>
+          <li>generate UT for enum methods (raised by gadeji on Feb 15 '24)</li>
+          <li>do not generate UT for methods inherited from java base enum class</li>
         </ul>
         <a href="https://weirddev.com/testme/release-notes">Complete Release Notes listing</a>
     ]]>
