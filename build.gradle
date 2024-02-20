@@ -25,7 +25,7 @@ apply plugin: 'org.jetbrains.intellij'
 
 def isRunInCI=Boolean.valueOf(System.getenv('CI'))
 //def spockVersion = ideaVersion.startsWith("2021")?   "1.0-groovy-2.4" : "2.2-groovy-3.0" //can't run spock 2.0 on Junit 4 engine
-def spockVersion =    "1.0-groovy-2.4"
+def spockVersion = "1.0-groovy-2.4"
 def testedProjects = subprojects + rootProject
 allprojects {
     sourceCompatibility = jvmTargetVersion
@@ -41,7 +41,7 @@ allprojects {
         options.encoding = 'UTF-8'
         if (!javaHome) {
             println "javaHome var not set. setting java home from JAVA_HOME env var"
-            javaHome =  System.getenv().JAVA_HOME //            javaHome =  'C:\\Program Files\\AdoptOpenJDK\\jdk-13.0.2.8-hotspot'
+            javaHome = System.getenv().JAVA_HOME //            javaHome =  'C:\\Program Files\\AdoptOpenJDK\\jdk-13.0.2.8-hotspot'
         }
         println "JAVA_HOME=$javaHome"
 //        options.bootClasspath = "$javaHome/jre/lib/rt.jar"
@@ -84,7 +84,7 @@ allprojects {
             excludes = ["jdk.internal.*"]
         }
     }
-
+}
 subprojects{
     apply plugin: 'java'
     apply plugin: 'groovy'
