@@ -27,3 +27,9 @@ dependencies {
         exclude group:'org.jetbrains.plugins', module: 'Groovy'
     }
 }
+test {
+    jacoco {
+        includeNoLocationClasses = true
+        excludes = ["jdk.internal.*"]
+    }
+}

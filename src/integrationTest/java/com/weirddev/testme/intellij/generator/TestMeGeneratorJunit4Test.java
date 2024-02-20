@@ -91,6 +91,9 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
     public void testEnum() {
         doTest(false, false, true);
     }
+    public void testEnumSubject() {
+        doTest(false, false, true);
+    }
     public void testStatic() {
         doTest(false, false, true);
     }

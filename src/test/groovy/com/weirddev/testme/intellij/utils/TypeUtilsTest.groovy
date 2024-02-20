@@ -15,7 +15,9 @@ class TypeUtilsTest extends Specification {
         "java.lang.Object"                || true
         "java.lang.Class"                 || true
         "groovy.lang.GroovyObjectSupport" || true
+        "java.lang.Enum"                  || true
         "java.lang.String"                || false
+        null                              || false
     }
 
     @Unroll
@@ -29,6 +31,7 @@ class TypeUtilsTest extends Specification {
         "scala.Predef.String" || true
         "byte"                || true
         "java.lang.Object"    || false
+        null                  || false
     }
 }
 

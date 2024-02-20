@@ -65,7 +65,7 @@
     @InjectMocks
     $testedClass.canonicalName $StringUtils.deCapitalizeFirstLetter($testedClass.name)
 #elseif($hasTestableInstanceMethod)
-    $testedClass.canonicalName $StringUtils.deCapitalizeFirstLetter($testedClass.name)= $TestBuilder.renderInitType($testedClass,"$testedClass.name",$grReplacementTypes,$grDefaultTypeValues)
+    $testedClass.canonicalName $StringUtils.deCapitalizeFirstLetter($testedClass.name) = $TestBuilder.renderInitType($testedClass,"$testedClass.name",$grReplacementTypes,$grDefaultTypeValues)
 #end
 #end
 ##

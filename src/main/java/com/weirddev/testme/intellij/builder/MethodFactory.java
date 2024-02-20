@@ -204,7 +204,7 @@ public class MethodFactory {
         if (LanguageUtils.isScala(psiMethod.getLanguage())) {
             return ScalaPsiTreeUtils.isSyntheticMethod(psiMethod);
         } else {
-            return false;
+            return psiMethod instanceof SyntheticElement; //originally added to cover use case of ClassInnerStuffCache.EnumSyntheticMethod. consider limiting to that use case only if causes issues
         }
     }
 
@@ -250,7 +250,7 @@ public class MethodFactory {
     }
 
     private static boolean isTestable(PsiMethod psiMethod, @Nullable PsiClass srcClass){
-        return !TypeUtils.isLanguageBaseClass(resolveOwnerClassName(psiMethod)) && !PropertyUtils.isPropertySetter(psiMethod) && !PropertyUtils.isPropertyGetter(psiMethod) &&
+        return !TypeUtils.isLanguageBaseClass(resolveOwnerClassName(psiMethod))  && !PropertyUtils.isPropertySetter(psiMethod) && (!PropertyUtils.isPropertyGetter(psiMethod) || srcClass!=null && srcClass.isEnum()) &&
                 !psiMethod.isConstructor() && isVisibleForTest(psiMethod, srcClass) && !isOverriddenInChild(psiMethod, srcClass)
                 && !isInterface(psiMethod) && !psiMethod.hasModifierProperty(PsiModifier.ABSTRACT) && !isSyntheticMethod(psiMethod);
     }

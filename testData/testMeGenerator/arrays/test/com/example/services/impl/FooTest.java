@@ -7,7 +7,7 @@ import org.junit.Test;
 /** created by TestMe integration test on MMXVI */
 public class FooTest {
     //Field fooFighter of type FooFighter[] - was not mocked since Mockito doesn't mock arrays
-    Foo foo= new Foo();
+    Foo foo = new Foo();
 
     @Test
     public void testFight() throws Exception {

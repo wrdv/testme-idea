@@ -4,7 +4,7 @@ apply plugin: 'org.jetbrains.intellij'
 def ideaVersion = (rootProject.hasProperty('ideaVersion') && rootProject.ideaVersion) ? rootProject.ideaVersion : '2019.3'
 def ideaType = (rootProject.hasProperty('ideaType') && rootProject.ideaType) ? rootProject.ideaType : 'IC'
 //def spockVersion = ideaVersion.startsWith("14.") || ideaVersion.startsWith("15.")? "1.0-groovy-2.3" : "1.0-groovy-2.4"
-def shouldInstrumentCode = (rootProject.hasProperty('shouldInstrumentCode') && rootProject.shouldInstrumentCode) ? rootProject.shouldInstrumentCode : true
+def shouldInstrumentCode = rootProject.hasProperty('shouldInstrumentCode') ? rootProject.shouldInstrumentCode  : true
 apply from: "$rootProject.projectDir/shared.gradle"
 def enabledPlugins = ['java','junit','properties']
 enabledPlugins = filterPlugins(enabledPlugins)
@@ -20,3 +20,12 @@ intellij {
     plugins = enabledPlugins
 }
 
+dependencies {
+    testImplementation 'org.mockito:mockito-core:4.3.1'
+}
+test {
+    jacoco {
+        includeNoLocationClasses = true
+        excludes = ["jdk.internal.*"]
+    }
+}
