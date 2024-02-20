@@ -16,14 +16,14 @@ public class PsiMethodUtils {
         return ownerClassCanonicalType + "#" + name + "(" + formatMethodParams(psiMethod.getParameterList().getParameters()) + ")";
     }
 
-    static String formatMethodParams(PsiParameter[] parameters) {
+    private static String formatMethodParams(PsiParameter[] parameters) {
         final StringBuilder sb = new StringBuilder();
         if (parameters != null) {
             for (PsiParameter parameter : parameters) {
                 sb.append(parameter.getType().getCanonicalText()).append(",");
             }
         }
-        if (sb.length() > 0) {
+        if (!sb.isEmpty()) {
             sb.deleteCharAt(sb.length() - 1);
         }
         return sb.toString();

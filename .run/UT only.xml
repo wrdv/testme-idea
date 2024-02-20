@@ -1,16 +1,17 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="check EAP" type="GradleRunConfiguration" factoryName="Gradle">
+  <configuration default="false" name="UT with jacoco" type="GradleRunConfiguration" factoryName="Gradle">
     <ExternalSystemSettings>
       <option name="executionName" />
       <option name="externalProjectPath" value="$PROJECT_DIR$" />
       <option name="externalSystemIdString" value="GRADLE" />
-      <option name="scriptParameters" value="-PscalaPluginVersion=2024.1.1 -PideaVersion=LATEST-EAP-SNAPSHOT" />
+      <option name="scriptParameters" value="-x integrationTest" />
       <option name="taskDescriptions">
         <list />
       </option>
       <option name="taskNames">
         <list>
           <option value="check" />
+          <option value="jacocoRootReport" />
         </list>
       </option>
       <option name="vmOptions" />

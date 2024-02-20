@@ -1,21 +1,14 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 
-//buildscript {
-//  repositories {
-//    maven { url 'http://dl.bintray.com/jetbrains/intellij-plugin-service' }
-//  }
-//}
-
 plugins {
-    id "org.jetbrains.intellij" version "1.15.0"
+    id "org.jetbrains.intellij" version "1.17.1"
     id 'jacoco'
     id 'org.unbroken-dome.test-sets' version '4.0.0'
     id 'com.github.kt3k.coveralls' version '2.8.2'
     id "io.freefair.lombok" version "8.3"
 }
-//cobertura.coverageFormats = ['html', 'xml'] // coveralls plugin depends on xml format report
-//def buildTrigger = System.getenv('TRAVIS_EVENT_TYPE')
+
 def enableIdeaGroovyPlugin=Boolean.valueOf(enableIdeaGroovyPlugin)
 def groovyOn = enableIdeaGroovyPlugin ? 'enabled':'disabled'
 def enableIdeaScalaPlugin=Boolean.valueOf(enableIdeaScalaPlugin)
@@ -33,15 +26,15 @@ apply plugin: 'org.jetbrains.intellij'
 def isRunInCI=Boolean.valueOf(System.getenv('CI'))
 //def spockVersion = ideaVersion.startsWith("2021")?   "1.0-groovy-2.4" : "2.2-groovy-3.0" //can't run spock 2.0 on Junit 4 engine
 def spockVersion =    "1.0-groovy-2.4"
-
-jacoco {
-    toolVersion = "0.8.10"
-}
-allprojects{
+def testedProjects = subprojects + rootProject
+allprojects {
     sourceCompatibility = jvmTargetVersion
     targetCompatibility = jvmTargetVersion
     repositories {
         mavenCentral()
+    }
+    jacoco {
+        toolVersion = "0.8.11"
     }
 
     tasks.withType(JavaCompile) {
@@ -61,7 +54,13 @@ allprojects{
         afterTest { desc, result ->
             println "Executing test [${desc.className}].${desc.name} with result: ${result.resultType}"
         }
-        reports.html.enabled = !isRunInCI
+        reports.html.required = !isRunInCI
+//        exclude '**/TestMeGenerator*'  //temp exclude. for shortening build time when testing build changes
+//        include '**/utils/TestSubjectResolverUtilsTest.class'  //temp exclude
+        jacoco {
+            includeNoLocationClasses = true
+            excludes = ["jdk.internal.*"]
+        }
     }
     tasks.withType(Test) {
         systemProperty 'java.awt.headless', 'true'
@@ -80,8 +79,11 @@ allprojects{
             println "Executing test [${desc.className}].${desc.name} with result: ${result.resultType}"
         }
         reports.html.enabled = !isRunInCI
+        jacoco {
+            includeNoLocationClasses = true
+            excludes = ["jdk.internal.*"]
+        }
     }
-}
 
 subprojects{
     apply plugin: 'java'
@@ -96,48 +98,35 @@ subprojects{
     }
 }
 
-def inspectedProjects = subprojects + rootProject
 task jacocoMerge(type: JacocoMerge) {
-    inspectedProjects.each { subproject ->
-        executionData subproject.tasks.withType(Test)
+    testedProjects.each { proj ->
+        executionData proj.tasks.withType(Test)
     }
     doFirst {
         executionData = files(executionData.findAll { it.exists() })
     }
 }
-/*ref: https://docs.gradle.org/current/userguide/jacoco_plugin.html
-jacocoTestReport {
-    reports {
-        xml.enabled isRunInCI
-        csv.enabled isRunInCI
-        html{
-            enabled !isRunInCI
-            destination "${buildDir}/reports/jacoco"
-        }
-//        html.destination file("${buildDir}/jacocoHtml")
-    }
-}*/
-task jacocoRootReport(type: JacocoReport, group: 'Coverage reports') {
-    description = 'Generates an aggregate report from all subprojects'
-    dependsOn inspectedProjects.test, jacocoMerge
-    additionalSourceDirs.from = files(inspectedProjects.sourceSets.main.allSource.srcDirs)
-    sourceDirectories.from = files(inspectedProjects.sourceSets.main.allSource.srcDirs)
-    classDirectories.from = files(inspectedProjects.sourceSets.main.output)
-    executionData jacocoMerge.destinationFile
+jacocoMerge.dependsOn check
 
+tasks.register('jacocoRootReport', JacocoReport) {
+    description = 'Generates an aggregate report from all subprojects'
+    dependsOn check, jacocoMerge
+    additionalSourceDirs.from = files(testedProjects.sourceSets.main.allSource.srcDirs)
+    sourceDirectories.from = files(testedProjects.sourceSets.main.allSource.srcDirs)
+//    classDirectories.from = files(testedProjects.sourceSets.main.output)
+//    classDirectories.setFrom(instrumentCode)
+    classDirectories.setFrom(testedProjects.collect {it.instrumentCode}) //https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin-faq.html#jacoco-reports-0-coverage
+//     executionData files(testedProjects*.tasks.withType(Test).executionData)
+    executionData jacocoMerge.destinationFile
     reports {
-        xml.enabled isRunInCI
-        csv.enabled isRunInCI
-        html {
-            enabled !isRunInCI
-            destination file("${buildDir}/reports/jacoco")
-        }
+        xml.enabled true //isRunInCI
+        html.enabled !isRunInCI
+        html.destination file("${buildDir}/jacocoHtml")
     }
-    afterEvaluate {
-        classDirectories.from = files(classDirectories.files.collect {
-            fileTree(dir: it, exclude: 'com/weirddev/testme/intellij/ui/**')
-        })
-    }
+    classDirectories.from = files(classDirectories.files.collect {
+        fileTree(dir: it, exclude: 'com/weirddev/testme/intellij/ui/**')
+    })
+    //outputs.upToDateWhen { false } // Always generate report
 }
 
 def shouldInstrumentCode = !isRunInCI && !Boolean.valueOf(System.getProperty('skipCodeInstrumentation','false'))
@@ -209,16 +198,16 @@ def javadocHeader = ""
 check.dependsOn integrationTest
 integrationTest.mustRunAfter test
 tasks.build.dependsOn(jacocoTestReport)
-coveralls {
-    sourceDirs = inspectedProjects.sourceSets.main.allSource.srcDirs.flatten()
-    jacocoReportPath = "${buildDir}/reports/jacoco/jacocoRootReport/jacocoRootReport.xml"
-}
-tasks.coveralls {
+//coveralls {
+//    sourceDirs = inspectedProjects.sourceSets.main.allSource.srcDirs.flatten()
+//    jacocoReportPath = "${buildDir}/reports/jacoco/jacocoRootReport/jacocoRootReport.xml"
+//}
+//tasks.coveralls {
 //    group = 'Coverage reports'
 //    description = 'Uploads the aggregated coverage report to Coveralls'
-dependsOn jacocoRootReport
-    onlyIf { isRunInCI}
-}
+//    dependsOn jacocoRootReport
+//    onlyIf { isRunInCI}
+//}
 task templateContextJavadocs(type: Javadoc, description: 'Generate javadocs for template context', group: 'Documentation') {
     dependsOn delombok
 //    failOnError = false
