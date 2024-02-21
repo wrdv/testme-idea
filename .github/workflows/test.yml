@@ -44,9 +44,10 @@ jobs:
           name: Test Results (${{inputs.IDEA_VERSION}},${{inputs.WITH_IDEA_PLUGINS}})
           path: build/test-results/**/*.xml
           reporter: java-junit
+
       - name: Test Results artifacts
         uses: actions/upload-artifact@v2
-        if: success() || failure()
+        if: (success() || failure()) && ${{ inputs.WITH_IDEA_PLUGINS == 'true' && inputs.IDEA_VERSION == '2023.2' }}
         with:
           name: test results ${{inputs.IDEA_VERSION}} plugins=${{inputs.WITH_IDEA_PLUGINS}}
           path: build/reports/**
