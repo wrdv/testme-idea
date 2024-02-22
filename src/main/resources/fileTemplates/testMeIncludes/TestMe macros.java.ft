@@ -47,9 +47,9 @@
 #macro(renderTestSubjectInit $testedClass $hasTestableInstanceMethod $hasMocks)
 #if($hasMocks)
     @InjectMocks
-    $testedClass.canonicalName $StringUtils.deCapitalizeFirstLetter($testedClass.name);
+    private $testedClass.canonicalName $StringUtils.deCapitalizeFirstLetter($testedClass.name);
 #elseif($hasTestableInstanceMethod)
-    $testedClass.canonicalName $StringUtils.deCapitalizeFirstLetter($testedClass.name) = $TestBuilder.renderInitType($testedClass,"$class.name",$replacementTypes,$defaultTypeValues);
+    private $testedClass.canonicalName $StringUtils.deCapitalizeFirstLetter($testedClass.name) = $TestBuilder.renderInitType($testedClass,"$class.name",$replacementTypes,$defaultTypeValues);
 #end
 #end
 ##
@@ -57,7 +57,7 @@
 #foreach($field in $testedClassFields)
 #if($MockitoMockBuilder.isMockable($field))
     @Mock
-    $field.type.canonicalName $field.name;
+    private $field.type.canonicalName $field.name;
 #elseif($MockitoMockBuilder.isMockExpected($field))
     $MockitoMockBuilder.getImmockabiliyReason("//",$field)
 #end
