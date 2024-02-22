@@ -231,7 +231,7 @@ public class  MockitoMockBuilder {
                 if (isMockable(testedClassField)) {
                     LOG.debug("field "+testedClassField.getName()+" type "+testedClassField.getType().getCanonicalName()+" type methods:"+testedClassField.getType().getMethods().size());
                     for (Method fieldMethod : testedClassField.getType().getMethods()) {
-                        if (fieldMethod.getReturnType() != null && !"void".equals(fieldMethod.getReturnType().getCanonicalName()) && testSubjectInspector.isMethodCalled(fieldMethod, testMethod)) {
+                        if (fieldMethod.getReturnType() != null && testSubjectInspector.isMethodCalled(fieldMethod, testMethod)) {
                             shouldStub = true;
                             break;
                         }
