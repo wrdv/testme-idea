@@ -54,14 +54,16 @@
 #end
 ##
 #macro(renderMockedFields $testedClassFields)
-#foreach($field in $testedClassFields)
-#if($MockitoMockBuilder.isMockable($field))
-    @Mock
-    $field.type.canonicalName $field.name;
-#elseif($MockitoMockBuilder.isMockExpected($field))
-    $MockitoMockBuilder.getImmockabiliyReason("//",$field)
-#end
-#end
+    #if($hasMocks)
+        #foreach($field in $testedClassFields)
+            #if($MockitoMockBuilder.isMockable($field))
+                @Mock
+                $field.type.canonicalName $field.name;
+            #elseif($MockitoMockBuilder.isMockExpected($field))
+                $MockitoMockBuilder.getImmockabiliyReason("//",$field)
+            #end
+        #end
+    #end
 #end
 ##
 #macro(renderJavaReturnVar $type)

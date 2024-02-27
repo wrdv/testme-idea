@@ -138,6 +138,27 @@ public class  MockitoMockBuilder {
     }
 
     /**
+     * for class with only private constructor can not mock, for example util classes only with static methods
+     * @param testedClass tested class
+     * @return true - if tested class has public constructors
+     */
+    public boolean canMockViaCtors(Type testedClass) {
+        // filter the constructors
+        List<Method> constructorList = testedClass.findConstructors();
+        if (!constructorList.isEmpty()) {
+            boolean hasOnlyPrivateConstructor = true;
+            for (Method method : constructorList) {
+                if (!method.isPrivate()) {
+                    hasOnlyPrivateConstructor = false;
+                    break;
+                }
+            }
+            return !hasOnlyPrivateConstructor;
+        }
+        return true;
+    }
+
+    /**
      * true - if method had any argument that can be mocked given the provided default types
      */
     @SuppressWarnings("unused")
