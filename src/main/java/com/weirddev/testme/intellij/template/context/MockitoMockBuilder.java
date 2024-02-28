@@ -138,7 +138,7 @@ public class  MockitoMockBuilder {
     }
 
     /**
-     * for class with only private constructor can not mock, for example util classes only with static methods
+     * for class with only private constructor that can not mock, for example util classes only with static methods
      * @param testedClass tested class
      * @return true - if tested class has public constructors
      */
