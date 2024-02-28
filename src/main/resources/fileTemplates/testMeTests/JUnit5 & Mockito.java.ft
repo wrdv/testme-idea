@@ -1,5 +1,5 @@
 #parse("TestMe macros.java")
-#set($hasMocks=$MockitoMockBuilder.hasMockable($TESTED_CLASS.fields) && $MockitoMockBuilder.canMockViaConstructor($TESTED_CLASS))
+#set($hasMocks=$MockitoMockBuilder.hasMockable($TESTED_CLASS.fields) && $MockitoMockBuilder.canMockViaCtors($TESTED_CLASS))
 #if($PACKAGE_NAME)
 package ${PACKAGE_NAME};
 #end
