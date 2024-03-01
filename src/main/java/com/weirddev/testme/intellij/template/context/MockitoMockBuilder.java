@@ -142,7 +142,7 @@ public class  MockitoMockBuilder {
      * @param testedClass tested class
      * @return true - if tested class has public constructors
      */
-    public boolean hasAccessibleCtor(Type testedClass) {
+    private boolean hasAccessibleCtor(Type testedClass) {
         // filter the constructors
         List<Method> constructorList = testedClass.findConstructors();
         return constructorList.isEmpty() || constructorList.stream().anyMatch(method -> !method.isPrivate());
