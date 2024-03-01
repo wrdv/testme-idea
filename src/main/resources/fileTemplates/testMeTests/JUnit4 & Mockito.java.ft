@@ -1,5 +1,5 @@
 #parse("TestMe macros.java")
-#set($hasMocks=$MockitoMockBuilder.hasMockable($TESTED_CLASS.fields) && $MockitoMockBuilder.canMockViaCtors($TESTED_CLASS))
+#set($hasMocks=$MockitoMockBuilder.hasMocks($TESTED_CLASS))
 #if($PACKAGE_NAME)
 package ${PACKAGE_NAME};
 #end
@@ -30,7 +30,7 @@ public class ${CLASS_NAME} {
 
     @Test
     public void #renderTestMethodName($method.name)() throws Exception {
-#if($MockitoMockBuilder.shouldStub($method,$TESTED_CLASS.fields))
+#if($hasMocks && $MockitoMockBuilder.shouldStub($method,$TESTED_CLASS.fields))
 #renderMockStubs($method,$TESTED_CLASS.fields)
 
 #end

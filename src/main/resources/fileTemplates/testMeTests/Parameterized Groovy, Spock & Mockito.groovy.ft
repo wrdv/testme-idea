@@ -1,5 +1,5 @@
 #parse("TestMe macros.groovy")
-#set($hasMocks=$MockitoMockBuilder.hasMockable($TESTED_CLASS.fields))
+#set($hasMocks=$MockitoMockBuilder.hasMocks($TESTED_CLASS))
 #if($PACKAGE_NAME)
 package ${PACKAGE_NAME}
 #end
@@ -22,7 +22,7 @@ class ${CLASS_NAME}  extends Specification {
     }
 #end
 #foreach($method in $TESTED_CLASS.methods)
-#if($TestSubjectUtils.shouldBeTested($method))
+#if($hasMocks && $TestSubjectUtils.shouldBeTested($method))
 #set($paraTestComponents=$TestBuilder.buildPrameterizedTestComponents($method,$grReplacementTypesForReturn,$grReplacementTypes,$grDefaultTypeValues))
 
     @Unroll

@@ -142,20 +142,19 @@ public class  MockitoMockBuilder {
      * @param testedClass tested class
      * @return true - if tested class has public constructors
      */
-    public boolean canMockViaCtors(Type testedClass) {
+    public boolean hasAccessibleCtor(Type testedClass) {
         // filter the constructors
         List<Method> constructorList = testedClass.findConstructors();
-        if (!constructorList.isEmpty()) {
-            boolean hasOnlyPrivateConstructor = true;
-            for (Method method : constructorList) {
-                if (!method.isPrivate()) {
-                    hasOnlyPrivateConstructor = false;
-                    break;
-                }
-            }
-            return !hasOnlyPrivateConstructor;
-        }
-        return true;
+        return constructorList.isEmpty() || constructorList.stream().anyMatch(method -> !method.isPrivate());
+    }
+
+    /**
+     *
+     * @param testedClass the tested class
+     * @return true - if the tested class has mockable field
+     */
+    public boolean hasMocks(Type testedClass) {
+        return hasAccessibleCtor(testedClass) && hasMockable(testedClass.getFields());
     }
 
     /**
