@@ -28,4 +28,9 @@ public class TestMeGeneratorTestNgTest extends TestMeGeneratorTestBase {
     public void testMockReturned() throws Exception {
         doTest(new FileTemplateConfig(TestMeConfigPersistent.getInstance().getState()));
     }
+
+    public void testUtilWithoutAccessableCtor() {
+        doTest(true, true, true);
+    }
+
 }
