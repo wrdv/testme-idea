@@ -69,7 +69,7 @@
 #end
 #end
 ##
-#macro(grRenderMockedFields $testedClassFields)
+#macro(grRenderMockedFields $testedClassFields $hasMocks)
 #foreach($field in $testedClassFields)
 #if($hasMocks && $MockitoMockBuilder.isMockable($field))
     @Mock
