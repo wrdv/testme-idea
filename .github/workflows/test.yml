@@ -15,12 +15,10 @@ jobs:
   test:
     name: test IDEA ${{inputs.IDEA_VERSION}} with plugins:${{inputs.WITH_IDEA_PLUGINS}}
     runs-on: ubuntu-latest
-    permissions: #Add permissions for test reports on PRs
-      statuses: write
+    permissions:
+      contents: read
+      actions: read
       checks: write
-      contents: write
-      pull-requests: write
-      actions: write
     steps:
       - name: Checkout
         uses: actions/checkout@v3
