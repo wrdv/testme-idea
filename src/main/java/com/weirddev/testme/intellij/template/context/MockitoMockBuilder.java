@@ -138,6 +138,26 @@ public class  MockitoMockBuilder {
     }
 
     /**
+     * for class with only private constructor that can not mock, for example util classes only with static methods
+     * @param testedClass tested class
+     * @return true - if tested class has public constructors
+     */
+    private boolean hasAccessibleCtor(Type testedClass) {
+        // filter the constructors
+        List<Method> constructorList = testedClass.findConstructors();
+        return constructorList.isEmpty() || constructorList.stream().anyMatch(method -> !method.isPrivate());
+    }
+
+    /**
+     *
+     * @param testedClass the tested class
+     * @return true - if the tested class has mockable field
+     */
+    public boolean hasMocks(Type testedClass) {
+        return hasAccessibleCtor(testedClass) && hasMockable(testedClass.getFields());
+    }
+
+    /**
      * true - if method had any argument that can be mocked given the provided default types
      */
     @SuppressWarnings("unused")

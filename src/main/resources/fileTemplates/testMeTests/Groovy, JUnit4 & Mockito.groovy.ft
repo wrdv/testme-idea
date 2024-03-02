@@ -1,5 +1,5 @@
 #parse("TestMe macros.groovy")
-#set($hasMocks=$MockitoMockBuilder.hasMockable($TESTED_CLASS.fields))
+#set($hasMocks=$MockitoMockBuilder.hasMocks($TESTED_CLASS))
 #if($PACKAGE_NAME)
 package ${PACKAGE_NAME}
 #end
@@ -15,7 +15,7 @@ import org.mockito.MockitoAnnotations
 
 #parse("File Header.java")
 class ${CLASS_NAME} {
-#grRenderMockedFields($TESTED_CLASS.fields)
+#grRenderMockedFields($TESTED_CLASS.fields,$hasMocks)
 #grRenderTestSubjectInit($TESTED_CLASS,$TestSubjectUtils.hasTestableInstanceMethod($TESTED_CLASS.methods),$hasMocks)
 #if($hasMocks)
 
@@ -29,7 +29,7 @@ class ${CLASS_NAME} {
 
     @Test
     void #renderTestMethodName($method.name)() {
-#if($MockitoMockBuilder.shouldStub($method,$TESTED_CLASS.fields))
+#if($hasMocks && $MockitoMockBuilder.shouldStub($method,$TESTED_CLASS.fields))
 #grRenderMockStubs($method,$TESTED_CLASS.fields)
 
 #end

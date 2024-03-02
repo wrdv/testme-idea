@@ -29,4 +29,8 @@ public class TestMeGeneratorJunit5Test extends TestMeGeneratorTestBase {
         doTest(new FileTemplateConfig(TestMeConfigPersistent.getInstance().getState()));
     }
 
+    public void testUtilWithoutAccessableCtor() {
+        doTest(true, true, true);
+    }
+
 }

@@ -42,4 +42,9 @@ public class TestMeGeneratorGroovyJunit4Test extends TestMeGeneratorJunit4Test {
     public void testCtorOverSetters() throws Exception{
         doTest(true,true,true,67, false, false);
     }
+
+    public void testUtilWithoutAccessableCtor() {
+        doTest(true, true, true);
+    }
+
 }

@@ -53,9 +53,9 @@
 #end
 #end
 ##
-#macro(renderMockedFields $testedClassFields)
+#macro(renderMockedFields $testedClassFields $hasMocks)
 #foreach($field in $testedClassFields)
-#if($MockitoMockBuilder.isMockable($field))
+#if($hasMocks && $MockitoMockBuilder.isMockable($field))
     @Mock
     $field.type.canonicalName $field.name;
 #elseif($MockitoMockBuilder.isMockExpected($field))

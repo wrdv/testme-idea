@@ -172,6 +172,9 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
 //       myFixture.copyDirectoryToProject("resources", "resources"); //issue with setting up a resource folder
 //        doTest(true, true, true);
 //    }
+    public void testUtilWithoutAccessableCtor() {
+        doTest(true, true, true);
+    }
 
     //todo TC - use static init method when constructor not available
 
