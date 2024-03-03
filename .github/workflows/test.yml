@@ -35,7 +35,7 @@ jobs:
         with:
           arguments: |
             check
-            jacocoRootReport
+            jacocoTestReport
             -PideaVersion=${{ inputs.IDEA_VERSION }} 
             -PscalaPluginVersion=${{ inputs.SCALA_PLUGIN_VERSION }}
             -PenableIdeaGroovyPlugin=${{ inputs.WITH_IDEA_PLUGINS }}

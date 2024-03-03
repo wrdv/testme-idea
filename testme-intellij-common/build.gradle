@@ -29,3 +29,11 @@ test {
         excludes = ["jdk.internal.*"]
     }
 }
+jacocoTestReport {
+    dependsOn test // tests are required to run before generating the report
+    classDirectories.setFrom(instrumentCode)
+    reports {
+        xml.required = true
+    }
+    outputs.upToDateWhen { false } // Always generate report
+}

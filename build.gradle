@@ -85,6 +85,26 @@ allprojects {
         }
     }
 }
+
+jacocoTestReport {
+    dependsOn test, integrationTest // tests are required to run before generating the report
+    additionalSourceDirs.from = files(testedProjects.sourceSets.main.allSource.srcDirs)
+    sourceDirectories.from = files(testedProjects.sourceSets.main.allSource.srcDirs)
+    classDirectories.setFrom(instrumentCode)
+//    classDirectories.setFrom(testedProjects.findAll {it.instrumentCode.exists} collect {it.instrumentCode}) //https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin-faq.html#jacoco-reports-0-coverage
+//    executionData jacocoMerge.destinationFile
+    executionData(test, integrationTest)
+    reports {
+        xml.enabled true //isRunInCI
+//        xml.required true
+        html.enabled !isRunInCI
+//        html.destination file("${buildDir}/jacoco/htmlReport")
+    }
+    classDirectories.from = files(classDirectories.files.collect {
+        fileTree(dir: it, exclude: 'com/weirddev/testme/intellij/ui/**')
+    })
+    outputs.upToDateWhen { false } // Always generate report
+}
 subprojects{
     apply plugin: 'java'
     apply plugin: 'groovy'
@@ -197,7 +217,7 @@ dependencies {
 def javadocHeader = ""
 check.dependsOn integrationTest
 integrationTest.mustRunAfter test
-tasks.build.dependsOn(jacocoTestReport)
+//tasks.build.dependsOn(jacocoTestReport)
 //coveralls {
 //    sourceDirs = inspectedProjects.sourceSets.main.allSource.srcDirs.flatten()
 //    jacocoReportPath = "${buildDir}/reports/jacoco/jacocoRootReport/jacocoRootReport.xml"
