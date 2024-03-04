@@ -107,10 +107,10 @@ tasks.register('jacocoIntTestReport', JacocoReport) {
     executionData(test, integrationTest)
     reports {
         xml.enabled true //isRunInCI
-        xml.destination file("${buildDir}/jacoco/integrationTest/jacocoTestReport.xml")
+        xml.destination file("${buildDir}/reports/jacoco/integrationTest/jacocoTestReport.xml")
 //        xml.required true
         html.enabled !isRunInCI
-        html.destination file("${buildDir}/jacoco/integrationTest/html")
+        html.destination file("${buildDir}/reports/jacoco/integrationTest/html")
     }
     classDirectories.from = files(classDirectories.files.collect {
         fileTree(dir: it, exclude: 'com/weirddev/testme/intellij/ui/**')
