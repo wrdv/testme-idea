@@ -264,6 +264,28 @@ public class  MockitoMockBuilder {
     }
 
     /**
+     * true - if should verify tested method
+     * @param testMethod method being tested
+     * @param testedClassFields fields of owner type being tested
+     */
+    @SuppressWarnings("unused")
+    public boolean shouldVerify(Method testMethod, List<Field> testedClassFields) {
+        boolean shouldVerity = false;
+        for (Field testedClassField : testedClassFields) {
+            if (isMockable(testedClassField)) {
+                for (Method fieldMethod : testedClassField.getType().getMethods()) {
+                    if (fieldMethod.getReturnType() != null && "void".equals(fieldMethod.getReturnType().getCanonicalName()) && testSubjectInspector.isMethodCalled(fieldMethod, testMethod)) {
+                        shouldVerity = true;
+                        break;
+                    }
+                }
+            }
+        }
+        LOG.debug("method "+testMethod.getMethodId()+" should be verified:"+shouldVerity);
+        return shouldVerity;
+    }
+
+    /**
      * true - if tested method should be stubbed
      * @param testMethod - method being tested
      * @param ctor - constructor of method return type
