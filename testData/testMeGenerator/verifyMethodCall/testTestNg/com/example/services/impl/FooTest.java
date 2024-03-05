@@ -37,7 +37,6 @@ public class FooTest {
         when(result.get()).thenReturn(Integer.valueOf(0));
 
         String result = foo.fight(new Fire(), "foeName");
-
         verify(techFighter).initSelfArming(anyString());
         Assert.assertEquals(result, "replaceMeWithExpectedResult");
     }

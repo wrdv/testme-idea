@@ -12,10 +12,8 @@ public class Foo{
 
     private FooFighter fooFighter;
     private Supplier<Integer> result;
-    private Logger logger;
 
     public String fight(Fire withFire,String foeName) {
-        logger.trace("this method does not return a value so it should not be stubbed");
         System.out.println(withFire);
         System.out.println(foeName);
         ConvertedBean convertedBean = fooFighter.surrender(new Fear(), new Ice(), 666);

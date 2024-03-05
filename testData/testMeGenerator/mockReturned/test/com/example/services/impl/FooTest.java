@@ -1,7 +1,6 @@
 package com.example.services.impl;
 
 import com.example.beans.ConvertedBean;
-import com.example.dependencies.Logger;
 import com.example.foes.Fire;
 import com.example.warriers.FooFighter;
 import org.junit.Assert;
@@ -23,8 +22,6 @@ public class FooTest {
     FooFighter fooFighter;
     @Mock
     Supplier<Integer> result;
-    @Mock
-    Logger logger;
     @InjectMocks
     Foo foo;
 

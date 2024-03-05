@@ -34,7 +34,6 @@ class ${CLASS_NAME} {
 
 #end
 $TAB$TAB#renderMethodCall($method,$TESTED_CLASS.name)
-
 #if($hasMocks && $MockitoMockBuilder.shouldVerify($method,$TESTED_CLASS.fields))
 #renderMockVerifies($method,$TESTED_CLASS.fields)
 #end

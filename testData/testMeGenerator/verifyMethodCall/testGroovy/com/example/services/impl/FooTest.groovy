@@ -33,7 +33,6 @@ class FooTest {
         when(result.get()).thenReturn(0)
 
         String result = foo.fight(new Fire(), "foeName")
-
         verify(techFighter).initSelfArming(anyString())
         assert result == "replaceMeWithExpectedResult"
     }

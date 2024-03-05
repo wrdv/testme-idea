@@ -54,6 +54,10 @@ public class FooTest {
         when(innerOfPublicInnerClass.methodOfInnerClass()).thenReturn(new Foo().new PublicInnerClass().new InnerOfPublicInnerClass());
 
         String result = foo.fight(new com.example.foes.Fire(), "foeName");
+        verify(publicInnerClass).methodOfInnerClass();
+        verify(innerStaticClass).methodOfInnerClass();
+        verify(innerClass).methodOfInnerClass();
+        verify(anonymousPublicInnerClass).methodOfInnerClass();
         Assert.assertEquals("replaceMeWithExpectedResult", result);
     }
 }

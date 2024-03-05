@@ -270,6 +270,9 @@ public class  MockitoMockBuilder {
      */
     @SuppressWarnings("unused")
     public boolean shouldVerify(Method testMethod, List<Field> testedClassFields) {
+        if (!stubMockMethodCallsReturnValues) {
+            return false;
+        }
         boolean shouldVerity = false;
         for (Field testedClassField : testedClassFields) {
             if (isMockable(testedClassField)) {
