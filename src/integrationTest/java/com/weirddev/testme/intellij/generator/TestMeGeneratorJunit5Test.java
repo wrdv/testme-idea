@@ -33,4 +33,7 @@ public class TestMeGeneratorJunit5Test extends TestMeGeneratorTestBase {
         doTest(true, true, true);
     }
 
+    public void testVerifyMethodCall() {
+        doTest(new FileTemplateConfig(TestMeConfigPersistent.getInstance().getState()));
+    }
 }

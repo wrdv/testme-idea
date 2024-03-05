@@ -176,6 +176,10 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
         doTest(true, true, true);
     }
 
+    public void testVerifyMethodCall() {
+        doTest(new FileTemplateConfig(TestMeConfigPersistent.getInstance().getState()));
+    }
+
     //todo TC - use static init method when constructor not available
 
      // TODO TC different test target dir
