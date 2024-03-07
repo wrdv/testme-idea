@@ -1,6 +1,7 @@
 package com.example.services.impl;
 
 import com.example.beans.ConvertedBean;
+import com.example.dependencies.Logger;
 import com.example.foes.Fire;
 import com.example.warriers.FooFighter;
 import org.junit.jupiter.api.Assertions;
@@ -22,6 +23,8 @@ class FooTest {
     FooFighter fooFighter;
     @Mock
     Supplier<Integer> result;
+    @Mock
+    Logger logger;
     @InjectMocks
     Foo foo;
 
@@ -36,6 +39,7 @@ class FooTest {
         when(result.get()).thenReturn(Integer.valueOf(0));
 
         String result = foo.fight(new Fire(), "foeName");
+        verify(logger).trace(anyString());
         Assertions.assertEquals("replaceMeWithExpectedResult", result);
     }
 }
