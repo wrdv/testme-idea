@@ -256,7 +256,7 @@ public class  MockitoMockBuilder {
      */
     @SuppressWarnings("unused")
     public boolean shouldVerify(Method testMethod, List<Field> testedClassFields) {
-        return callsMockMethod(testMethod, testedClassFields, Method::hasVoidReturn);
+        return callsMockMethod(testMethod, testedClassFields, method -> !method.hasReturn());
     }
 
     private boolean callsMockMethod(Method testMethod, List<Field> testedClassFields,
