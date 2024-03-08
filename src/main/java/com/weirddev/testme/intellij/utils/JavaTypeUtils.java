@@ -1,10 +1,13 @@
 package com.weirddev.testme.intellij.utils;
 
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiType;
+import com.intellij.psi.*;
 import com.weirddev.testme.intellij.common.utils.LanguageUtils;
 import com.weirddev.testme.intellij.scala.resolvers.ScalaPsiTreeUtils;
+import com.weirddev.testme.intellij.template.TypeDictionary;
+import com.weirddev.testme.intellij.template.context.Type;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Date: 16/12/2017
@@ -36,6 +39,48 @@ public class JavaTypeUtils {
         }
 
         return canonicalName;
+    }
+
+    /**
+     * build annotations type from PsiAnnotation
+     * @param annotations psi annotations
+     * @param typeDictionary type dictionary
+     * @param maxRecursionDepth depth
+     * @return type list of psi annotation
+     */
+    public static List<Type> buildAnnotations(PsiAnnotation[] annotations, TypeDictionary typeDictionary,
+        int maxRecursionDepth) {
+        List<Type> annotationTypes = new ArrayList<>();
+        if (null != annotations) {
+            for (PsiAnnotation psiAnnotation : annotations) {
+                PsiClassType psiClassType = resolveAnnotationType(psiAnnotation);
+                if (null != psiClassType) {
+                    annotationTypes.add(buildType(psiClassType, typeDictionary, maxRecursionDepth));
+                }
+            }
+        }
+        return annotationTypes;
+    }
+
+
+    private static PsiClassType resolveAnnotationType(PsiAnnotation psiAnnotation) {
+        PsiClass psiClass = psiAnnotation.resolveAnnotationType();
+        return psiClass != null ? Type.resolveType(psiClass) : null;
+    }
+
+    /**
+     *  move the buildType method form Field class, and make it reusable for others
+     * @param type PsiType
+     * @param typeDictionary type dictionary
+     * @param maxRecursionDepth recursion depth
+     * @return the Type from PsiType
+     */
+    public static Type buildType(PsiType type, TypeDictionary typeDictionary, int maxRecursionDepth) {
+        if (typeDictionary == null) {
+            return new Type(type, null, null, 0, false);
+        } else {
+            return typeDictionary.getType(type, maxRecursionDepth, true);
+        }
     }
 
 }

@@ -17,6 +17,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * A used type - object or primitive.
@@ -71,6 +72,12 @@ public class Type {
      * true if this type is an interface
      */
     private final boolean isInterface;
+
+    /**
+     * true if this type is an interface
+     */
+    private final boolean isAnnotation;
+
     /**
      * true if this type is an abstract class
      */
@@ -112,9 +119,20 @@ public class Type {
      */
     private final List<Method> methods;
     /**
-     * fields defined for this type
+     * fields defined for this type that can be mocked
      */
     private final List<Field> fields;
+
+    /**
+     * all fields defined for this type
+     */
+    private final List<Field> originFields;
+
+    /**
+     * annotations of this type
+     */
+    private final List<Type> annotations;
+
     /**
      * interfaces implemented by this type if any
      */
@@ -140,11 +158,14 @@ public class Type {
         isEnum = false;
         methods= new ArrayList<>();
         fields= new ArrayList<>();
+        originFields = new ArrayList<>();
+        annotations = new ArrayList<>();
         parentContainerClass = null;
         isStatic = false;
         isFinal = false;
         caseClass = false;
         sealed = false;
+        isAnnotation = false;
         childObjectsQualifiedNames = new ArrayList<>();
     }
 //todo refactor: extract all logic to TypeFactory
@@ -162,11 +183,14 @@ public class Type {
         PsiClass psiClass = PsiUtil.resolveClassInType(psiType);
         isEnum = JavaPsiTreeUtils.resolveIfEnum(psiClass);
         isInterface = psiClass != null && psiClass.isInterface();
+        isAnnotation = psiClass != null && psiClass.isAnnotationType();
         isAbstract = psiClass != null && psiClass.getModifierList() != null && psiClass.getModifierList().hasModifierProperty(PsiModifier.ABSTRACT);
         isStatic = hasModifier(psiClass, PsiModifier.STATIC) || psiClass!=null && "org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScObjectImpl".equals(psiClass.getClass().getCanonicalName());
         parentContainerClass = psiClass != null && psiClass.getParent() != null && psiClass.getParent() instanceof PsiClass && typeDictionary != null ? typeDictionary.getType(resolveType((PsiClass) psiClass.getParent()), maxRecursionDepth,
                 false) : null;
         fields = new ArrayList<>();
+        originFields = new ArrayList<>();
+        annotations = new ArrayList<>();
         enumValues = JavaPsiTreeUtils.resolveEnumValues(psiClass,typePsiElement);
         dependenciesResolvable = shouldResolveAllMethods && maxRecursionDepth > 1;
         methods = new ArrayList<>();
@@ -188,11 +212,14 @@ public class Type {
         composedTypes = new ArrayList<>();
         isEnum = psiClass.isEnum();
         isInterface = psiClass.isInterface();
+        isAnnotation = psiClass.isAnnotationType();
         isAbstract = psiClass.getModifierList() != null && psiClass.getModifierList().hasModifierProperty(PsiModifier.ABSTRACT);
         isStatic = psiClass.getModifierList() != null && psiClass.getModifierList().hasExplicitModifier(PsiModifier.STATIC);
         parentContainerClass = psiClass.getParent() != null && psiClass.getParent() instanceof PsiClass && typeDictionary != null ? typeDictionary.getType(resolveType((PsiClass) psiClass.getParent()), maxRecursionDepth,
                 false) : null;
         fields = new ArrayList<>();
+        originFields = new ArrayList<>();
+        annotations = new ArrayList<>();
         enumValues = JavaPsiTreeUtils.resolveEnumValues(psiClass, null);
         dependenciesResolvable = shouldResolveAllMethods && maxRecursionDepth > 1;
         methods = new ArrayList<>();
@@ -228,9 +255,23 @@ public class Type {
             if (!TypeUtils.isLanguageBaseClass(psiClass.getQualifiedName()) && !TypeUtils.isBasicType(psiClass.getQualifiedName())) {
                 resolveFields(psiClass, typeDictionary, maxRecursionDepth - 1);
             }
+            resolveTypeAnnotations(psiClass, typeDictionary, maxRecursionDepth - 1);
+            resetMockAbleFields();
             resolveImplementedInterfaces(psiClass, typeDictionary, shouldResolveAllMethods, maxRecursionDepth - 1);
             dependenciesResolved=true;
         }
+    }
+
+    private void resetMockAbleFields() {
+        this.originFields.addAll(this.fields);
+        // reset fields to mockable fields
+        this.fields.clear();
+        this.fields.addAll(findMockAbleFields(this.originFields));
+    }
+
+    private void resolveTypeAnnotations(PsiClass psiClass, TypeDictionary typeDictionary, int maxRecursionDepth) {
+        PsiAnnotation[] classAnnotations = psiClass.getAnnotations();
+        this.annotations.addAll(JavaTypeUtils.buildAnnotations(classAnnotations, typeDictionary, maxRecursionDepth));
     }
 
     private boolean isPropertyRelated(PsiMethod psiMethod) {
@@ -336,6 +377,36 @@ public class Type {
             return o2.getMethodParams().size() - o1.getMethodParams().size();
         });
         return constructors;
+    }
+
+    /**
+     * find mock able fields;
+     * if the tested class is di class type, find mock able field with di annotations
+     * @return mocks
+     */
+    private List<Field> findMockAbleFields(List<Field> fields) {
+        if (isDiClass()){
+            // find the di fields of di class
+            return fields.stream().filter(Field::isDiField).collect(Collectors.toList());
+        } else {
+            // others
+            return fields;
+        }
+    }
+
+    /**
+     *
+     * @return true -if the class is a dependency injected class, according to the annotations attached to it
+     */
+    private boolean isDiClass() {
+        return !annotations.isEmpty() && annotations.stream().anyMatch(e -> {
+            for (DiClassAnnotationEnum annotationEnum : DiClassAnnotationEnum.values()) {
+                if (annotationEnum.getCanonicalName().equals(e.getCanonicalName())) {
+                    return true;
+                }
+            }
+            return false;
+        });
     }
 
 }

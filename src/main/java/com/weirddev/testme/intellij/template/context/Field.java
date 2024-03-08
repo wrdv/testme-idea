@@ -1,12 +1,12 @@
 package com.weirddev.testme.intellij.template.context;
 
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiField;
-import com.intellij.psi.PsiModifier;
-import com.intellij.psi.PsiType;
+import com.intellij.psi.*;
 import com.weirddev.testme.intellij.template.TypeDictionary;
 import com.weirddev.testme.intellij.utils.ClassNameUtils;
+import com.weirddev.testme.intellij.utils.JavaTypeUtils;
 import lombok.Getter;
+
+import java.util.List;
 
 /**
  * Class field.
@@ -18,6 +18,12 @@ public class Field {
      * type of field
      */
     @Getter private final Type type;
+
+    /**
+     * annotations of field
+     */
+    @Getter private final List<Type> annotations;
+
     /**
      * true - if field is inherited and overridden in this type
      */
@@ -41,7 +47,8 @@ public class Field {
 
     public Field(PsiField psiField, PsiClass srcClass, TypeDictionary typeDictionary, int maxRecursionDepth) {
         this.name = psiField.getName();
-        type= buildType(psiField.getType(), typeDictionary, maxRecursionDepth);
+        type= JavaTypeUtils.buildType(psiField.getType(), typeDictionary, maxRecursionDepth);
+        annotations = JavaTypeUtils.buildAnnotations(psiField.getAnnotations(), typeDictionary, maxRecursionDepth);
         String canonicalText = srcClass.getQualifiedName();
         ownerClassCanonicalName = ClassNameUtils.stripArrayVarargsDesignator(canonicalText);
         overridden = isOverriddenInChild(psiField, srcClass);
@@ -49,12 +56,22 @@ public class Field {
         isStatic = psiField.getModifierList() != null && psiField.getModifierList().hasExplicitModifier(PsiModifier.STATIC);
     }
 
-    private Type buildType(PsiType type, TypeDictionary typeDictionary, int maxRecursionDepth) {
-        if (typeDictionary == null) {
-            return new Type(type, null, null, 0, false);
-        } else {
-            return typeDictionary.getType(type, maxRecursionDepth, true);
+    /**
+     *
+     * @return true if the field annotations (Like @Resource, @Autowired) indicates it is di field
+     */
+    public boolean isDiField() {
+        if (this.annotations.isEmpty()) {
+            return false;
         }
+        return annotations.stream().anyMatch(e -> {
+            for (DiFieldAnnotationEnum annotationEnum : DiFieldAnnotationEnum.values()) {
+                if (annotationEnum.getCanonicalName().equals(e.getCanonicalName())) {
+                    return true;
+                }
+            }
+            return false;
+        });
     }
 
     private boolean isOverriddenInChild(PsiField psiField, PsiClass srcClass) {
