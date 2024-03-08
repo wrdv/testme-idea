@@ -50,6 +50,10 @@ class FooTest {
         when(innerOfPublicInnerClass.methodOfInnerClass()).thenReturn(new com.example.services.impl.Foo.PublicInnerClass.InnerOfPublicInnerClass(new com.example.services.impl.Foo.PublicInnerClass(new com.example.services.impl.Foo())))
 
         java.lang.String result = foo.fight(new com.example.foes.Fire(), "foeName")
+        verify(publicInnerClass).methodOfInnerClass()
+        verify(innerStaticClass).methodOfInnerClass()
+        verify(innerClass).methodOfInnerClass()
+        verify(anonymousPublicInnerClass).methodOfInnerClass()
         assert result == "replaceMeWithExpectedResult"
     }
 }

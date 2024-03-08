@@ -39,6 +39,7 @@ public class FooTest {
         when(result.get()).thenReturn(Integer.valueOf(0));
 
         String result = foo.fight(new Fire(), "foeName");
+        verify(logger).trace(anyString());
         Assert.assertEquals("replaceMeWithExpectedResult", result);
     }
 }

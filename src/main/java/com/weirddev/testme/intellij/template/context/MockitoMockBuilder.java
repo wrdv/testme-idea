@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -245,22 +246,41 @@ public class  MockitoMockBuilder {
      */
     @SuppressWarnings("unused")
     public boolean shouldStub(Method testMethod, List<Field> testedClassFields) {
-        boolean shouldStub = false;
-        if (stubMockMethodCallsReturnValues) {
-            for (Field testedClassField : testedClassFields) {
-                if (isMockable(testedClassField)) {
-                    LOG.debug("field "+testedClassField.getName()+" type "+testedClassField.getType().getCanonicalName()+" type methods:"+testedClassField.getType().getMethods().size());
-                    for (Method fieldMethod : testedClassField.getType().getMethods()) {
-                        if (fieldMethod.getReturnType() != null && !"void".equals(fieldMethod.getReturnType().getCanonicalName()) && testSubjectInspector.isMethodCalled(fieldMethod, testMethod)) {
-                            shouldStub = true;
-                            break;
-                        }
-                    }
+        return callsMockMethod(testMethod, testedClassFields, Method::hasReturn);
+    }
+
+    /**
+     * true - if should verify tested method
+     * @param testMethod method being tested
+     * @param testedClassFields fields of owner type being tested
+     */
+    @SuppressWarnings("unused")
+    public boolean shouldVerify(Method testMethod, List<Field> testedClassFields) {
+        return callsMockMethod(testMethod, testedClassFields, method -> !method.hasReturn());
+    }
+
+    private boolean callsMockMethod(Method testMethod, List<Field> testedClassFields,
+        Predicate<Method> mockMethodRelevant) {
+        boolean callsMockMethod = false;
+        if (!stubMockMethodCallsReturnValues) {
+            LOG.debug("method " + testMethod.getMethodId() + " is calling a mock method:" + callsMockMethod);
+            return callsMockMethod;
+        }
+        for (Field testedClassField : testedClassFields) {
+            if (!isMockable(testedClassField)) {
+                continue;
+            }
+            LOG.debug("field " + testedClassField.getName() + " type " + testedClassField.getType().getCanonicalName()
+                + " type methods:" + testedClassField.getType().getMethods().size());
+            for (Method fieldMethod : testedClassField.getType().getMethods()) {
+                if (mockMethodRelevant.test(fieldMethod)
+                    && testSubjectInspector.isMethodCalled(fieldMethod, testMethod)) {
+                    return true;
                 }
             }
         }
-        LOG.debug("method "+testMethod.getMethodId()+" should be stabbed:"+shouldStub);
-        return shouldStub;
+        LOG.debug("method " + testMethod.getMethodId() + " is calling a mock method:" + callsMockMethod);
+        return callsMockMethod;
     }
 
     /**

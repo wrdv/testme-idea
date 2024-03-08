@@ -1,11 +1,8 @@
 package com.example.services.impl
 
 import com.example.beans.ConvertedBean
-import com.example.dependencies.Logger
-import com.example.foes.Fear
 import com.example.foes.Fire
-import com.example.foes.Ice
-import com.example.warriers.FooFighter
+import com.example.warriers.TechFighter
 import org.junit.Test
 import org.junit.Before
 import org.mockito.InjectMocks
@@ -18,11 +15,9 @@ import static org.mockito.Mockito.*
 /** created by TestMe integration test on MMXVI */
 class FooTest {
     @Mock
-    FooFighter fooFighter
+    TechFighter techFighter
     @Mock
     Supplier<Integer> result
-    @Mock
-    Logger logger
     @InjectMocks
     Foo foo
 
@@ -33,11 +28,12 @@ class FooTest {
 
     @Test
     void testFight() {
-        when(fooFighter.surrender(any(), any(), anyInt())).thenReturn(new ConvertedBean(myString: "myString", someNum: 0, fear: new Fear(), ice: new Ice()))
+        when(techFighter.fight(any())).thenReturn("fightResponse")
+        when(techFighter.surrender(any(), any(), anyInt())).thenReturn(new ConvertedBean(myString: "myString", someNum: 0))
         when(result.get()).thenReturn(0)
 
         String result = foo.fight(new Fire(), "foeName")
-        verify(logger).trace(anyString())
+        verify(techFighter).initSelfArming(anyString())
         assert result == "replaceMeWithExpectedResult"
     }
 }

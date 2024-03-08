@@ -1,5 +1,7 @@
 package com.weirddev.testme.intellij.generator;
 
+import com.weirddev.testme.intellij.configuration.TestMeConfigPersistent;
+import com.weirddev.testme.intellij.template.FileTemplateConfig;
 import com.weirddev.testme.intellij.template.TemplateRegistry;
 import com.weirddev.testme.intellij.template.context.Language;
 
@@ -47,4 +49,7 @@ public class TestMeGeneratorGroovyJunit4Test extends TestMeGeneratorJunit4Test {
         doTest(true, true, true);
     }
 
+    public void testVerifyMethodCall() {
+        doTest(new FileTemplateConfig(TestMeConfigPersistent.getInstance().getState()));
+    }
 }

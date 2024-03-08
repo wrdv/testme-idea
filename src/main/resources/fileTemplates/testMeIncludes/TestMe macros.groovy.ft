@@ -96,8 +96,20 @@ result#if($TestSubjectUtils.isJavaFuture($method.returnType)).get()#end == $Test
 #foreach($field in $testedClassFields)
 #if($MockitoMockBuilder.isMockable($field))
 #foreach($fieldMethod in $field.type.methods)
-#if($fieldMethod.returnType && $fieldMethod.returnType.name !="void" && $TestSubjectUtils.isMethodCalled($fieldMethod,$method))
+#if($fieldMethod.hasReturn() && $TestSubjectUtils.isMethodCalled($fieldMethod,$method))
         when($field.name.${fieldMethod.name}($MockitoMockBuilder.buildMockArgsMatchers(${fieldMethod.methodParams},"Java"))).thenReturn($TestBuilder.renderReturnParam($method,$fieldMethod.returnType,"${fieldMethod.name}Response",$grReplacementTypes,$grDefaultTypeValues))
+#end
+#end
+#end
+#end
+#end
+##
+#macro(grRenderMockVerifies $method $testedClassFields)
+#foreach($field in $testedClassFields)
+#if($MockitoMockBuilder.isMockable($field))
+#foreach($fieldMethod in $field.type.methods)
+#if(!$fieldMethod.hasReturn() && $TestSubjectUtils.isMethodCalled($fieldMethod,$method))
+        verify($field.name).${fieldMethod.name}($MockitoMockBuilder.buildMockArgsMatchers(${fieldMethod.methodParams},"Java"))
 #end
 #end
 #end

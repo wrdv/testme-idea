@@ -1,15 +1,14 @@
 package com.example.services.impl;
 
 import com.example.beans.ConvertedBean;
-import com.example.dependencies.Logger;
 import com.example.foes.Fire;
-import com.example.warriers.FooFighter;
+import com.example.warriers.TechFighter;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.testng.Assert;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
 
 import java.util.function.Supplier;
 
@@ -18,29 +17,28 @@ import static org.mockito.Mockito.*;
 /**
  * created by TestMe integration test on MMXVI
  */
-public class FooTest {
+class FooTest {
     @Mock
-    FooFighter fooFighter;
+    TechFighter techFighter;
     @Mock
     Supplier<Integer> result;
-    @Mock
-    Logger logger;
     @InjectMocks
     Foo foo;
 
-    @BeforeMethod
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         MockitoAnnotations.initMocks(this);
     }
 
     @Test
-    public void testFight() {
-        when(fooFighter.surrender(any(), any(), anyInt())).thenReturn(new ConvertedBean());
+    void testFight() {
+        when(techFighter.fight(any())).thenReturn("fightResponse");
+        when(techFighter.surrender(any(), any(), anyInt())).thenReturn(new ConvertedBean());
         when(result.get()).thenReturn(Integer.valueOf(0));
 
         String result = foo.fight(new Fire(), "foeName");
-        verify(logger).trace(anyString());
-        Assert.assertEquals(result, "replaceMeWithExpectedResult");
+        verify(techFighter).initSelfArming(anyString());
+        Assertions.assertEquals("replaceMeWithExpectedResult", result);
     }
 }
 

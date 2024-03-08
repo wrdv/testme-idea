@@ -1,9 +1,8 @@
 package com.example.services.impl;
 
 import com.example.beans.ConvertedBean;
-import com.example.dependencies.Logger;
 import com.example.foes.Fire;
-import com.example.warriers.FooFighter;
+import com.example.warriers.TechFighter;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -20,11 +19,9 @@ import static org.mockito.Mockito.*;
  */
 public class FooTest {
     @Mock
-    FooFighter fooFighter;
+    TechFighter techFighter;
     @Mock
     Supplier<Integer> result;
-    @Mock
-    Logger logger;
     @InjectMocks
     Foo foo;
 
@@ -35,11 +32,12 @@ public class FooTest {
 
     @Test
     public void testFight() {
-        when(fooFighter.surrender(any(), any(), anyInt())).thenReturn(new ConvertedBean());
+        when(techFighter.fight(any())).thenReturn("fightResponse");
+        when(techFighter.surrender(any(), any(), anyInt())).thenReturn(new ConvertedBean());
         when(result.get()).thenReturn(Integer.valueOf(0));
 
         String result = foo.fight(new Fire(), "foeName");
-        verify(logger).trace(anyString());
+        verify(techFighter).initSelfArming(anyString());
         Assert.assertEquals(result, "replaceMeWithExpectedResult");
     }
 }

@@ -138,7 +138,7 @@ public class Method {
 
     /**
      *
-     * true - if method has a return type
+     * true - if method has a return type and not void
      */
     public boolean hasReturn(){
         return returnType != null && !"void".equals(returnType.getName());
