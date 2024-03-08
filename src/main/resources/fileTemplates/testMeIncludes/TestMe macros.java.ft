@@ -100,7 +100,7 @@ assertEquals(result#{if}($TestSubjectUtils.isJavaFuture($method.returnType)).get
 #foreach($field in $testedClassFields)
 #if($MockitoMockBuilder.isMockable($field))
 #foreach($fieldMethod in $field.type.methods)
-#if($fieldMethod.hasVoidReturn() && $TestSubjectUtils.isMethodCalled($fieldMethod,$method))
+#if(!$fieldMethod.hasReturn() && $TestSubjectUtils.isMethodCalled($fieldMethod,$method))
         verify($field.name).${fieldMethod.name}($MockitoMockBuilder.buildMockArgsMatchers(${fieldMethod.methodParams},"Java"));
 #end
 #end
