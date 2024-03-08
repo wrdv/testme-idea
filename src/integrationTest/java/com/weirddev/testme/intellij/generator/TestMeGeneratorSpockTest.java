@@ -29,4 +29,8 @@ public class TestMeGeneratorSpockTest extends TestMeGeneratorTestBase {
     public void testMockReturned() throws Exception {
         doTest(new FileTemplateConfig(TestMeConfigPersistent.getInstance().getState()));
     }
+
+    public void testMockFieldsInDependencyInjection() {
+        doTest(new FileTemplateConfig(TestMeConfigPersistent.getInstance().getState()));
+    }
 }

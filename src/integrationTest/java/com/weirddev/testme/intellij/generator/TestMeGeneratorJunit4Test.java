@@ -180,6 +180,10 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
         doTest(new FileTemplateConfig(TestMeConfigPersistent.getInstance().getState()));
     }
 
+    public void testMockFieldsInDependencyInjection() {
+        doTest(new FileTemplateConfig(TestMeConfigPersistent.getInstance().getState()));
+    }
+
     //todo TC - use static init method when constructor not available
 
      // TODO TC different test target dir
