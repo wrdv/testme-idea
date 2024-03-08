@@ -144,12 +144,4 @@ public class Method {
         return returnType != null && !"void".equals(returnType.getName());
     }
 
-    /**
-     *
-     * @return true - if the method has a void return type
-     */
-    public boolean hasVoidReturn() {
-        return returnType != null && "void".equals(returnType.getName());
-    }
-
 }
