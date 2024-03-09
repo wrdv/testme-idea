@@ -55,7 +55,7 @@ allprojects {
         }
         reports.html.required = !isRunInCI
 //        exclude '**/TestMeGenerator*'  //temp exclude. for shortening build time when testing build changes
-//        include '**/utils/TestSubjectResolverUtilsTest.class'  //temp exclude
+        include '**/utils/TestSubjectResolverUtilsTest.class'  //temp exclude
         jacoco {
             includeNoLocationClasses = true
             excludes = ["jdk.internal.*"]
