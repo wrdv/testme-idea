@@ -18,6 +18,7 @@ jobs:
             WITH_IDEA_PLUGINS: true
 
     uses: ./.github/workflows/test.yml
+    secrets: inherit
     with:
       IDEA_VERSION: ${{ matrix.IDEA_VERSION }}
       WITH_IDEA_PLUGINS: ${{ matrix.WITH_IDEA_PLUGINS }}
