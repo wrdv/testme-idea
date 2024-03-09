@@ -161,7 +161,7 @@ tasks.register('jacocoRootReport', JacocoReport) {
     //outputs.upToDateWhen { false } // Always generate report
 }
 
-def shouldInstrumentCode = !isRunInCI && !Boolean.valueOf(System.getProperty('skipCodeInstrumentation','false'))
+def shouldInstrumentCode = !Boolean.valueOf(System.getProperty('skipCodeInstrumentation','false'))
 def enabledPlugins = ['java','junit','properties']
 if (enableIdeaGroovyPlugin) {
     enabledPlugins += 'Groovy'
