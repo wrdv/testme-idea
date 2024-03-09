@@ -55,7 +55,7 @@ allprojects {
         }
         reports.html.required = !isRunInCI
 //        exclude '**/TestMeGenerator*'  //temp exclude. for shortening build time when testing build changes
-        include '**/utils/TestSubjectResolverUtilsTest.class'  //temp exclude
+//        include '**/utils/TestSubjectResolverUtilsTest.class'  //temp exclude
         jacoco {
             includeNoLocationClasses = true
             excludes = ["jdk.internal.*"]
@@ -161,7 +161,7 @@ tasks.register('jacocoRootReport', JacocoReport) {
     //outputs.upToDateWhen { false } // Always generate report
 }
 
-def shouldInstrumentCode = !isRunInCI && !Boolean.valueOf(System.getProperty('skipCodeInstrumentation','false'))
+def shouldInstrumentCode = !Boolean.valueOf(System.getProperty('skipCodeInstrumentation','false'))
 def enabledPlugins = ['java','junit','properties']
 if (enableIdeaGroovyPlugin) {
     enabledPlugins += 'Groovy'

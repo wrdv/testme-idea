@@ -58,19 +58,10 @@ jobs:
         if: ( success() || failure() ) && steps.run-test.outcome != 'success'
         run: ./print_surefire_reports.sh
 
-      - name: debug file system state
+      - name: trace file system state
         run: |
           ls -lhR ./build/jacoco
           ls -lhR ./build/reports
-#          cat build/jacoco/test.exec
-#          cat testme-intellij-common/build/jacoco/test.exec
-
-      - name: Coverage exec artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          path: |
-            testme-intellij-common/build/jacoco/test.exec
-            build/jacoco/test.exec
           
       - name: Upload to Codecov
         uses: codecov/codecov-action@v4
