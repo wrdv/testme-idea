@@ -27,7 +27,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: 17
-          distribution: 'adopt'
+          distribution: 'corretto'
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
@@ -62,8 +62,8 @@ jobs:
         run: |
           ls -lhR ./build/jacoco
           ls -lhR ./build/reports
-          cat build/jacoco/test.exec
-          cat testme-intellij-common/build/jacoco/test.exec
+#          cat build/jacoco/test.exec
+#          cat testme-intellij-common/build/jacoco/test.exec
 
       - name: Coverage exec artifacts
         uses: actions/upload-artifact@v2
@@ -74,10 +74,12 @@ jobs:
           
       - name: Upload to Codecov
         uses: codecov/codecov-action@v4
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
 #          files: ./coverage1.xml,./coverage2.xml # optional
 #          flags: unittests # optional
 #          name: codecov-umbrella # optional
           fail_ci_if_error: true # optional (default = false)
           verbose: true # optional (default = false)
-          token: ${{ secrets.CODECOV_TOKEN }}
+#          token: ${{ secrets.CODECOV_TOKEN }}
