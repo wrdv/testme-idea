@@ -65,6 +65,13 @@ jobs:
           cat build/jacoco/test.exec
           cat testme-intellij-common/build/jacoco/test.exec
 
+      - name: Coverage exec artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          path: |
+            testme-intellij-common/build/jacoco/test.exec
+            build/jacoco/test.exec
+          
       - name: Upload to Codecov
         uses: codecov/codecov-action@v4
         with:
