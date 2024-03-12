@@ -13,6 +13,7 @@ public enum TemplateIcons {
     JUnit4( IconFiles.JUNIT4, IconFiles.JUNIT4_DARK),
     JUnit5( IconFiles.JUNIT5, IconFiles.JUNIT5),
     Mockito( IconFiles.MOCKITO, IconFiles.MOCKITO),
+    Powermock( IconFiles.POWERMOCK, IconFiles.POWERMOCK),
     Groovy( IconFiles.GROOVY, IconFiles.GROOVY),
     Scala( IconFiles.SCALA, IconFiles.SCALA),
     TestNG( IconFiles.TESTNG, IconFiles.TESTNG),
@@ -26,6 +27,7 @@ public enum TemplateIcons {
         private static final String JUNIT5 = "/icons/junit5.png";
         private static final String JUNIT4_DARK = "/icons/junit_dark.png";
         private static final String TESTNG = "/icons/testNG.png";
+        private static final String POWERMOCK = "/icons/powermock.png";
     }
 
     private final Icon icon;

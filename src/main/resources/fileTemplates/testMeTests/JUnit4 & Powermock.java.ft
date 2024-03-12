@@ -1,0 +1,94 @@
+#parse("TestMe macros.java")
+#set($hasMocks=$MockitoMockBuilder.hasMocks($TESTED_CLASS))
+#if($PACKAGE_NAME)
+package ${PACKAGE_NAME};
+#end
+
+import org.junit.Assert;
+import org.junit.Test;
+#if($hasMocks)
+import static org.powermock.api.mockito.PowerMockito.*;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.Whitebox;
+import org.junit.Before;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.junit.runner.RunWith;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.verify;
+#end
+
+#parse("File Header.java")
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({${TESTED_CLASS.name}.class})
+@PowerMockIgnore("javax.management.*")
+public class ${CLASS_NAME} {
+    #renderMockedFields($TESTED_CLASS.fields,$hasMocks)
+    #renderPowerMockTestSubjectInit($TESTED_CLASS,$TestSubjectUtils.hasTestableInstanceMethod($TESTED_CLASS.methods),$hasMocks)
+
+    ## all methods under powermock framework can be tested
+    #foreach($method in $TESTED_CLASS.methods)
+        #if(!$method.inherited)
+            @Test
+            public void #renderTestMethodName($method.name)() throws Exception {
+                #if($hasMocks && $MockitoMockBuilder.shouldStub($method, $TESTED_CLASS.fields))
+                    #renderMockStubs($method, $TESTED_CLASS.fields)
+                #end
+                #renderSelfCallMethodMockStubs($method, $TESTED_CLASS)
+                #if($method.isPrivate())
+                    #renderPrivateMethodCall($method, $TESTED_CLASS.name)
+                #else
+                    #renderMethodCall($method, $TESTED_CLASS.name)
+                #end
+                #if($hasMocks && $MockitoMockBuilder.shouldVerify($method,$TESTED_CLASS.fields))
+                    #renderMockVerifies($method,$TESTED_CLASS.fields)
+                #end
+                #if($method.hasReturn())
+                    Assert.#renderJUnitAssert($method)
+                #end
+            }
+      #end
+    #end
+}
+
+################## Macros #####################
+#macro(renderPowerMockTestSubjectInit $testedClass $hasTestableInstanceMethod $hasMocks)
+    #if($hasMocks)
+        @InjectMocks
+    #end
+        $testedClass.canonicalName $StringUtils.deCapitalizeFirstLetter($testedClass.name) = spy($TestBuilder.renderInitType($testedClass,"$class.name",$replacementTypes,$defaultTypeValues));
+#end
+
+##----mock self call method call stub------
+#macro(renderSelfCallMethodMockStubs $method $testedClass)
+    #foreach($methodCall in $method.directMethodCalls)
+        #if(${MockitoMockBuilder.isSelfCalled($methodCall.method, $testedClass)} && $methodCall.method.hasReturn())
+            #if($methodCall.method.hasParams())
+                doReturn($TestBuilder.renderReturnParam($methodCall.method,$methodCall.method.returnType,"${methodCall.method.name}Response",$replacementTypes,$defaultTypeValues))
+                            .when(${StringUtils.deCapitalizeFirstLetter($testedClass.name)}, "${methodCall.method.name}", $MockitoMockBuilder.buildMockArgsMatchers(${methodCall.method.methodParams},"Java"));
+            #else
+                doReturn($TestBuilder.renderReturnParam($methodCall.method,$methodCall.method.returnType,"${methodCall.method.name}Response",$replacementTypes,$defaultTypeValues))
+                            .when(${StringUtils.deCapitalizeFirstLetter($testedClass.name)}, "${methodCall.method.name}");
+            #end
+        #end
+    #end
+#end
+
+##-- render private method call for power mock -----
+#macro(renderPrivateMethodCall $method, $testedClassName)
+    #renderJavaReturnVar($method.returnType)
+    #if($method.static)
+        $testedClassName.${method.name}($TestBuilder.renderMethodParams($method,$replacementTypes,$defaultTypeValues));
+    #elseif($method.hasParams())
+        Whitebox.invokeMethod($StringUtils.deCapitalizeFirstLetter($testedClassName), "${method.name}", $TestBuilder.renderMethodParams($method,$replacementTypes,$defaultTypeValues));
+    #else
+        Whitebox.invokeMethod($StringUtils.deCapitalizeFirstLetter($testedClassName), "${method.name}");
+    #end
+#end
+
+#parse("TestMe Footer.java")
+

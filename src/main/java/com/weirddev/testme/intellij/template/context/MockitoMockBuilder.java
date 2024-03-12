@@ -240,6 +240,17 @@ public class  MockitoMockBuilder {
     }
 
     /**
+     *
+     * @param calledRefMethod call method
+     * @param testedClass the tested class
+     * @return true - if the calledRefMethod is  class object self called method
+     */
+    public boolean isSelfCalled(Method calledRefMethod, Type testedClass) {
+        List<Method> methods = testedClass.getMethods();
+        return methods.stream().anyMatch(method -> method.getMethodId().equals(calledRefMethod.getMethodId()));
+    }
+
+    /**
      * true - if should stub tested method
      * @param testMethod method being tested
      * @param testedClassFields fields of owner type being tested

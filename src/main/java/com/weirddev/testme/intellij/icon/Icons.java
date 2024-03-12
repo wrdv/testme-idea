@@ -14,6 +14,7 @@ public interface Icons {
     Icon GROOVY = getIcon("/icons/groovy.png");
     Icon SCALA = getIcon("/icons/scala.png");
     Icon MOCKITO = getIcon("/icons/mockito.png");
+    Icon POWERMOCK = getIcon("/icons/powermock.png");
     Icon JUNIT4 = getIcon("/icons/junit.png");
     Icon JUNIT5 = getIcon("/icons/junit5.png");
     Icon JUNIT4_DARK = getIcon("/icons/junit_dark.png");
