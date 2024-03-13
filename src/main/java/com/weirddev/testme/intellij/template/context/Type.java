@@ -16,8 +16,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * A used type - object or primitive.
@@ -74,11 +74,6 @@ public class Type {
     private final boolean isInterface;
 
     /**
-     * true if this type is an interface
-     */
-    private final boolean isAnnotation;
-
-    /**
      * true if this type is an abstract class
      */
     private final boolean isAbstract;
@@ -119,19 +114,9 @@ public class Type {
      */
     private final List<Method> methods;
     /**
-     * fields defined for this type that can be mocked
+     * fields defined for this type
      */
     private final List<Field> fields;
-
-    /**
-     * all fields defined for this type
-     */
-    private final List<Field> originFields;
-
-    /**
-     * annotations of this type
-     */
-    private final List<Type> annotations;
 
     /**
      * interfaces implemented by this type if any
@@ -141,6 +126,11 @@ public class Type {
      * relevant of scala sealed classes
      */
     private final List<String> childObjectsQualifiedNames;
+
+    /**
+     * is type annotated with dependency injection annotations,
+     */
+    private final boolean isAnnotatedByDI;
 
     @Deprecated
     public Type(String canonicalName, String name, String packageName, boolean isPrimitive, boolean isInterface, boolean isAbstract, boolean array, int arrayDimensions, boolean varargs, List<Type> composedTypes) {
@@ -158,14 +148,12 @@ public class Type {
         isEnum = false;
         methods= new ArrayList<>();
         fields= new ArrayList<>();
-        originFields = new ArrayList<>();
-        annotations = new ArrayList<>();
         parentContainerClass = null;
         isStatic = false;
         isFinal = false;
         caseClass = false;
         sealed = false;
-        isAnnotation = false;
+        isAnnotatedByDI = false;
         childObjectsQualifiedNames = new ArrayList<>();
     }
 //todo refactor: extract all logic to TypeFactory
@@ -183,14 +171,12 @@ public class Type {
         PsiClass psiClass = PsiUtil.resolveClassInType(psiType);
         isEnum = JavaPsiTreeUtils.resolveIfEnum(psiClass);
         isInterface = psiClass != null && psiClass.isInterface();
-        isAnnotation = psiClass != null && psiClass.isAnnotationType();
+        isAnnotatedByDI = psiClass != null && buildAnnotatedByDi(psiClass);
         isAbstract = psiClass != null && psiClass.getModifierList() != null && psiClass.getModifierList().hasModifierProperty(PsiModifier.ABSTRACT);
         isStatic = hasModifier(psiClass, PsiModifier.STATIC) || psiClass!=null && "org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScObjectImpl".equals(psiClass.getClass().getCanonicalName());
         parentContainerClass = psiClass != null && psiClass.getParent() != null && psiClass.getParent() instanceof PsiClass && typeDictionary != null ? typeDictionary.getType(resolveType((PsiClass) psiClass.getParent()), maxRecursionDepth,
                 false) : null;
         fields = new ArrayList<>();
-        originFields = new ArrayList<>();
-        annotations = new ArrayList<>();
         enumValues = JavaPsiTreeUtils.resolveEnumValues(psiClass,typePsiElement);
         dependenciesResolvable = shouldResolveAllMethods && maxRecursionDepth > 1;
         methods = new ArrayList<>();
@@ -212,14 +198,12 @@ public class Type {
         composedTypes = new ArrayList<>();
         isEnum = psiClass.isEnum();
         isInterface = psiClass.isInterface();
-        isAnnotation = psiClass.isAnnotationType();
+        isAnnotatedByDI = buildAnnotatedByDi(psiClass);
         isAbstract = psiClass.getModifierList() != null && psiClass.getModifierList().hasModifierProperty(PsiModifier.ABSTRACT);
         isStatic = psiClass.getModifierList() != null && psiClass.getModifierList().hasExplicitModifier(PsiModifier.STATIC);
         parentContainerClass = psiClass.getParent() != null && psiClass.getParent() instanceof PsiClass && typeDictionary != null ? typeDictionary.getType(resolveType((PsiClass) psiClass.getParent()), maxRecursionDepth,
                 false) : null;
         fields = new ArrayList<>();
-        originFields = new ArrayList<>();
-        annotations = new ArrayList<>();
         enumValues = JavaPsiTreeUtils.resolveEnumValues(psiClass, null);
         dependenciesResolvable = shouldResolveAllMethods && maxRecursionDepth > 1;
         methods = new ArrayList<>();
@@ -255,23 +239,9 @@ public class Type {
             if (!TypeUtils.isLanguageBaseClass(psiClass.getQualifiedName()) && !TypeUtils.isBasicType(psiClass.getQualifiedName())) {
                 resolveFields(psiClass, typeDictionary, maxRecursionDepth - 1);
             }
-            resolveTypeAnnotations(psiClass, typeDictionary, maxRecursionDepth - 1);
-            resetMockAbleFields();
             resolveImplementedInterfaces(psiClass, typeDictionary, shouldResolveAllMethods, maxRecursionDepth - 1);
             dependenciesResolved=true;
         }
-    }
-
-    private void resetMockAbleFields() {
-        this.originFields.addAll(this.fields);
-        // reset fields to mockable fields
-        this.fields.clear();
-        this.fields.addAll(findMockAbleFields(this.originFields));
-    }
-
-    private void resolveTypeAnnotations(PsiClass psiClass, TypeDictionary typeDictionary, int maxRecursionDepth) {
-        PsiAnnotation[] classAnnotations = psiClass.getAnnotations();
-        this.annotations.addAll(JavaTypeUtils.buildAnnotations(classAnnotations, typeDictionary, maxRecursionDepth));
     }
 
     private boolean isPropertyRelated(PsiMethod psiMethod) {
@@ -380,33 +350,26 @@ public class Type {
     }
 
     /**
-     * find mock able fields;
-     * if the tested class is di class type, find mock able field with di annotations
-     * @return mocks
+     *
+     * @return true -if the class is a dependency injected class, according to the annotations attached to it
      */
-    private List<Field> findMockAbleFields(List<Field> fields) {
-        if (isDiClass()){
-            // find the di fields of di class
-            return fields.stream().filter(Field::isDiField).collect(Collectors.toList());
-        } else {
-            // others
-            return fields;
-        }
+    private boolean buildAnnotatedByDi(PsiClass psiClass) {
+        PsiAnnotation[] classAnnotations = psiClass.getAnnotations();
+        return null != classAnnotations && classAnnotations.length > 0
+            && Arrays.stream(classAnnotations).anyMatch(this::isDiClassAnnotation);
+    }
+
+    private boolean isDiClassAnnotation(PsiAnnotation psiAnnotation) {
+        return Arrays.stream(DiClassAnnotationEnum.values())
+            .anyMatch(annEnum -> annEnum.getCanonicalName().equals(psiAnnotation.getQualifiedName()));
     }
 
     /**
      *
-     * @return true -if the class is a dependency injected class, according to the annotations attached to it
+     * @return true if type has constructor
      */
-    private boolean isDiClass() {
-        return !annotations.isEmpty() && annotations.stream().anyMatch(e -> {
-            for (DiClassAnnotationEnum annotationEnum : DiClassAnnotationEnum.values()) {
-                if (annotationEnum.getCanonicalName().equals(e.getCanonicalName())) {
-                    return true;
-                }
-            }
-            return false;
-        });
+    public boolean hasConstructor() {
+        return this.getMethods().stream().anyMatch(
+            method -> method.isConstructor() && !"java.lang.Object".equals(method.getOwnerClassCanonicalType()));
     }
-
 }

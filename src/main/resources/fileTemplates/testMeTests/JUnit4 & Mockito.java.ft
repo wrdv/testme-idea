@@ -16,7 +16,7 @@ import org.mockito.MockitoAnnotations;
 
 #parse("File Header.java")
 public class ${CLASS_NAME} {
-#renderMockedFields($TESTED_CLASS.fields,$hasMocks)
+#renderMockedFields($hasMocks,$TESTED_CLASS)
 #renderTestSubjectInit($TESTED_CLASS,$TestSubjectUtils.hasTestableInstanceMethod($TESTED_CLASS.methods),$hasMocks)
 #if($hasMocks)
 
@@ -30,13 +30,13 @@ public class ${CLASS_NAME} {
 
     @Test
     public void #renderTestMethodName($method.name)() throws Exception {
-#if($hasMocks && $MockitoMockBuilder.shouldStub($method,$TESTED_CLASS.fields))
-#renderMockStubs($method,$TESTED_CLASS.fields)
+#if($hasMocks && $MockitoMockBuilder.shouldStub($method,$TESTED_CLASS))
+#renderMockStubs($method,$TESTED_CLASS)
 
 #end
 $TAB$TAB#renderMethodCall($method,$TESTED_CLASS.name)
-#if($hasMocks && $MockitoMockBuilder.shouldVerify($method,$TESTED_CLASS.fields))
-#renderMockVerifies($method,$TESTED_CLASS.fields)
+#if($hasMocks && $MockitoMockBuilder.shouldVerify($method,$TESTED_CLASS))
+#renderMockVerifies($method,$TESTED_CLASS)
 #end
 #if($method.hasReturn())
         Assert.#renderJUnitAssert($method)#end

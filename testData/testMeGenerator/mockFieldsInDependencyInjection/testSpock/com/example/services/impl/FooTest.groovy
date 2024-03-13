@@ -17,6 +17,7 @@ class FooTest extends Specification {
     TechFighter techFighter
     @Mock
     Supplier<Integer> result
+
     @InjectMocks
     Foo foo
 

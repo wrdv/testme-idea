@@ -5,7 +5,10 @@ import com.weirddev.testme.intellij.template.TypeDictionary;
 import com.weirddev.testme.intellij.utils.ClassNameUtils;
 import com.weirddev.testme.intellij.utils.JavaTypeUtils;
 import lombok.Getter;
+import lombok.Setter;
+import org.jetbrains.plugins.groovy.lang.psi.util.GroovyPropertyUtils;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -18,11 +21,6 @@ public class Field {
      * type of field
      */
     @Getter private final Type type;
-
-    /**
-     * annotations of field
-     */
-    @Getter private final List<Type> annotations;
 
     /**
      * true - if field is inherited and overridden in this type
@@ -40,6 +38,17 @@ public class Field {
      * canonical name of type owning this field
      */
     @Getter private final String ownerClassCanonicalName;
+
+    /**
+     * true if field is annotated by dependency injection
+     */
+    @Getter private final boolean isAnnotatedByDI;
+
+    /**
+     * true if field has setter in tested class
+     */
+    @Getter private final boolean hasSetter;
+
     /**
      * name given to field
      */
@@ -47,8 +56,9 @@ public class Field {
 
     public Field(PsiField psiField, PsiClass srcClass, TypeDictionary typeDictionary, int maxRecursionDepth) {
         this.name = psiField.getName();
-        type= JavaTypeUtils.buildType(psiField.getType(), typeDictionary, maxRecursionDepth);
-        annotations = JavaTypeUtils.buildAnnotations(psiField.getAnnotations(), typeDictionary, maxRecursionDepth);
+        type= buildType(psiField.getType(), typeDictionary, maxRecursionDepth);
+        this.isAnnotatedByDI = buildAnnotatedByDI(psiField);
+        this.hasSetter = buildHasSetter(srcClass.getMethods(), psiField.getName());
         String canonicalText = srcClass.getQualifiedName();
         ownerClassCanonicalName = ClassNameUtils.stripArrayVarargsDesignator(canonicalText);
         overridden = isOverriddenInChild(psiField, srcClass);
@@ -57,21 +67,43 @@ public class Field {
     }
 
     /**
+     * @param type PsiType
+     * @param typeDictionary type dictionary
+     * @param maxRecursionDepth recursion depth
+     * @return the Type from PsiType
+     */
+    private static Type buildType(PsiType type, TypeDictionary typeDictionary, int maxRecursionDepth) {
+        if (typeDictionary == null) {
+            return new Type(type, null, null, 0, false);
+        } else {
+            return typeDictionary.getType(type, maxRecursionDepth, true);
+        }
+    }
+
+    /**
+     * 
+     * @param methods psi methods of tested class
+     * @param fieldName field of tested class
+     * @return true if field has setter
+     */
+    private boolean buildHasSetter(PsiMethod[] methods, String fieldName) {
+        return null != methods && methods.length > 0 && Arrays.stream(methods)
+            .anyMatch(psiMethod -> GroovyPropertyUtils.isSimplePropertySetter(psiMethod, fieldName));
+    }
+
+    /**
      *
      * @return true if the field annotations (Like @Resource, @Autowired) indicates it is di field
      */
-    public boolean isDiField() {
-        if (this.annotations.isEmpty()) {
-            return false;
-        }
-        return annotations.stream().anyMatch(e -> {
-            for (DiFieldAnnotationEnum annotationEnum : DiFieldAnnotationEnum.values()) {
-                if (annotationEnum.getCanonicalName().equals(e.getCanonicalName())) {
-                    return true;
-                }
-            }
-            return false;
-        });
+    private boolean buildAnnotatedByDI(PsiField psiField) {
+        PsiAnnotation[] fieldAnnotations = psiField.getAnnotations();
+        return null != fieldAnnotations && fieldAnnotations.length > 0 && Arrays.stream(fieldAnnotations)
+            .anyMatch(this::isDiFieldAnnotation);
+    }
+
+    private boolean isDiFieldAnnotation(PsiAnnotation psiAnnotation) {
+        return Arrays.stream(DiFieldAnnotationEnum.values())
+            .anyMatch(annEnum -> annEnum.getCanonicalName().equals(psiAnnotation.getQualifiedName()));
     }
 
     private boolean isOverriddenInChild(PsiField psiField, PsiClass srcClass) {
