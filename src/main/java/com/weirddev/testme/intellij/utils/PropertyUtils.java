@@ -21,6 +21,16 @@ public class PropertyUtils
             return PropertyUtil.isSimplePropertySetter(psiMethod) && PropertyUtil.isSimpleSetter(psiMethod);
         }
     }
+
+    public static boolean isPropertySetter(PsiMethod psiMethod, String propertyName) {
+        if (LanguageUtils.isGroovy(psiMethod.getLanguage())) {
+            return GroovyPropertyUtil.isPropertySetter(psiMethod, propertyName);
+        } else {
+            return PropertyUtil.isSimplePropertySetter(psiMethod) && PropertyUtil.isSimpleSetter(psiMethod)
+                && propertyName.equals(PropertyUtil.getPropertyName(psiMethod));
+        }
+    }
+
     public static boolean isPropertyGetter(PsiMethod psiMethod) {
         if (LanguageUtils.isGroovy(psiMethod.getLanguage())) {
             return GroovyPropertyUtil.isPropertyGetter(psiMethod);

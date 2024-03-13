@@ -3,13 +3,10 @@ package com.weirddev.testme.intellij.template.context;
 import com.intellij.psi.*;
 import com.weirddev.testme.intellij.template.TypeDictionary;
 import com.weirddev.testme.intellij.utils.ClassNameUtils;
-import com.weirddev.testme.intellij.utils.JavaTypeUtils;
+import com.weirddev.testme.intellij.utils.PropertyUtils;
 import lombok.Getter;
-import lombok.Setter;
-import org.jetbrains.plugins.groovy.lang.psi.util.GroovyPropertyUtils;
 
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * Class field.
@@ -87,8 +84,8 @@ public class Field {
      * @return true if field has setter
      */
     private boolean buildHasSetter(PsiMethod[] methods, String fieldName) {
-        return null != methods && methods.length > 0 && Arrays.stream(methods)
-            .anyMatch(psiMethod -> GroovyPropertyUtils.isSimplePropertySetter(psiMethod, fieldName));
+        return null != methods && methods.length > 0
+            && Arrays.stream(methods).anyMatch(psiMethod -> PropertyUtils.isPropertySetter(psiMethod, fieldName));
     }
 
     /**
