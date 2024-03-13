@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.weirddev.testme</id>
   <name>TestMe</name>
-  <version>6.1.2.eap</version>
+  <version>6.2.0</version>
   <vendor email="testme@weirddev.com" url="https://weirddev.com">WeirdDev</vendor>
 
   <description><![CDATA[
@@ -20,6 +20,7 @@
 
   <change-notes><![CDATA[
         <ul>
+          <li>Generate mock verify method call statements if method retruns void(contributed by <a href="https://github.com/huangliang992">HuangLiang</a> - <a href="https://github.com/wrdv/testme-idea/pull/23">PR #23</a>) </li>
           <li>Do not generate Mockito mocks for classes with only private constructors (contributed by <a href="https://github.com/huangliang992">HuangLiang</a> - <a href="https://github.com/wrdv/testme-idea/pull/22">PR #22</a>) </li>
           <li>Generate UT for enum methods (raised by gadeji on Feb 15 '24)</li>
           <li>Do not generate UT for methods inherited from java base enum class</li>

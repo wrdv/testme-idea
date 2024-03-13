@@ -27,7 +27,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: 17
-          distribution: 'adopt'
+          distribution: 'corretto'
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
@@ -41,28 +41,36 @@ jobs:
 
       - name: Test Report
         uses: dorny/test-reporter@v1
-        if: success() || failure()
+        if: always()
+        continue-on-error: true
         with:
           name: Test Results (${{inputs.IDEA_VERSION}},${{inputs.WITH_IDEA_PLUGINS}})
           path: build/test-results/**/*.xml
           reporter: java-junit
+
       - name: Test Results artifacts
         uses: actions/upload-artifact@v2
-        if: success() || failure()
+        if: always()
         with:
           name: test results ${{inputs.IDEA_VERSION}} plugins=${{inputs.WITH_IDEA_PLUGINS}}
           path: build/reports/**
 
       - name: On failure - log report
-        #      if: failure()
-        if: ( success() || failure() ) && steps.run-test.outcome != 'success'
+        if: steps.run-test.outcome != 'success'
         run: ./print_surefire_reports.sh
 
+      - name: trace file system state
+        run: |
+          ls -lhR ./build/jacoco
+          ls -lhR ./build/reports
+          
       - name: Upload to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
+        if: github.event.pull_request.head.repo.fork == false
         with:
 #          files: ./coverage1.xml,./coverage2.xml # optional
 #          flags: unittests # optional
 #          name: codecov-umbrella # optional
           fail_ci_if_error: true # optional (default = false)
           verbose: true # optional (default = false)
+          token: ${{ secrets.CODECOV_TOKEN }}

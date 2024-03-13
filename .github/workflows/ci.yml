@@ -24,6 +24,7 @@ jobs:
           #            UPLOAD_TEST_RESULTS: true
 
     uses: ./.github/workflows/test.yml
+    secrets: inherit
     with:
       IDEA_VERSION: ${{ matrix.IDEA_VERSION }}
       WITH_IDEA_PLUGINS: ${{ matrix.WITH_IDEA_PLUGINS }}
