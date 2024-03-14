@@ -15,6 +15,9 @@ public class GroovyPropertyUtil
     public static boolean isPropertySetter(@Nullable PsiMethod method) {
         return GroovyPropertyUtils.isSimplePropertySetter(method);
     }
+    public static boolean isPropertySetter(@Nullable PsiMethod method, String propertyName) {
+        return GroovyPropertyUtils.isSimplePropertySetter(method, propertyName);
+    }
     public static boolean isPropertyGetter(@Nullable PsiMethod method) {
         return GroovyPropertyUtils.isSimplePropertyGetter(method);
     }

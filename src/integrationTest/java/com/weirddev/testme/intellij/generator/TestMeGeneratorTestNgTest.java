@@ -37,4 +37,16 @@ public class TestMeGeneratorTestNgTest extends TestMeGeneratorTestBase {
         doTest(new FileTemplateConfig(TestMeConfigPersistent.getInstance().getState()));
     }
 
+    public void testMockFieldsInDependencyInjection() {
+        doTest(new FileTemplateConfig(TestMeConfigPersistent.getInstance().getState()));
+    }
+
+    public void testMockFieldsInDiWithSetter() {
+        doTest(new FileTemplateConfig(TestMeConfigPersistent.getInstance().getState()));
+    }
+
+    public void testMockFieldsInDiWithCtor() {
+        doTest(new FileTemplateConfig(TestMeConfigPersistent.getInstance().getState()));
+    }
+
 }
