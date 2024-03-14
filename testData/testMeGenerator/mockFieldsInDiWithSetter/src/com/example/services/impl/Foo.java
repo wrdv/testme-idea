@@ -8,15 +8,15 @@ import com.example.foes.Fire;
 import com.example.foes.Ice;
 import com.example.warriers.TechFighter;
 import com.example.dependencies.Logger;
-import com.example.annotations.@FooService;
-import com.example.annotations.@FooResource;
+import javax.inject.Singleton;
+import javax.inject.Inject;
 
-@FooService
+@Singleton
 public class Foo{
 
     private TechFighter techFighter;
 
-    @FooResource
+    @Inject
     private Supplier<Integer> result;
 
     private Logger logger;

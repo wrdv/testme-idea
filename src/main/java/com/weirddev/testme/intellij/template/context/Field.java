@@ -54,8 +54,8 @@ public class Field {
     public Field(PsiField psiField, PsiClass srcClass, TypeDictionary typeDictionary, int maxRecursionDepth) {
         this.name = psiField.getName();
         type= buildType(psiField.getType(), typeDictionary, maxRecursionDepth);
-        this.isAnnotatedByDI = buildAnnotatedByDI(psiField);
-        this.hasSetter = buildHasSetter(srcClass.getMethods(), psiField.getName());
+        this.isAnnotatedByDI = buildAnnotatedByDI(psiField, srcClass, typeDictionary);
+        this.hasSetter = buildHasSetter(srcClass, psiField.getName(), typeDictionary);
         String canonicalText = srcClass.getQualifiedName();
         ownerClassCanonicalName = ClassNameUtils.stripArrayVarargsDesignator(canonicalText);
         overridden = isOverriddenInChild(psiField, srcClass);
@@ -79,29 +79,26 @@ public class Field {
 
     /**
      * 
-     * @param methods psi methods of tested class
+     * @param psiClass psi class
      * @param fieldName field of tested class
      * @return true if field has setter
      */
-    private boolean buildHasSetter(PsiMethod[] methods, String fieldName) {
-        return null != methods && methods.length > 0
-            && Arrays.stream(methods).anyMatch(psiMethod -> PropertyUtils.isPropertySetter(psiMethod, fieldName));
+    private boolean buildHasSetter(PsiClass psiClass, String fieldName, TypeDictionary typeDictionary) {
+        return null != typeDictionary && typeDictionary.isTestSubject(psiClass) && null != psiClass.getMethods()
+            && psiClass.getMethods().length > 0 && Arrays.stream(psiClass.getMethods())
+                .anyMatch(psiMethod -> PropertyUtils.isPropertySetter(psiMethod, fieldName));
     }
 
     /**
      *
      * @return true if the field annotations (Like @Resource, @Autowired) indicates it is di field
      */
-    private boolean buildAnnotatedByDI(PsiField psiField) {
-        PsiAnnotation[] fieldAnnotations = psiField.getAnnotations();
-        return null != fieldAnnotations && fieldAnnotations.length > 0 && Arrays.stream(fieldAnnotations)
-            .anyMatch(this::isDiFieldAnnotation);
+    private boolean buildAnnotatedByDI(PsiField psiField, PsiClass srcClass, TypeDictionary typeDictionary) {
+        return null != typeDictionary && typeDictionary.isTestSubject(srcClass) && null != psiField.getAnnotations()
+            && psiField.getAnnotations().length > 0 && Arrays.stream(psiField.getAnnotations())
+                .anyMatch(ann -> DiFieldAnnotationEnum.isDiFieldAnnotation(ann.getQualifiedName()));
     }
-
-    private boolean isDiFieldAnnotation(PsiAnnotation psiAnnotation) {
-        return Arrays.stream(DiFieldAnnotationEnum.values())
-            .anyMatch(annEnum -> annEnum.getCanonicalName().equals(psiAnnotation.getQualifiedName()));
-    }
+    
 
     private boolean isOverriddenInChild(PsiField psiField, PsiClass srcClass) {
         String srcQualifiedName = srcClass.getQualifiedName();

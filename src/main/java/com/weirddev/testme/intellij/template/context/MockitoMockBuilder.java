@@ -108,9 +108,20 @@ public class  MockitoMockBuilder {
      * true - field can be mocked
      */
     @SuppressWarnings("unused")
+    @Deprecated
+    public boolean isMockable(Field field) {
+        return isMockable(field, null);
+    }
+
+    /**
+     * true - field can be mocked
+     */
+    @SuppressWarnings("unused")
     public boolean isMockable(Field field, Type testedClass) {
-        final boolean isMockable = !field.getType().isPrimitive() && !isWrapperType(field.getType()) && (!field.getType().isFinal() || isMockitoMockMakerInlineOn) && !field.isOverridden() && !field.getType().isArray() && !field.getType().isEnum() && !isNotMockableViaDi(field, testedClass);
-        LOG.debug("field "+field.getType().getCanonicalName()+" "+field.getName()+" is mockable:"+isMockable);
+        final boolean isMockable = !field.getType().isPrimitive() && !isWrapperType(field.getType())
+            && (!field.getType().isFinal() || isMockitoMockMakerInlineOn) && !field.isOverridden()
+            && !field.getType().isArray() && !field.getType().isEnum() && !isNotInjectedInDiClass(field, testedClass);
+        LOG.debug("field " + field.getType().getCanonicalName() + " " + field.getName() + " is mockable:" + isMockable);
         return isMockable;
     }
 
@@ -124,8 +135,8 @@ public class  MockitoMockBuilder {
      * @param testedClass testedClass
      * @return true if field meet conditions above
      */
-    public boolean isNotMockableViaDi(Field field, Type testedClass) {
-        return testedClass.isAnnotatedByDI() && !field.isAnnotatedByDI() && !field.isHasSetter()
+    private boolean isNotInjectedInDiClass(Field field, Type testedClass) {
+        return testedClass != null && testedClass.isAnnotatedByDI() && !field.isAnnotatedByDI() && !field.isHasSetter()
             && !testedClass.hasConstructor();
     }
 
@@ -254,6 +265,12 @@ public class  MockitoMockBuilder {
         return matcherType;
     }
 
+    @SuppressWarnings("unused")
+    @Deprecated
+    public boolean shouldStub(Method testMethod, List<Field> testedClassFields) {
+        return callsMockMethod(testMethod, testedClassFields, Method::hasReturn, null);
+    }
+
     /**
      * true - if should stub tested method
      * @param testMethod method being tested
@@ -262,6 +279,17 @@ public class  MockitoMockBuilder {
     @SuppressWarnings("unused")
     public boolean shouldStub(Method testMethod, Type testedClass) {
         return callsMockMethod(testMethod, testedClass.getFields(), Method::hasReturn, testedClass);
+    }
+
+    /**
+     * true - if should verify tested method
+     * @param testMethod method being tested
+     * @param testedClassFields tested class fields
+     */
+    @Deprecated
+    @SuppressWarnings("unused")
+    public boolean shouldVerify(Method testMethod, List<Field> testedClassFields) {
+        return callsMockMethod(testMethod, testedClassFields, method -> !method.hasReturn(), null);
     }
 
     /**

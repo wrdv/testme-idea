@@ -6,10 +6,9 @@ import com.example.foes.Fear;
 import com.example.foes.Fire;
 import com.example.foes.Ice;
 import com.example.warriers.TechFighter;
-import com.example.annotations.@FooService;
-import com.example.annotations.@FooResource;
+import javax.inject.Singleton;
 
-@FooService
+@Singleton
 public class Foo{
 
     private TechFighter techFighter;

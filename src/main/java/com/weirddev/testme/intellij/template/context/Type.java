@@ -171,7 +171,7 @@ public class Type {
         PsiClass psiClass = PsiUtil.resolveClassInType(psiType);
         isEnum = JavaPsiTreeUtils.resolveIfEnum(psiClass);
         isInterface = psiClass != null && psiClass.isInterface();
-        isAnnotatedByDI = psiClass != null && buildAnnotatedByDi(psiClass);
+        isAnnotatedByDI = psiClass != null && buildAnnotatedByDi(psiClass, typeDictionary);
         isAbstract = psiClass != null && psiClass.getModifierList() != null && psiClass.getModifierList().hasModifierProperty(PsiModifier.ABSTRACT);
         isStatic = hasModifier(psiClass, PsiModifier.STATIC) || psiClass!=null && "org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScObjectImpl".equals(psiClass.getClass().getCanonicalName());
         parentContainerClass = psiClass != null && psiClass.getParent() != null && psiClass.getParent() instanceof PsiClass && typeDictionary != null ? typeDictionary.getType(resolveType((PsiClass) psiClass.getParent()), maxRecursionDepth,
@@ -198,7 +198,7 @@ public class Type {
         composedTypes = new ArrayList<>();
         isEnum = psiClass.isEnum();
         isInterface = psiClass.isInterface();
-        isAnnotatedByDI = buildAnnotatedByDi(psiClass);
+        isAnnotatedByDI = buildAnnotatedByDi(psiClass,typeDictionary);
         isAbstract = psiClass.getModifierList() != null && psiClass.getModifierList().hasModifierProperty(PsiModifier.ABSTRACT);
         isStatic = psiClass.getModifierList() != null && psiClass.getModifierList().hasExplicitModifier(PsiModifier.STATIC);
         parentContainerClass = psiClass.getParent() != null && psiClass.getParent() instanceof PsiClass && typeDictionary != null ? typeDictionary.getType(resolveType((PsiClass) psiClass.getParent()), maxRecursionDepth,
@@ -353,15 +353,10 @@ public class Type {
      *
      * @return true -if the class is a dependency injected class, according to the annotations attached to it
      */
-    private boolean buildAnnotatedByDi(PsiClass psiClass) {
-        PsiAnnotation[] classAnnotations = psiClass.getAnnotations();
-        return null != classAnnotations && classAnnotations.length > 0
-            && Arrays.stream(classAnnotations).anyMatch(this::isDiClassAnnotation);
-    }
-
-    private boolean isDiClassAnnotation(PsiAnnotation psiAnnotation) {
-        return Arrays.stream(DiClassAnnotationEnum.values())
-            .anyMatch(annEnum -> annEnum.getCanonicalName().equals(psiAnnotation.getQualifiedName()));
+    private boolean buildAnnotatedByDi(PsiClass psiClass, TypeDictionary typeDictionary) {
+        return null != typeDictionary && typeDictionary.isTestSubject(psiClass) && null != psiClass.getAnnotations()
+            && psiClass.getAnnotations().length > 0 && Arrays.stream(psiClass.getAnnotations())
+                .anyMatch(ann -> DiClassAnnotationEnum.isDiClassAnnotation(ann.getQualifiedName()));
     }
 
     /**
