@@ -53,9 +53,9 @@
 #end
 #end
 ##
-#macro(renderMockedFields $testedClassFields $hasMocks)
-#foreach($field in $testedClassFields)
-#if($hasMocks && $MockitoMockBuilder.isMockable($field))
+#macro(renderMockedFields $hasMocks $testedClass)
+#foreach($field in $testedClass.fields)
+#if($hasMocks && $MockitoMockBuilder.isMockable($field, $testedClass))
     @Mock
     $field.type.canonicalName $field.name;
 #elseif($MockitoMockBuilder.isMockExpected($field))
@@ -84,9 +84,9 @@ assertEquals(result#{if}($TestSubjectUtils.isJavaFuture($method.returnType)).get
 #renderJavaReturnVar($method.returnType)#if($method.static)$testedClassName#{else}$StringUtils.deCapitalizeFirstLetter($testedClassName)#end.${method.name}($TestBuilder.renderMethodParams($method,$replacementTypes,$defaultTypeValues));##
 #end
 ##
-#macro(renderMockStubs $method $testedClassFields)
-#foreach($field in $testedClassFields)
-#if($MockitoMockBuilder.isMockable($field))
+#macro(renderMockStubs $method $testedClass)
+#foreach($field in $testedClass.fields)
+#if($MockitoMockBuilder.isMockable($field, $testedClass))
 #foreach($fieldMethod in $field.type.methods)
 #if($fieldMethod.hasReturn() && $TestSubjectUtils.isMethodCalled($fieldMethod,$method))
         when($field.name.${fieldMethod.name}($MockitoMockBuilder.buildMockArgsMatchers(${fieldMethod.methodParams},"Java"))).thenReturn($TestBuilder.renderReturnParam($method,$fieldMethod.returnType,"${fieldMethod.name}Response",$replacementTypes,$defaultTypeValues));
@@ -96,9 +96,9 @@ assertEquals(result#{if}($TestSubjectUtils.isJavaFuture($method.returnType)).get
 #end
 #end
 ##
-#macro(renderMockVerifies $method $testedClassFields)
-#foreach($field in $testedClassFields)
-#if($MockitoMockBuilder.isMockable($field))
+#macro(renderMockVerifies $method $testedClass)
+#foreach($field in $testedClass.fields)
+#if($MockitoMockBuilder.isMockable($field, $testedClass))
 #foreach($fieldMethod in $field.type.methods)
 #if(!$fieldMethod.hasReturn() && $TestSubjectUtils.isMethodCalled($fieldMethod,$method))
         verify($field.name).${fieldMethod.name}($MockitoMockBuilder.buildMockArgsMatchers(${fieldMethod.methodParams},"Java"));

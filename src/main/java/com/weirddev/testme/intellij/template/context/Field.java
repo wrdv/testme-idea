@@ -1,12 +1,12 @@
 package com.weirddev.testme.intellij.template.context;
 
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiField;
-import com.intellij.psi.PsiModifier;
-import com.intellij.psi.PsiType;
+import com.intellij.psi.*;
 import com.weirddev.testme.intellij.template.TypeDictionary;
 import com.weirddev.testme.intellij.utils.ClassNameUtils;
+import com.weirddev.testme.intellij.utils.PropertyUtils;
 import lombok.Getter;
+
+import java.util.Arrays;
 
 /**
  * Class field.
@@ -18,6 +18,7 @@ public class Field {
      * type of field
      */
     @Getter private final Type type;
+
     /**
      * true - if field is inherited and overridden in this type
      */
@@ -34,6 +35,17 @@ public class Field {
      * canonical name of type owning this field
      */
     @Getter private final String ownerClassCanonicalName;
+
+    /**
+     * true if field is annotated by dependency injection
+     */
+    @Getter private final boolean isAnnotatedByDI;
+
+    /**
+     * true if field has setter in tested class
+     */
+    @Getter private final boolean hasSetter;
+
     /**
      * name given to field
      */
@@ -42,6 +54,8 @@ public class Field {
     public Field(PsiField psiField, PsiClass srcClass, TypeDictionary typeDictionary, int maxRecursionDepth) {
         this.name = psiField.getName();
         type= buildType(psiField.getType(), typeDictionary, maxRecursionDepth);
+        this.isAnnotatedByDI = buildAnnotatedByDI(psiField, srcClass, typeDictionary);
+        this.hasSetter = buildHasSetter(srcClass, psiField.getName(), typeDictionary);
         String canonicalText = srcClass.getQualifiedName();
         ownerClassCanonicalName = ClassNameUtils.stripArrayVarargsDesignator(canonicalText);
         overridden = isOverriddenInChild(psiField, srcClass);
@@ -49,13 +63,42 @@ public class Field {
         isStatic = psiField.getModifierList() != null && psiField.getModifierList().hasExplicitModifier(PsiModifier.STATIC);
     }
 
-    private Type buildType(PsiType type, TypeDictionary typeDictionary, int maxRecursionDepth) {
+    /**
+     * @param type PsiType
+     * @param typeDictionary type dictionary
+     * @param maxRecursionDepth recursion depth
+     * @return the Type from PsiType
+     */
+    private static Type buildType(PsiType type, TypeDictionary typeDictionary, int maxRecursionDepth) {
         if (typeDictionary == null) {
             return new Type(type, null, null, 0, false);
         } else {
             return typeDictionary.getType(type, maxRecursionDepth, true);
         }
     }
+
+    /**
+     * 
+     * @param psiClass psi class
+     * @param fieldName field of tested class
+     * @return true if field has setter
+     */
+    private boolean buildHasSetter(PsiClass psiClass, String fieldName, TypeDictionary typeDictionary) {
+        return null != typeDictionary && typeDictionary.isTestSubject(psiClass) && null != psiClass.getMethods()
+            && psiClass.getMethods().length > 0 && Arrays.stream(psiClass.getMethods())
+                .anyMatch(psiMethod -> PropertyUtils.isPropertySetter(psiMethod, fieldName));
+    }
+
+    /**
+     *
+     * @return true if the field annotations (Like @Resource, @Autowired) indicates it is di field
+     */
+    private boolean buildAnnotatedByDI(PsiField psiField, PsiClass srcClass, TypeDictionary typeDictionary) {
+        return null != typeDictionary && typeDictionary.isTestSubject(srcClass) && null != psiField.getAnnotations()
+            && psiField.getAnnotations().length > 0 && Arrays.stream(psiField.getAnnotations())
+                .anyMatch(ann -> DiFieldAnnotationEnum.isDiFieldAnnotation(ann.getQualifiedName()));
+    }
+    
 
     private boolean isOverriddenInChild(PsiField psiField, PsiClass srcClass) {
         String srcQualifiedName = srcClass.getQualifiedName();

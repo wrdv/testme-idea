@@ -16,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -71,6 +72,7 @@ public class Type {
      * true if this type is an interface
      */
     private final boolean isInterface;
+
     /**
      * true if this type is an abstract class
      */
@@ -115,6 +117,7 @@ public class Type {
      * fields defined for this type
      */
     private final List<Field> fields;
+
     /**
      * interfaces implemented by this type if any
      */
@@ -123,6 +126,11 @@ public class Type {
      * relevant of scala sealed classes
      */
     private final List<String> childObjectsQualifiedNames;
+
+    /**
+     * is type annotated with dependency injection annotations,
+     */
+    private final boolean isAnnotatedByDI;
 
     @Deprecated
     public Type(String canonicalName, String name, String packageName, boolean isPrimitive, boolean isInterface, boolean isAbstract, boolean array, int arrayDimensions, boolean varargs, List<Type> composedTypes) {
@@ -145,6 +153,7 @@ public class Type {
         isFinal = false;
         caseClass = false;
         sealed = false;
+        isAnnotatedByDI = false;
         childObjectsQualifiedNames = new ArrayList<>();
     }
 //todo refactor: extract all logic to TypeFactory
@@ -162,6 +171,7 @@ public class Type {
         PsiClass psiClass = PsiUtil.resolveClassInType(psiType);
         isEnum = JavaPsiTreeUtils.resolveIfEnum(psiClass);
         isInterface = psiClass != null && psiClass.isInterface();
+        isAnnotatedByDI = psiClass != null && buildAnnotatedByDi(psiClass, typeDictionary);
         isAbstract = psiClass != null && psiClass.getModifierList() != null && psiClass.getModifierList().hasModifierProperty(PsiModifier.ABSTRACT);
         isStatic = hasModifier(psiClass, PsiModifier.STATIC) || psiClass!=null && "org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScObjectImpl".equals(psiClass.getClass().getCanonicalName());
         parentContainerClass = psiClass != null && psiClass.getParent() != null && psiClass.getParent() instanceof PsiClass && typeDictionary != null ? typeDictionary.getType(resolveType((PsiClass) psiClass.getParent()), maxRecursionDepth,
@@ -188,6 +198,7 @@ public class Type {
         composedTypes = new ArrayList<>();
         isEnum = psiClass.isEnum();
         isInterface = psiClass.isInterface();
+        isAnnotatedByDI = buildAnnotatedByDi(psiClass,typeDictionary);
         isAbstract = psiClass.getModifierList() != null && psiClass.getModifierList().hasModifierProperty(PsiModifier.ABSTRACT);
         isStatic = psiClass.getModifierList() != null && psiClass.getModifierList().hasExplicitModifier(PsiModifier.STATIC);
         parentContainerClass = psiClass.getParent() != null && psiClass.getParent() instanceof PsiClass && typeDictionary != null ? typeDictionary.getType(resolveType((PsiClass) psiClass.getParent()), maxRecursionDepth,
@@ -338,4 +349,22 @@ public class Type {
         return constructors;
     }
 
+    /**
+     *
+     * @return true -if the class is a dependency injected class, according to the annotations attached to it
+     */
+    private boolean buildAnnotatedByDi(PsiClass psiClass, TypeDictionary typeDictionary) {
+        return null != typeDictionary && typeDictionary.isTestSubject(psiClass) && null != psiClass.getAnnotations()
+            && psiClass.getAnnotations().length > 0 && Arrays.stream(psiClass.getAnnotations())
+                .anyMatch(ann -> DiClassAnnotationEnum.isDiClassAnnotation(ann.getQualifiedName()));
+    }
+
+    /**
+     *
+     * @return true if type has constructor
+     */
+    public boolean hasConstructor() {
+        return this.getMethods().stream().anyMatch(
+            method -> method.isConstructor() && !"java.lang.Object".equals(method.getOwnerClassCanonicalType()));
+    }
 }
