@@ -11,4 +11,5 @@
 #* @vtlvariable name="TestSubjectUtils" type="com.weirddev.testme.intellij.template.context.TestSubjectInspector" *#
 #* @vtlvariable name="CLASS_NAME" type="java.lang.String" *#
 #* @vtlvariable name="MockitoMockBuilder" type="com.weirddev.testme.intellij.template.context.MockitoMockBuilder" *#
+#* @vtlvariable name="PowerMockBuilder" type="com.weirddev.testme.intellij.template.context.PowerMockBuilder" *#
 #* /fileTemplates/testMeIncludes/*.ft *#

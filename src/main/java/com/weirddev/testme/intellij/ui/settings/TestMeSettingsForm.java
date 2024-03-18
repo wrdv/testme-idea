@@ -17,6 +17,7 @@ public class TestMeSettingsForm implements Disposable {
     private JCheckBox reformatCodeCheckBox;
     private JCheckBox replaceFullyQualifiedNamesCheckBox;
     private JPanel rootPanel;
+    private JCheckBox renderInternalMethodCallStubsBox;
 
     public JPanel getRootPanel() {
         return rootPanel;
@@ -33,6 +34,7 @@ public class TestMeSettingsForm implements Disposable {
             testMeConfig.setOptimizeImports(optimizeImportsCheckBox.isSelected());
             testMeConfig.setReformatCode(reformatCodeCheckBox.isSelected());
             testMeConfig.setReplaceFullyQualifiedNames(replaceFullyQualifiedNamesCheckBox.isSelected());
+            testMeConfig.setRenderInternalMethodCallStubs(renderInternalMethodCallStubsBox.isSelected());
         }
     }
 
@@ -42,6 +44,7 @@ public class TestMeSettingsForm implements Disposable {
             optimizeImportsCheckBox.setSelected(state.getOptimizeImports());
             reformatCodeCheckBox.setSelected(state.getReformatCode());
             replaceFullyQualifiedNamesCheckBox.setSelected(state.getReplaceFullyQualifiedNames());
+            renderInternalMethodCallStubsBox.setSelected(state.isRenderInternalMethodCallStubs());
         }
     }
 
@@ -50,7 +53,8 @@ public class TestMeSettingsForm implements Disposable {
                 (generateTestsForInheritedCheckBox.isSelected() != state.getGenerateTestsForInheritedMethods() ||
                         optimizeImportsCheckBox.isSelected() != state.getOptimizeImports() ||
                         reformatCodeCheckBox.isSelected() != state.getReformatCode() ||
-                        replaceFullyQualifiedNamesCheckBox.isSelected() != state.getReplaceFullyQualifiedNames()
+                        replaceFullyQualifiedNamesCheckBox.isSelected() != state.getReplaceFullyQualifiedNames() ||
+                        renderInternalMethodCallStubsBox.isSelected() != state.isRenderInternalMethodCallStubs()
                 );
     }
 }
