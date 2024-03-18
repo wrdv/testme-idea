@@ -32,8 +32,8 @@ class FooTest {
 
     @Test
     void testFight() {
-        when(techFighter.fight(any())).thenReturn("fightResponse");
-        when(techFighter.surrender(any(), any(), anyInt())).thenReturn(new ConvertedBean());
+        when(techFighter.fight(any(Fire.class))).thenReturn("fightResponse");
+        when(techFighter.surrender(any(Fear.class), any(Ice.class), anyInt())).thenReturn(new ConvertedBean());
         when(result.get()).thenReturn(Integer.valueOf(0));
 
         String result = foo.fight(new Fire(), "foeName");

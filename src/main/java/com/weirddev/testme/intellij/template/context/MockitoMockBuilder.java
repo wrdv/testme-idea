@@ -236,7 +236,16 @@ public class  MockitoMockBuilder {
         if (language != Language.Scala) {
             matcherType += "()";
         }
+        // add specific type to any()
+        if( matcherType.equals("any()")){
+            matcherType = mockCanonicalName(param.getType().getCanonicalName());
+        }
         return matcherType;
+    }
+
+    String mockCanonicalName(String canonicalName) {
+        int lastIndex = canonicalName.lastIndexOf('.');
+        return lastIndex != -1 ? "any("+canonicalName.substring(lastIndex + 1)+".class)" : "any()";
     }
 
     /**
