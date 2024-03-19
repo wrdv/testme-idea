@@ -238,12 +238,12 @@ public class  MockitoMockBuilder {
         }
         // add specific type to any()
         if( matcherType.equals("any()")){
-            matcherType = mockCanonicalName(param.getType().getCanonicalName());
+            matcherType = addSpecificType(param.getType().getCanonicalName());
         }
         return matcherType;
     }
 
-    String mockCanonicalName(String canonicalName) {
+    String addSpecificType(String canonicalName) {
         int lastIndex = canonicalName.lastIndexOf('.');
         return lastIndex != -1 ? "any("+canonicalName.substring(lastIndex + 1)+".class)" : "any()";
     }
