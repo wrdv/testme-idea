@@ -60,8 +60,8 @@
 #if($hasMocks && $mockBuilder.isMockable($field, $testedClass))
     @Mock
     $field.type.canonicalName $field.name;
-#elseif($MockitoMockBuilder.isMockExpected($field))
-    $MockitoMockBuilder.getImmockabiliyReason("//",$field)
+#elseif($mockBuilder.isMockExpected($field))
+    $mockBuilder.getImmockabiliyReason("//",$field)
 #end
 #end
 #end
@@ -91,7 +91,7 @@ assertEquals(result#{if}($TestSubjectUtils.isJavaFuture($method.returnType)).get
 #if($mockBuilder.isMockable($field, $testedClass))
 #foreach($fieldMethod in $field.type.methods)
 #if($fieldMethod.hasReturn() && $TestSubjectUtils.isMethodCalled($fieldMethod,$method))
-        when($field.name.${fieldMethod.name}($MockitoMockBuilder.buildMockArgsMatchers(${fieldMethod.methodParams},"Java"))).thenReturn($TestBuilder.renderReturnParam($method,$fieldMethod.returnType,"${fieldMethod.name}Response",$replacementTypes,$defaultTypeValues));
+        when($field.name.${fieldMethod.name}($mockBuilder.buildMockArgsMatchers(${fieldMethod.methodParams},"Java"))).thenReturn($TestBuilder.renderReturnParam($method,$fieldMethod.returnType,"${fieldMethod.name}Response",$replacementTypes,$defaultTypeValues));
 #end
 #end
 #end
@@ -103,7 +103,7 @@ assertEquals(result#{if}($TestSubjectUtils.isJavaFuture($method.returnType)).get
 #if($mockBuilder.isMockable($field, $testedClass))
 #foreach($fieldMethod in $field.type.methods)
 #if(!$fieldMethod.hasReturn() && $TestSubjectUtils.isMethodCalled($fieldMethod,$method))
-        verify($field.name).${fieldMethod.name}($MockitoMockBuilder.buildMockArgsMatchers(${fieldMethod.methodParams},"Java"));
+        verify($field.name).${fieldMethod.name}($mockBuilder.buildMockArgsMatchers(${fieldMethod.methodParams},"Java"));
 #end
 #end
 #end

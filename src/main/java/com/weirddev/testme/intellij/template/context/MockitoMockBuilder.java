@@ -183,6 +183,7 @@ public class  MockitoMockBuilder implements MockBuilder{
      * @param field reported field
      * @return an error message explaining why field cannot be mocked
      */
+    @Override
     @SuppressWarnings("unused")
     public String getImmockabiliyReason(String prefix,Field field) {//consider deprecating when supporting explicit type initialization
         final String reasonMsgPrefix = prefix+"Field " + field.getName() + " of type " + field.getType().getName();
@@ -204,6 +205,7 @@ public class  MockitoMockBuilder implements MockBuilder{
      * @return mocked arguments expression
      * @see Language
      */
+    @Override
     @SuppressWarnings("unused")
     public String buildMockArgsMatchers(List<Param> params,String language) {
         final StringBuilder sb = new StringBuilder();
@@ -356,6 +358,7 @@ public class  MockitoMockBuilder implements MockBuilder{
     /**
       *  @return true - if Field should be mocked
       */
+    @Override
     public boolean isMockExpected(Field field) {
         return !field.getType().isPrimitive() && !isWrapperType(field.getType()) && !field.isStatic() && !field.isOverridden();
     }
