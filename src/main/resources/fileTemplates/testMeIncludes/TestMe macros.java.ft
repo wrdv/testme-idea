@@ -107,11 +107,9 @@ assertEquals(result#{if}($TestSubjectUtils.isJavaFuture($method.returnType)).get
 #end
 #end
 #end
-
 ##----------------------------------------------------------------------------------------------------------------------
 ## PowerMock macros
 ##----------------------------------------------------------------------------------------------------------------------
-
 ##----------------------------------------------------------------------------------------------------------------------
 ## renderInternalMethodCallsStubs($methods,$testedClass)
 ## render internal method call stubs (currently PowerMock used)
@@ -129,7 +127,6 @@ assertEquals(result#{if}($TestSubjectUtils.isJavaFuture($method.returnType)).get
         #end
     #end
 #end
-
 ##----------------------------------------------------------------------------------------------------------------------
 ## renderMethodCallWithSpy($method,$testedClassName)
 ## render method call use spy, currently PowerMock used
@@ -138,8 +135,6 @@ assertEquals(result#{if}($TestSubjectUtils.isJavaFuture($method.returnType)).get
 #macro(renderMethodCallWithSpy $method,$testedClassName)
     #renderJavaReturnVar($method.returnType)#if($method.static)$testedClassName#{else}$StringUtils.deCapitalizeFirstLetter($testedClassName)Spy#end.${method.name}($TestBuilder.renderMethodParams($method,$replacementTypes,$defaultTypeValues));##
 #end
-
-
 ##----------------------------------------------------------------------------------------------------------------------
 ## renderPowerMockedFields($hasMocks,$testedClass)
 ## render mocked fields when PowerMock used
@@ -153,8 +148,6 @@ assertEquals(result#{if}($TestSubjectUtils.isJavaFuture($method.returnType)).get
         #end
     #end
 #end
-
-
 ##----------------------------------------------------------------------------------------------------------------------
 ## renderPowerMockStubs($method,$testedClass)
 ## render mocked stubs for method when PowerMock used
@@ -171,7 +164,6 @@ assertEquals(result#{if}($TestSubjectUtils.isJavaFuture($method.returnType)).get
         #end
     #end
 #end
-
 ##----------------------------------------------------------------------------------------------------------------------
 ## renderPowerMockVerifies($method,$testedClass)
 ## render mocked verifies when PowerMock used
