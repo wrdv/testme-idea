@@ -1,5 +1,6 @@
 #parse("TestMe macros.java")
 #set($hasMocks=$PowerMockBuilder.hasMocks($TESTED_CLASS))
+#set($mockBuilder = $PowerMockBuilder)
 #if($PACKAGE_NAME)
 package ${PACKAGE_NAME};
 #end
@@ -26,7 +27,7 @@ import static org.mockito.Mockito.verify;
 @PrepareForTest({${TESTED_CLASS.name}.class})
 @PowerMockIgnore("javax.management.*")
 public class ${CLASS_NAME} {
-    #renderPowerMockedFields($hasMocks, $TESTED_CLASS)
+    #renderMockedFields($hasMocks, $TESTED_CLASS)
     #renderTestSubjectInit($TESTED_CLASS,$TestSubjectUtils.hasTestableInstanceMethod($TESTED_CLASS.methods),$hasMocks)
     #if($hasMocks)
 
@@ -41,7 +42,7 @@ public class ${CLASS_NAME} {
             @Test
             public void #renderTestMethodName($method.name)() throws Exception {
                 #if($hasMocks && $PowerMockBuilder.shouldStub($method, $TESTED_CLASS))
-                    #renderPowerMockStubs($method, $TESTED_CLASS)
+                    #renderMockStubs($method, $TESTED_CLASS)
                 #end
                 #if($PowerMockBuilder.hasInternalMethodCall($method, $TESTED_CLASS))
                     #renderInternalMethodCallsStubs($method, $TESTED_CLASS)
@@ -50,7 +51,7 @@ public class ${CLASS_NAME} {
                     #renderMethodCall($method,$TESTED_CLASS.name)
                 #end
                 #if($hasMocks && $PowerMockBuilder.shouldVerify($method,$TESTED_CLASS))
-                    #renderPowerMockVerifies($method,$TESTED_CLASS)
+                    #renderMockVerifies($method,$TESTED_CLASS)
                 #end
                 #if($method.hasReturn())
                     Assert.#renderJUnitAssert($method)

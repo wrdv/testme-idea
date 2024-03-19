@@ -1,10 +1,12 @@
 ##* @vtlvariable name="replacementTypes" type="java.util.Map<java.lang.String,java.lang.String>" *#
 ##* @vtlvariable name="replacementTypesForReturn" type="java.util.Map<java.lang.String,java.lang.String>" *#
 ##* @vtlvariable name="defaultTypeValues" type="java.util.Map<java.lang.String,java.lang.String>" *#
+##* @vtlvariable name="mockBuilder" type="com.weirddev.testme.intellij.template.context.MockBuilder" *#
 #parse("TestMe common macros.java")
 ################## Global vars ###############
 ##$replacementTypes: Optionally defined a Map of initialiazation statements for custom types replacements where test params should be generated for defined interfaces. for instance:
 #set($replacementTypes = {})
+#set($mockBuilder = $MockitoMockBuilder)
 ##set($replacementTypes = {
 ##        "java.util.Collection": "java.util.Arrays.<TYPES>asList(<VAL>)",
 ##        "java.util.Map": "new java.util.HashMap<TYPES>(){{put(<VAL>,<VAL>);}}",
@@ -55,7 +57,7 @@
 ##
 #macro(renderMockedFields $hasMocks $testedClass)
 #foreach($field in $testedClass.fields)
-#if($hasMocks && $MockitoMockBuilder.isMockable($field, $testedClass))
+#if($hasMocks && $mockBuilder.isMockable($field, $testedClass))
     @Mock
     $field.type.canonicalName $field.name;
 #elseif($MockitoMockBuilder.isMockExpected($field))
@@ -86,7 +88,7 @@ assertEquals(result#{if}($TestSubjectUtils.isJavaFuture($method.returnType)).get
 ##
 #macro(renderMockStubs $method $testedClass)
 #foreach($field in $testedClass.fields)
-#if($MockitoMockBuilder.isMockable($field, $testedClass))
+#if($mockBuilder.isMockable($field, $testedClass))
 #foreach($fieldMethod in $field.type.methods)
 #if($fieldMethod.hasReturn() && $TestSubjectUtils.isMethodCalled($fieldMethod,$method))
         when($field.name.${fieldMethod.name}($MockitoMockBuilder.buildMockArgsMatchers(${fieldMethod.methodParams},"Java"))).thenReturn($TestBuilder.renderReturnParam($method,$fieldMethod.returnType,"${fieldMethod.name}Response",$replacementTypes,$defaultTypeValues));
@@ -98,7 +100,7 @@ assertEquals(result#{if}($TestSubjectUtils.isJavaFuture($method.returnType)).get
 ##
 #macro(renderMockVerifies $method $testedClass)
 #foreach($field in $testedClass.fields)
-#if($MockitoMockBuilder.isMockable($field, $testedClass))
+#if($mockBuilder.isMockable($field, $testedClass))
 #foreach($fieldMethod in $field.type.methods)
 #if(!$fieldMethod.hasReturn() && $TestSubjectUtils.isMethodCalled($fieldMethod,$method))
         verify($field.name).${fieldMethod.name}($MockitoMockBuilder.buildMockArgsMatchers(${fieldMethod.methodParams},"Java"));
@@ -134,49 +136,4 @@ assertEquals(result#{if}($TestSubjectUtils.isJavaFuture($method.returnType)).get
 ##----------------------------------------------------------------------------------------------------------------------
 #macro(renderMethodCallWithSpy $method,$testedClassName)
     #renderJavaReturnVar($method.returnType)#if($method.static)$testedClassName#{else}$StringUtils.deCapitalizeFirstLetter($testedClassName)Spy#end.${method.name}($TestBuilder.renderMethodParams($method,$replacementTypes,$defaultTypeValues));##
-#end
-##----------------------------------------------------------------------------------------------------------------------
-## renderPowerMockedFields($hasMocks,$testedClass)
-## render mocked fields when PowerMock used
-## Param: $hasMocks - testedClass class hasMocks, $testedClass - the tested class
-##----------------------------------------------------------------------------------------------------------------------
-#macro(renderPowerMockedFields $hasMocks $testedClass)
-    #foreach($field in $testedClass.fields)
-        #if($hasMocks && $PowerMockBuilder.isMockable($field, $testedClass))
-            @Mock
-            $field.type.canonicalName $field.name;
-        #end
-    #end
-#end
-##----------------------------------------------------------------------------------------------------------------------
-## renderPowerMockStubs($method,$testedClass)
-## render mocked stubs for method when PowerMock used
-## Param: $method - tested method, $testedClass - the tested class
-##----------------------------------------------------------------------------------------------------------------------
-#macro(renderPowerMockStubs $method $testedClass)
-    #foreach($field in $testedClass.fields)
-        #if($PowerMockBuilder.isMockable($field, $testedClass))
-            #foreach($fieldMethod in $field.type.methods)
-                #if($fieldMethod.hasReturn() && $TestSubjectUtils.isMethodCalled($fieldMethod,$method))
-                        when($field.name.${fieldMethod.name}($PowerMockBuilder.buildMockArgsMatchers(${fieldMethod.methodParams},"Java"))).thenReturn($TestBuilder.renderReturnParam($method,$fieldMethod.returnType,"${fieldMethod.name}Response",$replacementTypes,$defaultTypeValues));
-                #end
-            #end
-        #end
-    #end
-#end
-##----------------------------------------------------------------------------------------------------------------------
-## renderPowerMockVerifies($method,$testedClass)
-## render mocked verifies when PowerMock used
-## Param: $method - tested method, $testedClass - the tested class
-##----------------------------------------------------------------------------------------------------------------------
-#macro(renderPowerMockVerifies $method $testedClass)
-    #foreach($field in $testedClass.fields)
-        #if($PowerMockBuilder.isMockable($field, $testedClass))
-            #foreach($fieldMethod in $field.type.methods)
-                #if(!$fieldMethod.hasReturn() && $TestSubjectUtils.isMethodCalled($fieldMethod,$method))
-                        verify($field.name).${fieldMethod.name}($PowerMockBuilder.buildMockArgsMatchers(${fieldMethod.methodParams},"Java"));
-                #end
-            #end
-        #end
-    #end
 #end

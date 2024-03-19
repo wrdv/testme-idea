@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
  * @author Yaron Yamin
  */
 
-public class  MockitoMockBuilder {
+public class  MockitoMockBuilder implements MockBuilder{
     private static final Logger LOG = Logger.getInstance(MockitoMockBuilder.class.getName());
     public static final Map<String, String> TYPE_TO_ARG_MATCHERS;
     private static final Pattern SEMVER_PATTERN = Pattern.compile("^(\\d*)\\.(\\d*)\\.*");
@@ -117,6 +117,7 @@ public class  MockitoMockBuilder {
      * true - field can be mocked
      */
     @SuppressWarnings("unused")
+    @Override
     public boolean isMockable(Field field, Type testedClass) {
         final boolean isMockable = !field.getType().isPrimitive() && !isWrapperType(field.getType())
             && (!field.getType().isFinal() || isMockitoMockMakerInlineOn) && !field.isOverridden()
@@ -362,7 +363,7 @@ public class  MockitoMockBuilder {
     /**
      * true - if type is a wrapper for other type, such as a primitive
      */
-    protected boolean isWrapperType(Type type) {
+    public boolean isWrapperType(Type type) {
         return WRAPPER_TYPES.contains(type.getCanonicalName());
     }
 
