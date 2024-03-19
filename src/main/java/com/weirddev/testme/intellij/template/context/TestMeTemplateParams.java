@@ -38,6 +38,11 @@ public interface TestMeTemplateParams {
      */
     String MockitoMockBuilder = "MockitoMockBuilder";
     /**
+     * instance of {@link com.weirddev.testme.intellij.template.context.PowerMockBuilder}
+     * @see PowerMockBuilder
+     */
+    String PowerMockBuilder = "PowerMockBuilder";
+    /**
      * instance of {@link com.weirddev.testme.intellij.template.context.TestSubjectInspector}
      * @see TestSubjectInspector
      */

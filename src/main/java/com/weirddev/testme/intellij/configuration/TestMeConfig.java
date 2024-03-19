@@ -31,6 +31,13 @@ public class TestMeConfig {
      */
     private boolean optimizeImports= true;
 
+    /**
+     * Test generator behavior option. Generate stubs for internal method calls in powermock
+     * Valid values:true,false
+     * Default:false
+     */
+    private boolean renderInternalMethodCallStubs = false;
+
     public boolean getGenerateTestsForInheritedMethods() {
         return generateTestsForInheritedMethods;
     }
@@ -61,5 +68,13 @@ public class TestMeConfig {
 
     public void setOptimizeImports(boolean optimizeImports) {
         this.optimizeImports = optimizeImports;
+    }
+
+    public boolean isRenderInternalMethodCallStubs() {
+        return renderInternalMethodCallStubs;
+    }
+
+    public void setRenderInternalMethodCallStubs(boolean renderInternalMethodCallStubs) {
+        this.renderInternalMethodCallStubs = renderInternalMethodCallStubs;
     }
 }

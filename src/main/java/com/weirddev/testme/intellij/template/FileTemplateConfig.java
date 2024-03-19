@@ -83,6 +83,13 @@ public class FileTemplateConfig {
      */
     private boolean generateTestsForInheritedMethods = true;
 
+    /**
+     * Test generator behavior option. Generate stubs for internal method calls in powermock
+     * Valid values:true,false
+     * Default:true
+     */
+    private boolean renderInternalMethodCallStubs = false;
+
     public FileTemplateConfig(TestMeConfig testMeConfig)  {
         this(
                 Integer.valueOf(System.getProperties().getProperty("testMe.generator.maxRecursionDepth", FileTemplateConfig.DEFAULT_MAX_RECURSION_DEPTH + "")),
@@ -90,6 +97,7 @@ public class FileTemplateConfig {
                 testMeConfig == null || testMeConfig.getReplaceFullyQualifiedNames(),
                 testMeConfig == null || testMeConfig.getOptimizeImports(),
                 testMeConfig == null || testMeConfig.getGenerateTestsForInheritedMethods(),
+                testMeConfig == null || testMeConfig.isRenderInternalMethodCallStubs(),
                 Boolean.valueOf(System.getProperties().getProperty("testMe.generator.ignoreUnusedProperties", "true")),
                 Boolean.valueOf(System.getProperties().getProperty("testMe.generator.replaceInterfaceParamsWithConcreteTypes", "true")),
                 Boolean.valueOf(System.getProperties().getProperty("testMe.generator.stubMockMethodCallsReturnValues", "true")),
@@ -100,13 +108,14 @@ public class FileTemplateConfig {
 
     }
 
-    private FileTemplateConfig(int maxRecursionDepth, boolean reformatCode, boolean replaceFqn, boolean optimizeImports, boolean generateTestsForInheritedMethods, boolean ignoreUnusedProperties, boolean replaceInterfaceParamsWithConcreteTypes, boolean stubMockMethodCallsReturnValues,
+    private FileTemplateConfig(int maxRecursionDepth, boolean reformatCode, boolean replaceFqn, boolean optimizeImports, boolean generateTestsForInheritedMethods, boolean renderInternalMethodCallStubs, boolean ignoreUnusedProperties, boolean replaceInterfaceParamsWithConcreteTypes, boolean stubMockMethodCallsReturnValues,
                               int maxNumOfConcreteCandidatesToReplaceInterfaceParam, int minPercentOfExcessiveSettersToPreferMapCtor, int minPercentOfInteractionWithPropertiesToTriggerConstructorOptimization) {
         this.maxRecursionDepth = maxRecursionDepth;
         this.reformatCode = reformatCode;
         this.replaceFqn = replaceFqn;
         this.optimizeImports = optimizeImports;
         this.generateTestsForInheritedMethods = generateTestsForInheritedMethods;
+        this.renderInternalMethodCallStubs = renderInternalMethodCallStubs;
         this.stubMockMethodCallsReturnValues = stubMockMethodCallsReturnValues;
         this.ignoreUnusedProperties = ignoreUnusedProperties;
         this.replaceInterfaceParamsWithConcreteTypes = replaceInterfaceParamsWithConcreteTypes;
@@ -185,5 +194,13 @@ public class FileTemplateConfig {
 
     public boolean isGenerateTestsForInheritedMethods() {
         return generateTestsForInheritedMethods;
+    }
+
+    public boolean isRenderInternalMethodCallStubs() {
+        return renderInternalMethodCallStubs;
+    }
+
+    public void setRenderInternalMethodCallStubs(boolean renderInternalMethodCallStubs) {
+        this.renderInternalMethodCallStubs = renderInternalMethodCallStubs;
     }
 }

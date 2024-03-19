@@ -1,0 +1,64 @@
+#parse("TestMe macros.java")
+#set($hasMocks=$PowerMockBuilder.hasMocks($TESTED_CLASS))
+#set($mockBuilder = $PowerMockBuilder)
+#if($PACKAGE_NAME)
+package ${PACKAGE_NAME};
+#end
+
+import org.junit.Assert;
+import org.junit.Test;
+#if($hasMocks)
+import static org.powermock.api.mockito.PowerMockito.*;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+import org.junit.Before;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.junit.runner.RunWith;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.verify;
+#end
+
+#parse("File Header.java")
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({${TESTED_CLASS.name}.class})
+@PowerMockIgnore("javax.management.*")
+public class ${CLASS_NAME} {
+    #renderMockedFields($hasMocks, $TESTED_CLASS)
+    #renderTestSubjectInit($TESTED_CLASS,$TestSubjectUtils.hasTestableInstanceMethod($TESTED_CLASS.methods),$hasMocks)
+    #if($hasMocks)
+
+        @Before
+        public void setUp() {
+            MockitoAnnotations.${PowerMockBuilder.initMocksMethod}(this);
+        }
+    #end
+
+    #foreach($method in $TESTED_CLASS.methods)
+        #if($TestSubjectUtils.shouldBeTested($method))
+            @Test
+            public void #renderTestMethodName($method.name)() throws Exception {
+                #if($hasMocks && $PowerMockBuilder.shouldStub($method, $TESTED_CLASS))
+                    #renderMockStubs($method, $TESTED_CLASS)
+                #end
+                #if($PowerMockBuilder.hasInternalMethodCall($method, $TESTED_CLASS))
+                    #renderInternalMethodCallsStubs($method, $TESTED_CLASS)
+                    #renderMethodCallWithSpy($method,$TESTED_CLASS.name)
+                #else
+                    #renderMethodCall($method,$TESTED_CLASS.name)
+                #end
+                #if($hasMocks && $PowerMockBuilder.shouldVerify($method,$TESTED_CLASS))
+                    #renderMockVerifies($method,$TESTED_CLASS)
+                #end
+                #if($method.hasReturn())
+                    Assert.#renderJUnitAssert($method)
+                #end
+            }
+      #end
+    #end
+}
+
+#parse("TestMe Footer.java")

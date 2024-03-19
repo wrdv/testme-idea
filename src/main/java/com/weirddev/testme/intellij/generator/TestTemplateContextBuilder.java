@@ -64,6 +64,7 @@ public class TestTemplateContextBuilder {
         ctxtParams.put(TestMeTemplateParams.TestSubjectUtils, testSubjectInspector);
         List<String> classpathJars = resolveClasspathJars(context);
         ctxtParams.put(TestMeTemplateParams.MockitoMockBuilder, mockBuilderFactory.createMockitoMockBuilder(context, testSubjectInspector, classpathJars));
+        ctxtParams.put(TestMeTemplateParams.PowerMockBuilder, mockBuilderFactory.createPowerMockBuilder(context, testSubjectInspector, classpathJars));
         ctxtParams.put(TestMeTemplateParams.TestedClasspathJars, classpathJars);
         logger.debug("Done building Test Template context in "+(new Date().getTime()-start)+" millis");
         return ctxtParams;

@@ -20,6 +20,7 @@ public class TemplateRegistry {
     static private List<TemplateDescriptor> templateDescriptors = new ArrayList<TemplateDescriptor>();
 
     public static final String JUNIT4_MOCKITO_JAVA_TEMPLATE = "JUnit4 & Mockito.java";
+    public static final String JUNIT4_POWERMOCK_JAVA_TEMPLATE = "JUnit4 & Powermock.java";
     public static final String JUNIT5_MOCKITO_JAVA_TEMPLATE = "JUnit5 & Mockito.java";
     public static final String TESTNG_MOCKITO_JAVA_TEMPLATE = "TestNG & Mockito.java";
     public static final String JUNIT4_MOCKITO_GROOVY_TEMPLATE = "Groovy, JUnit4 & Mockito.groovy";
@@ -39,6 +40,9 @@ public class TemplateRegistry {
         templateDescriptors.add(new TemplateDescriptor("<html><i>JUnit4</i>"+ TemplateIcons.JUnit4.asHtml()+"& <i>Mockito</i>" + TemplateIcons.Mockito.asHtml()+ "</html>",
                 "<html><i>JUnit4</i></html><JUnit4><html>& <i>Mockito</i></html><Mockito>",
                 JUNIT4_MOCKITO_JAVA_TEMPLATE, Language.Java, TemplateRole.Tester));
+        templateDescriptors.add(new TemplateDescriptor("<html><i>JUnit4</i>"+ TemplateIcons.JUnit4.asHtml()+"& <i>Powermock</i>" + TemplateIcons.Powermock.asHtml()+ "</html>",
+                "<html><i>JUnit4</i></html><JUnit4><html>& <i>Powermock</i></html><Powermock>",
+                JUNIT4_POWERMOCK_JAVA_TEMPLATE, Language.Java, TemplateRole.Tester));
         templateDescriptors.add(new TemplateDescriptor("<html><i>JUnit5</i>"+ TemplateIcons.JUnit5.asHtml()+"& <i>Mockito</i>" + TemplateIcons.Mockito.asHtml()+ "</html>",
                 "<html><i>JUnit5</i></html><JUnit5><html>& <i>Mockito</i></html><Mockito>",
                 JUNIT5_MOCKITO_JAVA_TEMPLATE, Language.Java, TemplateRole.Tester));
