@@ -34,7 +34,7 @@ public class TestMeConfig {
     /**
      * Test generator behavior option. Generate stubs for internal method calls in powermock
      * Valid values:true,false
-     * Default:true
+     * Default:false
      */
     private boolean renderInternalMethodCallStubs = false;
 

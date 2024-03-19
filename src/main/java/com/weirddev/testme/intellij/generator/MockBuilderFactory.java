@@ -37,7 +37,7 @@ public class MockBuilderFactory {
     @NotNull
     public PowerMockBuilder createPowerMockBuilder(FileTemplateContext context,
         TestSubjectInspector testSubjectInspector, List<String> classpathJars) {
-        return new PowerMockBuilder(isMockInline(context),
+        return new PowerMockBuilder(true,
             context.getFileTemplateConfig().isStubMockMethodCallsReturnValues(), testSubjectInspector,
             resolveMockitoVersion(classpathJars), context.getFileTemplateConfig().isRenderInternalMethodCallStubs());
     }

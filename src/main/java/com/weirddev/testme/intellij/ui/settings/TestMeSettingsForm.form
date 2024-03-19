@@ -39,13 +39,13 @@
             </constraints>
             <properties>
               <enabled value="true"/>
-              <text value="Generate stubs for internal method call in power mock"/>
+              <text value="Generate stubs for internal method calls - when PowerMock used"/>
             </properties>
           </component>
           <vspacer id="d7db7">
-              <constraints>
-                <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="1" anchor="1" fill="0" indent="0" use-parent-layout="false"/>
-              </constraints>
+            <constraints>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="1" anchor="1" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
           </vspacer>
         </children>
       </grid>

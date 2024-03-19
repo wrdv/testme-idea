@@ -188,6 +188,43 @@ public class TestSubjectInspector
         return SCALA_FUTURE_TYPES;
     }
 
+    /**
+     *
+     * @param method call method
+     * @param testedClass the tested class
+     * @return true - if the method is  class object self called method
+     */
+    public boolean isMethodOwnedByClass(Method method, Type testedClass) {
+        List<Method> methods = testedClass.getMethods();
+        return methods.stream().anyMatch(classMethod -> method.getMethodId().equals(classMethod.getMethodId()));
+    }
+
+    /**
+     * Avoid mocking a field if all these conditions are met:
+     * class has DI annotation
+     * field has no direct DI annotation
+     * field does not have a setter
+     * there is no class constructor.
+     * @param field  field
+     * @param testedClass testedClass
+     * @return true if field meet conditions above
+     */
+    public boolean isNotInjectedInDiClass(Field field, Type testedClass) {
+        return testedClass != null && testedClass.isAnnotatedByDI() && !field.isAnnotatedByDI() && !field.isHasSetter()
+            && !testedClass.hasConstructor();
+    }
+
+    /**
+     * for class with only private constructor that can not mock, for example util classes only with static methods
+     * @param testedClass tested class
+     * @return true - if tested class has public constructors
+     */
+    public boolean hasAccessibleCtor(Type testedClass) {
+        // filter the constructors
+        List<Method> constructorList = testedClass.findConstructors();
+        return constructorList.isEmpty() || constructorList.stream().anyMatch(method -> !method.isPrivate());
+    }
+
     private static @Nullable Method findBiggestValidConstructor(Type type) {
         return type.findConstructors().stream().filter(Method::isAccessible).findFirst().orElse(null);
     }

@@ -70,7 +70,7 @@ public class  MockitoMockBuilder {
      */
     private final boolean isMockitoMockMakerInlineOn;
     private final boolean stubMockMethodCallsReturnValues;
-    private final TestSubjectInspector testSubjectInspector;
+    protected final TestSubjectInspector testSubjectInspector;
     @Nullable
     private final String mockitoCoreVersion;
     private final Integer mockitoCoreMajorVersion;
@@ -120,24 +120,10 @@ public class  MockitoMockBuilder {
     public boolean isMockable(Field field, Type testedClass) {
         final boolean isMockable = !field.getType().isPrimitive() && !isWrapperType(field.getType())
             && (!field.getType().isFinal() || isMockitoMockMakerInlineOn) && !field.isOverridden()
-            && !field.getType().isArray() && !field.getType().isEnum() && !isNotInjectedInDiClass(field, testedClass);
+            && !field.getType().isArray() && !field.getType().isEnum()
+            && !testSubjectInspector.isNotInjectedInDiClass(field, testedClass);
         LOG.debug("field " + field.getType().getCanonicalName() + " " + field.getName() + " is mockable:" + isMockable);
         return isMockable;
-    }
-
-    /**
-     * Avoid mocking a field if all these conditions are met:
-     * class has DI annotation
-     * field has no direct DI annotation
-     * field does not have a setter
-     * there is no class constructor.
-     * @param field  field
-     * @param testedClass testedClass
-     * @return true if field meet conditions above
-     */
-    private boolean isNotInjectedInDiClass(Field field, Type testedClass) {
-        return testedClass != null && testedClass.isAnnotatedByDI() && !field.isAnnotatedByDI() && !field.isHasSetter()
-            && !testedClass.hasConstructor();
     }
 
     /**
@@ -165,23 +151,12 @@ public class  MockitoMockBuilder {
     }
 
     /**
-     * for class with only private constructor that can not mock, for example util classes only with static methods
-     * @param testedClass tested class
-     * @return true - if tested class has public constructors
-     */
-    private boolean hasAccessibleCtor(Type testedClass) {
-        // filter the constructors
-        List<Method> constructorList = testedClass.findConstructors();
-        return constructorList.isEmpty() || constructorList.stream().anyMatch(method -> !method.isPrivate());
-    }
-
-    /**
      *
      * @param testedClass the tested class
      * @return true - if the tested class has mockable field
      */
     public boolean hasMocks(Type testedClass) {
-        return hasAccessibleCtor(testedClass) && hasMockable(testedClass.getFields(), testedClass);
+        return testSubjectInspector.hasAccessibleCtor(testedClass) && hasMockable(testedClass.getFields(), testedClass);
     }
 
     /**
@@ -387,7 +362,7 @@ public class  MockitoMockBuilder {
     /**
      * true - if type is a wrapper for other type, such as a primitive
      */
-    private boolean isWrapperType(Type type) {
+    protected boolean isWrapperType(Type type) {
         return WRAPPER_TYPES.contains(type.getCanonicalName());
     }
 

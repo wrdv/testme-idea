@@ -1,10 +1,12 @@
 package com.weirddev.testme.intellij.template.context;
 
+import com.intellij.openapi.diagnostic.Logger;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-
 public class PowerMockBuilder extends MockitoMockBuilder{
+
+    private static final Logger LOG = Logger.getInstance(PowerMockBuilder.class.getName());
+    
     /**
      * true when render internal method call option is opted-in on custom settings
      */
@@ -15,18 +17,6 @@ public class PowerMockBuilder extends MockitoMockBuilder{
         boolean renderInternalMethodCallStubs) {
         super(isMockitoMockMakerInlineOn, stubMockMethodCallsReturnValues, testSubjectInspector, mockitoCoreVersion);
         this.renderInternalMethodCallStubs = renderInternalMethodCallStubs;
-
-    }
-
-    /**
-     *
-     * @param method call method
-     * @param testedClass the tested class
-     * @return true - if the method is  class object self called method
-     */
-    public boolean isMethodOwnedByClass(Method method, Type testedClass) {
-        List<Method> methods = testedClass.getMethods();
-        return methods.stream().anyMatch(classMethod -> method.getMethodId().equals(classMethod.getMethodId()));
     }
 
     /**
@@ -38,6 +28,18 @@ public class PowerMockBuilder extends MockitoMockBuilder{
     public boolean hasInternalMethodCall(Method method, Type testedClass) {
         return renderInternalMethodCallStubs && method.getMethodCalls().stream().anyMatch(methodCall -> testedClass.getMethods().stream()
             .anyMatch(classMethod -> classMethod.getMethodId().equals(methodCall.getMethod().getMethodId())));
+    }
+
+    /**
+     * true - field can be mocked
+     */
+    @Override
+    public boolean isMockable(Field field, Type testedClass) {
+        final boolean isMockable = !field.getType().isPrimitive() && !isWrapperType(field.getType())
+            && !field.isOverridden() && !field.getType().isArray() && !field.getType().isEnum()
+            && !testSubjectInspector.isNotInjectedInDiClass(field, testedClass);
+        LOG.debug("field " + field.getType().getCanonicalName() + " " + field.getName() + " is mockable:" + isMockable);
+        return isMockable;
     }
 
 }

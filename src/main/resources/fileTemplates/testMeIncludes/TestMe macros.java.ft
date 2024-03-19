@@ -107,3 +107,84 @@ assertEquals(result#{if}($TestSubjectUtils.isJavaFuture($method.returnType)).get
 #end
 #end
 #end
+
+##----------------------------------------------------------------------------------------------------------------------
+## PowerMock macros
+##----------------------------------------------------------------------------------------------------------------------
+
+##----------------------------------------------------------------------------------------------------------------------
+## renderInternalMethodCallsStubs($methods,$testedClass)
+## render internal method call stubs (currently PowerMock used)
+## Param: $method - the tested method, $testedClass - the tested class
+##----------------------------------------------------------------------------------------------------------------------
+#macro(renderInternalMethodCallsStubs $method $testedClass)
+    $testedClass.canonicalName $StringUtils.deCapitalizeFirstLetter($testedClass.name)Spy = spy($StringUtils.deCapitalizeFirstLetter($testedClass.name));
+    #foreach($methodCall in $method.directMethodCalls)
+        #if($TestSubjectUtils.isMethodOwnedByClass($methodCall.method, $testedClass) && $methodCall.method.hasReturn())
+            #if($methodCall.method.hasParams())
+                doReturn($TestBuilder.renderReturnParam($methodCall.method,$methodCall.method.returnType,"${methodCall.method.name}Response",$replacementTypes,$defaultTypeValues)).when(${StringUtils.deCapitalizeFirstLetter($testedClass.name)}Spy, "${methodCall.method.name}", $PowerMockBuilder.buildMockArgsMatchers(${methodCall.method.methodParams},"Java"));
+            #else
+                doReturn($TestBuilder.renderReturnParam($methodCall.method,$methodCall.method.returnType,"${methodCall.method.name}Response",$replacementTypes,$defaultTypeValues)).when(${StringUtils.deCapitalizeFirstLetter($testedClass.name)}Spy, "${methodCall.method.name}");
+            #end
+        #end
+    #end
+#end
+
+##----------------------------------------------------------------------------------------------------------------------
+## renderMethodCallWithSpy($method,$testedClassName)
+## render method call use spy, currently PowerMock used
+## Param: $method - the tested method, $testedClassName - the tested class name
+##----------------------------------------------------------------------------------------------------------------------
+#macro(renderMethodCallWithSpy $method,$testedClassName)
+    #renderJavaReturnVar($method.returnType)#if($method.static)$testedClassName#{else}$StringUtils.deCapitalizeFirstLetter($testedClassName)Spy#end.${method.name}($TestBuilder.renderMethodParams($method,$replacementTypes,$defaultTypeValues));##
+#end
+
+
+##----------------------------------------------------------------------------------------------------------------------
+## renderPowerMockedFields($hasMocks,$testedClass)
+## render mocked fields when PowerMock used
+## Param: $hasMocks - testedClass class hasMocks, $testedClass - the tested class
+##----------------------------------------------------------------------------------------------------------------------
+#macro(renderPowerMockedFields $hasMocks $testedClass)
+    #foreach($field in $testedClass.fields)
+        #if($hasMocks && $PowerMockBuilder.isMockable($field, $testedClass))
+            @Mock
+            $field.type.canonicalName $field.name;
+        #end
+    #end
+#end
+
+
+##----------------------------------------------------------------------------------------------------------------------
+## renderPowerMockStubs($method,$testedClass)
+## render mocked stubs for method when PowerMock used
+## Param: $method - tested method, $testedClass - the tested class
+##----------------------------------------------------------------------------------------------------------------------
+#macro(renderPowerMockStubs $method $testedClass)
+    #foreach($field in $testedClass.fields)
+        #if($PowerMockBuilder.isMockable($field, $testedClass))
+            #foreach($fieldMethod in $field.type.methods)
+                #if($fieldMethod.hasReturn() && $TestSubjectUtils.isMethodCalled($fieldMethod,$method))
+                        when($field.name.${fieldMethod.name}($PowerMockBuilder.buildMockArgsMatchers(${fieldMethod.methodParams},"Java"))).thenReturn($TestBuilder.renderReturnParam($method,$fieldMethod.returnType,"${fieldMethod.name}Response",$replacementTypes,$defaultTypeValues));
+                #end
+            #end
+        #end
+    #end
+#end
+
+##----------------------------------------------------------------------------------------------------------------------
+## renderPowerMockVerifies($method,$testedClass)
+## render mocked verifies when PowerMock used
+## Param: $method - tested method, $testedClass - the tested class
+##----------------------------------------------------------------------------------------------------------------------
+#macro(renderPowerMockVerifies $method $testedClass)
+    #foreach($field in $testedClass.fields)
+        #if($PowerMockBuilder.isMockable($field, $testedClass))
+            #foreach($fieldMethod in $field.type.methods)
+                #if(!$fieldMethod.hasReturn() && $TestSubjectUtils.isMethodCalled($fieldMethod,$method))
+                        verify($field.name).${fieldMethod.name}($PowerMockBuilder.buildMockArgsMatchers(${fieldMethod.methodParams},"Java"));
+                #end
+            #end
+        #end
+    #end
+#end
