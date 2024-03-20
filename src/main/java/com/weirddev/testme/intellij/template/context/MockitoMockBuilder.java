@@ -240,6 +240,10 @@ public class  MockitoMockBuilder implements MockBuilder{
         if (language != Language.Scala) {
             matcherType += "()";
         }
+        // add specific type to any()
+        if( matcherType.equals("any()")){
+            matcherType = addSpecificType(param.getType().getCanonicalName());
+        }
         return matcherType;
     }
 
@@ -249,7 +253,10 @@ public class  MockitoMockBuilder implements MockBuilder{
         return callsMockMethod(testMethod, testedClassFields, Method::hasReturn, null);
     }
 
-
+    String addSpecificType(String canonicalName) {
+        int lastIndex = canonicalName.lastIndexOf('.');
+        return lastIndex != -1 ? "any("+canonicalName.substring(lastIndex + 1)+".class)" : "any()";
+    }
     /**
      * true - if should stub tested method
      * @param testMethod method being tested
