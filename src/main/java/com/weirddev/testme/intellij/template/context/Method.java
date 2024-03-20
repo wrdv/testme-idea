@@ -144,4 +144,12 @@ public class Method {
         return returnType != null && !"void".equals(returnType.getName());
     }
 
+    /**
+     *
+     * true - if method has parameters
+     */
+    public boolean hasParams() {
+        return !methodParams.isEmpty();
+    }
+
 }
