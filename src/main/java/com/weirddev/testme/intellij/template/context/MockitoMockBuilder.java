@@ -20,6 +20,7 @@ public class  MockitoMockBuilder implements MockBuilder{
     private static final Logger LOG = Logger.getInstance(MockitoMockBuilder.class.getName());
     public static final Map<String, String> TYPE_TO_ARG_MATCHERS;
     private static final Pattern SEMVER_PATTERN = Pattern.compile("^(\\d*)\\.(\\d*)\\.*");
+    public static final Pattern LOGGER_PATTERN = Pattern.compile("(?i).*log.*");
 
     static {
         TYPE_TO_ARG_MATCHERS = new HashMap<>();
@@ -119,12 +120,34 @@ public class  MockitoMockBuilder implements MockBuilder{
     @SuppressWarnings("unused")
     @Override
     public boolean isMockable(Field field, Type testedClass) {
+        //todo extract common logic and reflect in powermock as well
         final boolean isMockable = !field.getType().isPrimitive() && !isWrapperType(field.getType())
             && (!field.getType().isFinal() || isMockitoMockMakerInlineOn) && !field.isOverridden()
             && !field.getType().isArray() && !field.getType().isEnum()
-            && !testSubjectInspector.isNotInjectedInDiClass(field, testedClass);
+            && !testSubjectInspector.isNotInjectedInDiClass(field, testedClass) && !isInitInline(field);
         LOG.debug("field " + field.getType().getCanonicalName() + " " + field.getName() + " is mockable:" + isMockable);
         return isMockable;
+    }
+
+    private static boolean isInitInline(Field field) {
+        //for now, avoid applying on all such fields since it's hard to deduct if default value overridden in ctor. settling for typical logger initialization pattern
+        //todo try to deduct if init in static block
+        return field.isInitializedInline() && !field.isHasSetter() && LOGGER_PATTERN.matcher(field.getName()).matches();
+    }
+
+    /**
+     * Avoid mocking a field if all these conditions are met:
+     * class has DI annotation
+     * field has no direct DI annotation
+     * field does not have a setter
+     * there is no class constructor.
+     * @param field  field
+     * @param testedClass testedClass
+     * @return true if field meet conditions above
+     */
+    private boolean isNotInjectedInDiClass(Field field, Type testedClass) {
+        return testedClass != null && testedClass.isAnnotatedByDI() && !field.isAnnotatedByDI() && !field.isHasSetter()
+            && !testedClass.hasConstructor();
     }
 
     /**
