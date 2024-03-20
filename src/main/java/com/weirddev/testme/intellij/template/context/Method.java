@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.HashSet;
 import java.util.List;
@@ -38,6 +39,8 @@ public class Method {
      * method arguments
      */
     private final List<Param> methodParams;
+
+    private final String methodExceptionTypes;
     /**
      * true - if method has private modifier
      */
@@ -152,4 +155,9 @@ public class Method {
         return !methodParams.isEmpty();
     }
 
+    public boolean hasException(){
+        return StringUtils.isNotEmpty(methodExceptionTypes);
+    }
+
 }
+
