@@ -26,8 +26,8 @@ class FooTest extends Specification {
 
     def "test fight"() {
         given:
-        when(techFighter.fight(any())).thenReturn("fightResponse")
-        when(techFighter.surrender(any(), any(), anyInt())).thenReturn(new ConvertedBean(myString: "myString", someNum: 0))
+        when(techFighter.fight(any(Fire.class))).thenReturn("fightResponse")
+        when(techFighter.surrender(any(Fear.class), any(Ice.class), anyInt())).thenReturn(new ConvertedBean(myString: "myString", someNum: 0))
         when(result.get()).thenReturn(0)
 
         when:
