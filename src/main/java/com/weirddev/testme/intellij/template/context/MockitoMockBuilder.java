@@ -2,6 +2,7 @@ package com.weirddev.testme.intellij.template.context;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.weirddev.testme.intellij.generator.TestBuilderUtil;
+import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -242,7 +243,7 @@ public class  MockitoMockBuilder implements MockBuilder{
         }
         // add specific type to any()
         if( matcherType.equals("any()")){
-            matcherType = addSpecificType(param.getType().getCanonicalName());
+            matcherType = addSpecificType(param.getType().getName());
         }
         return matcherType;
     }
@@ -253,9 +254,8 @@ public class  MockitoMockBuilder implements MockBuilder{
         return callsMockMethod(testMethod, testedClassFields, Method::hasReturn, null);
     }
 
-    String addSpecificType(String canonicalName) {
-        int lastIndex = canonicalName.lastIndexOf('.');
-        return lastIndex != -1 ? "any("+canonicalName.substring(lastIndex + 1)+".class)" : "any()";
+    String addSpecificType(String typeName) {
+        return StringUtils.isNotEmpty(typeName) ? "any("+typeName+".class)" : "any()";
     }
     /**
      * true - if should stub tested method
