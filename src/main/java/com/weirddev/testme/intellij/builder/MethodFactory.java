@@ -172,6 +172,7 @@ public class MethodFactory {
     }
 
 
+    //analyze the exception types of the method
     private static String extractMethodExceptionTypes(PsiMethod psiMethod) {
         String methodExceptionTypes = "";
         PsiReferenceList throwsList = psiMethod.getThrowsList();

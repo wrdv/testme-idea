@@ -40,6 +40,9 @@ public class Method {
      */
     private final List<Param> methodParams;
 
+    /**
+     * method exception types
+     */
     private final String methodExceptionTypes;
     /**
      * true - if method has private modifier
@@ -155,6 +158,10 @@ public class Method {
         return !methodParams.isEmpty();
     }
 
+    /**
+     *
+     * true - if method has Exception
+     */
     public boolean hasException(){
         return StringUtils.isNotEmpty(methodExceptionTypes);
     }
