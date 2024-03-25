@@ -21,7 +21,6 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.GlobalSearchScopesCore;
 import com.intellij.testIntegration.createTest.JavaTestGenerator;
 import com.intellij.util.IncorrectOperationException;
-import com.weirddev.testme.intellij.builder.MethodReferencesBuilder;
 import com.weirddev.testme.intellij.template.FileTemplateContext;
 import com.weirddev.testme.intellij.ui.template.TestMeTemplateManager;
 import org.apache.velocity.app.Velocity;
@@ -38,21 +37,19 @@ import java.util.Map;
  */
 public class TestMeGenerator {
     private final TestClassElementsLocator testClassElementsLocator;
-    private final TestTemplateContextBuilder testTemplateContextBuilder;
     private final CodeRefactorUtil codeRefactorUtil;
     private static final Logger LOG = Logger.getInstance(TestMeGenerator.class.getName());
 
     public TestMeGenerator() {
-        this(new TestClassElementsLocator(), new TestTemplateContextBuilder(new MockBuilderFactory(), new MethodReferencesBuilder()),new CodeRefactorUtil());
+        this(new TestClassElementsLocator(),new CodeRefactorUtil());
     }
     
-    TestMeGenerator(TestClassElementsLocator testClassElementsLocator, TestTemplateContextBuilder testTemplateContextBuilder, CodeRefactorUtil codeRefactorUtil) {
+    TestMeGenerator(TestClassElementsLocator testClassElementsLocator, CodeRefactorUtil codeRefactorUtil) {
         this.testClassElementsLocator = testClassElementsLocator;
-        this.testTemplateContextBuilder = testTemplateContextBuilder;
         this.codeRefactorUtil = codeRefactorUtil;
     }
 
-    public PsiElement generateTest(final FileTemplateContext context) {
+    public PsiElement generateTest(final FileTemplateContext context, final Map<String, Object> templateCtxtParams) {
         final Project project = context.getProject();
         return PostprocessReformattingAspect.getInstance(project).postponeFormattingInside(new Computable<PsiElement>() {
             public PsiElement compute() {
@@ -61,7 +58,7 @@ public class TestMeGenerator {
                         try {
                             final long start = new Date().getTime();
                             IdeDocumentHistory.getInstance(project).includeCurrentPlaceAsChangePlace();
-                            PsiFile targetClass = createTestClass(context);
+                            PsiFile targetClass = createTestClass(context, templateCtxtParams);
                             if (targetClass == null) {
                                 return null;
                             }
@@ -92,7 +89,7 @@ public class TestMeGenerator {
     }
 
     @Nullable
-    private PsiFile createTestClass(FileTemplateContext context) {
+    private PsiFile createTestClass(FileTemplateContext context, Map<String, Object> templateCtxtParams) {
         final PsiDirectory targetDirectory = context.getTargetDirectory();
         final PsiPackage aPackage = JavaDirectoryService.getInstance().getPackage(targetDirectory);
         if (aPackage != null) {
@@ -105,18 +102,17 @@ public class TestMeGenerator {
                 return classes[0].getContainingFile();
             }
         }
-        final PsiFile classFromTemplate = createTestClassFromCodeTemplate(context, targetDirectory);
+        final PsiFile classFromTemplate = createTestClassFromCodeTemplate(context, targetDirectory, templateCtxtParams);
         if (classFromTemplate != null) {
             return classFromTemplate;
         }
         return JavaDirectoryService.getInstance().createClass(targetDirectory, context.getTargetClass()).getContainingFile();
     }
 
-    private PsiFile createTestClassFromCodeTemplate(final FileTemplateContext context, final PsiDirectory targetDirectory) {
+    private PsiFile createTestClassFromCodeTemplate(final FileTemplateContext context, final PsiDirectory targetDirectory, Map<String, Object> templateCtxtParams) {
         final String templateName = context.getFileTemplateDescriptor().getFileName();
-        FileTemplateManager fileTemplateManager = TestMeTemplateManager.getInstance(targetDirectory.getProject());
-        Map<String, Object> templateCtxtParams = testTemplateContextBuilder.build(context, fileTemplateManager.getDefaultProperties());
         try {
+            FileTemplateManager fileTemplateManager = TestMeTemplateManager.getInstance(context.getTargetDirectory().getProject());
             FileTemplate codeTemplate = fileTemplateManager.getInternalTemplate(templateName);
             codeTemplate.setReformatCode(false);
             Velocity.setProperty( Velocity.VM_MAX_DEPTH, 200);

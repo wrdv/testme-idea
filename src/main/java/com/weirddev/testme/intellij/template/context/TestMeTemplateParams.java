@@ -59,6 +59,19 @@ public interface TestMeTemplateParams {
      * @see TestSubjectInspector
      */
     String TestedClasspathJars = "TestedClasspathJars";
+
+    /**
+     * user checked and selected mock field name list
+     * instance of {@link java.util.List<String>}
+     */
+    String USER_CHECKED_MOCK_FIELDS = "USER_CHECKED_MOCK_FIELDS";
+
+    /**
+     * user checked and selected test method id list
+     * instance of {@link java.util.List<String>}
+     */
+    String USER_CHECKED_TEST_METHODS = "USER_CHECKED_TEST_METHODS";
+
     /**
      * configured max recursion depth for object graph introspection
      * @see FileTemplateConfig#getMaxRecursionDepth()

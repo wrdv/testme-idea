@@ -26,7 +26,7 @@ public class ${CLASS_NAME} {
     }
 #end
 #foreach($method in $TESTED_CLASS.methods)
-#if($TestSubjectUtils.shouldBeTested($method))
+#if($TestSubjectUtils.shouldBeTested($method, $USER_CHECKED_TEST_METHODS))
 
     @Test
     public void #renderTestMethodName($method.name)() throws Exception {

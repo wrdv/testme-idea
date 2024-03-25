@@ -12,4 +12,6 @@
 #* @vtlvariable name="CLASS_NAME" type="java.lang.String" *#
 #* @vtlvariable name="MockitoMockBuilder" type="com.weirddev.testme.intellij.template.context.MockitoMockBuilder" *#
 #* @vtlvariable name="PowerMockBuilder" type="com.weirddev.testme.intellij.template.context.PowerMockBuilder" *#
+#* @vtlvariable name="USER_CHECKED_MOCK_FIELDS" type="java.util.List<String>" *#
+#* @vtlvariable name="USER_CHECKED_TEST_METHODS" type="java.util.List<String>" *#
 #* /fileTemplates/testMeIncludes/*.ft *#

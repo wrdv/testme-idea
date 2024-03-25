@@ -34,7 +34,18 @@ public class TestSubjectInspector
     }
 
     /**
-     * @return true - if method should is testable according to it's access modifiers and TestMe configuration
+     * @return true - method should test
+     */
+    public boolean shouldBeTested(Method method, List<String> userCheckedMethodIdList) {
+        if (null != userCheckedMethodIdList) {
+            return userCheckedMethodIdList.contains(method.getMethodId());
+        } else {
+            return shouldBeTested(method);
+        }
+    }
+
+    /**
+     * true - method should test
      */
     public boolean shouldBeTested(Method method) {
         return method.isTestable() && ( generateTestsForInheritedMethods || !method.isInherited());

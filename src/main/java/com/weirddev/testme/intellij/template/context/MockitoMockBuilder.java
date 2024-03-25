@@ -118,6 +118,18 @@ public class  MockitoMockBuilder implements MockBuilder{
      */
     @SuppressWarnings("unused")
     @Override
+    public boolean isMockable(Field field, Type testedClass, List<String> userCheckedFieldsList) {
+        if (null != userCheckedFieldsList) {
+            return userCheckedFieldsList.contains(field.getName());
+        } else {
+            return isMockable(field, testedClass);
+        }
+    }
+
+    /**
+     * true - field can be mocked
+     */
+    @Override
     public boolean isMockable(Field field, Type testedClass) {
         final boolean isMockable = !field.getType().isPrimitive() && !isWrapperType(field.getType())
             && (!field.getType().isFinal() || isMockitoMockMakerInlineOn) && !field.isOverridden()

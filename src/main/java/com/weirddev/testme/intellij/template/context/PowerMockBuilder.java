@@ -3,6 +3,8 @@ package com.weirddev.testme.intellij.template.context;
 import com.intellij.openapi.diagnostic.Logger;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+
 public class PowerMockBuilder extends MockitoMockBuilder{
 
     private static final Logger LOG = Logger.getInstance(PowerMockBuilder.class.getName());
@@ -40,6 +42,18 @@ public class PowerMockBuilder extends MockitoMockBuilder{
             && !testSubjectInspector.isNotInjectedInDiClass(field, testedClass);
         LOG.debug("field " + field.getType().getCanonicalName() + " " + field.getName() + " is mockable:" + isMockable);
         return isMockable;
+    }
+
+    /**
+     * true - field can be mocked
+     */
+    @Override
+    public boolean isMockable(Field field, Type testedClass, List<String> userCheckedFieldsList) {
+        if (null != userCheckedFieldsList) {
+            return userCheckedFieldsList.contains(field.getName());
+        } else {
+            return isMockable(field, testedClass);
+        }
     }
 
 }
