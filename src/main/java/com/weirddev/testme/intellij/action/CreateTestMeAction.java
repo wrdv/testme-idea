@@ -131,7 +131,7 @@ public class CreateTestMeAction extends CreateTestAction {
         final CreateTestMeDialog dialog = createTestMeDialog(project, fileTemplateContext.getSrcClass(),
             fileTemplateContext.getFileTemplateDescriptor().getDisplayName(), templateCtxtParams);
         // if not ok button selected the return
-        if (!dialog.showAndGet()) {
+        if (dialog.isModal() && !dialog.showAndGet()) {
             return;
         }
 
