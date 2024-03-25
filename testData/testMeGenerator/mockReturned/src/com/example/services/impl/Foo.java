@@ -12,7 +12,7 @@ public class Foo{
 
     private FooFighter fooFighter;
     private Supplier<Integer> result;
-    private Logger logger;
+    private Logger logger = Logger.getLogger(Foo.class.getName());;
 
     public String fight(Fire withFire,String foeName) {
         logger.trace("this method does not return a value so it should not be stubbed");

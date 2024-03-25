@@ -120,34 +120,25 @@ public class  MockitoMockBuilder implements MockBuilder{
     @SuppressWarnings("unused")
     @Override
     public boolean isMockable(Field field, Type testedClass) {
-        //todo extract common logic and reflect in powermock as well
-        final boolean isMockable = !field.getType().isPrimitive() && !isWrapperType(field.getType())
-            && (!field.getType().isFinal() || isMockitoMockMakerInlineOn) && !field.isOverridden()
-            && !field.getType().isArray() && !field.getType().isEnum()
-            && !testSubjectInspector.isNotInjectedInDiClass(field, testedClass) && !isInitInline(field);
+        final boolean isMockable = isMockableCommonChecks(field, testedClass) && (!field.getType().isFinal() || isMockitoMockMakerInlineOn);
         LOG.debug("field " + field.getType().getCanonicalName() + " " + field.getName() + " is mockable:" + isMockable);
         return isMockable;
     }
 
-    private static boolean isInitInline(Field field) {
-        //for now, avoid applying on all such fields since it's hard to deduct if default value overridden in ctor. settling for typical logger initialization pattern
-        //todo try to deduct if init in static block
-        return field.isInitializedInline() && !field.isHasSetter() && LOGGER_PATTERN.matcher(field.getName()).matches();
+    /**
+     * checks if field in testedClass can be mocked. evaluates conditions common to all currently supported mock frameworks
+     * @return true if input field in testedClass can be mocked
+     */
+    protected boolean isMockableCommonChecks(Field field, Type testedClass) {
+        return !field.getType().isPrimitive() && !isWrapperType(field.getType())
+                && !field.isOverridden() && !field.getType().isArray() && !field.getType().isEnum()
+                && !testSubjectInspector.isNotInjectedInDiClass(field, testedClass) && !isInitInline(field);
     }
 
-    /**
-     * Avoid mocking a field if all these conditions are met:
-     * class has DI annotation
-     * field has no direct DI annotation
-     * field does not have a setter
-     * there is no class constructor.
-     * @param field  field
-     * @param testedClass testedClass
-     * @return true if field meet conditions above
-     */
-    private boolean isNotInjectedInDiClass(Field field, Type testedClass) {
-        return testedClass != null && testedClass.isAnnotatedByDI() && !field.isAnnotatedByDI() && !field.isHasSetter()
-            && !testedClass.hasConstructor();
+    private static boolean isInitInline(Field field) {
+        //for now, avoid applying on all such fields since it's hard to deduct if default value overridden in ctor. settling for typical logger initialization pattern
+        //todo try to also deduct if init in static block
+        return field.isInitializedInline() && !field.isHasSetter() && LOGGER_PATTERN.matcher(field.getName()).matches();
     }
 
     /**
