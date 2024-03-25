@@ -22,6 +22,7 @@ import com.weirddev.testme.intellij.utils.ClassNameUtils;
 import com.weirddev.testme.intellij.utils.JavaPsiTreeUtils;
 import com.weirddev.testme.intellij.utils.PropertyUtils;
 import com.weirddev.testme.intellij.utils.TypeUtils;
+import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -56,7 +57,8 @@ public class MethodFactory {
         Optional<PsiSubstitutor> methodSubstitutor = findMethodSubstitutor(psiMethod, srcClass, ownerClassPsiType);
         Type returnType = resolveReturnType(psiMethod, maxRecursionDepth, typeDictionary, methodSubstitutor);
         List<Param> methodParams = extractMethodParams(psiMethod, isPrimaryConstructor, maxRecursionDepth, typeDictionary, methodSubstitutor);
-        return new Method(methodId, methodName, returnType,   ownerClassCanonicalType, methodParams, isPrivate, isProtected, isDefault, isPublic, isAbstract, isNative,
+        String methodExceptionTypes = extractMethodExceptionTypes(psiMethod);
+        return new Method(methodId, methodName, returnType,   ownerClassCanonicalType, methodParams, methodExceptionTypes,isPrivate, isProtected, isDefault, isPublic, isAbstract, isNative,
                 isStatic, isSetter, isGetter, isConstructor,  overriddenInChild, inherited, isInterface, syntheticMethod, propertyName1, accessible,
                 isPrimaryConstructor,   testable);
 
@@ -168,6 +170,33 @@ public class MethodFactory {
         }
         return params;
     }
+
+
+    //analyze the exception types of the method
+    private static String extractMethodExceptionTypes(PsiMethod psiMethod) {
+        String methodExceptionTypes = "";
+        PsiReferenceList throwsList = psiMethod.getThrowsList();
+        PsiClassType[] referencedTypes = throwsList.getReferencedTypes();
+
+        for (PsiClassType type : referencedTypes) {
+            PsiClass resolved = type.resolve();
+            if (resolved != null) {
+                String exceptionTypeName = getExceptionTypeName(resolved.getQualifiedName());
+                methodExceptionTypes += exceptionTypeName+",";
+            }
+        }
+        if(StringUtils.isNotEmpty(methodExceptionTypes)){
+            methodExceptionTypes = methodExceptionTypes.substring(0, methodExceptionTypes.length() - 1);
+        }
+        return methodExceptionTypes;
+    }
+
+    private static String getExceptionTypeName(String exceptionTypeName) {
+        int lastIndex = exceptionTypeName.lastIndexOf('.');
+        return lastIndex != -1 ? exceptionTypeName.substring(lastIndex + 1) :exceptionTypeName;
+    }
+
+
 
     private static ArrayList<Field> findMatchingFields(PsiParameter psiParameter, PsiMethod psiMethod) {
         final ArrayList<Field> fields = new ArrayList<>();
