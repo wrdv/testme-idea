@@ -40,10 +40,7 @@ import org.jetbrains.jps.model.java.JavaSourceRootProperties;
 import org.jetbrains.jps.model.java.JavaSourceRootType;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Date: 10/18/2016
@@ -127,12 +124,15 @@ public class CreateTestMeAction extends CreateTestAction {
         FileTemplateManager fileTemplateManager = TestMeTemplateManager.getInstance(fileTemplateContext.getTargetDirectory().getProject());
         final Map<String, Object> templateCtxtParams = testTemplateContextBuilder.build(fileTemplateContext, fileTemplateManager.getDefaultProperties());
 
-        // create filed and method check dialog
-        final CreateTestMeDialog dialog = createTestMeDialog(project, fileTemplateContext.getSrcClass(),
-            fileTemplateContext.getFileTemplateDescriptor().getDisplayName(), templateCtxtParams);
-        // if not ok button selected the return
-        if (dialog.isModal() && !dialog.showAndGet()) {
-            return;
+        boolean openUserCheckDialog = Objects.requireNonNull(TestMeConfigPersistent.getInstance().getState()).isOpenUserCheckDialog();
+        if (openUserCheckDialog) {
+            // create filed and method check dialog
+            final CreateTestMeDialog dialog = createTestMeDialog(project, fileTemplateContext.getSrcClass(),
+                fileTemplateContext.getFileTemplateDescriptor().getDisplayName(), templateCtxtParams);
+            // if not ok button selected the return
+            if (dialog.isModal() && !dialog.showAndGet()) {
+                return;
+            }
         }
 
         CommandProcessor.getInstance().executeCommand(project, new Runnable() {
