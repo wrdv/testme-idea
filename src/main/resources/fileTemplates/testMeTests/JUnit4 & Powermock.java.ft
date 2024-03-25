@@ -1,5 +1,5 @@
 #parse("TestMe macros.java")
-#set($hasMocks=$PowerMockBuilder.hasMocks($TESTED_CLASS))
+#set($hasMocks=$PowerMockBuilder.hasMocks($TESTED_CLASS, $USER_CHECKED_MOCK_FIELDS))
 #set($mockBuilder = $PowerMockBuilder)
 #if($PACKAGE_NAME)
 package ${PACKAGE_NAME};

@@ -154,9 +154,9 @@ public class  MockitoMockBuilder implements MockBuilder{
      * true - if any given field can be mocked
      */
     @SuppressWarnings("unused")
-    public boolean hasMockable(List<Field> fields, Type testedClass) {
+    public boolean hasMockable(List<Field> fields, Type testedClass, List<String> userCheckedFieldsList) {
         for (Field field : fields) {
-            if (isMockable(field, testedClass)) {
+            if (isMockable(field, testedClass, userCheckedFieldsList)) {
                 return true;
             }
         }
@@ -168,8 +168,8 @@ public class  MockitoMockBuilder implements MockBuilder{
      * @param testedClass the tested class
      * @return true - if the tested class has mockable field
      */
-    public boolean hasMocks(Type testedClass) {
-        return testSubjectInspector.hasAccessibleCtor(testedClass) && hasMockable(testedClass.getFields(), testedClass);
+    public boolean hasMocks(Type testedClass, List<String> userCheckedFieldsList) {
+        return testSubjectInspector.hasAccessibleCtor(testedClass) && hasMockable(testedClass.getFields(), testedClass, userCheckedFieldsList);
     }
 
     /**
