@@ -35,9 +35,7 @@ public class PowerMockBuilder extends MockitoMockBuilder{
      */
     @Override
     public boolean isMockable(Field field, Type testedClass) {
-        final boolean isMockable = !field.getType().isPrimitive() && !isWrapperType(field.getType())
-            && !field.isOverridden() && !field.getType().isArray() && !field.getType().isEnum()
-            && !testSubjectInspector.isNotInjectedInDiClass(field, testedClass);
+        final boolean isMockable = isMockableCommonChecks(field, testedClass);
         LOG.debug("field " + field.getType().getCanonicalName() + " " + field.getName() + " is mockable:" + isMockable);
         return isMockable;
     }

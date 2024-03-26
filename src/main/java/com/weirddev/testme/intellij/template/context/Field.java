@@ -45,6 +45,10 @@ public class Field {
      * true if field has setter in tested class
      */
     @Getter private final boolean hasSetter;
+    /**
+     * true if field is set to a value on declaration
+     */
+    @Getter private final boolean isInitializedInline;
 
     /**
      * name given to field
@@ -61,6 +65,7 @@ public class Field {
         overridden = isOverriddenInChild(psiField, srcClass);
         isFinal = psiField.getModifierList() != null && psiField.getModifierList().hasExplicitModifier(PsiModifier.FINAL);
         isStatic = psiField.getModifierList() != null && psiField.getModifierList().hasExplicitModifier(PsiModifier.STATIC);
+        isInitializedInline = typeDictionary!=null && typeDictionary.isTestSubject(srcClass) && psiField.hasInitializer();//hasInitializer - expensive test - call only for test subject (consider moving to a new type - ExtendedField - for usage in test subject 
     }
 
     /**
