@@ -57,8 +57,8 @@ public class MethodFactory {
         Optional<PsiSubstitutor> methodSubstitutor = findMethodSubstitutor(psiMethod, srcClass, ownerClassPsiType);
         Type returnType = resolveReturnType(psiMethod, maxRecursionDepth, typeDictionary, methodSubstitutor);
         List<Param> methodParams = extractMethodParams(psiMethod, isPrimaryConstructor, maxRecursionDepth, typeDictionary, methodSubstitutor);
-        String methodExceptionTypes = extractMethodExceptionTypes(psiMethod);
-        return new Method(methodId, methodName, returnType,   ownerClassCanonicalType, methodParams, methodExceptionTypes,isPrivate, isProtected, isDefault, isPublic, isAbstract, isNative,
+        String throwsExceptions = extractMethodExceptionTypes(psiMethod);
+        return new Method(methodId, methodName, returnType,   ownerClassCanonicalType, methodParams, throwsExceptions,isPrivate, isProtected, isDefault, isPublic, isAbstract, isNative,
                 isStatic, isSetter, isGetter, isConstructor,  overriddenInChild, inherited, isInterface, syntheticMethod, propertyName1, accessible,
                 isPrimaryConstructor,   testable);
 
@@ -174,7 +174,7 @@ public class MethodFactory {
 
     //analyze the exception types of the method
     private static String extractMethodExceptionTypes(PsiMethod psiMethod) {
-        String methodExceptionTypes = "";
+        String throwsExceptions = "";
         PsiReferenceList throwsList = psiMethod.getThrowsList();
         PsiClassType[] referencedTypes = throwsList.getReferencedTypes();
 
@@ -182,13 +182,13 @@ public class MethodFactory {
             PsiClass resolved = type.resolve();
             if (resolved != null) {
                 String exceptionTypeName = getExceptionTypeName(resolved.getQualifiedName());
-                methodExceptionTypes += exceptionTypeName+",";
+                throwsExceptions += exceptionTypeName+",";
             }
         }
-        if(StringUtils.isNotEmpty(methodExceptionTypes)){
-            methodExceptionTypes = methodExceptionTypes.substring(0, methodExceptionTypes.length() - 1);
+        if(StringUtils.isNotEmpty(throwsExceptions)){
+            throwsExceptions = throwsExceptions.substring(0, throwsExceptions.length() - 1);
         }
-        return methodExceptionTypes;
+        return throwsExceptions;
     }
 
     private static String getExceptionTypeName(String exceptionTypeName) {

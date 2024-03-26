@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-import org.apache.commons.lang.StringUtils;
 
 import java.util.HashSet;
 import java.util.List;
@@ -163,7 +162,7 @@ public class Method {
      * true - if method has Exception
      */
     public boolean hasException(){
-        return StringUtils.isNotEmpty(methodExceptionTypes);
+        return methodExceptionTypes != null && !methodExceptionTypes.trim().isEmpty();
     }
 
 }

@@ -18,6 +18,7 @@ public class TestMeSettingsForm implements Disposable {
     private JCheckBox replaceFullyQualifiedNamesCheckBox;
     private JPanel rootPanel;
     private JCheckBox renderInternalMethodCallStubsBox;
+    private JCheckBox throwSpecificExceptionTypesCheckBox;
 
     public JPanel getRootPanel() {
         return rootPanel;
@@ -35,6 +36,8 @@ public class TestMeSettingsForm implements Disposable {
             testMeConfig.setReformatCode(reformatCodeCheckBox.isSelected());
             testMeConfig.setReplaceFullyQualifiedNames(replaceFullyQualifiedNamesCheckBox.isSelected());
             testMeConfig.setRenderInternalMethodCallStubs(renderInternalMethodCallStubsBox.isSelected());
+            testMeConfig.setThrowSpecificExceptionTypes(throwSpecificExceptionTypesCheckBox.isSelected());
+
         }
     }
 
@@ -45,6 +48,8 @@ public class TestMeSettingsForm implements Disposable {
             reformatCodeCheckBox.setSelected(state.getReformatCode());
             replaceFullyQualifiedNamesCheckBox.setSelected(state.getReplaceFullyQualifiedNames());
             renderInternalMethodCallStubsBox.setSelected(state.isRenderInternalMethodCallStubs());
+            throwSpecificExceptionTypesCheckBox.setSelected(state.isThrowSpecificExceptionTypes());
+
         }
     }
 
@@ -54,7 +59,8 @@ public class TestMeSettingsForm implements Disposable {
                         optimizeImportsCheckBox.isSelected() != state.getOptimizeImports() ||
                         reformatCodeCheckBox.isSelected() != state.getReformatCode() ||
                         replaceFullyQualifiedNamesCheckBox.isSelected() != state.getReplaceFullyQualifiedNames() ||
-                        renderInternalMethodCallStubsBox.isSelected() != state.isRenderInternalMethodCallStubs()
+                        renderInternalMethodCallStubsBox.isSelected() != state.isRenderInternalMethodCallStubs()||
+                        throwSpecificExceptionTypesCheckBox.isSelected() != state.isThrowSpecificExceptionTypes()
                 );
     }
 }
