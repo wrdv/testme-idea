@@ -227,31 +227,26 @@ public class  MockitoMockBuilder implements MockBuilder{
      */
     @NotNull
     private String deductMatcherTypeMethod(Param param, Language language) {
-        String matcherType;
-        if (param.getType().isVarargs()) {
-            matcherType = "anyVararg";
+        Type type = param.getType();
+        String matcherMethod = resolveMatcherMethod(type);
+        if (language == Language.Scala) {
+            return matcherMethod;
         }
-        else {
-            matcherType = TYPE_TO_ARG_MATCHERS.get(param.getType().getCanonicalName());
+        else if (!type.isPrimitive() &&  "any".equals(matcherMethod)) {
+            return matcherMethod + "("+ type.getCanonicalName()+(type.isArray()? "[]":"") +".class)";
+        } else {
+            return matcherMethod+"()";
         }
-        if (matcherType == null) {
-            matcherType = "any";
-        }
-        //todo support anyCollection(),anyMap(),anySet() and consider arrays
-        if (language != Language.Scala) {
-            matcherType += "()";
-        }
-        // add specific type to any()
-        if( matcherType.equals("any()")){
-            matcherType = addSpecificType(param.getType().getName());
-        }
-        return matcherType;
     }
 
-    @SuppressWarnings("unused")
-    @Deprecated
-    public boolean shouldStub(Method testMethod, List<Field> testedClassFields) {
-        return callsMockMethod(testMethod, testedClassFields, Method::hasReturn, null);
+    private static String resolveMatcherMethod(Type type) {
+        if (type.isVarargs()) {
+            return "anyVararg";
+        } else if(!type.isArray() && TYPE_TO_ARG_MATCHERS.containsKey(type.getCanonicalName())){
+            return TYPE_TO_ARG_MATCHERS.get(type.getCanonicalName());
+        } else {
+            return "any";
+        }
     }
 
     String addSpecificType(String typeName) {

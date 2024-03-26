@@ -41,12 +41,12 @@ class FooTest {
 
     @Test
     void testFight() {
-        when(fooFighter.fight(any(Fire.class))).thenReturn("fightResponse")
-        when(fooFighterProtected.fight(any(Fire.class))).thenReturn("fightResponse")
-        when(fooFighterDefault.fight(any(Fire.class))).thenReturn("fightResponse")
-        when(fooFighterPublic.fight(any(Fire.class))).thenReturn("fightResponse")
-        when(fooFighterFinal.fight(any(Fire.class))).thenReturn("fightResponse")
-        when(fooFighterStatic.fight(any(Fire.class))).thenReturn("fightResponse")
+        when(fooFighter.fight(any(com.example.foes.Fire.class))).thenReturn("fightResponse")
+        when(fooFighterProtected.fight(any(com.example.foes.Fire.class))).thenReturn("fightResponse")
+        when(fooFighterDefault.fight(any(com.example.foes.Fire.class))).thenReturn("fightResponse")
+        when(fooFighterPublic.fight(any(com.example.foes.Fire.class))).thenReturn("fightResponse")
+        when(fooFighterFinal.fight(any(com.example.foes.Fire.class))).thenReturn("fightResponse")
+        when(fooFighterStatic.fight(any(com.example.foes.Fire.class))).thenReturn("fightResponse")
         when(innerOfPublicInnerClass.methodOfInnerClass()).thenReturn(new com.example.services.impl.Foo.PublicInnerClass.InnerOfPublicInnerClass(new com.example.services.impl.Foo.PublicInnerClass(new com.example.services.impl.Foo())))
 
         java.lang.String result = foo.fight(new com.example.foes.Fire(), "foeName")
