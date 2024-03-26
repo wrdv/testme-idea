@@ -22,6 +22,7 @@ class FooTest {
     FooFighter fooFighter;
     @Mock
     Supplier<Integer> result;
+
     @InjectMocks
     Foo foo;
 
