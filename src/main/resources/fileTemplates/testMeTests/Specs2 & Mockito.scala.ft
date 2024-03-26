@@ -30,7 +30,7 @@ class ${CLASS_NAME} extends Specification #if($hasMocks) with Mockito#end{
 #if($TestSubjectUtils.shouldBeTested($method))
 
       "#renderTestMethodNameAsWords($method.name)" in {
-#if($MockitoMockBuilder.shouldStub($method,$constructor,$scDefaultTypeValues))
+#if($hasMocks && $MockitoMockBuilder.shouldStub($method,$constructor,$scDefaultTypeValues))
 #scRenderMockStubs($method, $constructor)
 #end
 $TAB$TAB#scRenderMethodCall($method,$TESTED_CLASS)
