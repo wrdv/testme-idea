@@ -1,6 +1,6 @@
 package com.weirddev.testme.intellij.template.context
 
-
+import com.weirddev.testme.intellij.ui.customizedialog.FileTemplateCustomization
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 import spock.lang.Specification
@@ -20,7 +20,7 @@ class MockitoMockBuilderTest extends Specification {
     @Unroll
     def "get Init Mocks Method where mockitoCoreVersion=#mockitoCoreVersion"() {
         given:
-        mockitoMockBuilder = new MockitoMockBuilder(false, false, testSubjectInspector, mockitoCoreVersion)
+        mockitoMockBuilder = new MockitoMockBuilder(false, false, testSubjectInspector, mockitoCoreVersion, new FileTemplateCustomization(new ArrayList<String>(), new ArrayList<String>(), false))
 
         expect:
         mockitoMockBuilder.getInitMocksMethod() == expectedResult
