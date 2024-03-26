@@ -23,7 +23,7 @@ class FooTest {
 
     @Test
     void testFight() {
-        when(fooFighter.fight(any(Fire.class))).thenReturn("fightResponse")
+        when(fooFighter.fight(any(com.example.foes.Fire.class))).thenReturn("fightResponse")
 
         java.lang.String result = foo.fight(new com.example.foes.Fire(), "foeName")
         assert result == "replaceMeWithExpectedResult"

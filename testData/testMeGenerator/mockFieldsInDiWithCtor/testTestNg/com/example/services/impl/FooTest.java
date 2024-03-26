@@ -1,7 +1,9 @@
 package com.example.services.impl;
 
 import com.example.beans.ConvertedBean;
+import com.example.foes.Fear;
 import com.example.foes.Fire;
+import com.example.foes.Ice;
 import com.example.warriers.TechFighter;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;

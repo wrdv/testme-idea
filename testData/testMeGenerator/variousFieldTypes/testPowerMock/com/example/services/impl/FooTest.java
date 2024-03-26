@@ -57,12 +57,12 @@ public class FooTest {
 
     @Test
     public void testFight() throws Exception {
-        when(fooFighter.fight(any(Fire.class))).thenReturn("fightResponse");
-        when(fooFighterProtected.fight(any(Fire.class))).thenReturn("fightResponse");
-        when(fooFighterDefault.fight(any(Fire.class))).thenReturn("fightResponse");
-        when(fooFighterPublic.fight(any(Fire.class))).thenReturn("fightResponse");
-        when(fooFighterFinal.fight(any(Fire.class))).thenReturn("fightResponse");
-        when(fooFighterStatic.fight(any(Fire.class))).thenReturn("fightResponse");
+        when(fooFighter.fight(any(com.example.foes.Fire.class))).thenReturn("fightResponse");
+        when(fooFighterProtected.fight(any(com.example.foes.Fire.class))).thenReturn("fightResponse");
+        when(fooFighterDefault.fight(any(com.example.foes.Fire.class))).thenReturn("fightResponse");
+        when(fooFighterPublic.fight(any(com.example.foes.Fire.class))).thenReturn("fightResponse");
+        when(fooFighterFinal.fight(any(com.example.foes.Fire.class))).thenReturn("fightResponse");
+        when(fooFighterStatic.fight(any(com.example.foes.Fire.class))).thenReturn("fightResponse");
         when(innerOfPublicInnerClass.methodOfInnerClass()).thenReturn(new Foo().new PublicInnerClass().new InnerOfPublicInnerClass());
         String result = foo.fight(new com.example.foes.Fire(), "foeName");
         verify(publicInnerClass).methodOfInnerClass();
