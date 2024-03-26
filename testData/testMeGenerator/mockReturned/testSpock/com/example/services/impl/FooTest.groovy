@@ -31,7 +31,7 @@ class FooTest extends Specification {
 
     def "test fight"() {
         given:
-        when(fooFighter.surrender(any(), any(), anyInt())).thenReturn(new ConvertedBean(myString: "myString", someNum: 0, fear: new Fear(), ice: new Ice()))
+        when(fooFighter.surrender(any(Fear.class), any(Ice.class), anyInt())).thenReturn(new ConvertedBean(myString: "myString", someNum: 0, fear: new Fear(), ice: new Ice()))
         when(result.get()).thenReturn(0)
 
         when:

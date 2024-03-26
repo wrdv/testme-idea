@@ -1,7 +1,9 @@
 package com.example.services.impl;
 
 import com.example.beans.ConvertedBean;
+import com.example.foes.Fear;
 import com.example.foes.Fire;
+import com.example.foes.Ice;
 import com.example.warriers.TechFighter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,8 +34,8 @@ class FooTest {
 
     @Test
     void testFight() {
-        when(techFighter.fight(any())).thenReturn("fightResponse");
-        when(techFighter.surrender(any(), any(), anyInt())).thenReturn(new ConvertedBean());
+        when(techFighter.fight(any(Fire.class))).thenReturn("fightResponse");
+        when(techFighter.surrender(any(Fear.class), any(Ice.class), anyInt())).thenReturn(new ConvertedBean());
         when(result.get()).thenReturn(Integer.valueOf(0));
 
         String result = foo.fight(new Fire(), "foeName");

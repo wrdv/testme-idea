@@ -27,7 +27,7 @@ public class InnerStaticClassWithMemberTest {
 
     @Test
     public void testMethodOfInnerClass() throws Exception {
-        when(innerFooFighter.fight(any())).thenReturn("fightResponse");
+        when(innerFooFighter.fight(any(Fire.class))).thenReturn("fightResponse");
 
         String result = innerStaticClassWithMember.methodOfInnerClass(new Fire());
         Assert.assertEquals("replaceMeWithExpectedResult", result);
