@@ -15,11 +15,6 @@ public interface MockBuilder {
     boolean isMockable(Field field, Type testedClass);
 
     /**
-     * true - field should mock
-     */
-    boolean isMockable(Field field, Type testedClass, List<String> userCheckedFieldsList);
-
-    /**
      * constructs an error message explaining why field cannot be mocked
      * @param prefix add prefix to message
      * @param field reported field

@@ -60,14 +60,14 @@ public class TestTemplateContextBuilder {
                 methodReferencesBuilder.resolveMethodReferences(maxRecursionDepth, type.getMethods());
             }
         }
-        final TestSubjectInspector testSubjectInspector = new TestSubjectInspector(context.getFileTemplateConfig().isGenerateTestsForInheritedMethods());
+        final TestSubjectInspector testSubjectInspector =
+            new TestSubjectInspector(context.getFileTemplateConfig().isGenerateTestsForInheritedMethods(),
+                context.getFileTemplateCustomization());
         ctxtParams.put(TestMeTemplateParams.TestSubjectUtils, testSubjectInspector);
         List<String> classpathJars = resolveClasspathJars(context);
         ctxtParams.put(TestMeTemplateParams.MockitoMockBuilder, mockBuilderFactory.createMockitoMockBuilder(context, testSubjectInspector, classpathJars));
         ctxtParams.put(TestMeTemplateParams.PowerMockBuilder, mockBuilderFactory.createPowerMockBuilder(context, testSubjectInspector, classpathJars));
         ctxtParams.put(TestMeTemplateParams.TestedClasspathJars, classpathJars);
-        ctxtParams.put(TestMeTemplateParams.USER_CHECKED_MOCK_FIELDS, null);
-        ctxtParams.put(TestMeTemplateParams.USER_CHECKED_TEST_METHODS, null);
         logger.debug("Done building Test Template context in "+(new Date().getTime()-start)+" millis");
         return ctxtParams;
     }

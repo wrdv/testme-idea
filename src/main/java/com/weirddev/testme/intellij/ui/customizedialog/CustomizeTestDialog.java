@@ -1,4 +1,4 @@
-package com.weirddev.testme.intellij.ui.classconfigdialog;
+package com.weirddev.testme.intellij.ui.customizedialog;
 
 import java.util.*;
 import java.util.List;
@@ -7,9 +7,16 @@ import javax.swing.*;
 
 import com.intellij.psi.*;
 import com.intellij.psi.util.InheritanceUtil;
+import com.intellij.psi.util.PsiUtil;
+import com.weirddev.testme.intellij.builder.MethodFactory;
 import com.weirddev.testme.intellij.common.utils.PsiMethodUtils;
+import com.weirddev.testme.intellij.generator.MockBuilderFactory;
+import com.weirddev.testme.intellij.template.FileTemplateContext;
 import com.weirddev.testme.intellij.template.TemplateRegistry;
 import com.weirddev.testme.intellij.template.context.*;
+import com.weirddev.testme.intellij.utils.ClassNameUtils;
+import com.weirddev.testme.intellij.utils.JavaPsiTreeUtils;
+import com.weirddev.testme.intellij.utils.JavaTypeUtils;
 import org.jetbrains.annotations.NotNull;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
@@ -24,23 +31,18 @@ import com.intellij.ui.ScrollPaneFactory;
  *
  * @author huangliang
  */
-public class CreateTestMeDialog extends DialogWrapper {
+public class CustomizeTestDialog extends DialogWrapper {
 
-    private final Map<String, Object> templateCtxtParams;
     private final PsiClass myTargetClass;
-    private final String templateFileName;
     private final MemberSelectionTable myMethodsTable = new MemberSelectionTable(Collections.emptyList(), null);
     private final MemberSelectionTable myFieldsTable = new MemberSelectionTable(Collections.emptyList(), null);
-    private final List<String> checkedFieldNameList = new ArrayList<>();
-    private final List<String> checkedMethodIdList = new ArrayList<>();
+    private final FileTemplateContext fileTemplateContext;
 
-
-    public CreateTestMeDialog(@NotNull Project project, @NotNull @NlsContexts.DialogTitle String title,
-        PsiClass targetClass, String templateFileName, Map<String, Object> templateCtxtParams) {
+    public CustomizeTestDialog(@NotNull Project project, @NotNull @NlsContexts.DialogTitle String title,
+        PsiClass targetClass, FileTemplateContext fileTemplateContext) {
         super(project, true);
         myTargetClass = targetClass;
-        this.templateCtxtParams = templateCtxtParams;
-        this.templateFileName = templateFileName;
+        this.fileTemplateContext = fileTemplateContext;
         setTitle(title);
         init();
     }
@@ -50,15 +52,16 @@ public class CreateTestMeDialog extends DialogWrapper {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
-        JLabel fieldLabel = new JLabel("Select Need Mocked Fields");
+        JLabel fieldLabel = new JLabel("Mock fields:");
         panel.add(fieldLabel);
         panel.add(ScrollPaneFactory.createScrollPane(myFieldsTable));
 
-        JLabel methodLabel = new JLabel("Select Need Test Methods");
+        JLabel methodLabel = new JLabel("Test Methods:");
         panel.add(methodLabel);
         panel.add(ScrollPaneFactory.createScrollPane(myMethodsTable));
 
         initExtractingClassMembers();
+
         return panel;
     }
 
@@ -69,13 +72,8 @@ public class CreateTestMeDialog extends DialogWrapper {
         Collection<MemberInfo> selectedMemberInfos = myFieldsTable.getSelectedMemberInfos();
         List<String> userCheckedMockableFieldsList =
             selectedMemberInfos.stream().map(e -> e.getMember().getName()).toList();
-        Type classTypeObj = (Type)templateCtxtParams.get(TestMeTemplateParams.TESTED_CLASS);
-        for (Field field : classTypeObj.getFields()) {
-            if (userCheckedMockableFieldsList.contains(field.getName())) {
-                checkedFieldNameList.add(field.getName());
-            }
-        }
-        templateCtxtParams.put(TestMeTemplateParams.USER_CHECKED_MOCK_FIELDS, checkedFieldNameList);
+        fileTemplateContext.getFileTemplateCustomization().getSelectedFieldNameList()
+            .addAll(userCheckedMockableFieldsList);
     }
 
     /**
@@ -85,71 +83,48 @@ public class CreateTestMeDialog extends DialogWrapper {
         Collection<MemberInfo> selectedMemberInfos = myMethodsTable.getSelectedMemberInfos();
         List<String> testableMethodList =
             selectedMemberInfos.stream().map(e -> PsiMethodUtils.formatMethodId((PsiMethod)e.getMember())).toList();
-        Type classTypeObj = (Type)templateCtxtParams.get(TestMeTemplateParams.TESTED_CLASS);
-        for (Method method : classTypeObj.getMethods()) {
-            if (testableMethodList.contains(method.getMethodId())) {
-                checkedMethodIdList.add(method.getMethodId());
-            }
-        }
-        templateCtxtParams.put(TestMeTemplateParams.USER_CHECKED_TEST_METHODS, checkedMethodIdList);
+        fileTemplateContext.getFileTemplateCustomization().getSelectedMethodIdList().addAll(testableMethodList);
     }
 
     /**
      * init and extract class fields and methods for user to check
      */
     public void initExtractingClassMembers() {
-        Set<PsiClass> classes= InheritanceUtil.getSuperClasses(myTargetClass);
-        classes.add(myTargetClass);
-
-        Type classTypeObj = (Type)templateCtxtParams.get(TestMeTemplateParams.TESTED_CLASS);
-        TestSubjectInspector testSubjectUtil =
-            (TestSubjectInspector)templateCtxtParams.get(TestMeTemplateParams.TestSubjectUtils);
-        MockBuilder templateMockBuilder = getTemplateMockBuilder(templateFileName);
-
-        // build field mockable map, key = field name, value = true - if field mockable
-        Map<String, Boolean> fieldMockableMap = new HashMap<>();
-        for (Field field : classTypeObj.getFields()) {
-            Boolean fieldMockable = templateMockBuilder.isMockable(field, classTypeObj);
-            fieldMockableMap.put(field.getName(), fieldMockable);
-        }
-        // build method testable map, key = method id, value = true - if method testable
-        Map<String, Boolean> methodTestableMap = new HashMap<>();
-        for (Method method : classTypeObj.getMethods()) {
-            Boolean testable = testSubjectUtil.shouldBeTested(method);
-            methodTestableMap.put(method.getMethodId(), testable);
+        Set<PsiClass> classes;
+        if (fileTemplateContext.getFileTemplateConfig().isGenerateTestsForInheritedMethods()) {
+            classes = InheritanceUtil.getSuperClasses(myTargetClass);
+            classes.add(myTargetClass);
+        } else {
+            classes = Collections.singleton(myTargetClass);
         }
 
         // init method table and field table
         List<MemberInfo> methodResult = new ArrayList<>();
-        List<MemberInfo> fieldResult = new ArrayList<>();
         for (PsiClass aClass : classes) {
             if (CommonClassNames.JAVA_LANG_OBJECT.equals(aClass.getQualifiedName()))
                 continue;
-            initMethodsTable(aClass, methodResult, methodTestableMap);
-            initFieldsTable(aClass, fieldResult, fieldMockableMap);
+            initMethodsTable(aClass, methodResult);
         }
+
+        List<MemberInfo> fieldResult = new ArrayList<>();
+        initFieldsTable(myTargetClass, fieldResult, fileTemplateContext.getFileTemplateDescriptor().getDisplayName());
     }
 
     /**
-     * get mock builder for template
+     *
      * @param templateFileName template name
-     * @return MockBuilder
+     * @return true - if final can be mocked
      */
-    private MockBuilder getTemplateMockBuilder(String templateFileName) {
-        if (TemplateRegistry.JUNIT4_POWERMOCK_JAVA_TEMPLATE.equals(templateFileName)) {
-            return (PowerMockBuilder)templateCtxtParams.get(TestMeTemplateParams.PowerMockBuilder);
-        } else {
-            return (MockitoMockBuilder)templateCtxtParams.get(TestMeTemplateParams.MockitoMockBuilder);
-        }
+    private boolean canMockFinal(String templateFileName) {
+        return TemplateRegistry.JUNIT4_POWERMOCK_JAVA_TEMPLATE.equals(templateFileName);
     }
 
-    private void initMethodsTable(PsiClass myTargetClass, List<MemberInfo> result, Map<String, Boolean> methodTestableMap) {
+    private void initMethodsTable(PsiClass myTargetClass, List<MemberInfo> result) {
         Set<PsiMember> selectedMethods = new HashSet<>();
         MemberInfo.extractClassMembers(myTargetClass, result, member -> {
             if (!(member instanceof PsiMethod method))
                 return false;
-            String methodId = PsiMethodUtils.formatMethodId(method);
-            if (methodTestableMap.containsKey(methodId) && methodTestableMap.get(methodId)) {
+            if (shouldBeTested(method, myTargetClass)) {
                 selectedMethods.add(member);
                 return true;
             }
@@ -163,12 +138,12 @@ public class CreateTestMeDialog extends DialogWrapper {
         myMethodsTable.setMemberInfos(result);
     }
 
-    private void initFieldsTable(PsiClass myTargetClass, List<MemberInfo> result, Map<String, Boolean> fieldMockableMap) {
+    private void initFieldsTable(PsiClass myTargetClass, List<MemberInfo> result, String templateFileName) {
         Set<PsiMember> selectedFields = new HashSet<>();
         MemberInfo.extractClassMembers(myTargetClass, result, member -> {
             if (!(member instanceof PsiField field))
                 return false;
-            if (fieldMockableMap.containsKey(field.getName()) && fieldMockableMap.get(field.getName())) {
+            if (isMockable(field, myTargetClass, templateFileName)) {
                 selectedFields.add(member);
                 return true;
             }
@@ -192,6 +167,29 @@ public class CreateTestMeDialog extends DialogWrapper {
         updateClassMockableFields();
         updateClassTestableMethods();
         super.doOKAction();
+    }
+
+    public boolean isMockable(PsiField psiField, PsiClass testedClass, String templateFileName) {
+        boolean overridden = Field.isOverriddenInChild(psiField, testedClass);
+        boolean isFinal =
+            psiField.getModifierList() != null && psiField.getModifierList().hasExplicitModifier(PsiModifier.FINAL);
+        boolean isPrimitive = psiField.getType() instanceof PsiPrimitiveType;
+        PsiClass psiClass = PsiUtil.resolveClassInType(psiField.getType());
+        String canonicalText = JavaTypeUtils.resolveCanonicalName(psiClass, null);
+        boolean isArray = ClassNameUtils.isArray(canonicalText);
+        boolean isEnum = JavaPsiTreeUtils.resolveIfEnum(psiClass);
+        boolean isMockitoMockMakerInlineOn = MockBuilderFactory.isMockInline(fileTemplateContext);
+        boolean isWrapperType = MockitoMockBuilder.WRAPPER_TYPES.contains(canonicalText);
+        return !isPrimitive && !isWrapperType
+            && (canMockFinal(templateFileName) || !isFinal || isMockitoMockMakerInlineOn) && !overridden && !isArray
+            && !isEnum;
+    }
+
+    /**
+     * true - method should test
+     */
+    public boolean shouldBeTested(PsiMethod method, PsiClass psiClass) {
+        return MethodFactory.isTestable(method, psiClass);
     }
 
 }

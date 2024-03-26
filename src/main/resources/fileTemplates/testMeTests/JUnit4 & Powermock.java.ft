@@ -1,5 +1,5 @@
 #parse("TestMe macros.java")
-#set($hasMocks=$PowerMockBuilder.hasMocks($TESTED_CLASS, $USER_CHECKED_MOCK_FIELDS))
+#set($hasMocks=$PowerMockBuilder.hasMocks($TESTED_CLASS))
 #set($mockBuilder = $PowerMockBuilder)
 #if($PACKAGE_NAME)
 package ${PACKAGE_NAME};
@@ -38,7 +38,7 @@ public class ${CLASS_NAME} {
     #end
 
     #foreach($method in $TESTED_CLASS.methods)
-        #if($TestSubjectUtils.shouldBeTested($method, $USER_CHECKED_TEST_METHODS))
+        #if($TestSubjectUtils.shouldBeTested($method))
             @Test
             public void #renderTestMethodName($method.name)() throws Exception {
                 #if($hasMocks && $PowerMockBuilder.shouldStub($method, $TESTED_CLASS))

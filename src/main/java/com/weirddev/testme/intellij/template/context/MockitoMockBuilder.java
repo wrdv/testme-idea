@@ -2,6 +2,7 @@ package com.weirddev.testme.intellij.template.context;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.weirddev.testme.intellij.generator.TestBuilderUtil;
+import com.weirddev.testme.intellij.ui.customizedialog.FileTemplateCustomization;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -54,7 +55,7 @@ public class  MockitoMockBuilder implements MockBuilder{
 
     }
 
-    private static final Set<String> WRAPPER_TYPES = new HashSet<>(Arrays.asList(
+    public static final Set<String> WRAPPER_TYPES = new HashSet<>(Arrays.asList(
             Class.class.getCanonicalName(),
             Boolean.class.getCanonicalName(),
             Byte.class.getCanonicalName(),
@@ -75,12 +76,16 @@ public class  MockitoMockBuilder implements MockBuilder{
     private final String mockitoCoreVersion;
     private final Integer mockitoCoreMajorVersion;
     private final Integer mockitoCoreMinorVersion;
+    private final FileTemplateCustomization fileTemplateCustomization;
 
-    public MockitoMockBuilder(boolean isMockitoMockMakerInlineOn, boolean stubMockMethodCallsReturnValues, TestSubjectInspector testSubjectInspector, @Nullable String mockitoCoreVersion) {
+    public MockitoMockBuilder(boolean isMockitoMockMakerInlineOn, boolean stubMockMethodCallsReturnValues,
+        TestSubjectInspector testSubjectInspector, @Nullable String mockitoCoreVersion, 
+        FileTemplateCustomization fileTemplateCustomization) {
         this.isMockitoMockMakerInlineOn = isMockitoMockMakerInlineOn;
         this.stubMockMethodCallsReturnValues = stubMockMethodCallsReturnValues;
         this.testSubjectInspector = testSubjectInspector;
         this.mockitoCoreVersion = mockitoCoreVersion;
+        this.fileTemplateCustomization = fileTemplateCustomization;
         if (mockitoCoreVersion != null) {
             Matcher matcher = SEMVER_PATTERN.matcher(mockitoCoreVersion);
             if (matcher.find()) {
@@ -91,7 +96,6 @@ public class  MockitoMockBuilder implements MockBuilder{
         }
         this.mockitoCoreMajorVersion = null;
         this.mockitoCoreMinorVersion = null;
-
     }
 
     private Integer safeParseInteger(String intStr) {
@@ -116,26 +120,20 @@ public class  MockitoMockBuilder implements MockBuilder{
     /**
      * true - field can be mocked
      */
-    @SuppressWarnings("unused")
-    @Override
-    public boolean isMockable(Field field, Type testedClass, List<String> userCheckedFieldsList) {
-        if (null != userCheckedFieldsList) {
-            return userCheckedFieldsList.contains(field.getName());
-        } else {
-            return isMockable(field, testedClass);
-        }
-    }
-
-    /**
-     * true - field can be mocked
-     */
     @Override
     public boolean isMockable(Field field, Type testedClass) {
-        final boolean isMockable = !field.getType().isPrimitive() && !isWrapperType(field.getType())
-            && (!field.getType().isFinal() || isMockitoMockMakerInlineOn) && !field.isOverridden()
-            && !field.getType().isArray() && !field.getType().isEnum()
-            && !testSubjectInspector.isNotInjectedInDiClass(field, testedClass);
-        LOG.debug("field " + field.getType().getCanonicalName() + " " + field.getName() + " is mockable:" + isMockable);
+        boolean openUserCheckDialog = fileTemplateCustomization.isOpenUserCheckDialog();
+        boolean isMockable;
+        if (openUserCheckDialog) {
+            isMockable = fileTemplateCustomization.getSelectedFieldNameList().contains(field.getName());
+        } else {
+            isMockable = !field.getType().isPrimitive() && !isWrapperType(field.getType())
+                && (!field.getType().isFinal() || isMockitoMockMakerInlineOn) && !field.isOverridden()
+                && !field.getType().isArray() && !field.getType().isEnum()
+                && !testSubjectInspector.isNotInjectedInDiClass(field, testedClass);
+        }
+        LOG.debug(
+            "field " + field.getType().getCanonicalName() + " " + field.getName() + " is mockable:" + isMockable);
         return isMockable;
     }
 
@@ -154,9 +152,9 @@ public class  MockitoMockBuilder implements MockBuilder{
      * true - if any given field can be mocked
      */
     @SuppressWarnings("unused")
-    public boolean hasMockable(List<Field> fields, Type testedClass, List<String> userCheckedFieldsList) {
+    public boolean hasMockable(List<Field> fields, Type testedClass) {
         for (Field field : fields) {
-            if (isMockable(field, testedClass, userCheckedFieldsList)) {
+            if (isMockable(field, testedClass)) {
                 return true;
             }
         }
@@ -168,8 +166,8 @@ public class  MockitoMockBuilder implements MockBuilder{
      * @param testedClass the tested class
      * @return true - if the tested class has mockable field
      */
-    public boolean hasMocks(Type testedClass, List<String> userCheckedFieldsList) {
-        return testSubjectInspector.hasAccessibleCtor(testedClass) && hasMockable(testedClass.getFields(), testedClass, userCheckedFieldsList);
+    public boolean hasMocks(Type testedClass) {
+        return testSubjectInspector.hasAccessibleCtor(testedClass) && hasMockable(testedClass.getFields(), testedClass);
     }
 
     /**

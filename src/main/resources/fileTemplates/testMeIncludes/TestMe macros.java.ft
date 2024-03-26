@@ -57,7 +57,7 @@
 ##
 #macro(renderMockedFields $hasMocks $testedClass)
 #foreach($field in $testedClass.fields)
-#if($hasMocks && $mockBuilder.isMockable($field, $testedClass, $USER_CHECKED_MOCK_FIELDS))
+#if($hasMocks && $mockBuilder.isMockable($field, $testedClass))
     @Mock
     $field.type.canonicalName $field.name;
 #elseif($mockBuilder.isMockExpected($field))
@@ -88,7 +88,7 @@ assertEquals(result#{if}($TestSubjectUtils.isJavaFuture($method.returnType)).get
 ##
 #macro(renderMockStubs $method $testedClass)
 #foreach($field in $testedClass.fields)
-#if($mockBuilder.isMockable($field, $testedClass, $USER_CHECKED_MOCK_FIELDS))
+#if($mockBuilder.isMockable($field, $testedClass))
 #foreach($fieldMethod in $field.type.methods)
 #if($fieldMethod.hasReturn() && $TestSubjectUtils.isMethodCalled($fieldMethod,$method))
         when($field.name.${fieldMethod.name}($mockBuilder.buildMockArgsMatchers(${fieldMethod.methodParams},"Java"))).thenReturn($TestBuilder.renderReturnParam($method,$fieldMethod.returnType,"${fieldMethod.name}Response",$replacementTypes,$defaultTypeValues));
@@ -100,7 +100,7 @@ assertEquals(result#{if}($TestSubjectUtils.isJavaFuture($method.returnType)).get
 ##
 #macro(renderMockVerifies $method $testedClass)
 #foreach($field in $testedClass.fields)
-#if($mockBuilder.isMockable($field, $testedClass, $USER_CHECKED_MOCK_FIELDS))
+#if($mockBuilder.isMockable($field, $testedClass))
 #foreach($fieldMethod in $field.type.methods)
 #if(!$fieldMethod.hasReturn() && $TestSubjectUtils.isMethodCalled($fieldMethod,$method))
         verify($field.name).${fieldMethod.name}($mockBuilder.buildMockArgsMatchers(${fieldMethod.methodParams},"Java"));

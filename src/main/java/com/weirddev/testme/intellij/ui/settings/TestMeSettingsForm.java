@@ -36,7 +36,7 @@ public class TestMeSettingsForm implements Disposable {
             testMeConfig.setReformatCode(reformatCodeCheckBox.isSelected());
             testMeConfig.setReplaceFullyQualifiedNames(replaceFullyQualifiedNamesCheckBox.isSelected());
             testMeConfig.setRenderInternalMethodCallStubs(renderInternalMethodCallStubsBox.isSelected());
-            testMeConfig.setOpenUserCheckDialog(openUserCheckDialogBox.isSelected());
+            testMeConfig.setOpenCustomizeTestDialog(openUserCheckDialogBox.isSelected());
         }
     }
 
@@ -47,7 +47,7 @@ public class TestMeSettingsForm implements Disposable {
             reformatCodeCheckBox.setSelected(state.getReformatCode());
             replaceFullyQualifiedNamesCheckBox.setSelected(state.getReplaceFullyQualifiedNames());
             renderInternalMethodCallStubsBox.setSelected(state.isRenderInternalMethodCallStubs());
-            openUserCheckDialogBox.setSelected(state.isOpenUserCheckDialog());
+            openUserCheckDialogBox.setSelected(state.isOpenCustomizeTestDialog());
         }
     }
 
@@ -58,7 +58,7 @@ public class TestMeSettingsForm implements Disposable {
                         reformatCodeCheckBox.isSelected() != state.getReformatCode() ||
                         replaceFullyQualifiedNamesCheckBox.isSelected() != state.getReplaceFullyQualifiedNames() ||
                         renderInternalMethodCallStubsBox.isSelected() != state.isRenderInternalMethodCallStubs() ||
-                        openUserCheckDialogBox.isSelected() != state.isOpenUserCheckDialog()
+                        openUserCheckDialogBox.isSelected() != state.isOpenCustomizeTestDialog()
                 );
     }
 }

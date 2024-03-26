@@ -43,7 +43,7 @@ public class TestMeConfig {
      * Valid values:true,false
      * Default:false
      */
-    private boolean openUserCheckDialog = false;
+    private boolean openCustomizeTestDialog = false;
 
     public boolean getGenerateTestsForInheritedMethods() {
         return generateTestsForInheritedMethods;
@@ -85,11 +85,11 @@ public class TestMeConfig {
         this.renderInternalMethodCallStubs = renderInternalMethodCallStubs;
     }
 
-    public boolean isOpenUserCheckDialog() {
-        return openUserCheckDialog;
+    public boolean isOpenCustomizeTestDialog() {
+        return openCustomizeTestDialog;
     }
 
-    public void setOpenUserCheckDialog(boolean openUserCheckDialog) {
-        this.openUserCheckDialog = openUserCheckDialog;
+    public void setOpenCustomizeTestDialog(boolean openCustomizeTestDialog) {
+        this.openCustomizeTestDialog = openCustomizeTestDialog;
     }
 }

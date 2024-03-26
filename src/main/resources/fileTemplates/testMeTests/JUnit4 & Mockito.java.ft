@@ -1,5 +1,5 @@
 #parse("TestMe macros.java")
-#set($hasMocks=$MockitoMockBuilder.hasMocks($TESTED_CLASS, $USER_CHECKED_MOCK_FIELDS))
+#set($hasMocks=$MockitoMockBuilder.hasMocks($TESTED_CLASS))
 #if($PACKAGE_NAME)
 package ${PACKAGE_NAME};
 #end
@@ -26,7 +26,7 @@ public class ${CLASS_NAME} {
     }
 #end
 #foreach($method in $TESTED_CLASS.methods)
-#if($TestSubjectUtils.shouldBeTested($method, $USER_CHECKED_TEST_METHODS))
+#if($TestSubjectUtils.shouldBeTested($method))
 
     @Test
     public void #renderTestMethodName($method.name)() throws Exception {

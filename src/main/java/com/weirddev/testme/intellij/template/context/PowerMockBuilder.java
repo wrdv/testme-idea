@@ -1,6 +1,7 @@
 package com.weirddev.testme.intellij.template.context;
 
 import com.intellij.openapi.diagnostic.Logger;
+import com.weirddev.testme.intellij.ui.customizedialog.FileTemplateCustomization;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -14,11 +15,14 @@ public class PowerMockBuilder extends MockitoMockBuilder{
      */
     private final boolean renderInternalMethodCallStubs;
 
+    private final FileTemplateCustomization fileTemplateCustomization;
+
     public PowerMockBuilder(boolean isMockitoMockMakerInlineOn, boolean stubMockMethodCallsReturnValues,
         TestSubjectInspector testSubjectInspector, @Nullable String mockitoCoreVersion,
-        boolean renderInternalMethodCallStubs) {
-        super(isMockitoMockMakerInlineOn, stubMockMethodCallsReturnValues, testSubjectInspector, mockitoCoreVersion);
+        boolean renderInternalMethodCallStubs, FileTemplateCustomization fileTemplateCustomization) {
+        super(isMockitoMockMakerInlineOn, stubMockMethodCallsReturnValues, testSubjectInspector, mockitoCoreVersion, fileTemplateCustomization);
         this.renderInternalMethodCallStubs = renderInternalMethodCallStubs;
+        this.fileTemplateCustomization = fileTemplateCustomization;
     }
 
     /**
@@ -37,22 +41,13 @@ public class PowerMockBuilder extends MockitoMockBuilder{
      */
     @Override
     public boolean isMockable(Field field, Type testedClass) {
-        final boolean isMockable = !field.getType().isPrimitive() && !isWrapperType(field.getType())
-            && !field.isOverridden() && !field.getType().isArray() && !field.getType().isEnum()
-            && !testSubjectInspector.isNotInjectedInDiClass(field, testedClass);
-        LOG.debug("field " + field.getType().getCanonicalName() + " " + field.getName() + " is mockable:" + isMockable);
-        return isMockable;
-    }
-
-    /**
-     * true - field can be mocked
-     */
-    @Override
-    public boolean isMockable(Field field, Type testedClass, List<String> userCheckedFieldsList) {
-        if (null != userCheckedFieldsList) {
-            return userCheckedFieldsList.contains(field.getName());
+        boolean openUserCheckDialog = fileTemplateCustomization.isOpenUserCheckDialog();
+        if (openUserCheckDialog) {
+            return fileTemplateCustomization.getSelectedFieldNameList().contains(field.getName());
         } else {
-            return isMockable(field, testedClass);
+            return !field.getType().isPrimitive() && !isWrapperType(field.getType()) && !field.isOverridden()
+                && !field.getType().isArray() && !field.getType().isEnum()
+                && !testSubjectInspector.isNotInjectedInDiClass(field, testedClass);
         }
     }
 

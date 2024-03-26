@@ -1,6 +1,7 @@
 package com.weirddev.testme.intellij.template.context;
 
 import com.intellij.openapi.diagnostic.Logger;
+import com.weirddev.testme.intellij.ui.customizedialog.FileTemplateCustomization;
 import com.weirddev.testme.intellij.utils.ClassNameUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,9 +19,10 @@ public class TestSubjectInspector
     private static final Logger LOG = Logger.getInstance(TestSubjectInspector.class.getName());
     private static final Set<String> SCALA_FUTURE_TYPES = Set.of("scala.concurrent.Future","scala.concurrent.impl.Promise");
     private final boolean generateTestsForInheritedMethods;
+    private final FileTemplateCustomization fileTemplateCustomization;
 
-    public TestSubjectInspector(boolean generateTestsForInheritedMethods) {
-
+    public TestSubjectInspector(boolean generateTestsForInheritedMethods, FileTemplateCustomization fileTemplateCustomization) {
+        this.fileTemplateCustomization = fileTemplateCustomization;
         this.generateTestsForInheritedMethods = generateTestsForInheritedMethods;
     }
 
@@ -34,21 +36,15 @@ public class TestSubjectInspector
     }
 
     /**
-     * @return true - method should test
-     */
-    public boolean shouldBeTested(Method method, List<String> userCheckedMethodIdList) {
-        if (null != userCheckedMethodIdList) {
-            return userCheckedMethodIdList.contains(method.getMethodId());
-        } else {
-            return shouldBeTested(method);
-        }
-    }
-
-    /**
      * true - method should test
      */
     public boolean shouldBeTested(Method method) {
-        return method.isTestable() && ( generateTestsForInheritedMethods || !method.isInherited());
+        boolean openUserCheckDialog = fileTemplateCustomization.isOpenUserCheckDialog();
+        if (openUserCheckDialog) {
+            return fileTemplateCustomization.getSelectedMethodIdList().contains(method.getMethodId());
+        } else {
+            return method.isTestable() && (generateTestsForInheritedMethods || !method.isInherited());
+        }
     }
 
     /**

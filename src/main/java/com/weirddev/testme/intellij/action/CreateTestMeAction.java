@@ -1,7 +1,6 @@
 package com.weirddev.testme.intellij.action;
 
 import com.intellij.ide.fileTemplates.FileTemplateDescriptor;
-import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.diagnostic.Logger;
@@ -22,16 +21,13 @@ import com.intellij.util.IncorrectOperationException;
 import com.weirddev.testme.intellij.action.helpers.ClassNameSelection;
 import com.weirddev.testme.intellij.action.helpers.GeneratedClassNameResolver;
 import com.weirddev.testme.intellij.action.helpers.TargetDirectoryLocator;
-import com.weirddev.testme.intellij.builder.MethodReferencesBuilder;
 import com.weirddev.testme.intellij.configuration.TestMeConfigPersistent;
-import com.weirddev.testme.intellij.generator.MockBuilderFactory;
 import com.weirddev.testme.intellij.generator.TestMeGenerator;
-import com.weirddev.testme.intellij.generator.TestTemplateContextBuilder;
 import com.weirddev.testme.intellij.template.FileTemplateConfig;
 import com.weirddev.testme.intellij.template.FileTemplateContext;
 import com.weirddev.testme.intellij.template.TemplateDescriptor;
-import com.weirddev.testme.intellij.ui.classconfigdialog.CreateTestMeDialog;
-import com.weirddev.testme.intellij.ui.template.TestMeTemplateManager;
+import com.weirddev.testme.intellij.ui.customizedialog.CustomizeTestDialog;
+import com.weirddev.testme.intellij.ui.customizedialog.FileTemplateCustomization;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.model.java.JavaModuleSourceRootTypes;
@@ -40,7 +36,9 @@ import org.jetbrains.jps.model.java.JavaSourceRootProperties;
 import org.jetbrains.jps.model.java.JavaSourceRootType;
 
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 /**
  * Date: 10/18/2016
@@ -111,24 +109,20 @@ public class CreateTestMeAction extends CreateTestAction {
         }
         LOG.debug("targetDirectory:"+targetDirectory.getVirtualFile().getUrl());
         final ClassNameSelection classNameSelection = generatedClassNameResolver.resolveClassName(project, targetDirectory, srcClass, templateDescriptor);
-        if (classNameSelection.getUserDecision() == ClassNameSelection.UserDecision.Abort) {
+        if (classNameSelection.getUserDecision().equals(ClassNameSelection.UserDecision.Abort)) {
             return;
         }
+
+        FileTemplateConfig fileTemplateConfig = new FileTemplateConfig(TestMeConfigPersistent.getInstance().getState());
         final Module finalTestModule = testModule;
+        boolean openUserCheckDialog = TestMeConfigPersistent.getInstance().getState().isOpenCustomizeTestDialog();
         FileTemplateContext fileTemplateContext = new FileTemplateContext(
             new FileTemplateDescriptor(templateDescriptor.getFilename()), templateDescriptor.getLanguage(), project,
             classNameSelection.getClassName(), srcPackage, srcModule, finalTestModule, targetDirectory, srcClass,
-            new FileTemplateConfig(TestMeConfigPersistent.getInstance().getState()));
-
-        TestTemplateContextBuilder testTemplateContextBuilder =  new TestTemplateContextBuilder(new MockBuilderFactory(), new MethodReferencesBuilder());
-        FileTemplateManager fileTemplateManager = TestMeTemplateManager.getInstance(fileTemplateContext.getTargetDirectory().getProject());
-        final Map<String, Object> templateCtxtParams = testTemplateContextBuilder.build(fileTemplateContext, fileTemplateManager.getDefaultProperties());
-
-        boolean openUserCheckDialog = Objects.requireNonNull(TestMeConfigPersistent.getInstance().getState()).isOpenUserCheckDialog();
+            fileTemplateConfig, new FileTemplateCustomization(new ArrayList<>(), new ArrayList<>(), openUserCheckDialog));
         if (openUserCheckDialog) {
             // create filed and method check dialog
-            final CreateTestMeDialog dialog = createTestMeDialog(project, fileTemplateContext.getSrcClass(),
-                fileTemplateContext.getFileTemplateDescriptor().getDisplayName(), templateCtxtParams);
+            final CustomizeTestDialog dialog = createTestMeDialog(project, srcClass, fileTemplateContext);
             // if not ok button selected the return
             if (dialog.isModal() && !dialog.showAndGet()) {
                 return;
@@ -138,7 +132,7 @@ public class CreateTestMeAction extends CreateTestAction {
         CommandProcessor.getInstance().executeCommand(project, new Runnable() {
             @Override
             public void run() {
-                testMeGenerator.generateTest(fileTemplateContext, templateCtxtParams);
+                testMeGenerator.generateTest(fileTemplateContext);
             }
         }, "TestMe Generate Test", this);
         LOG.debug("End CreateTestMeAction.invoke");
@@ -147,12 +141,9 @@ public class CreateTestMeAction extends CreateTestAction {
     /**
      * create user check dialog to decide fields to mock and methods to test
      */
-    private CreateTestMeDialog createTestMeDialog(Project project, PsiClass srcClass, String templateFileName,
-        Map<String, Object> templateCtxtParams) {
-        return new CreateTestMeDialog(project, "Select Mock Fields And Test Methods", srcClass, templateFileName,
-            templateCtxtParams);
+    private CustomizeTestDialog createTestMeDialog(Project project, PsiClass srcClass, FileTemplateContext fileTemplateContext) {
+        return new CustomizeTestDialog(project, "Select fields/methods to be mocked/tested", srcClass, fileTemplateContext);
     }
-
 
     /**
      * @see CreateTestAction#computeSuitableTestRootUrls
@@ -180,7 +171,7 @@ public class CreateTestMeAction extends CreateTestAction {
         return sourceFolders;
     }
     /**
-     * @see JavaProjectRootsUtil#isForGeneratedSources(com.intellij.openapi.roots.SourceFolder)
+     * @see JavaProjectRootsUtil#isForGeneratedSources(SourceFolder)
      */
     private static boolean isForGeneratedSources(SourceFolder sourceFolder) {
         JavaSourceRootProperties properties = sourceFolder.getJpsElement().getProperties(JavaModuleSourceRootTypes.SOURCES);
