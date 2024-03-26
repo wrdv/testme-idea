@@ -49,18 +49,20 @@ public class CustomizeTestDialog extends DialogWrapper {
 
     @Override
     protected JComponent createCenterPanel() {
+        initExtractingClassMembers();
+
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
-        JLabel fieldLabel = new JLabel("Mock fields:");
-        panel.add(fieldLabel);
-        panel.add(ScrollPaneFactory.createScrollPane(myFieldsTable));
+        if (myFieldsTable.getRowCount() > 0) {
+            JLabel fieldLabel = new JLabel("Mock fields:");
+            panel.add(fieldLabel);
+            panel.add(ScrollPaneFactory.createScrollPane(myFieldsTable));
+        }
 
         JLabel methodLabel = new JLabel("Test Methods:");
         panel.add(methodLabel);
         panel.add(ScrollPaneFactory.createScrollPane(myMethodsTable));
-
-        initExtractingClassMembers();
 
         return panel;
     }
