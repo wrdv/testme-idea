@@ -1,7 +1,10 @@
 package com.weirddev.testme.intellij.template.context;
 
 import com.intellij.openapi.diagnostic.Logger;
+import com.weirddev.testme.intellij.ui.customizedialog.FileTemplateCustomization;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public class PowerMockBuilder extends MockitoMockBuilder{
 
@@ -12,11 +15,14 @@ public class PowerMockBuilder extends MockitoMockBuilder{
      */
     private final boolean renderInternalMethodCallStubs;
 
+    private final FileTemplateCustomization fileTemplateCustomization;
+
     public PowerMockBuilder(boolean isMockitoMockMakerInlineOn, boolean stubMockMethodCallsReturnValues,
         TestSubjectInspector testSubjectInspector, @Nullable String mockitoCoreVersion,
-        boolean renderInternalMethodCallStubs) {
-        super(isMockitoMockMakerInlineOn, stubMockMethodCallsReturnValues, testSubjectInspector, mockitoCoreVersion);
+        boolean renderInternalMethodCallStubs, FileTemplateCustomization fileTemplateCustomization) {
+        super(isMockitoMockMakerInlineOn, stubMockMethodCallsReturnValues, testSubjectInspector, mockitoCoreVersion, fileTemplateCustomization);
         this.renderInternalMethodCallStubs = renderInternalMethodCallStubs;
+        this.fileTemplateCustomization = fileTemplateCustomization;
     }
 
     /**
@@ -35,7 +41,13 @@ public class PowerMockBuilder extends MockitoMockBuilder{
      */
     @Override
     public boolean isMockable(Field field, Type testedClass) {
-        final boolean isMockable = isMockableCommonChecks(field, testedClass);
+        boolean openUserCheckDialog = fileTemplateCustomization.isOpenUserCheckDialog();
+        boolean isMockable;
+        if (openUserCheckDialog) {
+            isMockable =  fileTemplateCustomization.getSelectedFieldNameList().contains(field.getName());
+        } else {
+            isMockable =  isMockableCommonChecks(field, testedClass);;
+        }
         LOG.debug("field " + field.getType().getCanonicalName() + " " + field.getName() + " is mockable:" + isMockable);
         return isMockable;
     }

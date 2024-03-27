@@ -59,6 +59,7 @@ public interface TestMeTemplateParams {
      * @see TestSubjectInspector
      */
     String TestedClasspathJars = "TestedClasspathJars";
+
     /**
      * configured max recursion depth for object graph introspection
      * @see FileTemplateConfig#getMaxRecursionDepth()

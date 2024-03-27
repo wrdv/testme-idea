@@ -45,7 +45,7 @@ public class TestMeGenerator {
     public TestMeGenerator() {
         this(new TestClassElementsLocator(), new TestTemplateContextBuilder(new MockBuilderFactory(), new MethodReferencesBuilder()),new CodeRefactorUtil());
     }
-    
+
     TestMeGenerator(TestClassElementsLocator testClassElementsLocator, TestTemplateContextBuilder testTemplateContextBuilder, CodeRefactorUtil codeRefactorUtil) {
         this.testClassElementsLocator = testClassElementsLocator;
         this.testTemplateContextBuilder = testTemplateContextBuilder;
@@ -77,7 +77,7 @@ public class TestMeGenerator {
                                 }
                             } catch (Throwable e) {
                                 LOG.warn("unable to locate optimal cursor location post test generation",e);
-//                                new OpenFileDescriptor(project, targetClass.getContainingFile().getVirtualFile()).navigate(true);
+                                //                                new OpenFileDescriptor(project, targetClass.getContainingFile().getVirtualFile()).navigate(true);
                             }
                             LOG.debug("Done generating class "+context.getTargetClass()+" in "+(new Date().getTime()-start)+" millis");
                             return targetClass;
@@ -141,19 +141,19 @@ public class TestMeGenerator {
                 CodeStyleManager.getInstance(context.getProject()).reformatText(containingFile, textRange.getStartOffset(), textRange.getEndOffset());
             }
             LOG.debug("Done reformatting generated PsiClass in "+(new Date().getTime()-startReformating)+" millis");
-                return psiFile;
+            return psiFile;
         } catch (Exception e) {
             LOG.error("error generating test class",e);
             return null;
         }
     }
 
-//    private void flushOperations(FileTemplateContext context, PsiClass psiClass) {
-//        final Document document = psiClass.getContainingFile().getViewProvider().getDocument();
-//        if (document != null) {
-//            PsiDocumentManager.getInstance(context.getProject()).doPostponedOperationsAndUnblockDocument(document);
-//        }
-//    }
+    //    private void flushOperations(FileTemplateContext context, PsiClass psiClass) {
+    //        final Document document = psiClass.getContainingFile().getViewProvider().getDocument();
+    //        if (document != null) {
+    //            PsiDocumentManager.getInstance(context.getProject()).doPostponedOperationsAndUnblockDocument(document);
+    //        }
+    //    }
 
     private PsiElement resolveEmbeddedClass(PsiElement psiElement) {
         //Important for Groovy support - expecting org.jetbrains.plugins.groovy.lang.psi.GroovyFile. see org.jetbrains.plugins.groovy.annotator.intentions.CreateClassActionBase.createClassByType
@@ -188,8 +188,8 @@ public class TestMeGenerator {
         ApplicationManager.getApplication().invokeLater(new Runnable() {
             public void run() {
                 Messages.showErrorDialog(project,
-                        CodeInsightBundle.message("intention.error.cannot.create.class.message", targetClassName),
-                        CodeInsightBundle.message("intention.error.cannot.create.class.title"));
+                    CodeInsightBundle.message("intention.error.cannot.create.class.message", targetClassName),
+                    CodeInsightBundle.message("intention.error.cannot.create.class.title"));
             }
         });
     }

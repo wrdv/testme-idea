@@ -7,6 +7,7 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiPackage;
 import com.weirddev.testme.intellij.template.context.Language;
+import com.weirddev.testme.intellij.ui.customizedialog.FileTemplateCustomization;
 
 /**
  * Date: 10/19/2016
@@ -24,8 +25,11 @@ public class FileTemplateContext {
     private final PsiDirectory targetDirectory;
     private final PsiClass srcClass;
     private final FileTemplateConfig fileTemplateConfig;
+    private final FileTemplateCustomization fileTemplateCustomization;
 
-    public FileTemplateContext(FileTemplateDescriptor fileTemplateDescriptor, Language language, Project project, String targetClass, PsiPackage targetPackage, Module srcModule, Module testModule, PsiDirectory targetDirectory, PsiClass srcClass, FileTemplateConfig fileTemplateConfig) {
+    public FileTemplateContext(FileTemplateDescriptor fileTemplateDescriptor, Language language, Project project,
+        String targetClass, PsiPackage targetPackage, Module srcModule, Module testModule, PsiDirectory targetDirectory,
+        PsiClass srcClass, FileTemplateConfig fileTemplateConfig, FileTemplateCustomization fileTemplateCustomization) {
         this.fileTemplateDescriptor = fileTemplateDescriptor;
         this.language = language;
         this.project = project;
@@ -36,6 +40,7 @@ public class FileTemplateContext {
         this.targetDirectory = targetDirectory;
         this.srcClass = srcClass;
         this.fileTemplateConfig = fileTemplateConfig;
+        this.fileTemplateCustomization = fileTemplateCustomization;
     }
 
     public Project getProject() {
@@ -75,5 +80,9 @@ public class FileTemplateContext {
 
     public FileTemplateConfig getFileTemplateConfig() {
         return fileTemplateConfig;
+    }
+
+    public FileTemplateCustomization getFileTemplateCustomization() {
+        return fileTemplateCustomization;
     }
 }

@@ -31,18 +31,18 @@ public class MockBuilderFactory {
         TestSubjectInspector testSubjectInspector, List<String> classpathJars) {
         return new MockitoMockBuilder(isMockInline(context),
             context.getFileTemplateConfig().isStubMockMethodCallsReturnValues(), testSubjectInspector,
-            resolveMockitoVersion(classpathJars));
+            resolveMockitoVersion(classpathJars), context.getFileTemplateCustomization());
     }
 
     @NotNull
     public PowerMockBuilder createPowerMockBuilder(FileTemplateContext context,
         TestSubjectInspector testSubjectInspector, List<String> classpathJars) {
-        return new PowerMockBuilder(true,
-            context.getFileTemplateConfig().isStubMockMethodCallsReturnValues(), testSubjectInspector,
-            resolveMockitoVersion(classpathJars), context.getFileTemplateConfig().isRenderInternalMethodCallStubs());
+        return new PowerMockBuilder(true, context.getFileTemplateConfig().isStubMockMethodCallsReturnValues(),
+            testSubjectInspector, resolveMockitoVersion(classpathJars),
+            context.getFileTemplateConfig().isRenderInternalMethodCallStubs(), context.getFileTemplateCustomization());
     }
 
-    private boolean isMockInline(FileTemplateContext context) {
+    public static boolean isMockInline(FileTemplateContext context) {
         boolean found = false;
         //        final VirtualFile mockMakerVFile = ResourceFileUtil.findResourceFileInScope("mockito-extensions/org.mockito.plugins.MockMaker", context.getProject(), context.getTestModule().getModuleWithDependenciesAndLibrariesScope(true));
         final VirtualFile mockMakerVFile = ResourceFileUtil.findResourceFileInDependents(context.getTestModule(), "mockito-extensions/org.mockito.plugins.MockMaker");
