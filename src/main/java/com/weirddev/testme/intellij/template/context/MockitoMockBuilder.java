@@ -21,6 +21,7 @@ public class  MockitoMockBuilder implements MockBuilder{
     private static final Logger LOG = Logger.getInstance(MockitoMockBuilder.class.getName());
     public static final Map<String, String> TYPE_TO_ARG_MATCHERS;
     private static final Pattern SEMVER_PATTERN = Pattern.compile("^(\\d*)\\.(\\d*)\\.*");
+    public static final Pattern LOGGER_PATTERN = Pattern.compile("(?i).*log.*");
 
     static {
         TYPE_TO_ARG_MATCHERS = new HashMap<>();
@@ -79,7 +80,7 @@ public class  MockitoMockBuilder implements MockBuilder{
     private final FileTemplateCustomization fileTemplateCustomization;
 
     public MockitoMockBuilder(boolean isMockitoMockMakerInlineOn, boolean stubMockMethodCallsReturnValues,
-        TestSubjectInspector testSubjectInspector, @Nullable String mockitoCoreVersion, 
+        TestSubjectInspector testSubjectInspector, @Nullable String mockitoCoreVersion,
         FileTemplateCustomization fileTemplateCustomization) {
         this.isMockitoMockMakerInlineOn = isMockitoMockMakerInlineOn;
         this.stubMockMethodCallsReturnValues = stubMockMethodCallsReturnValues;
@@ -96,6 +97,7 @@ public class  MockitoMockBuilder implements MockBuilder{
         }
         this.mockitoCoreMajorVersion = null;
         this.mockitoCoreMinorVersion = null;
+
     }
 
     private Integer safeParseInteger(String intStr) {
@@ -120,21 +122,36 @@ public class  MockitoMockBuilder implements MockBuilder{
     /**
      * true - field can be mocked
      */
+    @SuppressWarnings("unused")
     @Override
     public boolean isMockable(Field field, Type testedClass) {
+
         boolean openUserCheckDialog = fileTemplateCustomization.isOpenUserCheckDialog();
         boolean isMockable;
         if (openUserCheckDialog) {
             isMockable = fileTemplateCustomization.getSelectedFieldNameList().contains(field.getName());
         } else {
-            isMockable = !field.getType().isPrimitive() && !isWrapperType(field.getType())
-                && (!field.getType().isFinal() || isMockitoMockMakerInlineOn) && !field.isOverridden()
-                && !field.getType().isArray() && !field.getType().isEnum()
-                && !testSubjectInspector.isNotInjectedInDiClass(field, testedClass);
+            isMockable = isMockableCommonChecks(field, testedClass) && (!field.getType().isFinal() || isMockitoMockMakerInlineOn);
         }
         LOG.debug(
             "field " + field.getType().getCanonicalName() + " " + field.getName() + " is mockable:" + isMockable);
         return isMockable;
+    }
+
+    /**
+     * checks if field in testedClass can be mocked. evaluates conditions common to all currently supported mock frameworks
+     * @return true if input field in testedClass can be mocked
+     */
+    protected boolean isMockableCommonChecks(Field field, Type testedClass) {
+        return !field.getType().isPrimitive() && !isWrapperType(field.getType())
+                && !field.isOverridden() && !field.getType().isArray() && !field.getType().isEnum()
+                && !testSubjectInspector.isNotInjectedInDiClass(field, testedClass) && !isInitInline(field);
+    }
+
+    private static boolean isInitInline(Field field) {
+        //for now, avoid applying on all such fields since it's hard to deduct if default value overridden in ctor. settling for typical logger initialization pattern
+        //todo try to also deduct if init in static block
+        return field.isInitializedInline() && !field.isHasSetter() && LOGGER_PATTERN.matcher(field.getName()).matches();
     }
 
     /**

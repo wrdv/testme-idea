@@ -42,13 +42,14 @@ public class PowerMockBuilder extends MockitoMockBuilder{
     @Override
     public boolean isMockable(Field field, Type testedClass) {
         boolean openUserCheckDialog = fileTemplateCustomization.isOpenUserCheckDialog();
+        boolean isMockable;
         if (openUserCheckDialog) {
-            return fileTemplateCustomization.getSelectedFieldNameList().contains(field.getName());
+            isMockable =  fileTemplateCustomization.getSelectedFieldNameList().contains(field.getName());
         } else {
-            return !field.getType().isPrimitive() && !isWrapperType(field.getType()) && !field.isOverridden()
-                && !field.getType().isArray() && !field.getType().isEnum()
-                && !testSubjectInspector.isNotInjectedInDiClass(field, testedClass);
+            isMockable =  isMockableCommonChecks(field, testedClass);;
         }
+        LOG.debug("field " + field.getType().getCanonicalName() + " " + field.getName() + " is mockable:" + isMockable);
+        return isMockable;
     }
 
 }
