@@ -240,21 +240,26 @@ public class  MockitoMockBuilder implements MockBuilder{
      */
     @NotNull
     private String deductMatcherTypeMethod(Param param, Language language) {
-        String matcherType;
-        if (param.getType().isVarargs()) {
-            matcherType = "anyVararg";
+        Type type = param.getType();
+        String matcherMethod = resolveMatcherMethod(type);
+        if (language == Language.Scala) {
+            return matcherMethod;
         }
-        else {
-            matcherType = TYPE_TO_ARG_MATCHERS.get(param.getType().getCanonicalName());
+        else if (!type.isPrimitive() &&  "any".equals(matcherMethod)) {
+            return matcherMethod + "("+ type.getCanonicalName()+(type.isArray()? "[]":"") +".class)";
+        } else {
+            return matcherMethod+"()";
         }
-        if (matcherType == null) {
-            matcherType = "any";
+    }
+
+    private static String resolveMatcherMethod(Type type) {
+        if (type.isVarargs()) {
+            return "anyVararg";
+        } else if(!type.isArray() && TYPE_TO_ARG_MATCHERS.containsKey(type.getCanonicalName())){
+            return TYPE_TO_ARG_MATCHERS.get(type.getCanonicalName());
+        } else {
+            return "any";
         }
-        //todo support anyCollection(),anyMap(),anySet() and consider arrays
-        if (language != Language.Scala) {
-            matcherType += "()";
-        }
-        return matcherType;
     }
 
     @SuppressWarnings("unused")
@@ -262,8 +267,6 @@ public class  MockitoMockBuilder implements MockBuilder{
     public boolean shouldStub(Method testMethod, List<Field> testedClassFields) {
         return callsMockMethod(testMethod, testedClassFields, Method::hasReturn, null);
     }
-
-
     /**
      * true - if should stub tested method
      * @param testMethod method being tested

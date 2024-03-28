@@ -1,7 +1,9 @@
 package com.example.services.impl
 
 import com.example.beans.ConvertedBean
+import com.example.foes.Fear
 import com.example.foes.Fire
+import com.example.foes.Ice
 import com.example.warriers.TechFighter
 import spock.lang.*
 import org.mockito.InjectMocks
@@ -27,8 +29,8 @@ class FooTest extends Specification {
 
     def "test fight"() {
         given:
-        when(techFighter.fight(any())).thenReturn("fightResponse")
-        when(techFighter.surrender(any(), any(), anyInt())).thenReturn(new ConvertedBean(myString: "myString", someNum: 0))
+        when(techFighter.fight(any(Fire.class))).thenReturn("fightResponse")
+        when(techFighter.surrender(any(Fear.class), any(Ice.class), anyInt())).thenReturn(new ConvertedBean(myString: "myString", someNum: 0))
         when(result.get()).thenReturn(0)
 
         when:
