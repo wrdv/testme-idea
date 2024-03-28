@@ -131,11 +131,20 @@ public class  MockitoMockBuilder implements MockBuilder{
         if (openUserCheckDialog) {
             isMockable = fileTemplateCustomization.getSelectedFieldNameList().contains(field.getName());
         } else {
-            isMockable = isMockableCommonChecks(field, testedClass) && (!field.getType().isFinal() || isMockitoMockMakerInlineOn);
+            isMockable = isMockableCommonChecks(field, testedClass) && isMockableByMockFramework(field);
         }
         LOG.debug(
             "field " + field.getType().getCanonicalName() + " " + field.getName() + " is mockable:" + isMockable);
         return isMockable;
+    }
+
+    /**
+     *
+     * @param field field to mock
+     * @return true if field can be mocked in mock framework
+     */
+    protected boolean isMockableByMockFramework(Field field) {
+        return !field.getType().isFinal() || isMockitoMockMakerInlineOn;
     }
 
     /**

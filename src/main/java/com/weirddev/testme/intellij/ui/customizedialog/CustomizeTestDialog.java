@@ -43,14 +43,14 @@ public class CustomizeTestDialog extends DialogWrapper {
         super(project, true);
         myTargetClass = targetClass;
         this.fileTemplateContext = fileTemplateContext;
+        initMethodsTable(myTargetClass);
+        initFieldsTable(myTargetClass, fileTemplateContext.getFileTemplateDescriptor().getDisplayName());
         setTitle(title);
         init();
     }
 
     @Override
     protected JComponent createCenterPanel() {
-        initExtractingClassMembers();
-
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
@@ -89,30 +89,6 @@ public class CustomizeTestDialog extends DialogWrapper {
     }
 
     /**
-     * init and extract class fields and methods for user to check
-     */
-    public void initExtractingClassMembers() {
-        Set<PsiClass> classes;
-        if (fileTemplateContext.getFileTemplateConfig().isGenerateTestsForInheritedMethods()) {
-            classes = InheritanceUtil.getSuperClasses(myTargetClass);
-            classes.add(myTargetClass);
-        } else {
-            classes = Collections.singleton(myTargetClass);
-        }
-
-        // init method table and field table
-        List<MemberInfo> methodResult = new ArrayList<>();
-        for (PsiClass aClass : classes) {
-            if (CommonClassNames.JAVA_LANG_OBJECT.equals(aClass.getQualifiedName()))
-                continue;
-            initMethodsTable(aClass, methodResult);
-        }
-
-        List<MemberInfo> fieldResult = new ArrayList<>();
-        initFieldsTable(myTargetClass, fieldResult, fileTemplateContext.getFileTemplateDescriptor().getDisplayName());
-    }
-
-    /**
      *
      * @param templateFileName template name
      * @return true - if final can be mocked
@@ -121,27 +97,37 @@ public class CustomizeTestDialog extends DialogWrapper {
         return TemplateRegistry.JUNIT4_POWERMOCK_JAVA_TEMPLATE.equals(templateFileName);
     }
 
-    private void initMethodsTable(PsiClass myTargetClass, List<MemberInfo> result) {
+    private List<MemberInfo> initMethodsTable(PsiClass myTargetClass) {
+        Set<PsiClass> classes = new HashSet<>();
+        InheritanceUtil.getSuperClasses(myTargetClass, classes, false);
+        classes.add(myTargetClass);
+
         Set<PsiMember> selectedMethods = new HashSet<>();
-        MemberInfo.extractClassMembers(myTargetClass, result, member -> {
-            if (!(member instanceof PsiMethod method))
+        List<MemberInfo> result = new ArrayList<>();
+        // init method table and field table
+        for (PsiClass aClass : classes) {
+            MemberInfo.extractClassMembers(aClass, result, member -> {
+                if (!(member instanceof PsiMethod method))
+                    return false;
+                if (shouldBeTested(method, myTargetClass)) {
+                    selectedMethods.add(member);
+                    return true;
+                }
                 return false;
-            if (shouldBeTested(method, myTargetClass)) {
-                selectedMethods.add(member);
-                return true;
-            }
-            return false;
-        }, false);
+            }, false);
+        }
 
         for (MemberInfo each : result) {
             each.setChecked(selectedMethods.contains(each.getMember()));
         }
 
         myMethodsTable.setMemberInfos(result);
+        return result;
     }
 
-    private void initFieldsTable(PsiClass myTargetClass, List<MemberInfo> result, String templateFileName) {
+    private List<MemberInfo> initFieldsTable(PsiClass myTargetClass, String templateFileName) {
         Set<PsiMember> selectedFields = new HashSet<>();
+        List<MemberInfo> result = new ArrayList<>();
         MemberInfo.extractClassMembers(myTargetClass, result, member -> {
             if (!(member instanceof PsiField field))
                 return false;
@@ -157,6 +143,7 @@ public class CustomizeTestDialog extends DialogWrapper {
         }
 
         myFieldsTable.setMemberInfos(result);
+        return result;
     }
 
     @Override
@@ -171,7 +158,7 @@ public class CustomizeTestDialog extends DialogWrapper {
         super.doOKAction();
     }
 
-    public boolean isMockable(PsiField psiField, PsiClass testedClass, String templateFileName) {
+    private boolean isMockable(PsiField psiField, PsiClass testedClass, String templateFileName) {
         boolean overridden = Field.isOverriddenInChild(psiField, testedClass);
         boolean isFinal =
             psiField.getModifierList() != null && psiField.getModifierList().hasExplicitModifier(PsiModifier.FINAL);
@@ -190,7 +177,7 @@ public class CustomizeTestDialog extends DialogWrapper {
     /**
      * true - method should test
      */
-    public boolean shouldBeTested(PsiMethod method, PsiClass psiClass) {
+    private boolean shouldBeTested(PsiMethod method, PsiClass psiClass) {
         return MethodFactory.isTestable(method, psiClass);
     }
 
