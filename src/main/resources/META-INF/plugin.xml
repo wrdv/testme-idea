@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.weirddev.testme</id>
   <name>TestMe</name>
-  <version>6.2.0</version>
+  <version>6.3.0</version>
   <vendor email="testme@weirddev.com" url="https://weirddev.com">WeirdDev</vendor>
 
   <description><![CDATA[
@@ -10,7 +10,7 @@
    <h3>Features:</h3>
    <ul>
      <li>Auto generate Java, Scala or Groovy test code with JUnit 4/5, TestNG, Spock or Specs2 frameworks</li>
-     <li>Auto generate Mockito mocked dependencies and relevant return statements</li>
+     <li>Generate mocked dependencies and stub return values</li>
      <li>Generate test params and assertion statements</li>
      <li>Integrates with IDEA menus: Code->TestMe, Code->Generate</li>
      <li>Configure custom test code generation: Preferences -> TestMe -> TestMe Templates</li>
@@ -20,10 +20,10 @@
 
   <change-notes><![CDATA[
         <ul>
-          <li>Generate mock verify method call statements if method retruns void(contributed by <a href="https://github.com/huangliang992">HuangLiang</a> - <a href="https://github.com/wrdv/testme-idea/pull/23">PR #23</a>) </li>
-          <li>Do not generate Mockito mocks for classes with only private constructors (contributed by <a href="https://github.com/huangliang992">HuangLiang</a> - <a href="https://github.com/wrdv/testme-idea/pull/22">PR #22</a>) </li>
-          <li>Generate UT for enum methods (raised by gadeji on Feb 15 '24)</li>
-          <li>Do not generate UT for methods inherited from java base enum class</li>
+          <li>Support unit test generation with PowerMock - with JUnit4 template (contributed by <a href="https://github.com/huangliang992">HuangLiang</a> - <a href="https://github.com/wrdv/testme-idea/pull/26">PR #26</a>) </li>
+          <li>Stub internal method calls, if configured in Settings -> TestMe (contributed by <a href="https://github.com/huangliang992">HuangLiang</a> - <a href="https://github.com/wrdv/testme-idea/pull/26">PR #26</a>) </li>
+          <li>Mock fields injected by DI if class has DI annotations (contributed by <a href="https://github.com/huangliang992">HuangLiang</a> - <a href="https://github.com/wrdv/testme-idea/pull/24">PR #24</a>) </li>
+          <li>Avoid mocking log/logger fields initialized inline</li>
         </ul>
         <a href="https://weirddev.com/testme/release-notes">Complete Release Notes listing</a>
     ]]>
