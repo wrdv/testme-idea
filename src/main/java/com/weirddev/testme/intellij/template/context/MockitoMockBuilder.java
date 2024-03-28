@@ -2,7 +2,6 @@ package com.weirddev.testme.intellij.template.context;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.weirddev.testme.intellij.generator.TestBuilderUtil;
-import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
