@@ -263,8 +263,10 @@ public class  MockitoMockBuilder implements MockBuilder{
         }
     }
 
-    String addSpecificType(String typeName) {
-        return StringUtils.isNotEmpty(typeName) ? "any("+typeName+".class)" : "any()";
+    @SuppressWarnings("unused")
+    @Deprecated
+    public boolean shouldStub(Method testMethod, List<Field> testedClassFields) {
+        return callsMockMethod(testMethod, testedClassFields, Method::hasReturn, null);
     }
     /**
      * true - if should stub tested method
