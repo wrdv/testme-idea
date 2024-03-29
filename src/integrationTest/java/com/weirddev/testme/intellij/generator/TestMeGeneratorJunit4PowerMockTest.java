@@ -5,6 +5,10 @@ import com.weirddev.testme.intellij.configuration.TestMeConfigPersistent;
 import com.weirddev.testme.intellij.template.FileTemplateConfig;
 import com.weirddev.testme.intellij.template.TemplateRegistry;
 import com.weirddev.testme.intellij.template.context.Language;
+import com.weirddev.testme.intellij.ui.customizedialog.FileTemplateCustomization;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class TestMeGeneratorJunit4PowerMockTest extends TestMeGeneratorTestBase {
 
@@ -37,6 +41,20 @@ public class TestMeGeneratorJunit4PowerMockTest extends TestMeGeneratorTestBase 
 
     public void testRenderInternalMethodCallStubsIgnored() {
         doTest(new FileTemplateConfig(TestMeConfigPersistent.getInstance().getState()));
+    }
+
+    public void testFileTemplateCustomization() {
+        final TestMeConfig testMeConfig = new TestMeConfig();
+        testMeConfig.setOpenCustomizeTestDialog(true);
+        final FileTemplateConfig fileTemplateConfig = new FileTemplateConfig(testMeConfig);
+        List<String> selectedFieldNameList = new ArrayList<>();
+        selectedFieldNameList.add("result");
+        selectedFieldNameList.add("techFighter");
+        List<String> selectedMethodIdList = new ArrayList<>();
+        selectedMethodIdList.add("com.example.services.impl.Foo#fight(com.example.foes.Fire,java.lang.String)");
+        final FileTemplateCustomization customization =
+            new FileTemplateCustomization(selectedFieldNameList, selectedMethodIdList, true);
+        doTest(fileTemplateConfig, customization);
     }
 
 }

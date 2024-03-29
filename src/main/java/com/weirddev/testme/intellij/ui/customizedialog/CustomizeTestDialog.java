@@ -33,18 +33,17 @@ import com.intellij.ui.ScrollPaneFactory;
  */
 public class CustomizeTestDialog extends DialogWrapper {
 
-    private final PsiClass myTargetClass;
-    private final MemberSelectionTable myMethodsTable = new MemberSelectionTable(Collections.emptyList(), null);
-    private final MemberSelectionTable myFieldsTable = new MemberSelectionTable(Collections.emptyList(), null);
+    private final MemberSelectionTable myMethodsTable;
+    private final MemberSelectionTable myFieldsTable;
     private final FileTemplateContext fileTemplateContext;
 
     public CustomizeTestDialog(@NotNull Project project, @NotNull @NlsContexts.DialogTitle String title,
         PsiClass targetClass, FileTemplateContext fileTemplateContext) {
         super(project, true);
-        myTargetClass = targetClass;
         this.fileTemplateContext = fileTemplateContext;
-        initMethodsTable(myTargetClass);
-        initFieldsTable(myTargetClass, fileTemplateContext.getFileTemplateDescriptor().getDisplayName());
+        myMethodsTable = new MemberSelectionTable(initMethodsTable(targetClass), null);
+        myFieldsTable = new MemberSelectionTable(
+            initFieldsTable(targetClass, fileTemplateContext.getFileTemplateDescriptor().getDisplayName()), null);
         setTitle(title);
         init();
     }

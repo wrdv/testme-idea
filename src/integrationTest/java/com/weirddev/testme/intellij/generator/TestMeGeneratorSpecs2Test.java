@@ -13,8 +13,11 @@ import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.testFramework.IdeaTestUtil;
 import com.intellij.testFramework.LightProjectDescriptor;
+import com.weirddev.testme.intellij.configuration.TestMeConfig;
+import com.weirddev.testme.intellij.template.FileTemplateConfig;
 import com.weirddev.testme.intellij.template.TemplateRegistry;
 import com.weirddev.testme.intellij.template.context.Language;
+import com.weirddev.testme.intellij.ui.customizedialog.FileTemplateCustomization;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -93,6 +96,20 @@ public class TestMeGeneratorSpecs2Test extends TestMeGeneratorTestBase   {
 
     private void doTestWithDefaults() {
         doTest(true,true,true, TestMeGeneratorJunit4Test.MIN_PERCENT_OF_EXCESSIVE_SETTERS_TO_PREFER_DEFAULT_CTOR, true, true);
+    }
+
+    public void testFileTemplateCustomization() {
+        final TestMeConfig testMeConfig = new TestMeConfig();
+        testMeConfig.setOpenCustomizeTestDialog(true);
+        final FileTemplateConfig fileTemplateConfig = new FileTemplateConfig(testMeConfig);
+        List<String> selectedFieldNameList = new ArrayList<>();
+        selectedFieldNameList.add("result");
+        selectedFieldNameList.add("techFighter");
+        List<String> selectedMethodIdList = new ArrayList<>();
+        selectedMethodIdList.add("com.example.services.impl.Foo#fight(com.example.foes.Fire,java.lang.String)");
+        final FileTemplateCustomization customization =
+            new FileTemplateCustomization(selectedFieldNameList, selectedMethodIdList, true);
+        doTest(fileTemplateConfig, customization);
     }
 
     /**

@@ -77,6 +77,10 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
         doTest("com.example.services.impl", "Foo", "FooTest", fileTemplateConfig);
     }
 
+    protected void doTest(FileTemplateConfig fileTemplateConfig, FileTemplateCustomization fileTemplateCustomization) {
+        doTest("com.example.services.impl", "Foo", "FooTest", fileTemplateConfig, fileTemplateCustomization);
+    }
+
     protected void doTest(final String packageName, String testSubjectClassName, final String expectedTestClassName, final boolean reformatCode, final boolean optimizeImports, final boolean replaceFqn, final boolean ignoreUnusedProperties, final int minPercentOfExcessiveSettersToPreferDefaultCtor, boolean stubMockMethodCallsReturnValues) {
         final TestMeConfig testMeConfig = new TestMeConfig();
         testMeConfig.setGenerateTestsForInheritedMethods(true);
@@ -96,7 +100,13 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
         doTest(packageName, testSubjectClassName, expectedTestClassName, fileTemplateConfig);
     }
 
-    protected void doTest(final String packageName, String testSubjectClassName, final String expectedTestClassName, final FileTemplateConfig fileTemplateConfig) {
+    protected void doTest(final String packageName, String testSubjectClassName, final String expectedTestClassName,
+        final FileTemplateConfig fileTemplateConfig) {
+        doTest(packageName, testSubjectClassName, expectedTestClassName, fileTemplateConfig, null);
+    }
+
+    protected void doTest(final String packageName, String testSubjectClassName, final String expectedTestClassName,
+        final FileTemplateConfig fileTemplateConfig, final FileTemplateCustomization fileTemplateCustomization) {
         if (!testEnabled) {
             System.out.println(expectedTestClassExtension+ " idea plugin disabled. Skipping test");
             return;
@@ -105,6 +115,9 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
         final PsiDirectory srcDir = fooClass.getContainingFile().getContainingDirectory();
         final PsiPackage targetPackage = JavaDirectoryService.getInstance().getPackage(srcDir);
 
+        FileTemplateCustomization customization = null != fileTemplateCustomization ? fileTemplateCustomization
+            : new FileTemplateCustomization(new ArrayList<>(), new ArrayList<>(), false);
+        
         CommandProcessor.getInstance().executeCommand(getProject(), () -> {
             myFixture.openFileInEditor(fooClass.getContainingFile().getVirtualFile());
 
@@ -116,7 +129,7 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
                 srcDir,
                 fooClass,
                 fileTemplateConfig,
-                new FileTemplateCustomization(new ArrayList<>(), new ArrayList<>(), false)));
+                customization));
             System.out.println("result:"+result);
             verifyGeneratedTest(packageName, expectedTestClassName);
         }, CodeInsightBundle.message("intention.create.test"), this);
