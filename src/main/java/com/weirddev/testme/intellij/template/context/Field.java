@@ -105,7 +105,7 @@ public class Field {
     }
     
 
-    private boolean isOverriddenInChild(PsiField psiField, PsiClass srcClass) {
+    public static boolean isOverriddenInChild(PsiField psiField, PsiClass srcClass) {
         String srcQualifiedName = srcClass.getQualifiedName();
         String fieldClsQualifiedName = psiField.getContainingClass()==null?null:psiField.getContainingClass().getQualifiedName();
         return (srcQualifiedName!=null && fieldClsQualifiedName!=null &&  !srcQualifiedName.equals(fieldClsQualifiedName)) && srcClass.findFieldByName(psiField.getName(), false)!=null;

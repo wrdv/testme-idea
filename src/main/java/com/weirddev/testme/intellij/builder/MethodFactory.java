@@ -249,7 +249,7 @@ public class MethodFactory {
         return psiMethod.getContainingClass() == null ? null : psiMethod.getContainingClass().getQualifiedName();
     }
 
-    private static boolean isTestable(PsiMethod psiMethod, @Nullable PsiClass srcClass){
+    public static boolean isTestable(PsiMethod psiMethod, @Nullable PsiClass srcClass){
         return !TypeUtils.isLanguageBaseClass(resolveOwnerClassName(psiMethod))  && !PropertyUtils.isPropertySetter(psiMethod) && (!PropertyUtils.isPropertyGetter(psiMethod) || srcClass!=null && srcClass.isEnum()) &&
                 !psiMethod.isConstructor() && isVisibleForTest(psiMethod, srcClass) && !isOverriddenInChild(psiMethod, srcClass)
                 && !isInterface(psiMethod) && !psiMethod.hasModifierProperty(PsiModifier.ABSTRACT) && !isSyntheticMethod(psiMethod);

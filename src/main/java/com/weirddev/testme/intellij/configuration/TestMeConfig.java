@@ -38,6 +38,13 @@ public class TestMeConfig {
      */
     private boolean renderInternalMethodCallStubs = false;
 
+    /**
+     * Test generator behavior option. open user check dialog
+     * Valid values:true,false
+     * Default:false
+     */
+    private boolean openCustomizeTestDialog = false;
+
     public boolean getGenerateTestsForInheritedMethods() {
         return generateTestsForInheritedMethods;
     }
@@ -76,5 +83,13 @@ public class TestMeConfig {
 
     public void setRenderInternalMethodCallStubs(boolean renderInternalMethodCallStubs) {
         this.renderInternalMethodCallStubs = renderInternalMethodCallStubs;
+    }
+
+    public boolean isOpenCustomizeTestDialog() {
+        return openCustomizeTestDialog;
+    }
+
+    public void setOpenCustomizeTestDialog(boolean openCustomizeTestDialog) {
+        this.openCustomizeTestDialog = openCustomizeTestDialog;
     }
 }

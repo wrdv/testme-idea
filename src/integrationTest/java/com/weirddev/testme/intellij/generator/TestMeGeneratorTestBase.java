@@ -10,12 +10,11 @@ import com.weirddev.testme.intellij.configuration.TestMeConfig;
 import com.weirddev.testme.intellij.template.FileTemplateConfig;
 import com.weirddev.testme.intellij.template.FileTemplateContext;
 import com.weirddev.testme.intellij.template.context.Language;
+import com.weirddev.testme.intellij.ui.customizedialog.FileTemplateCustomization;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
 
-import java.util.GregorianCalendar;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Date: 13/12/2016
@@ -78,6 +77,10 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
         doTest("com.example.services.impl", "Foo", "FooTest", fileTemplateConfig);
     }
 
+    protected void doTest(FileTemplateConfig fileTemplateConfig, FileTemplateCustomization fileTemplateCustomization) {
+        doTest("com.example.services.impl", "Foo", "FooTest", fileTemplateConfig, fileTemplateCustomization);
+    }
+
     protected void doTest(final String packageName, String testSubjectClassName, final String expectedTestClassName, final boolean reformatCode, final boolean optimizeImports, final boolean replaceFqn, final boolean ignoreUnusedProperties, final int minPercentOfExcessiveSettersToPreferDefaultCtor, boolean stubMockMethodCallsReturnValues) {
         final TestMeConfig testMeConfig = new TestMeConfig();
         testMeConfig.setGenerateTestsForInheritedMethods(true);
@@ -97,7 +100,13 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
         doTest(packageName, testSubjectClassName, expectedTestClassName, fileTemplateConfig);
     }
 
-    protected void doTest(final String packageName, String testSubjectClassName, final String expectedTestClassName, final FileTemplateConfig fileTemplateConfig) {
+    protected void doTest(final String packageName, String testSubjectClassName, final String expectedTestClassName,
+        final FileTemplateConfig fileTemplateConfig) {
+        doTest(packageName, testSubjectClassName, expectedTestClassName, fileTemplateConfig, null);
+    }
+
+    protected void doTest(final String packageName, String testSubjectClassName, final String expectedTestClassName,
+        final FileTemplateConfig fileTemplateConfig, final FileTemplateCustomization fileTemplateCustomization) {
         if (!testEnabled) {
             System.out.println(expectedTestClassExtension+ " idea plugin disabled. Skipping test");
             return;
@@ -106,17 +115,21 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
         final PsiDirectory srcDir = fooClass.getContainingFile().getContainingDirectory();
         final PsiPackage targetPackage = JavaDirectoryService.getInstance().getPackage(srcDir);
 
+        FileTemplateCustomization customization = null != fileTemplateCustomization ? fileTemplateCustomization
+            : new FileTemplateCustomization(new ArrayList<>(), new ArrayList<>(), false);
+        
         CommandProcessor.getInstance().executeCommand(getProject(), () -> {
             myFixture.openFileInEditor(fooClass.getContainingFile().getVirtualFile());
 
             PsiElement result = new TestMeGenerator(new TestClassElementsLocator(), testTemplateContextBuilder,new CodeRefactorUtil()).generateTest(new FileTemplateContext(new FileTemplateDescriptor(templateFilename), language, getProject(),
-                    expectedTestClassName,
-                    targetPackage,
-                    getModule(),
-                    getModule(),
-                    srcDir,
-                    fooClass,
-                    fileTemplateConfig));
+                expectedTestClassName,
+                targetPackage,
+                getModule(),
+                getModule(),
+                srcDir,
+                fooClass,
+                fileTemplateConfig,
+                customization));
             System.out.println("result:"+result);
             verifyGeneratedTest(packageName, expectedTestClassName);
         }, CodeInsightBundle.message("intention.create.test"), this);
@@ -157,7 +170,7 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
         ignoreTrailingWhitespaces = false;
     }
     //    @Override //relevant when JavaCodeInsightFixtureTestCase is used
-//    protected void tuneFixture(JavaModuleFixtureBuilder moduleBuilder) throws Exception {
-//        moduleBuilder.addJdk(new File(System.getProperty("java.home")).getParentContainerClass());
-//    }
+    //    protected void tuneFixture(JavaModuleFixtureBuilder moduleBuilder) throws Exception {
+    //        moduleBuilder.addJdk(new File(System.getProperty("java.home")).getParentContainerClass());
+    //    }
 }

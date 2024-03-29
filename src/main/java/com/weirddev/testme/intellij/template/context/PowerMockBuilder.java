@@ -1,12 +1,10 @@
 package com.weirddev.testme.intellij.template.context;
 
-import com.intellij.openapi.diagnostic.Logger;
+import com.weirddev.testme.intellij.ui.customizedialog.FileTemplateCustomization;
 import org.jetbrains.annotations.Nullable;
 
 public class PowerMockBuilder extends MockitoMockBuilder{
 
-    private static final Logger LOG = Logger.getInstance(PowerMockBuilder.class.getName());
-    
     /**
      * true when render internal method call option is opted-in on custom settings
      */
@@ -14,8 +12,8 @@ public class PowerMockBuilder extends MockitoMockBuilder{
 
     public PowerMockBuilder(boolean isMockitoMockMakerInlineOn, boolean stubMockMethodCallsReturnValues,
         TestSubjectInspector testSubjectInspector, @Nullable String mockitoCoreVersion,
-        boolean renderInternalMethodCallStubs) {
-        super(isMockitoMockMakerInlineOn, stubMockMethodCallsReturnValues, testSubjectInspector, mockitoCoreVersion);
+        boolean renderInternalMethodCallStubs, FileTemplateCustomization fileTemplateCustomization) {
+        super(isMockitoMockMakerInlineOn, stubMockMethodCallsReturnValues, testSubjectInspector, mockitoCoreVersion, fileTemplateCustomization);
         this.renderInternalMethodCallStubs = renderInternalMethodCallStubs;
     }
 
@@ -33,11 +31,8 @@ public class PowerMockBuilder extends MockitoMockBuilder{
     /**
      * true - field can be mocked
      */
-    @Override
-    public boolean isMockable(Field field, Type testedClass) {
-        final boolean isMockable = isMockableCommonChecks(field, testedClass);
-        LOG.debug("field " + field.getType().getCanonicalName() + " " + field.getName() + " is mockable:" + isMockable);
-        return isMockable;
+    protected boolean isMockableByMockFramework(Field field) {
+        return true;
     }
 
 }
