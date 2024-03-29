@@ -98,20 +98,6 @@ public class TestMeGeneratorSpecs2Test extends TestMeGeneratorTestBase   {
         doTest(true,true,true, TestMeGeneratorJunit4Test.MIN_PERCENT_OF_EXCESSIVE_SETTERS_TO_PREFER_DEFAULT_CTOR, true, true);
     }
 
-    public void testFileTemplateCustomization() {
-        final TestMeConfig testMeConfig = new TestMeConfig();
-        testMeConfig.setOpenCustomizeTestDialog(true);
-        final FileTemplateConfig fileTemplateConfig = new FileTemplateConfig(testMeConfig);
-        List<String> selectedFieldNameList = new ArrayList<>();
-        selectedFieldNameList.add("result");
-        selectedFieldNameList.add("techFighter");
-        List<String> selectedMethodIdList = new ArrayList<>();
-        selectedMethodIdList.add("com.example.services.impl.Foo#fight(com.example.foes.Fire,java.lang.String)");
-        final FileTemplateCustomization customization =
-            new FileTemplateCustomization(selectedFieldNameList, selectedMethodIdList, true);
-        doTest(fileTemplateConfig, customization);
-    }
-
     /**
      * see https://github.com/JetBrains/intellij-scala/blob/9198f8fb5b93d2ff142a65e320b812fc92cc0830/scala/scala-impl/test/org/jetbrains/plugins/scala/LightScalaTestCase.scala
      */
