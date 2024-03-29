@@ -119,8 +119,6 @@ public class CustomizeTestDialog extends DialogWrapper {
         for (MemberInfo each : result) {
             each.setChecked(selectedMethods.contains(each.getMember()));
         }
-
-        myMethodsTable.setMemberInfos(result);
         return result;
     }
 
@@ -141,7 +139,6 @@ public class CustomizeTestDialog extends DialogWrapper {
             each.setChecked(selectedFields.contains(each.getMember()));
         }
 
-        myFieldsTable.setMemberInfos(result);
         return result;
     }
 
