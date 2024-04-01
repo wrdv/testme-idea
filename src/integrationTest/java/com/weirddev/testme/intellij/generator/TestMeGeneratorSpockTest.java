@@ -51,11 +51,8 @@ public class TestMeGeneratorSpockTest extends TestMeGeneratorTestBase {
         final TestMeConfig testMeConfig = new TestMeConfig();
         testMeConfig.setOpenCustomizeTestDialog(true);
         final FileTemplateConfig fileTemplateConfig = new FileTemplateConfig(testMeConfig);
-        List<String> selectedFieldNameList = new ArrayList<>();
-        selectedFieldNameList.add("result");
-        selectedFieldNameList.add("techFighter");
-        List<String> selectedMethodIdList = new ArrayList<>();
-        selectedMethodIdList.add("com.example.services.impl.Foo#fight(com.example.foes.Fire,java.lang.String)");
+        List<String> selectedFieldNameList = List.of("result", "techFighter");
+        List<String> selectedMethodIdList = List.of("com.example.services.impl.Foo#fight(com.example.foes.Fire,java.lang.String)");
         final FileTemplateCustomization customization =
             new FileTemplateCustomization(selectedFieldNameList, selectedMethodIdList, true);
         doTest(fileTemplateConfig, customization);
