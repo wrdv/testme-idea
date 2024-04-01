@@ -155,19 +155,29 @@ public class CustomizeTestDialog extends DialogWrapper {
     }
 
     private boolean isMockable(PsiField psiField, PsiClass testedClass, String templateFileName) {
+        boolean isPrimitive = psiField.getType() instanceof PsiPrimitiveType;
+        // make a direct return if isPrimitive, because PsiUtil.resolveClassInType(psiField.getType()) returns null
+        if (isPrimitive) {
+            return false;
+        }
         boolean overridden = Field.isOverriddenInChild(psiField, testedClass);
+        if (overridden) {
+            return false;
+        }
         boolean isFinal =
             psiField.getModifierList() != null && psiField.getModifierList().hasExplicitModifier(PsiModifier.FINAL);
-        boolean isPrimitive = psiField.getType() instanceof PsiPrimitiveType;
-        PsiClass psiClass = PsiUtil.resolveClassInType(psiField.getType());
-        String canonicalText = JavaTypeUtils.resolveCanonicalName(psiClass, null);
-        boolean isArray = ClassNameUtils.isArray(canonicalText);
-        boolean isEnum = JavaPsiTreeUtils.resolveIfEnum(psiClass);
         boolean isMockitoMockMakerInlineOn = MockBuilderFactory.isMockInline(fileTemplateContext);
-        boolean isWrapperType = MockitoMockBuilder.WRAPPER_TYPES.contains(canonicalText);
-        return !isPrimitive && !isWrapperType
-            && (canMockFinal(templateFileName) || !isFinal || isMockitoMockMakerInlineOn) && !overridden && !isArray
-            && !isEnum;
+        if (!(canMockFinal(templateFileName) || !isFinal || isMockitoMockMakerInlineOn)) {
+            return false;
+        }
+        PsiClass psiClass = PsiUtil.resolveClassInType(psiField.getType());
+        boolean isEnum = JavaPsiTreeUtils.resolveIfEnum(psiClass);
+        if (isEnum) {
+            return false;
+        }
+        String canonicalText = JavaTypeUtils.resolveCanonicalName(psiClass, null);
+        return (null != canonicalText) && !MockitoMockBuilder.WRAPPER_TYPES.contains(canonicalText)
+            && !ClassNameUtils.isArray(canonicalText);
     }
 
     /**
