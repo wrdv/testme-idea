@@ -156,14 +156,5 @@ public class Method {
     public boolean hasParams() {
         return !methodParams.isEmpty();
     }
-
-    /**
-     *
-     * true - if method has Exception
-     */
-    public boolean hasException(){
-        return methodExceptionTypes != null && !methodExceptionTypes.trim().isEmpty();
-    }
-
 }
 

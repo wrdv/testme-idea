@@ -22,7 +22,6 @@ import com.weirddev.testme.intellij.utils.ClassNameUtils;
 import com.weirddev.testme.intellij.utils.JavaPsiTreeUtils;
 import com.weirddev.testme.intellij.utils.PropertyUtils;
 import com.weirddev.testme.intellij.utils.TypeUtils;
-import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -57,7 +56,7 @@ public class MethodFactory {
         Optional<PsiSubstitutor> methodSubstitutor = findMethodSubstitutor(psiMethod, srcClass, ownerClassPsiType);
         Type returnType = resolveReturnType(psiMethod, maxRecursionDepth, typeDictionary, methodSubstitutor);
         List<Param> methodParams = extractMethodParams(psiMethod, isPrimaryConstructor, maxRecursionDepth, typeDictionary, methodSubstitutor);
-        String throwsExceptions = extractMethodExceptionTypes(psiMethod,typeDictionary.isThrowSpecificExceptionTypes());
+        String throwsExceptions = extractMethodExceptionTypes(psiMethod,typeDictionary.isThrowSpecificExceptionTypes(),testable);
         return new Method(methodId, methodName, returnType,   ownerClassCanonicalType, methodParams, throwsExceptions,isPrivate, isProtected, isDefault, isPublic, isAbstract, isNative,
                 isStatic, isSetter, isGetter, isConstructor,  overriddenInChild, inherited, isInterface, syntheticMethod, propertyName1, accessible,
                 isPrimaryConstructor,   testable);
@@ -173,8 +172,11 @@ public class MethodFactory {
 
 
     //analyze the exception types of the method
-    private static String extractMethodExceptionTypes(PsiMethod psiMethod ,Boolean throwSpecificExceptionTypes) {
-        String throwsExceptions = "";
+    private static String extractMethodExceptionTypes(PsiMethod psiMethod ,Boolean throwSpecificExceptionTypes,boolean testable) {
+        if(!testable){
+            return null;
+        }
+        String throwsExceptions = null;
         if(throwSpecificExceptionTypes){
             PsiReferenceList throwsList = psiMethod.getThrowsList();
             PsiClassType[] referencedTypes = throwsList.getReferencedTypes();
@@ -182,11 +184,11 @@ public class MethodFactory {
             for (PsiClassType type : referencedTypes) {
                 PsiClass resolved = type.resolve();
                 if (resolved != null) {
-                    String exceptionTypeName = getExceptionTypeName(resolved.getQualifiedName());
-                    throwsExceptions += exceptionTypeName+",";
+                    String exceptionTypeName = resolved.getQualifiedName();
+                    throwsExceptions = throwsExceptions==null?exceptionTypeName+",":throwsExceptions +exceptionTypeName+",";
                 }
             }
-            if(StringUtils.isNotEmpty(throwsExceptions)){
+            if(throwsExceptions!=null){
                 throwsExceptions = throwsExceptions.substring(0, throwsExceptions.length() - 1);
             }
         }else{
@@ -194,14 +196,6 @@ public class MethodFactory {
         }
         return throwsExceptions;
     }
-
-    private static String getExceptionTypeName(String exceptionTypeName) {
-        int lastIndex = exceptionTypeName.lastIndexOf('.');
-        return lastIndex != -1 ? exceptionTypeName.substring(lastIndex + 1) :exceptionTypeName;
-    }
-
-
-
     private static ArrayList<Field> findMatchingFields(PsiParameter psiParameter, PsiMethod psiMethod) {
         final ArrayList<Field> fields = new ArrayList<>();
         try {
