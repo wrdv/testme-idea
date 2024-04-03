@@ -42,17 +42,12 @@
               <text value="Generate stubs for internal method calls - when PowerMock used"/>
             </properties>
           </component>
-          <vspacer id="d7db7">
-            <constraints>
-              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="1" anchor="1" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-          </vspacer>
-          <component id="8617e" class="javax.swing.JCheckBox" binding="throwSpecificExceptionTypesCheckBox">
+          <component id="4d06c" class="javax.swing.JCheckBox" binding="openUserCheckDialogBox">
             <constraints>
               <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Declare specific test method thrown exception types"/>
+              <text value="Open customization dialog before test generation"/>
             </properties>
           </component>
         </children>

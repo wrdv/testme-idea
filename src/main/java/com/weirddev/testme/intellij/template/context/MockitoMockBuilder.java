@@ -2,6 +2,7 @@ package com.weirddev.testme.intellij.template.context;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.weirddev.testme.intellij.generator.TestBuilderUtil;
+import com.weirddev.testme.intellij.ui.customizedialog.FileTemplateCustomization;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,6 +21,7 @@ public class  MockitoMockBuilder implements MockBuilder{
     private static final Logger LOG = Logger.getInstance(MockitoMockBuilder.class.getName());
     public static final Map<String, String> TYPE_TO_ARG_MATCHERS;
     private static final Pattern SEMVER_PATTERN = Pattern.compile("^(\\d*)\\.(\\d*)\\.*");
+    public static final Pattern LOGGER_PATTERN = Pattern.compile("(?i).*log.*");
 
     static {
         TYPE_TO_ARG_MATCHERS = new HashMap<>();
@@ -54,7 +56,7 @@ public class  MockitoMockBuilder implements MockBuilder{
 
     }
 
-    private static final Set<String> WRAPPER_TYPES = new HashSet<>(Arrays.asList(
+    public static final Set<String> WRAPPER_TYPES = new HashSet<>(Arrays.asList(
             Class.class.getCanonicalName(),
             Boolean.class.getCanonicalName(),
             Byte.class.getCanonicalName(),
@@ -75,12 +77,16 @@ public class  MockitoMockBuilder implements MockBuilder{
     private final String mockitoCoreVersion;
     private final Integer mockitoCoreMajorVersion;
     private final Integer mockitoCoreMinorVersion;
+    private final FileTemplateCustomization fileTemplateCustomization;
 
-    public MockitoMockBuilder(boolean isMockitoMockMakerInlineOn, boolean stubMockMethodCallsReturnValues, TestSubjectInspector testSubjectInspector, @Nullable String mockitoCoreVersion) {
+    public MockitoMockBuilder(boolean isMockitoMockMakerInlineOn, boolean stubMockMethodCallsReturnValues,
+        TestSubjectInspector testSubjectInspector, @Nullable String mockitoCoreVersion,
+        FileTemplateCustomization fileTemplateCustomization) {
         this.isMockitoMockMakerInlineOn = isMockitoMockMakerInlineOn;
         this.stubMockMethodCallsReturnValues = stubMockMethodCallsReturnValues;
         this.testSubjectInspector = testSubjectInspector;
         this.mockitoCoreVersion = mockitoCoreVersion;
+        this.fileTemplateCustomization = fileTemplateCustomization;
         if (mockitoCoreVersion != null) {
             Matcher matcher = SEMVER_PATTERN.matcher(mockitoCoreVersion);
             if (matcher.find()) {
@@ -119,12 +125,42 @@ public class  MockitoMockBuilder implements MockBuilder{
     @SuppressWarnings("unused")
     @Override
     public boolean isMockable(Field field, Type testedClass) {
-        final boolean isMockable = !field.getType().isPrimitive() && !isWrapperType(field.getType())
-            && (!field.getType().isFinal() || isMockitoMockMakerInlineOn) && !field.isOverridden()
-            && !field.getType().isArray() && !field.getType().isEnum()
-            && !testSubjectInspector.isNotInjectedInDiClass(field, testedClass);
-        LOG.debug("field " + field.getType().getCanonicalName() + " " + field.getName() + " is mockable:" + isMockable);
+
+        boolean openUserCheckDialog = fileTemplateCustomization.isOpenUserCheckDialog();
+        boolean isMockable;
+        if (openUserCheckDialog) {
+            isMockable = fileTemplateCustomization.getSelectedFieldNameList().contains(field.getName());
+        } else {
+            isMockable = isMockableCommonChecks(field, testedClass) && isMockableByMockFramework(field);
+        }
+        LOG.debug(
+            "field " + field.getType().getCanonicalName() + " " + field.getName() + " is mockable:" + isMockable);
         return isMockable;
+    }
+
+    /**
+     *
+     * @param field field to mock
+     * @return true if field can be mocked in mock framework
+     */
+    protected boolean isMockableByMockFramework(Field field) {
+        return !field.getType().isFinal() || isMockitoMockMakerInlineOn;
+    }
+
+    /**
+     * checks if field in testedClass can be mocked. evaluates conditions common to all currently supported mock frameworks
+     * @return true if input field in testedClass can be mocked
+     */
+    protected boolean isMockableCommonChecks(Field field, Type testedClass) {
+        return !field.getType().isPrimitive() && !isWrapperType(field.getType())
+                && !field.isOverridden() && !field.getType().isArray() && !field.getType().isEnum()
+                && !testSubjectInspector.isNotInjectedInDiClass(field, testedClass) && !isInitInline(field);
+    }
+
+    private static boolean isInitInline(Field field) {
+        //for now, avoid applying on all such fields since it's hard to deduct if default value overridden in ctor. settling for typical logger initialization pattern
+        //todo try to also deduct if init in static block
+        return field.isInitializedInline() && !field.isHasSetter() && LOGGER_PATTERN.matcher(field.getName()).matches();
     }
 
     /**
@@ -226,21 +262,26 @@ public class  MockitoMockBuilder implements MockBuilder{
      */
     @NotNull
     private String deductMatcherTypeMethod(Param param, Language language) {
-        String matcherType;
-        if (param.getType().isVarargs()) {
-            matcherType = "anyVararg";
+        Type type = param.getType();
+        String matcherMethod = resolveMatcherMethod(type);
+        if (language == Language.Scala) {
+            return matcherMethod;
         }
-        else {
-            matcherType = TYPE_TO_ARG_MATCHERS.get(param.getType().getCanonicalName());
+        else if (!type.isPrimitive() &&  "any".equals(matcherMethod)) {
+            return matcherMethod + "("+ type.getCanonicalName()+(type.isArray()? "[]":"") +".class)";
+        } else {
+            return matcherMethod+"()";
         }
-        if (matcherType == null) {
-            matcherType = "any";
+    }
+
+    private static String resolveMatcherMethod(Type type) {
+        if (type.isVarargs()) {
+            return "anyVararg";
+        } else if(!type.isArray() && TYPE_TO_ARG_MATCHERS.containsKey(type.getCanonicalName())){
+            return TYPE_TO_ARG_MATCHERS.get(type.getCanonicalName());
+        } else {
+            return "any";
         }
-        //todo support anyCollection(),anyMap(),anySet() and consider arrays
-        if (language != Language.Scala) {
-            matcherType += "()";
-        }
-        return matcherType;
     }
 
     @SuppressWarnings("unused")
@@ -248,8 +289,6 @@ public class  MockitoMockBuilder implements MockBuilder{
     public boolean shouldStub(Method testMethod, List<Field> testedClassFields) {
         return callsMockMethod(testMethod, testedClassFields, Method::hasReturn, null);
     }
-
-
     /**
      * true - if should stub tested method
      * @param testMethod method being tested

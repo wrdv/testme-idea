@@ -1,7 +1,6 @@
 package com.example.services.impl
 
 import com.example.beans.ConvertedBean
-import com.example.dependencies.Logger
 import com.example.foes.Fear
 import com.example.foes.Fire
 import com.example.foes.Ice
@@ -21,8 +20,7 @@ class FooTest {
     FooFighter fooFighter
     @Mock
     Supplier<Integer> result
-    @Mock
-    Logger logger
+
     @InjectMocks
     Foo foo
 
@@ -33,11 +31,10 @@ class FooTest {
 
     @Test
     void testFight() {
-        when(fooFighter.surrender(any(), any(), anyInt())).thenReturn(new ConvertedBean(myString: "myString", someNum: 0, fear: new Fear(), ice: new Ice()))
+        when(fooFighter.surrender(any(Fear.class), any(Ice.class), anyInt())).thenReturn(new ConvertedBean(myString: "myString", someNum: 0, fear: new Fear(), ice: new Ice()))
         when(result.get()).thenReturn(0)
 
         String result = foo.fight(new Fire(), "foeName")
-        verify(logger).trace(anyString())
         assert result == "replaceMeWithExpectedResult"
     }
 }

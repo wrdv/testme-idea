@@ -86,7 +86,7 @@ public class FileTemplateConfig {
     /**
      * Test generator behavior option. Generate stubs for internal method calls in powermock
      * Valid values:true,false
-     * Default:true
+     * Default:false
      */
     private boolean renderInternalMethodCallStubs = false;
 
@@ -117,8 +117,12 @@ public class FileTemplateConfig {
 
     }
 
-    private FileTemplateConfig(int maxRecursionDepth, boolean reformatCode, boolean replaceFqn, boolean optimizeImports, boolean generateTestsForInheritedMethods, boolean renderInternalMethodCallStubs,boolean throwSpecificExceptionTypes, boolean ignoreUnusedProperties, boolean replaceInterfaceParamsWithConcreteTypes, boolean stubMockMethodCallsReturnValues,
-                              int maxNumOfConcreteCandidatesToReplaceInterfaceParam, int minPercentOfExcessiveSettersToPreferMapCtor, int minPercentOfInteractionWithPropertiesToTriggerConstructorOptimization) {
+    private FileTemplateConfig(int maxRecursionDepth, boolean reformatCode, boolean replaceFqn, boolean optimizeImports,
+            boolean generateTestsForInheritedMethods, boolean renderInternalMethodCallStubs,boolean throwSpecificExceptionTypes,
+            boolean ignoreUnusedProperties, boolean replaceInterfaceParamsWithConcreteTypes,
+            boolean stubMockMethodCallsReturnValues, int maxNumOfConcreteCandidatesToReplaceInterfaceParam,
+            int minPercentOfExcessiveSettersToPreferMapCtor,
+            int minPercentOfInteractionWithPropertiesToTriggerConstructorOptimization) {
         this.maxRecursionDepth = maxRecursionDepth;
         this.reformatCode = reformatCode;
         this.replaceFqn = replaceFqn;
@@ -131,7 +135,8 @@ public class FileTemplateConfig {
         this.replaceInterfaceParamsWithConcreteTypes = replaceInterfaceParamsWithConcreteTypes;
         this.maxNumOfConcreteCandidatesToReplaceInterfaceParam = maxNumOfConcreteCandidatesToReplaceInterfaceParam;
         this.minPercentOfExcessiveSettersToPreferMapCtor = minPercentOfExcessiveSettersToPreferMapCtor;
-        this.minPercentOfInteractionWithPropertiesToTriggerConstructorOptimization = minPercentOfInteractionWithPropertiesToTriggerConstructorOptimization;
+        this.minPercentOfInteractionWithPropertiesToTriggerConstructorOptimization =
+            minPercentOfInteractionWithPropertiesToTriggerConstructorOptimization;
     }
 
     public boolean isReformatCode() {
@@ -217,9 +222,4 @@ public class FileTemplateConfig {
     public boolean isThrowSpecificExceptionTypes() {
         return throwSpecificExceptionTypes;
     }
-
-    public void setThrowSpecificExceptionTypes(boolean throwSpecificExceptionTypes) {
-        this.throwSpecificExceptionTypes = throwSpecificExceptionTypes;
-    }
-
 }
