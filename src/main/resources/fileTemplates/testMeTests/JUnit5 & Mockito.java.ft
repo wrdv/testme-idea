@@ -28,7 +28,7 @@ class ${CLASS_NAME} {
 #if($TestSubjectUtils.shouldBeTested($method))
 
     @Test
-    void #renderTestMethodName($method.name)()#if($method.methodExceptionTypes) throws $method.methodExceptionTypes#end {
+    void #renderTestMethodName($method.name)(){
 #if($hasMocks && $MockitoMockBuilder.shouldStub($method,$TESTED_CLASS))
 #renderMockStubs($method,$TESTED_CLASS)
 
