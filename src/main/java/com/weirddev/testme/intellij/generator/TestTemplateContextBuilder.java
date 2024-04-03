@@ -7,7 +7,6 @@ import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiClassType;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.lang.JavaVersion;
 import com.weirddev.testme.intellij.builder.MethodReferencesBuilder;
@@ -54,8 +53,7 @@ public class TestTemplateContextBuilder {
         final PsiClass targetClass = context.getSrcClass();
         if (targetClass != null && targetClass.isValid()) {
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS_LANGUAGE, targetClass.getLanguage().getID());
-            PsiClassType psiClassType = Type.resolveType(targetClass);
-            final Type type = typeDictionary.getType(psiClassType, maxRecursionDepth, true);
+            final Type type = typeDictionary.getType(Type.resolveType(targetClass), maxRecursionDepth, true);
             typeDictionary.logStatistics();
             ctxtParams.put(TestMeTemplateParams.TESTED_CLASS, type);
             if (type != null) {
