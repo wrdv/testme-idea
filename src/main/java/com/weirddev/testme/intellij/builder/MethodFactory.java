@@ -57,7 +57,7 @@ public class MethodFactory {
         Optional<PsiSubstitutor> methodSubstitutor = findMethodSubstitutor(psiMethod, srcClass, ownerClassPsiType);
         Type returnType = resolveReturnType(psiMethod, maxRecursionDepth, typeDictionary, methodSubstitutor);
         List<Param> methodParams = extractMethodParams(psiMethod, isPrimaryConstructor, maxRecursionDepth, typeDictionary, methodSubstitutor);
-        String throwsExceptions = extractMethodExceptionTypes(psiMethod);
+        String throwsExceptions = extractMethodExceptionTypes(psiMethod,typeDictionary.isThrowSpecificExceptionTypes());
         return new Method(methodId, methodName, returnType,   ownerClassCanonicalType, methodParams, throwsExceptions,isPrivate, isProtected, isDefault, isPublic, isAbstract, isNative,
                 isStatic, isSetter, isGetter, isConstructor,  overriddenInChild, inherited, isInterface, syntheticMethod, propertyName1, accessible,
                 isPrimaryConstructor,   testable);
@@ -173,20 +173,24 @@ public class MethodFactory {
 
 
     //analyze the exception types of the method
-    private static String extractMethodExceptionTypes(PsiMethod psiMethod) {
+    private static String extractMethodExceptionTypes(PsiMethod psiMethod ,Boolean throwSpecificExceptionTypes) {
         String throwsExceptions = "";
-        PsiReferenceList throwsList = psiMethod.getThrowsList();
-        PsiClassType[] referencedTypes = throwsList.getReferencedTypes();
+        if(throwSpecificExceptionTypes){
+            PsiReferenceList throwsList = psiMethod.getThrowsList();
+            PsiClassType[] referencedTypes = throwsList.getReferencedTypes();
 
-        for (PsiClassType type : referencedTypes) {
-            PsiClass resolved = type.resolve();
-            if (resolved != null) {
-                String exceptionTypeName = getExceptionTypeName(resolved.getQualifiedName());
-                throwsExceptions += exceptionTypeName+",";
+            for (PsiClassType type : referencedTypes) {
+                PsiClass resolved = type.resolve();
+                if (resolved != null) {
+                    String exceptionTypeName = getExceptionTypeName(resolved.getQualifiedName());
+                    throwsExceptions += exceptionTypeName+",";
+                }
             }
-        }
-        if(StringUtils.isNotEmpty(throwsExceptions)){
-            throwsExceptions = throwsExceptions.substring(0, throwsExceptions.length() - 1);
+            if(StringUtils.isNotEmpty(throwsExceptions)){
+                throwsExceptions = throwsExceptions.substring(0, throwsExceptions.length() - 1);
+            }
+        }else{
+            throwsExceptions = "Exception";
         }
         return throwsExceptions;
     }
