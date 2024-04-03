@@ -59,6 +59,7 @@ public interface TestMeTemplateParams {
      * @see TestSubjectInspector
      */
     String TestedClasspathJars = "TestedClasspathJars";
+
     /**
      * configured max recursion depth for object graph introspection
      * @see FileTemplateConfig#getMaxRecursionDepth()
@@ -88,4 +89,6 @@ public interface TestMeTemplateParams {
      * Language of class under test: Groovy, Java, Scala
      */
     String TESTED_CLASS_LANGUAGE = "TESTED_CLASS_LANGUAGE";
+
+    String THROW_SPECIFIC_EXCEPTION_TYPES = "throwSpecificExceptionTypes";
 }

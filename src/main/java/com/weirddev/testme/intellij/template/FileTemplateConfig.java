@@ -86,9 +86,17 @@ public class FileTemplateConfig {
     /**
      * Test generator behavior option. Generate stubs for internal method calls in powermock
      * Valid values:true,false
-     * Default:true
+     * Default:false
      */
     private boolean renderInternalMethodCallStubs = false;
+
+
+    /**
+     * Test generator behavior option. Declare specific test method thrown exception types
+     * Valid values:true,false
+     * Default:false
+     */
+    private boolean throwSpecificExceptionTypes = false;
 
     public FileTemplateConfig(TestMeConfig testMeConfig)  {
         this(
@@ -98,6 +106,7 @@ public class FileTemplateConfig {
                 testMeConfig == null || testMeConfig.getOptimizeImports(),
                 testMeConfig == null || testMeConfig.getGenerateTestsForInheritedMethods(),
                 testMeConfig == null || testMeConfig.isRenderInternalMethodCallStubs(),
+                testMeConfig == null || testMeConfig.isThrowSpecificExceptionTypes(),
                 Boolean.valueOf(System.getProperties().getProperty("testMe.generator.ignoreUnusedProperties", "true")),
                 Boolean.valueOf(System.getProperties().getProperty("testMe.generator.replaceInterfaceParamsWithConcreteTypes", "true")),
                 Boolean.valueOf(System.getProperties().getProperty("testMe.generator.stubMockMethodCallsReturnValues", "true")),
@@ -108,20 +117,26 @@ public class FileTemplateConfig {
 
     }
 
-    private FileTemplateConfig(int maxRecursionDepth, boolean reformatCode, boolean replaceFqn, boolean optimizeImports, boolean generateTestsForInheritedMethods, boolean renderInternalMethodCallStubs, boolean ignoreUnusedProperties, boolean replaceInterfaceParamsWithConcreteTypes, boolean stubMockMethodCallsReturnValues,
-                              int maxNumOfConcreteCandidatesToReplaceInterfaceParam, int minPercentOfExcessiveSettersToPreferMapCtor, int minPercentOfInteractionWithPropertiesToTriggerConstructorOptimization) {
+    private FileTemplateConfig(int maxRecursionDepth, boolean reformatCode, boolean replaceFqn, boolean optimizeImports,
+            boolean generateTestsForInheritedMethods, boolean renderInternalMethodCallStubs,boolean throwSpecificExceptionTypes,
+            boolean ignoreUnusedProperties, boolean replaceInterfaceParamsWithConcreteTypes,
+            boolean stubMockMethodCallsReturnValues, int maxNumOfConcreteCandidatesToReplaceInterfaceParam,
+            int minPercentOfExcessiveSettersToPreferMapCtor,
+            int minPercentOfInteractionWithPropertiesToTriggerConstructorOptimization) {
         this.maxRecursionDepth = maxRecursionDepth;
         this.reformatCode = reformatCode;
         this.replaceFqn = replaceFqn;
         this.optimizeImports = optimizeImports;
         this.generateTestsForInheritedMethods = generateTestsForInheritedMethods;
         this.renderInternalMethodCallStubs = renderInternalMethodCallStubs;
+        this.throwSpecificExceptionTypes = throwSpecificExceptionTypes;
         this.stubMockMethodCallsReturnValues = stubMockMethodCallsReturnValues;
         this.ignoreUnusedProperties = ignoreUnusedProperties;
         this.replaceInterfaceParamsWithConcreteTypes = replaceInterfaceParamsWithConcreteTypes;
         this.maxNumOfConcreteCandidatesToReplaceInterfaceParam = maxNumOfConcreteCandidatesToReplaceInterfaceParam;
         this.minPercentOfExcessiveSettersToPreferMapCtor = minPercentOfExcessiveSettersToPreferMapCtor;
-        this.minPercentOfInteractionWithPropertiesToTriggerConstructorOptimization = minPercentOfInteractionWithPropertiesToTriggerConstructorOptimization;
+        this.minPercentOfInteractionWithPropertiesToTriggerConstructorOptimization =
+            minPercentOfInteractionWithPropertiesToTriggerConstructorOptimization;
     }
 
     public boolean isReformatCode() {
@@ -202,5 +217,9 @@ public class FileTemplateConfig {
 
     public void setRenderInternalMethodCallStubs(boolean renderInternalMethodCallStubs) {
         this.renderInternalMethodCallStubs = renderInternalMethodCallStubs;
+    }
+
+    public boolean isThrowSpecificExceptionTypes() {
+        return throwSpecificExceptionTypes;
     }
 }

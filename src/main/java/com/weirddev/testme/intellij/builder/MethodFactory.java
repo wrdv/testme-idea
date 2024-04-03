@@ -22,7 +22,6 @@ import com.weirddev.testme.intellij.utils.ClassNameUtils;
 import com.weirddev.testme.intellij.utils.JavaPsiTreeUtils;
 import com.weirddev.testme.intellij.utils.PropertyUtils;
 import com.weirddev.testme.intellij.utils.TypeUtils;
-import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -57,8 +56,8 @@ public class MethodFactory {
         Optional<PsiSubstitutor> methodSubstitutor = findMethodSubstitutor(psiMethod, srcClass, ownerClassPsiType);
         Type returnType = resolveReturnType(psiMethod, maxRecursionDepth, typeDictionary, methodSubstitutor);
         List<Param> methodParams = extractMethodParams(psiMethod, isPrimaryConstructor, maxRecursionDepth, typeDictionary, methodSubstitutor);
-        String methodExceptionTypes = extractMethodExceptionTypes(psiMethod);
-        return new Method(methodId, methodName, returnType,   ownerClassCanonicalType, methodParams, methodExceptionTypes,isPrivate, isProtected, isDefault, isPublic, isAbstract, isNative,
+        String throwsExceptions = extractMethodExceptionTypes(psiMethod,typeDictionary.isThrowSpecificExceptionTypes(),testable);
+        return new Method(methodId, methodName, returnType,   ownerClassCanonicalType, methodParams, throwsExceptions,isPrivate, isProtected, isDefault, isPublic, isAbstract, isNative,
                 isStatic, isSetter, isGetter, isConstructor,  overriddenInChild, inherited, isInterface, syntheticMethod, propertyName1, accessible,
                 isPrimaryConstructor,   testable);
 
@@ -173,31 +172,30 @@ public class MethodFactory {
 
 
     //analyze the exception types of the method
-    private static String extractMethodExceptionTypes(PsiMethod psiMethod) {
-        String methodExceptionTypes = "";
-        PsiReferenceList throwsList = psiMethod.getThrowsList();
-        PsiClassType[] referencedTypes = throwsList.getReferencedTypes();
+    private static String extractMethodExceptionTypes(PsiMethod psiMethod ,Boolean throwSpecificExceptionTypes,boolean testable) {
+        if(!testable){
+            return null;
+        }
+        String throwsExceptions = null;
+        if(throwSpecificExceptionTypes){
+            PsiReferenceList throwsList = psiMethod.getThrowsList();
+            PsiClassType[] referencedTypes = throwsList.getReferencedTypes();
 
-        for (PsiClassType type : referencedTypes) {
-            PsiClass resolved = type.resolve();
-            if (resolved != null) {
-                String exceptionTypeName = getExceptionTypeName(resolved.getQualifiedName());
-                methodExceptionTypes += exceptionTypeName+",";
+            for (PsiClassType type : referencedTypes) {
+                PsiClass resolved = type.resolve();
+                if (resolved != null) {
+                    String exceptionTypeName = resolved.getQualifiedName();
+                    throwsExceptions = throwsExceptions==null?exceptionTypeName+",":throwsExceptions +exceptionTypeName+",";
+                }
             }
+            if(throwsExceptions!=null){
+                throwsExceptions = throwsExceptions.substring(0, throwsExceptions.length() - 1);
+            }
+        }else{
+            throwsExceptions = "Exception";
         }
-        if(StringUtils.isNotEmpty(methodExceptionTypes)){
-            methodExceptionTypes = methodExceptionTypes.substring(0, methodExceptionTypes.length() - 1);
-        }
-        return methodExceptionTypes;
+        return throwsExceptions;
     }
-
-    private static String getExceptionTypeName(String exceptionTypeName) {
-        int lastIndex = exceptionTypeName.lastIndexOf('.');
-        return lastIndex != -1 ? exceptionTypeName.substring(lastIndex + 1) :exceptionTypeName;
-    }
-
-
-
     private static ArrayList<Field> findMatchingFields(PsiParameter psiParameter, PsiMethod psiMethod) {
         final ArrayList<Field> fields = new ArrayList<>();
         try {
@@ -278,7 +276,7 @@ public class MethodFactory {
         return psiMethod.getContainingClass() == null ? null : psiMethod.getContainingClass().getQualifiedName();
     }
 
-    private static boolean isTestable(PsiMethod psiMethod, @Nullable PsiClass srcClass){
+    public static boolean isTestable(PsiMethod psiMethod, @Nullable PsiClass srcClass){
         return !TypeUtils.isLanguageBaseClass(resolveOwnerClassName(psiMethod))  && !PropertyUtils.isPropertySetter(psiMethod) && (!PropertyUtils.isPropertyGetter(psiMethod) || srcClass!=null && srcClass.isEnum()) &&
                 !psiMethod.isConstructor() && isVisibleForTest(psiMethod, srcClass) && !isOverriddenInChild(psiMethod, srcClass)
                 && !isInterface(psiMethod) && !psiMethod.hasModifierProperty(PsiModifier.ABSTRACT) && !isSyntheticMethod(psiMethod);

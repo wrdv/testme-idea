@@ -47,7 +47,7 @@ public class TestTemplateContextBuilder {
         int maxRecursionDepth = context.getFileTemplateConfig().getMaxRecursionDepth();
         ctxtParams.put(TestMeTemplateParams.MAX_RECURSION_DEPTH, maxRecursionDepth);
         ctxtParams.put(TestMeTemplateParams.StringUtils, new StringUtils());
-        final TypeDictionary typeDictionary = TypeDictionary.create(context.getSrcClass(), context.getTargetPackage());
+        final TypeDictionary typeDictionary = TypeDictionary.create(context.getSrcClass(), context.getTargetPackage(),context.getFileTemplateConfig().isThrowSpecificExceptionTypes());
         JavaVersion javaVersion = getJavaVersion(context.getTestModule());
         ctxtParams.put(TestMeTemplateParams.JAVA_VERSION, javaVersion);
         ctxtParams.put(TestMeTemplateParams.TestBuilder, new TestBuilderImpl(context.getLanguage(), context.getSrcModule(), typeDictionary, context.getFileTemplateConfig(), javaVersion));
@@ -62,7 +62,9 @@ public class TestTemplateContextBuilder {
                 methodReferencesBuilder.resolveMethodReferences(maxRecursionDepth, type.getMethods());
             }
         }
-        final TestSubjectInspector testSubjectInspector = new TestSubjectInspector(context.getFileTemplateConfig().isGenerateTestsForInheritedMethods());
+        final TestSubjectInspector testSubjectInspector =
+            new TestSubjectInspector(context.getFileTemplateConfig().isGenerateTestsForInheritedMethods(),
+                context.getFileTemplateCustomization());
         ctxtParams.put(TestMeTemplateParams.TestSubjectUtils, testSubjectInspector);
         List<String> classpathJars = resolveClasspathJars(context);
         ctxtParams.put(TestMeTemplateParams.MockitoMockBuilder, mockBuilderFactory.createMockitoMockBuilder(context, testSubjectInspector, classpathJars));

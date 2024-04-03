@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-import org.apache.commons.lang.StringUtils;
 
 import java.util.HashSet;
 import java.util.List;
@@ -157,14 +156,5 @@ public class Method {
     public boolean hasParams() {
         return !methodParams.isEmpty();
     }
-
-    /**
-     *
-     * true - if method has Exception
-     */
-    public boolean hasException(){
-        return StringUtils.isNotEmpty(methodExceptionTypes);
-    }
-
 }
 
