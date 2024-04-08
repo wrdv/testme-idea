@@ -89,6 +89,4 @@ public interface TestMeTemplateParams {
      * Language of class under test: Groovy, Java, Scala
      */
     String TESTED_CLASS_LANGUAGE = "TESTED_CLASS_LANGUAGE";
-
-    String THROW_SPECIFIC_EXCEPTION_TYPES = "throwSpecificExceptionTypes";
 }

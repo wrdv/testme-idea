@@ -26,6 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class MethodFactory {
@@ -180,21 +181,14 @@ public class MethodFactory {
         if(throwSpecificExceptionTypes){
             PsiReferenceList throwsList = psiMethod.getThrowsList();
             PsiClassType[] referencedTypes = throwsList.getReferencedTypes();
-
-            for (PsiClassType type : referencedTypes) {
-                PsiClass resolved = type.resolve();
-                if (resolved != null) {
-                    String exceptionTypeName = resolved.getQualifiedName();
-                    throwsExceptions = throwsExceptions==null?exceptionTypeName+",":throwsExceptions +exceptionTypeName+",";
-                }
-            }
-            if(throwsExceptions!=null){
-                throwsExceptions = throwsExceptions.substring(0, throwsExceptions.length() - 1);
-            }
-        }else{
-            throwsExceptions = "Exception";
+            throwsExceptions = Arrays.stream(referencedTypes)
+                    .map(PsiClassType::resolve)
+                    .filter(Objects::nonNull)
+                    .map(PsiClass::getQualifiedName)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.joining(","));
         }
-        return throwsExceptions;
+        return throwsExceptions == null ? "Exception" : throwsExceptions;
     }
     private static ArrayList<Field> findMatchingFields(PsiParameter psiParameter, PsiMethod psiMethod) {
         final ArrayList<Field> fields = new ArrayList<>();
