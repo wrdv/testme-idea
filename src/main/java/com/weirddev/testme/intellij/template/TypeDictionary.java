@@ -35,8 +35,9 @@ public class TypeDictionary {
     private final List<String> testSubjectMethodParamsType;
     private AtomicInteger newTypeCounter = new AtomicInteger();
     private AtomicInteger existingTypeHitsCounter = new AtomicInteger();
+    private boolean throwSpecificExceptionTypes;
 
-    private TypeDictionary(PsiClass srcClass, PsiPackage targetPackage, Set<ResolvedMethodCall> methodCallsFromTestSubject, List<String> testSubjectMethodParamsType) {
+    private TypeDictionary(PsiClass srcClass, PsiPackage targetPackage, Set<ResolvedMethodCall> methodCallsFromTestSubject, List<String> testSubjectMethodParamsType,boolean throwSpecificExceptionTypes) {
         this.testSubjectClass = srcClass;
         this.testSubjectTypesNames = resolveTypesNames(srcClass);
         this.targetPackage = targetPackage;
@@ -44,6 +45,7 @@ public class TypeDictionary {
         this.testSubjectMethodParamsType = testSubjectMethodParamsType;
         this.relevantMethodIdsCache = new LruCache<>(MAX_RELEVANT_METHOD_IDS_CACHE);
         startTimestamp = System.currentTimeMillis();
+        this.throwSpecificExceptionTypes = throwSpecificExceptionTypes;
     }
 
     private Set<String> resolveTypesNames(PsiClass srcClass) {
@@ -54,7 +56,7 @@ public class TypeDictionary {
         return typesNames;
     }
 
-    public static TypeDictionary create(PsiClass srcClass, PsiPackage targetPackage){
+    public static TypeDictionary create(PsiClass srcClass, PsiPackage targetPackage,boolean throwSpecificExceptionTypes){
         Set<ResolvedMethodCall> methodCallsFromTestSubject = new HashSet<>();
         if (srcClass != null) {
             for (PsiMethod method : srcClass.getAllMethods()) {
@@ -64,7 +66,7 @@ public class TypeDictionary {
             }
         }
         List<String> testSubjectMethodParamsType = srcClass == null ? List.of() :  Arrays.stream(srcClass.getAllMethods()).flatMap(psiMethod1 -> Arrays.stream(psiMethod1.getParameterList().getParameters()).map(p -> p.getType().getCanonicalText()).filter(TypeUtils::isBasicType)).toList();
-        return new TypeDictionary(srcClass, targetPackage, methodCallsFromTestSubject, testSubjectMethodParamsType);
+        return new TypeDictionary(srcClass, targetPackage, methodCallsFromTestSubject, testSubjectMethodParamsType,throwSpecificExceptionTypes);
     }
 
     /**
@@ -164,5 +166,13 @@ public class TypeDictionary {
     public void logStatistics() {
         LOG.info("**** Statistics: took %dms. type hits/req:%d/%d method relevancy cache %s".formatted(
                 startTimestamp - System.currentTimeMillis(),newTypeCounter.get(), newTypeCounter.get() + existingTypeHitsCounter.get(), relevantMethodIdsCache.getUsageStats()));
+    }
+
+    public boolean isThrowSpecificExceptionTypes() {
+        return throwSpecificExceptionTypes;
+    }
+
+    public void setThrowSpecificExceptionTypes(boolean throwSpecificExceptionTypes) {
+        this.throwSpecificExceptionTypes = throwSpecificExceptionTypes;
     }
 }

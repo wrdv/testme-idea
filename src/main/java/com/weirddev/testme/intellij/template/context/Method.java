@@ -38,6 +38,11 @@ public class Method {
      * method arguments
      */
     private final List<Param> methodParams;
+
+    /**
+     * method exception types
+     */
+    private final String methodExceptionTypes;
     /**
      * true - if method has private modifier
      */
@@ -151,5 +156,5 @@ public class Method {
     public boolean hasParams() {
         return !methodParams.isEmpty();
     }
-
 }
+

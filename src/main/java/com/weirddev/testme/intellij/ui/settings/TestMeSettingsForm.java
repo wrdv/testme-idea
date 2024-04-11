@@ -19,6 +19,7 @@ public class TestMeSettingsForm implements Disposable {
     private JPanel rootPanel;
     private JCheckBox renderInternalMethodCallStubsBox;
     private JCheckBox openUserCheckDialogBox;
+    private JCheckBox throwSpecificExceptionTypesCheckBox;
 
     public JPanel getRootPanel() {
         return rootPanel;
@@ -37,6 +38,7 @@ public class TestMeSettingsForm implements Disposable {
             testMeConfig.setReplaceFullyQualifiedNames(replaceFullyQualifiedNamesCheckBox.isSelected());
             testMeConfig.setRenderInternalMethodCallStubs(renderInternalMethodCallStubsBox.isSelected());
             testMeConfig.setOpenCustomizeTestDialog(openUserCheckDialogBox.isSelected());
+            testMeConfig.setThrowSpecificExceptionTypes(throwSpecificExceptionTypesCheckBox.isSelected());
         }
     }
 
@@ -48,6 +50,7 @@ public class TestMeSettingsForm implements Disposable {
             replaceFullyQualifiedNamesCheckBox.setSelected(state.getReplaceFullyQualifiedNames());
             renderInternalMethodCallStubsBox.setSelected(state.isRenderInternalMethodCallStubs());
             openUserCheckDialogBox.setSelected(state.isOpenCustomizeTestDialog());
+            throwSpecificExceptionTypesCheckBox.setSelected(state.isThrowSpecificExceptionTypes());
         }
     }
 
@@ -58,7 +61,8 @@ public class TestMeSettingsForm implements Disposable {
                         reformatCodeCheckBox.isSelected() != state.getReformatCode() ||
                         replaceFullyQualifiedNamesCheckBox.isSelected() != state.getReplaceFullyQualifiedNames() ||
                         renderInternalMethodCallStubsBox.isSelected() != state.isRenderInternalMethodCallStubs() ||
-                        openUserCheckDialogBox.isSelected() != state.isOpenCustomizeTestDialog()
+                        openUserCheckDialogBox.isSelected() != state.isOpenCustomizeTestDialog()||
+                        throwSpecificExceptionTypesCheckBox.isSelected() != state.isThrowSpecificExceptionTypes()
                 );
     }
 }

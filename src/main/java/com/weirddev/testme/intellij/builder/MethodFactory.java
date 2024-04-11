@@ -26,6 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class MethodFactory {
@@ -56,7 +57,8 @@ public class MethodFactory {
         Optional<PsiSubstitutor> methodSubstitutor = findMethodSubstitutor(psiMethod, srcClass, ownerClassPsiType);
         Type returnType = resolveReturnType(psiMethod, maxRecursionDepth, typeDictionary, methodSubstitutor);
         List<Param> methodParams = extractMethodParams(psiMethod, isPrimaryConstructor, maxRecursionDepth, typeDictionary, methodSubstitutor);
-        return new Method(methodId, methodName, returnType,   ownerClassCanonicalType, methodParams, isPrivate, isProtected, isDefault, isPublic, isAbstract, isNative,
+        String throwsExceptions = extractMethodExceptionTypes(psiMethod,typeDictionary.isThrowSpecificExceptionTypes(),testable);
+        return new Method(methodId, methodName, returnType,   ownerClassCanonicalType, methodParams, throwsExceptions,isPrivate, isProtected, isDefault, isPublic, isAbstract, isNative,
                 isStatic, isSetter, isGetter, isConstructor,  overriddenInChild, inherited, isInterface, syntheticMethod, propertyName1, accessible,
                 isPrimaryConstructor,   testable);
 
@@ -169,6 +171,27 @@ public class MethodFactory {
         return params;
     }
 
+
+    //analyze the exception types of the method
+    private static String extractMethodExceptionTypes(PsiMethod psiMethod ,Boolean throwSpecificExceptionTypes,boolean testable) {
+        if(!testable){
+            return null;
+        }
+        if(throwSpecificExceptionTypes){
+            PsiReferenceList throwsList = psiMethod.getThrowsList();
+            PsiClassType[] referencedTypes = throwsList.getReferencedTypes();
+            String throwsExceptions = Arrays.stream(referencedTypes)
+                    .map(PsiClassType::resolve)
+                    .filter(Objects::nonNull)
+                    .map(PsiClass::getQualifiedName)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.joining(","));
+            return throwsExceptions.isEmpty() ? null : throwsExceptions;
+        }
+        else {
+            return "Exception";
+        }
+    }
     private static ArrayList<Field> findMatchingFields(PsiParameter psiParameter, PsiMethod psiMethod) {
         final ArrayList<Field> fields = new ArrayList<>();
         try {

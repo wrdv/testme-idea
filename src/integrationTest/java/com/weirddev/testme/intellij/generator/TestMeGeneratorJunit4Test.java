@@ -7,7 +7,6 @@ import com.weirddev.testme.intellij.template.TemplateRegistry;
 import com.weirddev.testme.intellij.template.context.Language;
 import com.weirddev.testme.intellij.ui.customizedialog.FileTemplateCustomization;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -205,6 +204,12 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
         final FileTemplateCustomization customization =
             new FileTemplateCustomization(selectedFieldNameList, selectedMethodIdList, true);
         doTest(fileTemplateConfig, customization);
+    }
+
+    public void testDeclareSpecificTestMethodThrownExceptionTypes() {
+        final TestMeConfig testMeConfig = new TestMeConfig();
+        testMeConfig.setThrowSpecificExceptionTypes(true);
+        doTest(new FileTemplateConfig(testMeConfig));
     }
 
     //todo TC - use static init method when constructor not available

@@ -90,6 +90,14 @@ public class FileTemplateConfig {
      */
     private boolean renderInternalMethodCallStubs = false;
 
+
+    /**
+     * Test generator behavior option. Declare specific test method thrown exception types
+     * Valid values:true,false
+     * Default:false
+     */
+    private boolean throwSpecificExceptionTypes = false;
+
     public FileTemplateConfig(TestMeConfig testMeConfig)  {
         this(
                 Integer.valueOf(System.getProperties().getProperty("testMe.generator.maxRecursionDepth", FileTemplateConfig.DEFAULT_MAX_RECURSION_DEPTH + "")),
@@ -98,6 +106,7 @@ public class FileTemplateConfig {
                 testMeConfig == null || testMeConfig.getOptimizeImports(),
                 testMeConfig == null || testMeConfig.getGenerateTestsForInheritedMethods(),
                 testMeConfig == null || testMeConfig.isRenderInternalMethodCallStubs(),
+                testMeConfig == null || testMeConfig.isThrowSpecificExceptionTypes(),
                 Boolean.valueOf(System.getProperties().getProperty("testMe.generator.ignoreUnusedProperties", "true")),
                 Boolean.valueOf(System.getProperties().getProperty("testMe.generator.replaceInterfaceParamsWithConcreteTypes", "true")),
                 Boolean.valueOf(System.getProperties().getProperty("testMe.generator.stubMockMethodCallsReturnValues", "true")),
@@ -109,7 +118,7 @@ public class FileTemplateConfig {
     }
 
     private FileTemplateConfig(int maxRecursionDepth, boolean reformatCode, boolean replaceFqn, boolean optimizeImports,
-            boolean generateTestsForInheritedMethods, boolean renderInternalMethodCallStubs,
+            boolean generateTestsForInheritedMethods, boolean renderInternalMethodCallStubs,boolean throwSpecificExceptionTypes,
             boolean ignoreUnusedProperties, boolean replaceInterfaceParamsWithConcreteTypes,
             boolean stubMockMethodCallsReturnValues, int maxNumOfConcreteCandidatesToReplaceInterfaceParam,
             int minPercentOfExcessiveSettersToPreferMapCtor,
@@ -120,6 +129,7 @@ public class FileTemplateConfig {
         this.optimizeImports = optimizeImports;
         this.generateTestsForInheritedMethods = generateTestsForInheritedMethods;
         this.renderInternalMethodCallStubs = renderInternalMethodCallStubs;
+        this.throwSpecificExceptionTypes = throwSpecificExceptionTypes;
         this.stubMockMethodCallsReturnValues = stubMockMethodCallsReturnValues;
         this.ignoreUnusedProperties = ignoreUnusedProperties;
         this.replaceInterfaceParamsWithConcreteTypes = replaceInterfaceParamsWithConcreteTypes;
@@ -207,5 +217,9 @@ public class FileTemplateConfig {
 
     public void setRenderInternalMethodCallStubs(boolean renderInternalMethodCallStubs) {
         this.renderInternalMethodCallStubs = renderInternalMethodCallStubs;
+    }
+
+    public boolean isThrowSpecificExceptionTypes() {
+        return throwSpecificExceptionTypes;
     }
 }
