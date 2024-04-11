@@ -177,18 +177,20 @@ public class MethodFactory {
         if(!testable){
             return null;
         }
-        String throwsExceptions = null;
         if(throwSpecificExceptionTypes){
             PsiReferenceList throwsList = psiMethod.getThrowsList();
             PsiClassType[] referencedTypes = throwsList.getReferencedTypes();
-            throwsExceptions = Arrays.stream(referencedTypes)
+            String throwsExceptions = Arrays.stream(referencedTypes)
                     .map(PsiClassType::resolve)
                     .filter(Objects::nonNull)
                     .map(PsiClass::getQualifiedName)
                     .filter(Objects::nonNull)
                     .collect(Collectors.joining(","));
+            return throwsExceptions.isEmpty() ? null : throwsExceptions;
         }
-        return throwsExceptions == null ? "Exception" : throwsExceptions;
+        else {
+            return "Exception";
+        }
     }
     private static ArrayList<Field> findMatchingFields(PsiParameter psiParameter, PsiMethod psiMethod) {
         final ArrayList<Field> fields = new ArrayList<>();
