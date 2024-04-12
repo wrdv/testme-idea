@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.weirddev.testme</id>
   <name>TestMe</name>
-  <version>6.3.0</version>
+  <version>6.4.0</version>
   <vendor email="testme@weirddev.com" url="https://weirddev.com">WeirdDev</vendor>
 
   <description><![CDATA[
@@ -9,8 +9,8 @@
    <p>No more boilerplate!</p>
    <h3>Features:</h3>
    <ul>
-     <li>Auto generate Java, Scala or Groovy test code with JUnit 4/5, TestNG, Spock or Specs2 frameworks</li>
-     <li>Generate mocked dependencies and stub return values</li>
+     <li>Generates Java, Scala or Groovy test code with JUnit 4/5, TestNG, Spock or Specs2 frameworks</li>
+     <li>Generate Mockito/Powermock mocked dependencies and stub return values</li>
      <li>Generate test params and assertion statements</li>
      <li>Integrates with IDEA menus: Code->TestMe, Code->Generate</li>
      <li>Configure custom test code generation: Preferences -> TestMe -> TestMe Templates</li>
@@ -20,10 +20,9 @@
 
   <change-notes><![CDATA[
         <ul>
-          <li>Support unit test generation with PowerMock - with JUnit4 template (contributed by <a href="https://github.com/huangliang992">HuangLiang</a> - <a href="https://github.com/wrdv/testme-idea/pull/26">PR #26</a>) </li>
-          <li>Stub internal method calls, if configured in Settings -> TestMe (contributed by <a href="https://github.com/huangliang992">HuangLiang</a> - <a href="https://github.com/wrdv/testme-idea/pull/26">PR #26</a>) </li>
-          <li>Mock fields injected by DI if class has DI annotations (contributed by <a href="https://github.com/huangliang992">HuangLiang</a> - <a href="https://github.com/wrdv/testme-idea/pull/24">PR #24</a>) </li>
-          <li>Avoid mocking log/logger fields initialized inline</li>
+          <li>Select methods/fields to be tested/mocked when generating test. Option enabled via new TestMe Settings - defaults to false (contributed by <a href="https://github.com/huangliang992">HuangLiang</a> - <a href="https://github.com/wrdv/testme-idea/pull/28">PR #28</a>)</li>
+          <li>Generate Mockito stub matcher with relevant type class: any(<Type>.class) instead of any() (contributed by <a href="https://github.com/zhangfj88">zhangfj88</a> - <a href="https://github.com/wrdv/testme-idea/pull/27">PR #27</a>)</li>
+          <li>New TestMe Settings option - Declare exceptions thrown by tested class method. default false. (contributed by <a href="https://github.com/zhangfj88">zhangfj88</a> - <a href="https://github.com/wrdv/testme-idea/pull/29">PR #29</a>)</li>
         </ul>
         <a href="https://weirddev.com/testme/release-notes">Complete Release Notes listing</a>
     ]]>

@@ -235,13 +235,16 @@ task templateContextJavadocs(type: Javadoc, description: 'Generate javadocs for 
     destinationDir = file("$buildDir/docs/templateContextJavadoc")
     title = "$project.name $version API"
     options.author true
-    options.links 'http://docs.oracle.com/javase/8/docs/api/'
+    options.version true
+    options.memberLevel = JavadocMemberLevel.PUBLIC
+    options.links 'http://docs.oracle.com/javase/17/docs/api/'
     options.addStringOption 'Xdoclint:none', '-quiet'
     options.addBooleanOption "-allow-script-in-comments", true
     options.header  = javadocHeader
 //    source = sourceSets.main.allJava
     source += delombok
 //    classpath = configurations.compile  //should default to project.sourceSets.main.compileClasspath
+//    classpath += configurations.runtimeClasspath
     include 'com/weirddev/testme/intellij/template/context/*'
     exclude 'com/weirddev/testme/intellij/template/context/impl*'
 
@@ -252,7 +255,9 @@ task allJavadocs(type: Javadoc, description: 'Generate javadocs from all child p
     destinationDir = file("$buildDir/docs/allJavadoc")
     title = "$project.name $version API"
     options.author true
-    options.links 'http://docs.oracle.com/javase/8/docs/api/'
+    options.version true
+    options.links 'http://docs.oracle.com/javase/17/docs/api/'
+    options.memberLevel = JavadocMemberLevel.PUBLIC
     options.addBooleanOption "-allow-script-in-comments", true
     options.header  = javadocHeader
     options.addStringOption 'Xdoclint:none', '-quiet'
