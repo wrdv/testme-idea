@@ -43,8 +43,6 @@
     <applicationService serviceImplementation="com.weirddev.testme.intellij.ui.template.TestMeTemplateManager"/>
     <postStartupActivity implementation="com.weirddev.testme.intellij.TestMePluginRegistration"/>
   </extensions>
-  <project-components>
-  </project-components>
 
   <actions>
     <action id="GotoTest" class="com.weirddev.testme.intellij.action.GotoTestOrCodeActionExt"  overrides="true">
