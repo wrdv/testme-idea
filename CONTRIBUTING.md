@@ -11,7 +11,12 @@ Please add/update Unit Tests for new/updated functionality. Please adhere to com
 
 ### Building
 
-The Project is built with Gradle. Import build.gradle and run task - _runIdea_. The task is provided by [gradle-intellij-plugin](https://github.com/JetBrains/gradle-intellij-plugin) project.  
+The Project is built with Gradle - import build.gradle to sync/create project settings.
+IDEA related development lifecycle task are provided by [gradle-intellij-plugin](https://github.com/JetBrains/gradle-intellij-plugin)
+main relevant gradle tasks
+- `gradle runIde` - loads IDEA application already bundled with TestMe plugin being developed
+- `gradle check` - run Unit and Integration tests
+- `gradle buildPlugin` - build and package TestMe plugin zip installation (for manually testing installation process)  
 
 
 ### Contributor License Agreement
