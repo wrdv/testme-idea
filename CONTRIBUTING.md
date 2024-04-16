@@ -6,18 +6,19 @@ the changes you plan might not fit well with planned features on the project roa
 We just don't want to waste your time and effort on a pull request that didn't get to be approved and merged into the project main branch :(
 
 ### Developing
-Please add/update Unit Tests for new/updated functionality. Please adhere to commonly known Java development best practices and code styling standards (I have no idea what that means :) ) 
+The Project is built with Gradle - import build.gradle to sync/create project settings.
+- Gradle version - see `distributionUrl` in [gradle/wrapper/gradle-wrapper.properties](gradle/wrapper/gradle-wrapper.properties)
+- JDK Version - see `jvmTargetVersion` in [gradle.properties](gradle.properties)
 
+Please add/update Unit Tests for new/updated functionality. Please adhere to commonly known Java development best practices and code styling standards (I have no idea what that means :) )
 
 ### Building
 
-The Project is built with Gradle - import build.gradle to sync/create project settings.
 IDEA related development lifecycle task are provided by [gradle-intellij-plugin](https://github.com/JetBrains/gradle-intellij-plugin)
 main relevant gradle tasks
 - `gradle runIde` - loads IDEA application already bundled with TestMe plugin being developed
 - `gradle check` - run Unit and Integration tests
 - `gradle buildPlugin` - build and package TestMe plugin zip installation (for manually testing installation process)  
-
 
 ### Contributor License Agreement
 
