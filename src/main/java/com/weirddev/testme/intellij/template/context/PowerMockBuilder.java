@@ -35,4 +35,15 @@ public class PowerMockBuilder extends MockitoMockBuilder{
         return true;
     }
 
+    /**
+     * Declare exceptions thrown by tested class-take test code exceptions into account
+     *
+     * when has internalMethod then return Exception
+     */
+    public String getAllMethodExceptionTypes(Method method, Type testedClass){
+        if(hasInternalMethodCall(method,testedClass)){
+            return "Exception";
+        }
+        return method.getMethodExceptionTypes();
+    }
 }
