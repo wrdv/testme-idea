@@ -157,11 +157,5 @@ public class Method {
         return !methodParams.isEmpty();
     }
 
-    /**
-     * get method exception types
-     */
-    public String getMethodExceptionTypes() {
-        return methodExceptionTypes;
-    }
 }
 
