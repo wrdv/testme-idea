@@ -156,5 +156,6 @@ public class Method {
     public boolean hasParams() {
         return !methodParams.isEmpty();
     }
+
 }
 
