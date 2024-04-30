@@ -90,12 +90,14 @@ public class FTManager {
    */
   @NotNull
   private List<FileTemplateBase> sortTemplates() {
-    List<FileTemplateBase> oobTemplates = getTemplates().values().stream().filter(FileTemplate::isDefault).collect(Collectors.toList());
-    sortOobTemplates(oobTemplates);
+    List<FileTemplateBase> defaultTemplates = getTemplates().values().stream().filter(FileTemplate::isDefault).collect(Collectors.toList());
+    sortOobTemplates(defaultTemplates);
     List<FileTemplateBase> customTemplates = getTemplates().values().stream().filter(fileTemplateBase -> !fileTemplateBase.isDefault()).collect(Collectors.toList());
     sort(customTemplates);
-    oobTemplates.addAll(customTemplates);
-    return oobTemplates;
+    ArrayList<FileTemplateBase> templates = new ArrayList<>();
+    templates.addAll(customTemplates);
+    templates.addAll(defaultTemplates);
+    return templates;
   }
 
   private void sortOobTemplates(List<FileTemplateBase> oobTemplates) {
