@@ -108,18 +108,25 @@ public class CreateTestMeAction extends CreateTestAction {
             return;
         }
         LOG.debug("targetDirectory:"+targetDirectory.getVirtualFile().getUrl());
-        final ClassNameSelection classNameSelection = generatedClassNameResolver.resolveClassName(project, targetDirectory, srcClass, templateDescriptor);
-        if (classNameSelection.getUserDecision().equals(ClassNameSelection.UserDecision.Abort)) {
-            return;
+        PsiMethod selectedMethod = element.getParent() instanceof PsiMethod ? (PsiMethod) element.getParent() : null;
+        boolean hasClassTest = generatedClassNameResolver.hasClassTest(targetDirectory, srcClass, templateDescriptor);
+        String targetClassName = generatedClassNameResolver.composeTestClassName(srcClass);
+        if (null == selectedMethod && hasClassTest) {
+            final ClassNameSelection classNameSelection = generatedClassNameResolver.resolveClassName(project, targetDirectory, srcClass, templateDescriptor);
+            targetClassName = classNameSelection.getClassName();
+            if (classNameSelection.getUserDecision().equals(ClassNameSelection.UserDecision.Abort)) {
+                return;
+            }
         }
 
         FileTemplateConfig fileTemplateConfig = new FileTemplateConfig(TestMeConfigPersistent.getInstance().getState());
         final Module finalTestModule = testModule;
-        boolean openUserCheckDialog = TestMeConfigPersistent.getInstance().getState().isOpenCustomizeTestDialog();
+        boolean openUserCheckDialog = TestMeConfigPersistent.getInstance().getState().isOpenCustomizeTestDialog() && null == selectedMethod;
         FileTemplateContext fileTemplateContext = new FileTemplateContext(
             new FileTemplateDescriptor(templateDescriptor.getFilename()), templateDescriptor.getLanguage(), project,
-            classNameSelection.getClassName(), srcPackage, srcModule, finalTestModule, targetDirectory, srcClass,
-            fileTemplateConfig, new FileTemplateCustomization(new ArrayList<>(), new ArrayList<>(), openUserCheckDialog));
+            targetClassName, srcPackage, srcModule, finalTestModule, targetDirectory, srcClass,
+            fileTemplateConfig, new FileTemplateCustomization(new ArrayList<>(),
+            new ArrayList<>(), openUserCheckDialog), selectedMethod, hasClassTest);
         if (openUserCheckDialog) {
             // create filed and method check dialog
             final CustomizeTestDialog dialog = createTestMeDialog(project, srcClass, fileTemplateContext);

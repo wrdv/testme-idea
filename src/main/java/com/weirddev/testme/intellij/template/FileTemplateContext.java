@@ -5,6 +5,7 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiDirectory;
+import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiPackage;
 import com.weirddev.testme.intellij.template.context.Language;
 import com.weirddev.testme.intellij.ui.customizedialog.FileTemplateCustomization;
@@ -24,12 +25,15 @@ public class FileTemplateContext {
     private final Module testModule;
     private final PsiDirectory targetDirectory;
     private final PsiClass srcClass;
+    private final PsiMethod selectedMethod;
+    private final boolean hasTestFile;
     private final FileTemplateConfig fileTemplateConfig;
     private final FileTemplateCustomization fileTemplateCustomization;
 
     public FileTemplateContext(FileTemplateDescriptor fileTemplateDescriptor, Language language, Project project,
         String targetClass, PsiPackage targetPackage, Module srcModule, Module testModule, PsiDirectory targetDirectory,
-        PsiClass srcClass, FileTemplateConfig fileTemplateConfig, FileTemplateCustomization fileTemplateCustomization) {
+        PsiClass srcClass, FileTemplateConfig fileTemplateConfig, FileTemplateCustomization fileTemplateCustomization,
+        PsiMethod selectedMethod, boolean hasTestFile) {
         this.fileTemplateDescriptor = fileTemplateDescriptor;
         this.language = language;
         this.project = project;
@@ -41,6 +45,8 @@ public class FileTemplateContext {
         this.srcClass = srcClass;
         this.fileTemplateConfig = fileTemplateConfig;
         this.fileTemplateCustomization = fileTemplateCustomization;
+        this.selectedMethod = selectedMethod;
+        this.hasTestFile = hasTestFile;
     }
 
     public Project getProject() {
@@ -84,5 +90,13 @@ public class FileTemplateContext {
 
     public FileTemplateCustomization getFileTemplateCustomization() {
         return fileTemplateCustomization;
+    }
+
+    public PsiMethod getSelectedMethod() {
+        return selectedMethod;
+    }
+
+    public boolean isHasTestFile() {
+        return hasTestFile;
     }
 }

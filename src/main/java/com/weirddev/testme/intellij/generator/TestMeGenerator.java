@@ -24,6 +24,8 @@ import com.intellij.util.IncorrectOperationException;
 import com.weirddev.testme.intellij.builder.MethodReferencesBuilder;
 import com.weirddev.testme.intellij.template.FileTemplateContext;
 import com.weirddev.testme.intellij.ui.template.TestMeTemplateManager;
+import com.weirddev.testme.intellij.utils.TestFileTemplateUtil;
+import com.weirddev.testme.intellij.utils.TestFileUpdateUtil;
 import org.apache.velocity.app.Velocity;
 import org.jetbrains.annotations.Nullable;
 
@@ -98,7 +100,7 @@ public class TestMeGenerator {
         if (aPackage != null) {
             final GlobalSearchScope scope = GlobalSearchScopesCore.directoryScope(targetDirectory, false);
             final PsiClass[] classes = aPackage.findClassByShortName(context.getTargetClass(), scope);
-            if (classes.length > 0) {
+            if (null == context.getSelectedMethod() && classes.length > 0) {
                 if (!FileModificationService.getInstance().preparePsiElementForWrite(classes[0])) {
                     return null;
                 }
@@ -122,11 +124,25 @@ public class TestMeGenerator {
             Velocity.setProperty( Velocity.VM_MAX_DEPTH, 200);
             final long startGeneration = new Date().getTime();
             VelocityInitializer.verifyRuntimeSetup();
-            final PsiElement psiElement = FileTemplateUtil.createFromTemplate(codeTemplate, context.getTargetClass(), templateCtxtParams, targetDirectory, null);
+            
+            PsiFile psiFile;
+            if (null == context.getSelectedMethod() || !context.isHasTestFile()) {
+                // create new test psi file with io write
+                final PsiElement psiElement = FileTemplateUtil.createFromTemplate(codeTemplate,
+                    context.getTargetClass(), templateCtxtParams, targetDirectory, null);
+                final PsiElement resolvedPsiElement = resolveEmbeddedClass(psiElement);
+                psiFile = resolvedPsiElement instanceof PsiFile ? (PsiFile)resolvedPsiElement
+                    : resolvedPsiElement.getContainingFile();
+            } else {
+                // create new test psi file for selected method without io write
+                final PsiFile psiElement = TestFileTemplateUtil.createFromTemplate(codeTemplate,
+                    context, templateCtxtParams, targetDirectory, null);
+                psiFile = TestFileUpdateUtil.generateOrUpdateTestFile(context, psiElement);
+            }
+
             LOG.debug("Done generating PsiElement from template "+codeTemplate.getName()+" in "+(new Date().getTime()-startGeneration)+" millis");
             final long startReformating = new Date().getTime();
-            final PsiElement resolvedPsiElement=resolveEmbeddedClass(psiElement);
-            final PsiFile psiFile = resolvedPsiElement instanceof PsiFile? (PsiFile) resolvedPsiElement : resolvedPsiElement.getContainingFile();
+
             JavaCodeStyleManager codeStyleManager = JavaCodeStyleManager.getInstance(targetDirectory.getProject());
             if (context.getFileTemplateConfig().isOptimizeImports()) {
                 codeStyleManager.optimizeImports(psiFile);
