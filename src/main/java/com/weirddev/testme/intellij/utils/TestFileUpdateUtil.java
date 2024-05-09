@@ -48,12 +48,9 @@ public class TestFileUpdateUtil {
      * @return test file
      */
     public static PsiFile generateOrUpdateTestFile(FileTemplateContext context, PsiFile currentTestClassFile) {
-        boolean hasTestFile = context.isHasTestFile();
         PsiMethod selectedMethod = context.getSelectedMethod();
         Project project = context.getProject();
-        if (!hasTestFile || null == selectedMethod) {
-            return currentTestClassFile;
-        }
+
         PsiFile oldTestClassFile = getPsiTestFile(context, context.getTargetClass());
         // build imports element update list
         List<TestFileUpdateInfo> testFileUpdateInfoList =
