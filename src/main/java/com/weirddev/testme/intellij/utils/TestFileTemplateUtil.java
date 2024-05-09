@@ -5,8 +5,6 @@ import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.ide.fileTemplates.FileTemplateUtil;
 import com.intellij.ide.highlighter.JavaFileType;
-import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.ClassLoaderUtil;
@@ -24,12 +22,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+/**
+ * create test with template but not generate a real file to directory
+ * see also FileTemplateUtil.createFromTemplate
+ *
+ * @author huangliang
+ */
 public class TestFileTemplateUtil {
 
-    public static @NotNull PsiFile createFromTemplate(final @NotNull FileTemplate template,
-        FileTemplateContext context,
-        @Nullable Map<String, Object> propsMap,
-        final @NotNull PsiDirectory directory,
+    public static @NotNull PsiFile createFromTemplate(final @NotNull FileTemplate template, FileTemplateContext context,
+        @Nullable Map<String, Object> propsMap, final @NotNull PsiDirectory directory,
         @Nullable ClassLoader classLoader) throws Exception {
         Project project = directory.getProject();
         String fileName = context.getTargetClass();
@@ -49,23 +51,25 @@ public class TestFileTemplateUtil {
         final CreateFromTemplateHandler handler = FileTemplateUtil.findHandler(template);
         if (fileName != null && propsMap.get(FileTemplate.ATTRIBUTE_NAME) == null) {
             propsMap.put(FileTemplate.ATTRIBUTE_NAME, fileName);
-        }
-        else if (fileName == null && handler.isNameRequired()) {
+        } else if (fileName == null && handler.isNameRequired()) {
             fileName = (String)propsMap.get(FileTemplate.ATTRIBUTE_NAME);
             if (fileName == null) {
                 throw new Exception("File name must be specified");
             }
         }
-        String fileNameWithExt = fileName + (StringUtil.isEmpty(template.getExtension()) ? "" : "." + template.getExtension());
+        String fileNameWithExt =
+            fileName + (StringUtil.isEmpty(template.getExtension()) ? "" : "." + template.getExtension());
         propsMap.put(FileTemplate.ATTRIBUTE_FILE_NAME, fileNameWithExt);
-        propsMap.put(FileTemplate.ATTRIBUTE_FILE_PATH, FileUtil.join(directory.getVirtualFile().getPath(), fileNameWithExt));
+        propsMap.put(FileTemplate.ATTRIBUTE_FILE_PATH,
+            FileUtil.join(directory.getVirtualFile().getPath(), fileNameWithExt));
         String dirPath = FileTemplateUtil.getDirPathRelativeToProjectBaseDir(directory);
         if (dirPath != null) {
             propsMap.put(FileTemplate.ATTRIBUTE_DIR_PATH, dirPath);
         }
 
         //Set escaped references to dummy values to remove leading "\" (if not already explicitly set)
-        String[] dummyRefs = FileTemplateUtil.calculateAttributes(template.getText(), propsMap, true, directory.getProject());
+        String[] dummyRefs =
+            FileTemplateUtil.calculateAttributes(template.getText(), propsMap, true, directory.getProject());
         for (String dummyRef : dummyRefs) {
             propsMap.put(dummyRef, "");
         }
@@ -83,10 +87,6 @@ public class TestFileTemplateUtil {
     }
 
     public static FileType getLanguageFileType(Language language) {
-        if (Language.Java.equals(language)) {
-            return JavaFileType.INSTANCE;
-        }
-
         if (Language.Scala.equals(language)) {
             return ScalaFileType.INSTANCE;
         }

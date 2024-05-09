@@ -12,6 +12,11 @@ import com.weirddev.testme.intellij.template.FileTemplateContext;
 import com.weirddev.testme.intellij.template.context.TestFileUpdateInfo;
 import com.weirddev.testme.intellij.template.context.StringUtils;
 
+/**
+ * update test file for generate test method of selected method
+ *
+ * @author huangliang
+ */
 public class TestFileUpdateUtil {
 
     private static final String TYPE_IMPORT = "import";
@@ -88,6 +93,12 @@ public class TestFileUpdateUtil {
         return getPsiTestFile(context, currentTestClassFile.getName());
     }
 
+    /**
+     * compare import difference between old test file and new current test file, and returns imports that need add
+     * @param oldTestClassFile old test class file
+     * @param currentTestClassFile new current test class file
+     * @return returns imports that need add
+     */
     private static List<TestFileUpdateInfo> resolveUpdatesOfTestImports(PsiFile oldTestClassFile,
         PsiFile currentTestClassFile) {
         List<TestFileUpdateInfo> testFileUpdateInfoList = new ArrayList<>();
