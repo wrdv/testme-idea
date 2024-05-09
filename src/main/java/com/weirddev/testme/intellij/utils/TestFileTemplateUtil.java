@@ -11,12 +11,12 @@ import com.intellij.openapi.util.ClassLoaderUtil;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.*;
+import com.weirddev.testme.intellij.groovy.resolvers.GroovyPropertyUtil;
+import com.weirddev.testme.intellij.scala.resolvers.ScalaTypeUtils;
 import com.weirddev.testme.intellij.template.FileTemplateContext;
 import com.weirddev.testme.intellij.template.context.Language;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.groovy.GroovyFileType;
-import org.jetbrains.plugins.scala.ScalaFileType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -88,11 +88,11 @@ public class TestFileTemplateUtil {
 
     public static FileType getLanguageFileType(Language language) {
         if (Language.Scala.equals(language)) {
-            return ScalaFileType.INSTANCE;
+            return ScalaTypeUtils.getScalaFileType();
         }
 
         if (Language.Groovy.equals(language)) {
-            return GroovyFileType.GROOVY_FILE_TYPE;
+            return GroovyPropertyUtil.getGroovyFileType();
         }
         return JavaFileType.INSTANCE;
     }

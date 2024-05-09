@@ -1,7 +1,9 @@
 package com.weirddev.testme.intellij.groovy.resolvers;
 
+import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.psi.PsiMethod;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.groovy.GroovyFileType;
 import org.jetbrains.plugins.groovy.lang.psi.util.GroovyPropertyUtils;
 
 /**
@@ -20,5 +22,9 @@ public class GroovyPropertyUtil
     }
     public static boolean isPropertyGetter(@Nullable PsiMethod method) {
         return GroovyPropertyUtils.isSimplePropertyGetter(method);
+    }
+
+    public static FileType getGroovyFileType() {
+        return GroovyFileType.GROOVY_FILE_TYPE;
     }
 }
