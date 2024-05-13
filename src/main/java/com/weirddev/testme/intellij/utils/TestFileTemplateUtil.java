@@ -11,6 +11,7 @@ import com.intellij.openapi.util.ClassLoaderUtil;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.*;
+import com.weirddev.testme.intellij.common.utils.LanguageUtils;
 import com.weirddev.testme.intellij.groovy.resolvers.GroovyPropertyUtil;
 import com.weirddev.testme.intellij.scala.resolvers.ScalaTypeUtils;
 import com.weirddev.testme.intellij.template.FileTemplateContext;
@@ -83,15 +84,15 @@ public class TestFileTemplateUtil {
             () -> template.getText(props_));
         String templateText = StringUtil.convertLineSeparators(mergedText);
         PsiFileFactory fileFactory = PsiFileFactory.getInstance(project);
-        return fileFactory.createFileFromText(fileName, getLanguageFileType(language), templateText);
+        return fileFactory.createFileFromText(fileName, getLanguageFileType(context.getSrcClass().getLanguage()), templateText);
     }
 
-    public static FileType getLanguageFileType(Language language) {
-        if (Language.Scala.equals(language)) {
+    public static FileType getLanguageFileType(com.intellij.lang.Language language) {
+        if (LanguageUtils.isScala(language)) {
             return ScalaTypeUtils.getScalaFileType();
         }
 
-        if (Language.Groovy.equals(language)) {
+        if (LanguageUtils.isGroovy(language)) {
             return GroovyPropertyUtil.getGroovyFileType();
         }
         return JavaFileType.INSTANCE;

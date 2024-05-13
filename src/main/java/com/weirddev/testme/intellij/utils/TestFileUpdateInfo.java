@@ -1,4 +1,4 @@
-package com.weirddev.testme.intellij.template.context;
+package com.weirddev.testme.intellij.utils;
 
 import com.intellij.psi.PsiElement;
 import lombok.AllArgsConstructor;

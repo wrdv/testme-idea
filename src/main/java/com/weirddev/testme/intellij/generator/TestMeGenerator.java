@@ -70,7 +70,7 @@ public class TestMeGenerator {
                             try {
                                 PsiElement psiElement = resolveEmbeddedClass(targetClass);
                                 if (psiElement instanceof PsiClass) {
-                                    final PsiElement optimalCursorLocation = testClassElementsLocator.findOptimalCursorLocation((PsiClass) psiElement);
+                                    final PsiElement optimalCursorLocation = testClassElementsLocator.findOptimalCursorLocation((PsiClass) psiElement, context.getSelectedMethod());
                                     if (optimalCursorLocation != null) {
                                         CodeInsightUtil.positionCursor(project, targetClass, optimalCursorLocation);
                                     }

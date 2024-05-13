@@ -5,17 +5,26 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiExpressionStatement;
 import com.intellij.psi.PsiMethod;
+import com.weirddev.testme.intellij.template.context.StringUtils;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class TestClassElementsLocator {
     private static final Logger LOG = Logger.getInstance(TestClassElementsLocator.class.getName());
     public TestClassElementsLocator() {
     }
 
-    public PsiElement findOptimalCursorLocation(PsiClass targetClass) {
+    public PsiElement findOptimalCursorLocation(PsiClass targetClass, PsiMethod selectedMethod) {
         PsiElement defaultLocation = targetClass.getLBrace()==null?targetClass.getFirstChild():targetClass.getLBrace().getNextSibling();
         try {
-            PsiMethod testMethod = findTestMethod(targetClass);
+            PsiMethod testMethod;
+            if (null != selectedMethod) {
+                testMethod = findTestMethodOfSelected(targetClass, selectedMethod);
+            } else {
+                testMethod = findTestMethod(targetClass);
+            }
             if (testMethod == null) {
                 return defaultLocation;
             }
@@ -45,6 +54,14 @@ public class TestClassElementsLocator {
             }
         }
         return testMethod;
+    }
+
+    private PsiMethod findTestMethodOfSelected(PsiClass targetClass, PsiMethod selectedMethod) {
+        String testMethodName = "test" + StringUtils.capitalizeFirstLetter(selectedMethod.getName());
+        List<PsiMethod> list =
+            Arrays.stream(targetClass.getMethods()).filter(m -> m.getName().equals(testMethodName))
+                .toList();
+        return list.isEmpty() ? null : list.get(list.size() - 1);
     }
 
     private <T> T  findLastElement(PsiMethod testMethod,Class<T> elementClass) {

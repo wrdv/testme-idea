@@ -109,7 +109,7 @@ public class CreateTestMeAction extends CreateTestAction {
         }
         LOG.debug("targetDirectory:"+targetDirectory.getVirtualFile().getUrl());
         PsiMethod selectedMethod = element.getParent() instanceof PsiMethod ? (PsiMethod) element.getParent() : null;
-        boolean hasClassTest = generatedClassNameResolver.hasClassTest(targetDirectory, srcClass, templateDescriptor);
+        boolean hasClassTest = generatedClassNameResolver.hasTestClass(srcClass);
         String targetClassName = generatedClassNameResolver.composeTestClassName(srcClass);
         if (null == selectedMethod && hasClassTest) {
             final ClassNameSelection classNameSelection = generatedClassNameResolver.resolveClassName(project, targetDirectory, srcClass, templateDescriptor);
