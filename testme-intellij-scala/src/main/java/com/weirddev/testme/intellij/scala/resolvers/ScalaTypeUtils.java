@@ -1,7 +1,9 @@
 package com.weirddev.testme.intellij.scala.resolvers;
 
+import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiType;
+import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass;
 
 /**
@@ -34,6 +36,10 @@ public class ScalaTypeUtils {
 
     public static boolean isEnumeration(PsiClass psiClass) {
         return SCALA_ENUMERATION_VALUE.equals(psiClass.getQualifiedName());
+    }
+
+    public static FileType getScalaFileType() {
+        return ScalaFileType.INSTANCE;
     }
 
 }

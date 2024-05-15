@@ -4,15 +4,19 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.InputValidatorEx;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.io.FileUtilRt;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiDirectory;
+import com.intellij.psi.*;
 import com.intellij.psi.codeStyle.JavaCodeStyleSettings;
 import com.intellij.refactoring.util.RefactoringMessageUtil;
+import com.intellij.testIntegration.TestFinderHelper;
 import com.weirddev.testme.intellij.template.TemplateDescriptor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class GeneratedClassNameResolver {
+
+    public boolean hasTestClass(PsiClass targetTestSubjectClass) {
+        return !TestFinderHelper.findTestsForClass(targetTestSubjectClass).isEmpty();
+    }
 
     @NotNull
     public ClassNameSelection resolveClassName(@NotNull Project project, PsiDirectory targetDirectory, PsiClass targetTestSubjectClass, TemplateDescriptor templateDescriptor) {
@@ -67,7 +71,7 @@ public class GeneratedClassNameResolver {
         }
         return classNameSelection;
     }
-    private String composeTestClassName(PsiClass targetClass) {
+    public String composeTestClassName(PsiClass targetClass) {
         JavaCodeStyleSettings customSettings = JavaCodeStyleSettings.getInstance(targetClass.getContainingFile());
         return customSettings.TEST_NAME_PREFIX + targetClass.getName() + customSettings.TEST_NAME_SUFFIX;
     }
