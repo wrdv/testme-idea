@@ -5,9 +5,8 @@ import java.util.*;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
-import com.intellij.psi.util.PsiUtilCore;
+import com.intellij.testIntegration.TestFinderHelper;
 import com.weirddev.testme.intellij.template.FileTemplateContext;
 import com.weirddev.testme.intellij.template.context.StringUtils;
 
@@ -32,11 +31,17 @@ public class TestFileUpdateUtil {
      * @return test file
      */
     public static PsiFile getPsiTestFile(FileTemplateContext context, String testClassName) {
-        VirtualFile file = context.getTargetDirectory().getVirtualFile();
-        String defaultExtension = TestFileTemplateUtil.getLanguageFileType(context.getSrcClass().getLanguage()).getDefaultExtension();
-        VirtualFile child = file.findChild(testClassName + "." + defaultExtension);
-        PsiManager psiManager = PsiManager.getInstance(context.getProject());
-        return PsiUtilCore.toPsiFiles(psiManager, List.of(child)).get(0);
+        Collection<PsiElement> testsForClass = TestFinderHelper.findTestsForClass(context.getSrcClass());
+        List<PsiElement> testClassList = new ArrayList<>(testsForClass);
+        PsiFile testClassFile = testClassList.get(0).getContainingFile();
+        for (PsiElement psiElement : testClassList) {
+            PsiClass testClass = (PsiClass)psiElement;
+            // find the standard named test class
+            if (testClassName.equals(testClass.getName())) {
+                return testClass.getContainingFile();
+            }
+        }
+        return testClassFile;
     }
 
     /**
@@ -86,7 +91,7 @@ public class TestFileUpdateUtil {
         FileDocumentManager.getInstance().saveDocument(document);
 
         // get and return updated test file
-        return getPsiTestFile(context, currentTestClassFile.getName());
+        return oldTestClassFile;
     }
 
     /**
