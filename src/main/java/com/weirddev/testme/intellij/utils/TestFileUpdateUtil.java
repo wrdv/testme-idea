@@ -203,7 +203,8 @@ public class TestFileUpdateUtil {
                 return javaTestFile.getPackageStatement();
             }
             PsiImportStatementBase[] oldImportList = javaTestFile.getImportList().getAllImportStatements();
-            return oldImportList[oldImportList.length - 1];
+            return oldImportList.length == 0 ? javaTestFile.getPackageStatement() :
+                oldImportList[oldImportList.length - 1];
         } else {
             return testFile.getFirstChild();
         }
