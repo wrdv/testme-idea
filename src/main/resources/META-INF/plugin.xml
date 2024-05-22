@@ -41,6 +41,10 @@
     <projectService serviceImplementation="com.weirddev.testme.intellij.ui.template.TestMeTemplateManager"/>
     <applicationService serviceImplementation="com.weirddev.testme.intellij.ui.template.TestMeTemplateManager"/>
     <postStartupActivity implementation="com.weirddev.testme.intellij.TestMePluginRegistration"/>
+    <intentionAction>
+      <className>com.weirddev.testme.intellij.intention.CreateTestForMethodIntention</className>
+      <category>TestMe intentions</category>
+    </intentionAction>
   </extensions>
 
   <actions>

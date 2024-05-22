@@ -1,0 +1,2 @@
+public String fighter(String someStr, Integer someNum) {
+}

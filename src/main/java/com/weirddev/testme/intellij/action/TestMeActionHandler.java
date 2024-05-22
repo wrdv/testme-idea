@@ -32,13 +32,19 @@ import java.util.List;
  */
 public class TestMeActionHandler extends TestMePopUpHandler {
     private TemplateRegistry templateRegistry;
+    private boolean isMethodTest;
 
     public TestMeActionHandler() {
-        this(new TemplateRegistry());
+        this(new TemplateRegistry(), false);
     }
 
-    TestMeActionHandler(TemplateRegistry templateRegistry) {
+    public TestMeActionHandler(boolean isMethodTest) {
+        this(new TemplateRegistry(), isMethodTest);
+    }
+
+    TestMeActionHandler(TemplateRegistry templateRegistry, boolean isMethodTest) {
         this.templateRegistry = templateRegistry;
+        this.isMethodTest = isMethodTest;
     }
 
     @Nullable
@@ -63,7 +69,14 @@ public class TestMeActionHandler extends TestMePopUpHandler {
         PsiNamedElement namedElement = (PsiNamedElement) sourceElement;
         final String name = namedElement.getName();
         String nestedClassName = findNestedClassName(editor, file, namedElement);
-        return TestMeBundle.message("testMe.create.title", nestedClassName !=null? nestedClassName :name);
+        String testType = "Class";
+        String testTitle = nestedClassName !=null ? nestedClassName :name;
+        if (isMethodTest) {
+            testType = "Method";
+            PsiElement selectedElement = getSelectedElement(editor, file);
+            testTitle = selectedElement.getText();
+        }
+        return TestMeBundle.message("testMe.create.title", testType, testTitle);
     }
 
     private String findNestedClassName(Editor editor, PsiFile file, PsiNamedElement sourceElement) {
