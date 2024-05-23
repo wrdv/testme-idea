@@ -20,7 +20,7 @@ jobs:
             SCALA_PLUGIN_VERSION: 2023.2.23
 
           - IDEA_VERSION: LATEST-EAP-SNAPSHOT
-            SCALA_PLUGIN_VERSION: 2024.1.1
+            SCALA_PLUGIN_VERSION: 2024.2.1
           #            UPLOAD_TEST_RESULTS: true
 
     uses: ./.github/workflows/test.yml
