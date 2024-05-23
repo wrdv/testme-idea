@@ -3,12 +3,11 @@ package com.weirddev.testme.intellij.template;
 import com.intellij.ide.fileTemplates.FileTemplateDescriptor;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiDirectory;
-import com.intellij.psi.PsiMethod;
-import com.intellij.psi.PsiPackage;
+import com.intellij.psi.*;
 import com.weirddev.testme.intellij.template.context.Language;
 import com.weirddev.testme.intellij.ui.customizedialog.FileTemplateCustomization;
+
+import java.util.Collection;
 
 /**
  * Date: 10/19/2016
@@ -26,14 +25,14 @@ public class FileTemplateContext {
     private final PsiDirectory targetDirectory;
     private final PsiClass srcClass;
     private final PsiMethod selectedMethod;
-    private final boolean hasTestFile;
+    private final Collection<PsiElement> testsForClass;
     private final FileTemplateConfig fileTemplateConfig;
     private final FileTemplateCustomization fileTemplateCustomization;
 
     public FileTemplateContext(FileTemplateDescriptor fileTemplateDescriptor, Language language, Project project,
         String targetClass, PsiPackage targetPackage, Module srcModule, Module testModule, PsiDirectory targetDirectory,
         PsiClass srcClass, FileTemplateConfig fileTemplateConfig, FileTemplateCustomization fileTemplateCustomization,
-        PsiMethod selectedMethod, boolean hasTestFile) {
+        PsiMethod selectedMethod, Collection<PsiElement> testsForClass) {
         this.fileTemplateDescriptor = fileTemplateDescriptor;
         this.language = language;
         this.project = project;
@@ -46,7 +45,7 @@ public class FileTemplateContext {
         this.fileTemplateConfig = fileTemplateConfig;
         this.fileTemplateCustomization = fileTemplateCustomization;
         this.selectedMethod = selectedMethod;
-        this.hasTestFile = hasTestFile;
+        this.testsForClass = testsForClass;
     }
 
     public Project getProject() {
@@ -96,7 +95,11 @@ public class FileTemplateContext {
         return selectedMethod;
     }
 
+    public Collection<PsiElement> getTestsForClass() {
+        return testsForClass;
+    }
+
     public boolean isHasTestFile() {
-        return hasTestFile;
+        return !testsForClass.isEmpty();
     }
 }

@@ -6,7 +6,6 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
-import com.intellij.testIntegration.TestFinderHelper;
 import com.weirddev.testme.intellij.template.FileTemplateContext;
 import com.weirddev.testme.intellij.template.context.StringUtils;
 
@@ -31,10 +30,10 @@ public class TestFileUpdateUtil {
      * @return test file
      */
     public static PsiFile getPsiTestFile(FileTemplateContext context, String testClassName) {
-        Collection<PsiElement> testsForClass = TestFinderHelper.findTestsForClass(context.getSrcClass());
-        List<PsiElement> testClassList = new ArrayList<>(testsForClass);
-        PsiFile testClassFile = testClassList.get(0).getContainingFile();
-        for (PsiElement psiElement : testClassList) {
+        Collection<PsiElement> testsForClass = context.getTestsForClass();
+        assert !testsForClass.isEmpty();
+        PsiFile testClassFile = testsForClass.iterator().next().getContainingFile();
+        for (PsiElement psiElement : testsForClass) {
             PsiClass testClass = (PsiClass)psiElement;
             // find the standard named test class
             if (testClassName.equals(testClass.getName())) {
@@ -51,7 +50,7 @@ public class TestFileUpdateUtil {
      * @param currentTestClassFile generated new test file
      * @return test file
      */
-    public static PsiFile generateOrUpdateTestFile(FileTemplateContext context, PsiFile currentTestClassFile) {
+    public static PsiFile updateTestFile(FileTemplateContext context, PsiFile currentTestClassFile) {
         PsiMethod selectedMethod = context.getSelectedMethod();
         Project project = context.getProject();
 
@@ -227,5 +226,9 @@ public class TestFileUpdateUtil {
     public static PsiElement getFieldStartElementToAdd(PsiClass oldTestClass) {
         // get the element of '{' of class
         return oldTestClass.getLBrace();
+    }
+
+    public static boolean hasTestClass(Collection<PsiElement> testsForClass) {
+        return !testsForClass.isEmpty();
     }
 }

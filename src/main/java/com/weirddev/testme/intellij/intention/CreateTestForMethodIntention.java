@@ -2,8 +2,10 @@ package com.weirddev.testme.intellij.intention;
 
 import com.intellij.codeInsight.intention.IntentionAction;
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction;
+import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.psi.*;
 import com.intellij.util.IncorrectOperationException;
 import com.weirddev.testme.intellij.action.CreateTestMeAction;
@@ -36,19 +38,7 @@ final class CreateTestForMethodIntention extends PsiElementBaseIntentionAction i
      */
     public boolean isAvailable(@NotNull Project project, Editor editor, @Nullable PsiElement element) {
         // Quick sanity check
-        if (element == null) {
-            return false;
-        }
-        if (element instanceof PsiIdentifier identifier) {
-            // Is this identifier part of a fully formed conditional, i.e. a ternary?
-            if (identifier.getParent() instanceof PsiMethod method) {
-                final PsiClass srcClass = CreateTestMeAction.getContainingClass(element);
-                // Satisfies all criteria; call back invoke method
-                return MethodFactory.isTestable(method, srcClass);
-            }
-            return false;
-        }
-        return false;
+        return null != element && element instanceof PsiIdentifier && element.getParent() instanceof PsiMethod;
     }
 
     /**
@@ -61,7 +51,22 @@ final class CreateTestForMethodIntention extends PsiElementBaseIntentionAction i
      */
     public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement element)
         throws IncorrectOperationException {
-        new TestMeActionHandler(true).invoke(project, editor, element.getContainingFile());
+        PsiMethod method = (PsiMethod)element.getParent();
+        final PsiClass srcClass = CreateTestMeAction.getContainingClass(element);
+        // if is not testable show a error dialog
+        if (!MethodFactory.isTestable(method, srcClass)) {
+            String message = "Method \"" + method.getName() + "\" is not testable!";
+            String title = "TestMe: Method Not Testable";
+            Messages.showErrorDialog(message, title);
+        } else {
+            new TestMeActionHandler(true).invoke(project, editor, element.getContainingFile());
+        }
+    }
+
+    @Override
+    @NotNull
+    public IntentionPreviewInfo generatePreview(@NotNull Project project, @NotNull Editor editor, @NotNull PsiFile file) {
+        return IntentionPreviewInfo.EMPTY;
     }
 
     /**

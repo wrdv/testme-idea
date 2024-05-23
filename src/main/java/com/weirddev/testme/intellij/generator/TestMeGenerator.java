@@ -137,7 +137,7 @@ public class TestMeGenerator {
                 // create new test psi file for selected method without io write
                 final PsiFile psiElement = TestFileTemplateUtil.createFromTemplate(codeTemplate,
                     context, templateCtxtParams, targetDirectory, null);
-                psiFile = TestFileUpdateUtil.generateOrUpdateTestFile(context, psiElement);
+                psiFile = TestFileUpdateUtil.updateTestFile(context, psiElement);
             }
 
             LOG.debug("Done generating PsiElement from template "+codeTemplate.getName()+" in "+(new Date().getTime()-startGeneration)+" millis");

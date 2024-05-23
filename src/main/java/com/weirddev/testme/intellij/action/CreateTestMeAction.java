@@ -16,6 +16,7 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.testIntegration.TestFinderHelper;
 import com.intellij.testIntegration.createTest.CreateTestAction;
 import com.intellij.util.IncorrectOperationException;
 import com.weirddev.testme.intellij.action.helpers.ClassNameSelection;
@@ -28,6 +29,7 @@ import com.weirddev.testme.intellij.template.FileTemplateContext;
 import com.weirddev.testme.intellij.template.TemplateDescriptor;
 import com.weirddev.testme.intellij.ui.customizedialog.CustomizeTestDialog;
 import com.weirddev.testme.intellij.ui.customizedialog.FileTemplateCustomization;
+import com.weirddev.testme.intellij.utils.TestFileUpdateUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.model.java.JavaModuleSourceRootTypes;
@@ -37,6 +39,7 @@ import org.jetbrains.jps.model.java.JavaSourceRootType;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
@@ -109,7 +112,8 @@ public class CreateTestMeAction extends CreateTestAction {
         }
         LOG.debug("targetDirectory:"+targetDirectory.getVirtualFile().getUrl());
         PsiMethod selectedMethod = element.getParent() instanceof PsiMethod ? (PsiMethod) element.getParent() : null;
-        boolean hasClassTest = generatedClassNameResolver.hasTestClass(srcClass);
+        Collection<PsiElement> testsForClass = TestFinderHelper.findTestsForClass(srcClass);
+        boolean hasClassTest = TestFileUpdateUtil.hasTestClass(testsForClass);
         String targetClassName = generatedClassNameResolver.composeTestClassName(srcClass);
         if (null == selectedMethod && hasClassTest) {
             final ClassNameSelection classNameSelection = generatedClassNameResolver.resolveClassName(project, targetDirectory, srcClass, templateDescriptor);
@@ -126,7 +130,7 @@ public class CreateTestMeAction extends CreateTestAction {
             new FileTemplateDescriptor(templateDescriptor.getFilename()), templateDescriptor.getLanguage(), project,
             targetClassName, srcPackage, srcModule, finalTestModule, targetDirectory, srcClass,
             fileTemplateConfig, new FileTemplateCustomization(new ArrayList<>(),
-            new ArrayList<>(), openUserCheckDialog), selectedMethod, hasClassTest);
+            new ArrayList<>(), openUserCheckDialog), selectedMethod, testsForClass);
         if (openUserCheckDialog) {
             // create filed and method check dialog
             final CustomizeTestDialog dialog = createTestMeDialog(project, srcClass, fileTemplateContext);
