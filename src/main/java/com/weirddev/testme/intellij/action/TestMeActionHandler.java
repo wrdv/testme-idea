@@ -5,10 +5,7 @@ import com.intellij.codeInsight.navigation.NavigationUtil;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.pom.Navigatable;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiNamedElement;
+import com.intellij.psi.*;
 import com.intellij.psi.util.PsiUtilCore;
 import com.intellij.testIntegration.GotoTestOrCodeHandler;
 import com.intellij.testIntegration.TestFinderHelper;
@@ -32,18 +29,24 @@ import java.util.List;
  */
 public class TestMeActionHandler extends TestMePopUpHandler {
     private TemplateRegistry templateRegistry;
+    private boolean isMethodTest;
 
     public TestMeActionHandler() {
-        this(new TemplateRegistry());
+        this(new TemplateRegistry(), false);
     }
 
-    TestMeActionHandler(TemplateRegistry templateRegistry) {
+    public TestMeActionHandler(boolean isMethodTest) {
+        this(new TemplateRegistry(), isMethodTest);
+    }
+
+    TestMeActionHandler(TemplateRegistry templateRegistry, boolean isMethodTest) {
         this.templateRegistry = templateRegistry;
+        this.isMethodTest = isMethodTest;
     }
 
     @Nullable
     @Override
-    protected GotoData getSourceAndTargetElements(final Editor editor, final PsiFile file) {
+    protected GotoData getSourceAndTargetElements(final Editor editor, final PsiFile file, PsiMethod selectMethod) {
         PsiElement sourceElement = TestFinderHelper.findSourceElement(getSelectedElement(editor, file));
         if (sourceElement == null) return null;
         List<AdditionalAction> actions = new SmartList<AdditionalAction>();
@@ -51,7 +54,7 @@ public class TestMeActionHandler extends TestMePopUpHandler {
         TestMeTemplateManager fileTemplateManager = TestMeTemplateManager.getInstance(file.getProject());
         List<TemplateDescriptor> templateDescriptors = fileTemplateManager.getTestTemplates();
         for (final TemplateDescriptor templateDescriptor : templateDescriptors) {
-            actions.add(new TestMeAdditionalAction(templateDescriptor, editor, file) );
+            actions.add(new TestMeAdditionalAction(templateDescriptor, editor, file, selectMethod) );
         }
         actions.add(new ConfigurationLinkAction());
         return new GotoData(sourceElement, actions);
@@ -63,7 +66,14 @@ public class TestMeActionHandler extends TestMePopUpHandler {
         PsiNamedElement namedElement = (PsiNamedElement) sourceElement;
         final String name = namedElement.getName();
         String nestedClassName = findNestedClassName(editor, file, namedElement);
-        return TestMeBundle.message("testMe.create.title", nestedClassName !=null? nestedClassName :name);
+        String testType = "Class";
+        String testTitle = nestedClassName !=null ? nestedClassName :name;
+        if (isMethodTest) {
+            testType = "Method";
+            PsiElement selectedElement = getSelectedElement(editor, file);
+            testTitle = selectedElement.getText();
+        }
+        return TestMeBundle.message("testMe.create.title", testType, testTitle);
     }
 
     private String findNestedClassName(Editor editor, PsiFile file, PsiNamedElement sourceElement) {

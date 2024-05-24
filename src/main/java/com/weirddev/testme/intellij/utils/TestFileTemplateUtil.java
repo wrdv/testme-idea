@@ -15,7 +15,6 @@ import com.weirddev.testme.intellij.common.utils.LanguageUtils;
 import com.weirddev.testme.intellij.groovy.resolvers.GroovyPropertyUtil;
 import com.weirddev.testme.intellij.scala.resolvers.ScalaTypeUtils;
 import com.weirddev.testme.intellij.template.FileTemplateContext;
-import com.weirddev.testme.intellij.template.context.Language;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,7 +35,6 @@ public class TestFileTemplateUtil {
         @Nullable ClassLoader classLoader) throws Exception {
         Project project = directory.getProject();
         String fileName = context.getTargetClass();
-        Language language = context.getLanguage();
         FileTemplateManager.getInstance(project).addRecentName(template.getName());
 
         if (propsMap == null) {

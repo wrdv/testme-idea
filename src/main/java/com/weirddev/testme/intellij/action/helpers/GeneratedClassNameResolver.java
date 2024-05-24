@@ -7,16 +7,11 @@ import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.psi.*;
 import com.intellij.psi.codeStyle.JavaCodeStyleSettings;
 import com.intellij.refactoring.util.RefactoringMessageUtil;
-import com.intellij.testIntegration.TestFinderHelper;
 import com.weirddev.testme.intellij.template.TemplateDescriptor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class GeneratedClassNameResolver {
-
-    public boolean hasTestClass(PsiClass targetTestSubjectClass) {
-        return !TestFinderHelper.findTestsForClass(targetTestSubjectClass).isEmpty();
-    }
 
     @NotNull
     public ClassNameSelection resolveClassName(@NotNull Project project, PsiDirectory targetDirectory, PsiClass targetTestSubjectClass, TemplateDescriptor templateDescriptor) {

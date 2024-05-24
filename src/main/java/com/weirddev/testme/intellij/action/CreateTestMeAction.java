@@ -16,6 +16,7 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.testIntegration.TestFinderHelper;
 import com.intellij.testIntegration.createTest.CreateTestAction;
 import com.intellij.util.IncorrectOperationException;
 import com.weirddev.testme.intellij.action.helpers.ClassNameSelection;
@@ -28,6 +29,7 @@ import com.weirddev.testme.intellij.template.FileTemplateContext;
 import com.weirddev.testme.intellij.template.TemplateDescriptor;
 import com.weirddev.testme.intellij.ui.customizedialog.CustomizeTestDialog;
 import com.weirddev.testme.intellij.ui.customizedialog.FileTemplateCustomization;
+import com.weirddev.testme.intellij.utils.TestFileUpdateUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.model.java.JavaModuleSourceRootTypes;
@@ -37,6 +39,7 @@ import org.jetbrains.jps.model.java.JavaSourceRootType;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
@@ -77,9 +80,14 @@ public class CreateTestMeAction extends CreateTestAction {
         return super.getFamilyName();
     }
 
-
     @Override
-    public void invoke(@NotNull final Project project, Editor editor, @NotNull PsiElement element) throws IncorrectOperationException {
+    public void invoke(@NotNull final Project project, Editor editor, @NotNull PsiElement element)
+        throws IncorrectOperationException {
+        createTest(project, element, null);
+    }
+
+    public void createTest(@NotNull final Project project, @NotNull PsiElement element, PsiMethod selectMethod)
+        throws IncorrectOperationException {
         LOG.debug("Start CreateTestMeAction.invoke");
         final Module srcModule = ModuleUtilCore.findModuleForPsiElement(element);
         if (srcModule == null) return;
@@ -108,32 +116,16 @@ public class CreateTestMeAction extends CreateTestAction {
             return;
         }
         LOG.debug("targetDirectory:"+targetDirectory.getVirtualFile().getUrl());
-        PsiMethod selectedMethod = element.getParent() instanceof PsiMethod ? (PsiMethod) element.getParent() : null;
-        boolean hasClassTest = generatedClassNameResolver.hasTestClass(srcClass);
-        String targetClassName = generatedClassNameResolver.composeTestClassName(srcClass);
-        if (null == selectedMethod && hasClassTest) {
-            final ClassNameSelection classNameSelection = generatedClassNameResolver.resolveClassName(project, targetDirectory, srcClass, templateDescriptor);
-            targetClassName = classNameSelection.getClassName();
-            if (classNameSelection.getUserDecision().equals(ClassNameSelection.UserDecision.Abort)) {
-                return;
-            }
+
+        FileTemplateContext fileTemplateContext;
+        if (TestFileUpdateUtil.isCreateTestForSelectMethod(selectMethod)) {
+            fileTemplateContext = resolveCreateMethodTestContext(project, selectMethod, srcClass,srcPackage,srcModule, targetDirectory,testModule);
+        } else {
+            fileTemplateContext = resolveCreateClassTestContext(project, srcClass,srcPackage,srcModule, targetDirectory,testModule);
         }
 
-        FileTemplateConfig fileTemplateConfig = new FileTemplateConfig(TestMeConfigPersistent.getInstance().getState());
-        final Module finalTestModule = testModule;
-        boolean openUserCheckDialog = TestMeConfigPersistent.getInstance().getState().isOpenCustomizeTestDialog() && null == selectedMethod;
-        FileTemplateContext fileTemplateContext = new FileTemplateContext(
-            new FileTemplateDescriptor(templateDescriptor.getFilename()), templateDescriptor.getLanguage(), project,
-            targetClassName, srcPackage, srcModule, finalTestModule, targetDirectory, srcClass,
-            fileTemplateConfig, new FileTemplateCustomization(new ArrayList<>(),
-            new ArrayList<>(), openUserCheckDialog), selectedMethod, hasClassTest);
-        if (openUserCheckDialog) {
-            // create filed and method check dialog
-            final CustomizeTestDialog dialog = createTestMeDialog(project, srcClass, fileTemplateContext);
-            // if not ok button selected the return
-            if (dialog.isModal() && !dialog.showAndGet()) {
-                return;
-            }
+        if (fileTemplateContext == null) {
+            return;
         }
 
         CommandProcessor.getInstance().executeCommand(project, new Runnable() {
@@ -143,6 +135,53 @@ public class CreateTestMeAction extends CreateTestAction {
             }
         }, "TestMe Generate Test", this);
         LOG.debug("End CreateTestMeAction.invoke");
+    }
+
+    /**
+     * resole file template context to create test for class
+     */
+    private FileTemplateContext resolveCreateClassTestContext(@NotNull final Project project, PsiClass srcClass,
+        PsiPackage srcPackage, Module srcModule, PsiDirectory targetDirectory, Module testModule) {
+        // test class name selection
+        final ClassNameSelection classNameSelection =
+            generatedClassNameResolver.resolveClassName(project, targetDirectory, srcClass, templateDescriptor);
+        String targetClassName = classNameSelection.getClassName();
+        if (classNameSelection.getUserDecision().equals(ClassNameSelection.UserDecision.Abort)) {
+            return null;
+        }
+
+        FileTemplateConfig fileTemplateConfig = new FileTemplateConfig(TestMeConfigPersistent.getInstance().getState());
+        boolean openUserCheckDialog = TestMeConfigPersistent.getInstance().getState().isOpenCustomizeTestDialog();
+        FileTemplateContext fileTemplateContext =
+            new FileTemplateContext(new FileTemplateDescriptor(templateDescriptor.getFilename()),
+                templateDescriptor.getLanguage(), project, targetClassName, srcPackage, srcModule, testModule,
+                targetDirectory, srcClass, fileTemplateConfig,
+                new FileTemplateCustomization(new ArrayList<>(), new ArrayList<>(), openUserCheckDialog), null, null);
+        if (openUserCheckDialog) {
+            // create filed and method check dialog
+            final CustomizeTestDialog dialog = createTestMeDialog(project, srcClass, fileTemplateContext);
+            // if not ok button selected the return
+            if (dialog.isModal() && !dialog.showAndGet()) {
+                return null;
+            }
+        }
+        return fileTemplateContext;
+    }
+
+    /**
+     * resole file template context to create test for single selected method
+     */
+    private FileTemplateContext resolveCreateMethodTestContext(@NotNull final Project project,
+        PsiMethod selectMethod, PsiClass srcClass, PsiPackage srcPackage, Module srcModule,
+        PsiDirectory targetDirectory, Module testModule) {
+        Collection<PsiElement> testsForClass = TestFinderHelper.findTestsForClass(srcClass);
+        String targetClassName = generatedClassNameResolver.composeTestClassName(srcClass);
+        FileTemplateConfig fileTemplateConfig = new FileTemplateConfig(TestMeConfigPersistent.getInstance().getState());
+        return new FileTemplateContext(new FileTemplateDescriptor(templateDescriptor.getFilename()),
+            templateDescriptor.getLanguage(), project, targetClassName, srcPackage, srcModule, testModule,
+            targetDirectory, srcClass, fileTemplateConfig,
+            new FileTemplateCustomization(new ArrayList<>(), new ArrayList<>(), false), selectMethod,
+            testsForClass);
     }
 
     /**

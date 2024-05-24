@@ -5,9 +5,7 @@ import java.util.*;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
-import com.intellij.psi.util.PsiUtilCore;
 import com.weirddev.testme.intellij.template.FileTemplateContext;
 import com.weirddev.testme.intellij.template.context.StringUtils;
 
@@ -32,11 +30,16 @@ public class TestFileUpdateUtil {
      * @return test file
      */
     public static PsiFile getPsiTestFile(FileTemplateContext context, String testClassName) {
-        VirtualFile file = context.getTargetDirectory().getVirtualFile();
-        String defaultExtension = TestFileTemplateUtil.getLanguageFileType(context.getSrcClass().getLanguage()).getDefaultExtension();
-        VirtualFile child = file.findChild(testClassName + "." + defaultExtension);
-        PsiManager psiManager = PsiManager.getInstance(context.getProject());
-        return PsiUtilCore.toPsiFiles(psiManager, List.of(child)).get(0);
+        Collection<PsiElement> testsForClass = context.getTestsForClass();
+        assert !testsForClass.isEmpty();
+        PsiFile testClassFile = testsForClass.iterator().next().getContainingFile();
+        for (PsiElement psiElement : testsForClass) {
+            // find the standard named test class
+            if (psiElement instanceof PsiClass testClass && testClassName.equals(testClass.getName())) {
+                return testClass.getContainingFile();
+            }
+        }
+        return testClassFile;
     }
 
     /**
@@ -46,7 +49,7 @@ public class TestFileUpdateUtil {
      * @param currentTestClassFile generated new test file
      * @return test file
      */
-    public static PsiFile generateOrUpdateTestFile(FileTemplateContext context, PsiFile currentTestClassFile) {
+    public static PsiFile updateTestFile(FileTemplateContext context, PsiFile currentTestClassFile) {
         PsiMethod selectedMethod = context.getSelectedMethod();
         Project project = context.getProject();
 
@@ -86,7 +89,7 @@ public class TestFileUpdateUtil {
         FileDocumentManager.getInstance().saveDocument(document);
 
         // get and return updated test file
-        return getPsiTestFile(context, currentTestClassFile.getName());
+        return oldTestClassFile;
     }
 
     /**
@@ -198,7 +201,8 @@ public class TestFileUpdateUtil {
                 return javaTestFile.getPackageStatement();
             }
             PsiImportStatementBase[] oldImportList = javaTestFile.getImportList().getAllImportStatements();
-            return oldImportList[oldImportList.length - 1];
+            return oldImportList.length == 0 ? javaTestFile.getPackageStatement() :
+                oldImportList[oldImportList.length - 1];
         } else {
             return testFile.getFirstChild();
         }
@@ -222,4 +226,9 @@ public class TestFileUpdateUtil {
         // get the element of '{' of class
         return oldTestClass.getLBrace();
     }
+
+    public static boolean isCreateTestForSelectMethod(PsiMethod psiMethod) {
+        return null != psiMethod;
+    }
+
 }

@@ -100,7 +100,7 @@ public class TestMeGenerator {
         if (aPackage != null) {
             final GlobalSearchScope scope = GlobalSearchScopesCore.directoryScope(targetDirectory, false);
             final PsiClass[] classes = aPackage.findClassByShortName(context.getTargetClass(), scope);
-            if (null == context.getSelectedMethod() && classes.length > 0) {
+            if (!context.isCreateTestForSelectMethod() && classes.length > 0) {
                 if (!FileModificationService.getInstance().preparePsiElementForWrite(classes[0])) {
                     return null;
                 }
@@ -126,18 +126,18 @@ public class TestMeGenerator {
             VelocityInitializer.verifyRuntimeSetup();
             
             PsiFile psiFile;
-            if (null == context.getSelectedMethod() || !context.isHasTestFile()) {
+            if (context.isCreateTestForSelectMethod() && context.isHasTestFile()) {
+                // create new test psi file for selected method without io write
+                final PsiFile psiElement = TestFileTemplateUtil.createFromTemplate(codeTemplate,
+                    context, templateCtxtParams, targetDirectory, null);
+                psiFile = TestFileUpdateUtil.updateTestFile(context, psiElement);
+            } else {
                 // create new test psi file with io write
                 final PsiElement psiElement = FileTemplateUtil.createFromTemplate(codeTemplate,
                     context.getTargetClass(), templateCtxtParams, targetDirectory, null);
                 final PsiElement resolvedPsiElement = resolveEmbeddedClass(psiElement);
                 psiFile = resolvedPsiElement instanceof PsiFile ? (PsiFile)resolvedPsiElement
                     : resolvedPsiElement.getContainingFile();
-            } else {
-                // create new test psi file for selected method without io write
-                final PsiFile psiElement = TestFileTemplateUtil.createFromTemplate(codeTemplate,
-                    context, templateCtxtParams, targetDirectory, null);
-                psiFile = TestFileUpdateUtil.generateOrUpdateTestFile(context, psiElement);
             }
 
             LOG.debug("Done generating PsiElement from template "+codeTemplate.getName()+" in "+(new Date().getTime()-startGeneration)+" millis");

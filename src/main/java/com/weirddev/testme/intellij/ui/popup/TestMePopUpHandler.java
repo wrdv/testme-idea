@@ -17,6 +17,7 @@ import com.intellij.openapi.ui.popup.PopupChooserBuilder;
 import com.intellij.pom.Navigatable;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiNamedElement;
 import com.intellij.ui.CollectionListModel;
 import com.intellij.ui.components.JBList;
@@ -43,12 +44,39 @@ public abstract class TestMePopUpHandler implements CodeInsightActionHandler {
     return false;
   }
 
+  /**
+   * invoke create test for missed selected method only
+   * @param project the project where action is invoked.
+   * @param editor  the editor where action is invoked.
+   * @param selectMethod    none null if create test only for select method
+   */
+  public void createSelectMethodTest(@NotNull Project project, @NotNull Editor editor, @NotNull PsiMethod selectMethod) {
+    invoke(project, editor, selectMethod.getContainingFile(), selectMethod);
+  }
+
+  /**
+   * invoke create test for class file
+   * @param project the project where action is invoked.
+   * @param editor  the editor where action is invoked.
+   * @param file    the file open in the editor.
+   */
   @Override
   public void invoke(@NotNull Project project, @NotNull Editor editor, @NotNull PsiFile file) {
+    invoke(project, editor, file, null);
+  }
+
+  /**
+   *
+   * @param project the project where action is invoked.
+   * @param editor  the editor where action is invoked.
+   * @param file    the file open in the editor.
+   * @param selectMethod    none null if create test only for select method
+   */
+  public void invoke(@NotNull Project project, @NotNull Editor editor, @NotNull PsiFile file, PsiMethod selectMethod) {
 //    FeatureUsageTracker.FileTemplateConfig().triggerFeatureUsed(getFeatureUsedKey()); //todo register a ProductivityFeaturesProvider extension
 
     try {
-      GotoData gotoData = getSourceAndTargetElements(editor, file);
+      GotoData gotoData = getSourceAndTargetElements(editor, file, selectMethod);
       if (gotoData != null) {
         show(project, editor, file, gotoData);
       }
@@ -62,7 +90,7 @@ public abstract class TestMePopUpHandler implements CodeInsightActionHandler {
   protected abstract String getFeatureUsedKey();
 
   @Nullable
-  protected abstract GotoData getSourceAndTargetElements(Editor editor, PsiFile file);
+  protected abstract GotoData getSourceAndTargetElements(Editor editor, PsiFile file, PsiMethod selectMethod);
 
   private void show(@NotNull final Project project,
                     @NotNull Editor editor,

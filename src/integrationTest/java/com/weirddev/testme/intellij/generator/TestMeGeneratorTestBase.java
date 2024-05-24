@@ -129,7 +129,7 @@ abstract public class TestMeGeneratorTestBase extends BaseIJIntegrationTest/*Jav
                 srcDir,
                 fooClass,
                 fileTemplateConfig,
-                customization, null, false));
+                customization, null, null));
             System.out.println("result:"+result);
             verifyGeneratedTest(packageName, expectedTestClassName);
         }, CodeInsightBundle.message("intention.create.test"), this);
