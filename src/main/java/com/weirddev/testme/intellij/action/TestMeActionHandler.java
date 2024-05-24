@@ -5,10 +5,7 @@ import com.intellij.codeInsight.navigation.NavigationUtil;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.pom.Navigatable;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiNamedElement;
+import com.intellij.psi.*;
 import com.intellij.psi.util.PsiUtilCore;
 import com.intellij.testIntegration.GotoTestOrCodeHandler;
 import com.intellij.testIntegration.TestFinderHelper;
@@ -49,7 +46,7 @@ public class TestMeActionHandler extends TestMePopUpHandler {
 
     @Nullable
     @Override
-    protected GotoData getSourceAndTargetElements(final Editor editor, final PsiFile file) {
+    protected GotoData getSourceAndTargetElements(final Editor editor, final PsiFile file, PsiMethod selectMethod) {
         PsiElement sourceElement = TestFinderHelper.findSourceElement(getSelectedElement(editor, file));
         if (sourceElement == null) return null;
         List<AdditionalAction> actions = new SmartList<AdditionalAction>();
@@ -57,7 +54,7 @@ public class TestMeActionHandler extends TestMePopUpHandler {
         TestMeTemplateManager fileTemplateManager = TestMeTemplateManager.getInstance(file.getProject());
         List<TemplateDescriptor> templateDescriptors = fileTemplateManager.getTestTemplates();
         for (final TemplateDescriptor templateDescriptor : templateDescriptors) {
-            actions.add(new TestMeAdditionalAction(templateDescriptor, editor, file) );
+            actions.add(new TestMeAdditionalAction(templateDescriptor, editor, file, selectMethod) );
         }
         actions.add(new ConfigurationLinkAction());
         return new GotoData(sourceElement, actions);

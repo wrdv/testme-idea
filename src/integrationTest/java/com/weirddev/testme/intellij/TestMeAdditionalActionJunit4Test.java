@@ -58,7 +58,7 @@ public class TestMeAdditionalActionJunit4Test extends BaseIJIntegrationTest {
     protected void doTest(final String packageName, String testSubjectClassName, final String expectedTestClassName, VisualPosition expectedCaretPosition) {
         myFixture.copyDirectoryToProject("../../commonSrc", "");
         final PsiFile psiFile = myFixture.configureByFile(formatTestSourcePath(packageName, testSubjectClassName));
-        new TestMeAdditionalAction(new TemplateDescriptor("","", templateFilename, Language.Java, TemplateRole.Tester), myFixture.getEditor(), psiFile).execute(myFixture.getProject());
+        new TestMeAdditionalAction(new TemplateDescriptor("","", templateFilename, Language.Java, TemplateRole.Tester), myFixture.getEditor(), psiFile, null).execute(myFixture.getProject());
         String expectedTestClassFilePath = formatTestSourcePath(packageName, expectedTestClassName);
         myFixture.checkResultByFile(expectedTestClassFilePath, testDirectory + "/" +expectedTestClassFilePath, false);
         Editor selectedTextEditor = FileEditorManager.getInstance(getProject()).getSelectedTextEditor();

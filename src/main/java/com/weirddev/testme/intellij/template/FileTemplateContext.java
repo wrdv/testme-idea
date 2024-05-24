@@ -24,6 +24,9 @@ public class FileTemplateContext {
     private final Module testModule;
     private final PsiDirectory targetDirectory;
     private final PsiClass srcClass;
+    /**
+     * not null - if user intention is creating test for selected method
+     */
     private final PsiMethod selectedMethod;
     private final Collection<PsiElement> testsForClass;
     private final FileTemplateConfig fileTemplateConfig;
@@ -101,5 +104,9 @@ public class FileTemplateContext {
 
     public boolean isHasTestFile() {
         return !testsForClass.isEmpty();
+    }
+
+    public boolean isCreateTestForSelectMethod() {
+        return null != selectedMethod;
     }
 }

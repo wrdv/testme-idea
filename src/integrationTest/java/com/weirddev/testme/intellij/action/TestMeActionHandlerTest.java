@@ -38,7 +38,7 @@ public class TestMeActionHandlerTest extends TestMeGeneratorTestBase {
                 final TestMeActionHandler actionHandler = new TestMeActionHandler();
                 Assert.assertEquals("<html><body>Test Class <b>Foo</b> with:</body></html>", actionHandler.getChooserTitle(getEditor(), getFile(), fooClass));
                 Assert.assertEquals("No test subjects found", actionHandler.getNotFoundMessage(getProject(), getEditor(), getFile()));
-                final TestMePopUpHandler.GotoData sourceAndTargetElements = actionHandler.getSourceAndTargetElements(getEditor(), getFile());
+                final TestMePopUpHandler.GotoData sourceAndTargetElements = actionHandler.getSourceAndTargetElements(getEditor(), getFile(), null);
                 Assert.assertNotNull(sourceAndTargetElements);
                 final List<TemplateDescriptor> templateDescriptors = new TemplateRegistry().getTemplateDescriptors();
                 Assert.assertEquals(countEnabledTemplates(templateDescriptors) +1,sourceAndTargetElements.additionalActions.size());

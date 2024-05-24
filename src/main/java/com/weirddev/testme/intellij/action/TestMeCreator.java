@@ -5,6 +5,7 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiMethod;
 import com.intellij.testIntegration.JavaTestCreator;
 import com.intellij.util.IncorrectOperationException;
 import com.weirddev.testme.intellij.template.TemplateDescriptor;
@@ -20,19 +21,19 @@ import org.jetbrains.annotations.NotNull;
 public class TestMeCreator {
     private static final Logger LOG = Logger.getInstance(TestMeCreator.class.getName());
 
-    public void createTest(Editor editor, PsiFile file, TemplateDescriptor templateDescriptor) {
+    public void createTest(Editor editor, PsiFile file, TemplateDescriptor templateDescriptor, PsiMethod selectMethod) {
         try {
-                invoke(file.getProject(), editor, file.getContainingFile(),templateDescriptor);
+                invoke(file.getProject(), editor, file.getContainingFile(),templateDescriptor, selectMethod);
         }
         catch (IncorrectOperationException e) {
             LOG.warn(e);
         }
     }
-    private void invoke(@NotNull Project project, Editor editor, PsiFile file, TemplateDescriptor templateDescriptor) throws IncorrectOperationException {
+    private void invoke(@NotNull Project project, Editor editor, PsiFile file, TemplateDescriptor templateDescriptor, PsiMethod selectMethod) throws IncorrectOperationException {
         if (!file.getManager().isInProject(file)) return;
         final PsiElement element = TestSubjectResolverUtils.getTestableElement(editor, file);
         if (element != null) {
-            new CreateTestMeAction(templateDescriptor).invoke(project, editor, element);
+            new CreateTestMeAction(templateDescriptor).createTest(project, element, selectMethod);
         }
     }
 

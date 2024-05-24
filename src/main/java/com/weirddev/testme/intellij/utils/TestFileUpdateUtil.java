@@ -34,9 +34,8 @@ public class TestFileUpdateUtil {
         assert !testsForClass.isEmpty();
         PsiFile testClassFile = testsForClass.iterator().next().getContainingFile();
         for (PsiElement psiElement : testsForClass) {
-            PsiClass testClass = (PsiClass)psiElement;
             // find the standard named test class
-            if (testClassName.equals(testClass.getName())) {
+            if (psiElement instanceof PsiClass testClass && testClassName.equals(testClass.getName())) {
                 return testClass.getContainingFile();
             }
         }
@@ -228,7 +227,8 @@ public class TestFileUpdateUtil {
         return oldTestClass.getLBrace();
     }
 
-    public static boolean hasTestClass(Collection<PsiElement> testsForClass) {
-        return !testsForClass.isEmpty();
+    public static boolean isCreateTestForSelectMethod(PsiMethod psiMethod) {
+        return null != psiMethod;
     }
+
 }
