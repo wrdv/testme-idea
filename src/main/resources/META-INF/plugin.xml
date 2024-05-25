@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.weirddev.testme</id>
   <name>TestMe</name>
-  <version>6.4.1</version>
+  <version>6.5.0.eap</version>
   <vendor email="testme@weirddev.com" url="https://weirddev.com">WeirdDev</vendor>
 
   <description><![CDATA[
@@ -17,11 +17,9 @@
    </ul>
    <p>Issues and feature requests are welcomed at <a href="https://weirddev.com/forum#!/testme">TestMe project forum</a></p>
     ]]></description>
-
   <change-notes><![CDATA[
         <ul>
-          <li>When "Declare exceptions thrown by tested class" setting is on - test code exceptions should be taken into account <a href="https://github.com/wrdv/testme-idea/issues/32">Issue #32</a> (contributed by <a href="https://github.com/zhangfj88">zhangfj88</a> - <a href="https://github.com/wrdv/testme-idea/pull/34">PR #34</a>)</li>
-          <li>Prioritize Custom Templates in Template Selection <a href="https://github.com/wrdv/testme-idea/issues/35">Issue #35</a> (contributed by <a href="https://github.com/karlmatti">Karl Matti</a> - <a href="https://github.com/wrdv/testme-idea/pull/36">PR #36</a>)</li>
+          <li>New Intention(Ctrl+Enter|Opt+Enter) - "Generate test for method" - for method under cursor. Will update existing UT class with additional test method. Known limitation: no control over selected UT class in case more than 1 exists (contributed by <a href="https://github.com/huangliang992">HuangLiang</a> - <a href="https://github.com/wrdv/testme-idea/pull/37">PR #37</a>)</li>
         </ul>
         <a href="https://weirddev.com/testme/release-notes">Complete Release Notes listing</a>
     ]]>
@@ -42,6 +40,7 @@
     <applicationService serviceImplementation="com.weirddev.testme.intellij.ui.template.TestMeTemplateManager"/>
     <postStartupActivity implementation="com.weirddev.testme.intellij.TestMePluginRegistration"/>
     <intentionAction>
+      <language>UAST</language>
       <className>com.weirddev.testme.intellij.intention.CreateTestForMethodIntention</className>
       <category>TestMe intentions</category>
     </intentionAction>
