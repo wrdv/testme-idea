@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.weirddev.testme</id>
   <name>TestMe</name>
-  <version>6.5.0.eap</version>
+  <version>6.5.0</version>
   <vendor email="testme@weirddev.com" url="https://weirddev.com">WeirdDev</vendor>
 
   <description><![CDATA[
@@ -19,13 +19,13 @@
     ]]></description>
   <change-notes><![CDATA[
         <ul>
-          <li>New Intention(Ctrl+Enter|Opt+Enter) - "Generate test for method" - for method under cursor. Will update existing UT class with additional test method. Known limitation: no control over selected UT class in case more than 1 exists (contributed by <a href="https://github.com/huangliang992">HuangLiang</a> - <a href="https://github.com/wrdv/testme-idea/pull/37">PR #37</a>)</li>
+          <li>New Intention(Ctrl+Enter|Opt+Enter) - "Generate test for method" - for method under cursor. Will update existing UT class with additional test method. Known limitation: no control over selected UT class in case more than 1 exists (contributed by <a href="https://github.com/huangliang992">HuangLiang</a> - <a href="https://github.com/wrdv/testme-idea/pull/37">PR #37</a>,<a href="https://github.com/wrdv/testme-idea/pull/39">PR #39</a>,<a href="https://github.com/wrdv/testme-idea/pull/42">PR #42</a>)</li>
         </ul>
         <a href="https://weirddev.com/testme/release-notes">Complete Release Notes listing</a>
     ]]>
   </change-notes>
   <!-- please see https://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
-  <idea-version since-build="232"/>
+  <idea-version since-build="232" until-build="241.*"/>
   <depends>com.intellij.modules.java</depends>
   <depends>JUnit</depends>
   <depends optional="true" config-file="plugin-groovy.xml">org.intellij.groovy</depends>
