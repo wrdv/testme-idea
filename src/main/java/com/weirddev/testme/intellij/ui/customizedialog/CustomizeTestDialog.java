@@ -23,8 +23,10 @@ import com.weirddev.testme.intellij.utils.JavaTypeUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 import java.util.*;
 
 /**
@@ -55,22 +57,42 @@ public class CustomizeTestDialog extends DialogWrapper {
 
     @Override
     protected JComponent createCenterPanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        JPanel panel = new JPanel(new GridBagLayout());
 
+        GridBagConstraints constr = new GridBagConstraints();
+
+        constr.fill = GridBagConstraints.BOTH;
+        constr.anchor = GridBagConstraints.WEST;
+
+        int gridy = 1;
+
+        constr.gridy = gridy++;
+        constr.gridx = 0;
+        constr.weightx = 0;
         JLabel membersLabel = new JLabel(JavaBundle.message("intention.create.test.dialog.select.methods"));
-        panel.add(membersLabel);
-        panel.add(myShowInheritedMethodsBox);
+        panel.add(membersLabel,constr);
+        constr.gridx = 1;
+        constr.gridwidth = GridBagConstraints.REMAINDER;
+        panel.add(myShowInheritedMethodsBox,constr);
 
-        if (true) {
+        if (myFieldsTable.getRowCount() > 0) {
+            constr.gridy = gridy++;
+            constr.gridx = 0;
             JLabel fieldLabel = new JLabel("Mock fields:");
-            panel.add(fieldLabel);
-            panel.add(ScrollPaneFactory.createScrollPane(myFieldsTable));
+            panel.add(fieldLabel,constr);
+            constr.gridy = gridy++;
+            constr.weighty = 1;
+            panel.add(ScrollPaneFactory.createScrollPane(myFieldsTable),constr);
         }
 
+        constr.gridy = gridy++;
+        constr.gridx = 0;
+        constr.weighty = 0;
         JLabel methodLabel = new JLabel("Test Methods:");
-        panel.add(methodLabel);
-        panel.add(ScrollPaneFactory.createScrollPane(myMethodsTable));
+        panel.add(methodLabel,constr);
+        constr.gridy = gridy++;
+        constr.weighty = 1;
+        panel.add(ScrollPaneFactory.createScrollPane(myMethodsTable),constr);
 
 
         myShowInheritedMethodsBox.addActionListener(new ActionListener() {
