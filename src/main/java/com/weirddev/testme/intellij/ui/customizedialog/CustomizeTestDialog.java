@@ -1,6 +1,5 @@
 package com.weirddev.testme.intellij.ui.customizedialog;
 
-import com.intellij.java.JavaBundle;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.util.NlsContexts;
@@ -10,6 +9,7 @@ import com.intellij.psi.util.PsiUtil;
 import com.intellij.refactoring.ui.MemberSelectionTable;
 import com.intellij.refactoring.util.classMembers.MemberInfo;
 import com.intellij.ui.ScrollPaneFactory;
+import com.weirddev.testme.intellij.TestMeBundle;
 import com.weirddev.testme.intellij.builder.MethodFactory;
 import com.weirddev.testme.intellij.common.utils.PsiMethodUtils;
 import com.weirddev.testme.intellij.generator.MockBuilderFactory;
@@ -41,7 +41,7 @@ public class CustomizeTestDialog extends DialogWrapper {
     private final MemberSelectionTable myMethodsTable;
     private final MemberSelectionTable myFieldsTable;
     private final FileTemplateContext fileTemplateContext;
-    private final JCheckBox myShowInheritedMethodsBox = new JCheckBox(JavaBundle.message("intention.create.test.dialog.show.inherited"));
+    private final JCheckBox myShowInheritedMethodsBox = new JCheckBox(TestMeBundle.message("testMe.intention.create.test.dialog.show.inherited"));
 
     public CustomizeTestDialog(@NotNull Project project, @NotNull @NlsContexts.DialogTitle String title,
         PsiClass targetClass, FileTemplateContext fileTemplateContext) {
@@ -69,9 +69,6 @@ public class CustomizeTestDialog extends DialogWrapper {
         constr.gridy = gridy++;
         constr.gridx = 0;
         constr.weightx = 0;
-        JLabel membersLabel = new JLabel(JavaBundle.message("intention.create.test.dialog.select.methods"));
-        panel.add(membersLabel,constr);
-        constr.gridx = 1;
         constr.gridwidth = GridBagConstraints.REMAINDER;
         panel.add(myShowInheritedMethodsBox,constr);
 
