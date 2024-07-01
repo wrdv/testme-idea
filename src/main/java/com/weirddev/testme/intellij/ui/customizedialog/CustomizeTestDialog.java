@@ -1,29 +1,33 @@
 package com.weirddev.testme.intellij.ui.customizedialog;
 
-import java.util.*;
-import java.util.List;
-
-import javax.swing.*;
-
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.util.NlsContexts;
 import com.intellij.psi.*;
 import com.intellij.psi.util.InheritanceUtil;
 import com.intellij.psi.util.PsiUtil;
+import com.intellij.refactoring.ui.MemberSelectionTable;
+import com.intellij.refactoring.util.classMembers.MemberInfo;
+import com.intellij.ui.ScrollPaneFactory;
+import com.weirddev.testme.intellij.TestMeBundle;
 import com.weirddev.testme.intellij.builder.MethodFactory;
 import com.weirddev.testme.intellij.common.utils.PsiMethodUtils;
 import com.weirddev.testme.intellij.generator.MockBuilderFactory;
 import com.weirddev.testme.intellij.template.FileTemplateContext;
 import com.weirddev.testme.intellij.template.TemplateRegistry;
-import com.weirddev.testme.intellij.template.context.*;
+import com.weirddev.testme.intellij.template.context.Field;
+import com.weirddev.testme.intellij.template.context.MockitoMockBuilder;
 import com.weirddev.testme.intellij.utils.ClassNameUtils;
 import com.weirddev.testme.intellij.utils.JavaPsiTreeUtils;
 import com.weirddev.testme.intellij.utils.JavaTypeUtils;
 import org.jetbrains.annotations.NotNull;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.util.NlsContexts;
-import com.intellij.refactoring.ui.MemberSelectionTable;
-import com.intellij.refactoring.util.classMembers.MemberInfo;
-import com.intellij.ui.ScrollPaneFactory;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.List;
+import java.util.*;
 
 /**
  *
@@ -33,13 +37,16 @@ import com.intellij.ui.ScrollPaneFactory;
  */
 public class CustomizeTestDialog extends DialogWrapper {
 
+    private final PsiClass myTargetClass;
     private final MemberSelectionTable myMethodsTable;
     private final MemberSelectionTable myFieldsTable;
     private final FileTemplateContext fileTemplateContext;
+    private final JCheckBox myShowInheritedMethodsBox = new JCheckBox(TestMeBundle.message("testMe.intention.create.test.dialog.show.inherited"));
 
     public CustomizeTestDialog(@NotNull Project project, @NotNull @NlsContexts.DialogTitle String title,
         PsiClass targetClass, FileTemplateContext fileTemplateContext) {
         super(project, true);
+        this.myTargetClass = targetClass;
         this.fileTemplateContext = fileTemplateContext;
         myMethodsTable = new MemberSelectionTable(initMethodsTable(targetClass), null);
         myFieldsTable = new MemberSelectionTable(
@@ -50,19 +57,47 @@ public class CustomizeTestDialog extends DialogWrapper {
 
     @Override
     protected JComponent createCenterPanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        JPanel panel = new JPanel(new GridBagLayout());
+
+        GridBagConstraints constr = new GridBagConstraints();
+
+        constr.fill = GridBagConstraints.BOTH;
+        constr.anchor = GridBagConstraints.WEST;
+
+        int gridy = 1;
+
+        constr.gridy = gridy++;
+        constr.gridx = 0;
+        constr.weightx = 0;
+        constr.gridwidth = GridBagConstraints.REMAINDER;
+        panel.add(myShowInheritedMethodsBox,constr);
 
         if (myFieldsTable.getRowCount() > 0) {
+            constr.gridy = gridy++;
+            constr.gridx = 0;
             JLabel fieldLabel = new JLabel("Mock fields:");
-            panel.add(fieldLabel);
-            panel.add(ScrollPaneFactory.createScrollPane(myFieldsTable));
+            panel.add(fieldLabel,constr);
+            constr.gridy = gridy++;
+            constr.weighty = 1;
+            panel.add(ScrollPaneFactory.createScrollPane(myFieldsTable),constr);
         }
 
+        constr.gridy = gridy++;
+        constr.gridx = 0;
+        constr.weighty = 0;
         JLabel methodLabel = new JLabel("Test Methods:");
-        panel.add(methodLabel);
-        panel.add(ScrollPaneFactory.createScrollPane(myMethodsTable));
+        panel.add(methodLabel,constr);
+        constr.gridy = gridy++;
+        constr.weighty = 1;
+        panel.add(ScrollPaneFactory.createScrollPane(myMethodsTable),constr);
 
+
+        myShowInheritedMethodsBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updateMethodsTable();
+            }
+        });
         return panel;
     }
 
@@ -98,7 +133,9 @@ public class CustomizeTestDialog extends DialogWrapper {
 
     private List<MemberInfo> initMethodsTable(PsiClass myTargetClass) {
         Set<PsiClass> classes = new HashSet<>();
-        InheritanceUtil.getSuperClasses(myTargetClass, classes, false);
+        if(myShowInheritedMethodsBox.isSelected()){
+            InheritanceUtil.getSuperClasses(myTargetClass, classes, false);
+        }
         classes.add(myTargetClass);
 
         Set<PsiMember> selectedMethods = new HashSet<>();
@@ -187,4 +224,12 @@ public class CustomizeTestDialog extends DialogWrapper {
         return MethodFactory.isTestable(method, psiClass);
     }
 
+
+    /**
+     * update method table
+     */
+    private void updateMethodsTable() {
+        List<MemberInfo> methods = initMethodsTable(myTargetClass);
+        myMethodsTable.setMemberInfos(methods);
+    }
 }
