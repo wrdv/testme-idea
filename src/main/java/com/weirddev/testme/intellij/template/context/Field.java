@@ -60,7 +60,7 @@ public class Field {
         type= buildType(psiField.getType(), typeDictionary, maxRecursionDepth);
         this.isAnnotatedByDI = buildAnnotatedByDI(psiField, srcClass, typeDictionary);
         this.hasSetter = buildHasSetter(srcClass, psiField.getName(), typeDictionary);
-        String canonicalText = srcClass.getQualifiedName();
+        String canonicalText = srcClass.getQualifiedName() == null ? srcClass.getName() : srcClass.getQualifiedName();
         ownerClassCanonicalName = ClassNameUtils.stripArrayVarargsDesignator(canonicalText);
         overridden = isOverriddenInChild(psiField, srcClass);
         isFinal = psiField.getModifierList() != null && psiField.getModifierList().hasExplicitModifier(PsiModifier.FINAL);
