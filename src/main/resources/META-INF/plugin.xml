@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.weirddev.testme</id>
   <name>TestMe</name>
-  <version>6.5.0</version>
+  <version>6.6.0</version>
   <vendor email="testme@weirddev.com" url="https://weirddev.com">WeirdDev</vendor>
 
   <description><![CDATA[
@@ -19,7 +19,8 @@
     ]]></description>
   <change-notes><![CDATA[
         <ul>
-          <li>New Intention(Ctrl+Enter|Opt+Enter) - "Generate test for method" - for method under cursor. Will update existing UT class with additional test method. Known limitation: no control over selected UT class in case more than 1 exists (contributed by <a href="https://github.com/huangliang992">HuangLiang</a> - <a href="https://github.com/wrdv/testme-idea/pull/37">PR #37</a>,<a href="https://github.com/wrdv/testme-idea/pull/39">PR #39</a>,<a href="https://github.com/wrdv/testme-idea/pull/42">PR #42</a>)</li>
+          <li>Generate Test Methods selection popup - Added a checkout to include/exclude inherited methods (contributed by <a href="https://github.com/zhangfj88">zhangfj88</a> - <a href="https://github.com/wrdv/testme-idea/pull/44">PR #44</a>)</li>
+          <li>bugfix: Lombok generated @superbuilder results in NPE (contributed by <a href="https://github.com/huangliang992">HuangLiang</a> - <a href="https://github.com/wrdv/testme-idea/pull/45">PR #45</a>, raised in <a href="https://github.com/wrdv/testme-idea/pull/43">Issue #43</a>, raised by <a href="https://github.com/winint1988">winint1988</a>)</li>
         </ul>
         <a href="https://weirddev.com/testme/release-notes">Complete Release Notes listing</a>
     ]]>

@@ -12,22 +12,28 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-#        IDEA_VERSION: [ 2021.1, 2022.1.4, 2022.2.1 ]
         IDEA_VERSION: [ 2023.2, 2024.1, LATEST-EAP-SNAPSHOT ]
         WITH_IDEA_PLUGINS: [ true, false ]
         include:
           - IDEA_VERSION: 2023.2
             SCALA_PLUGIN_VERSION: 2023.2.23
             WITH_IDEA_PLUGINS: true
-
+          - IDEA_VERSION: 2023.2
+            SCALA_PLUGIN_VERSION: 2023.2.23
+            WITH_IDEA_PLUGINS: false
           - IDEA_VERSION: 2024.1
             SCALA_PLUGIN_VERSION: 2024.1.1
-
+            WITH_IDEA_PLUGINS: true
+          - IDEA_VERSION: 2024.1
+            SCALA_PLUGIN_VERSION: 2024.1.1
+            WITH_IDEA_PLUGINS: false
           - IDEA_VERSION: LATEST-EAP-SNAPSHOT
             SCALA_PLUGIN_VERSION: 2024.2.1
             WITH_IDEA_PLUGINS: true
-          #            UPLOAD_TEST_RESULTS: true
-
+          - IDEA_VERSION: LATEST-EAP-SNAPSHOT
+            SCALA_PLUGIN_VERSION: 2024.2.1
+            WITH_IDEA_PLUGINS: false
+#            UPLOAD_TEST_RESULTS: true
     uses: ./.github/workflows/test.yml
     secrets: inherit
     with:
