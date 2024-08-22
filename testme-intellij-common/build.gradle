@@ -1,39 +1,41 @@
-apply plugin: 'org.jetbrains.intellij'
+//apply plugin: 'org.jetbrains.intellij'
+apply plugin: 'org.jetbrains.intellij.platform'
 
+//intellij {
+//    pluginName = 'TestMe'
+//    instrumentCode = true
+//    version = '2023.2'
+//    type = 'IC'
+//    downloadSources = true
+//    sameSinceUntilBuild = false
+//    updateSinceUntilBuild = false
+//    plugins = ['java','junit','properties']
+//}
 
-def ideaVersion = (rootProject.hasProperty('ideaVersion') && rootProject.ideaVersion) ? rootProject.ideaVersion : '2019.3'
-def ideaType = (rootProject.hasProperty('ideaType') && rootProject.ideaType) ? rootProject.ideaType : 'IC'
-//def spockVersion = ideaVersion.startsWith("14.") || ideaVersion.startsWith("15.")? "1.0-groovy-2.3" : "1.0-groovy-2.4"
-def shouldInstrumentCode = rootProject.hasProperty('shouldInstrumentCode') ? rootProject.shouldInstrumentCode  : true
-apply from: "$rootProject.projectDir/shared.gradle"
-def enabledPlugins = ['java','junit','properties']
-enabledPlugins = filterPlugins(enabledPlugins)
+repositories {
+    mavenCentral()
 
-intellij {
-    pluginName = 'TestMe'
-    instrumentCode = shouldInstrumentCode
-    version = ideaVersion
-    type = ideaType
-    downloadSources = true
-    sameSinceUntilBuild = false
-    updateSinceUntilBuild = false
-    plugins = enabledPlugins
+    intellijPlatform {
+        defaultRepositories()
+    }
+}
+
+intellijPlatform {
+    pluginConfiguration {
+        name = 'TestMe'
+    }
 }
 
 dependencies {
+    intellijPlatform {
+        intellijIdeaCommunity '2024.2.0.1'
+
+        bundledPlugin 'com.intellij.java'
+
+        pluginVerifier()
+        zipSigner()
+        instrumentationTools()
+
+    }
     testImplementation 'org.mockito:mockito-core:4.3.1'
-}
-test {
-    jacoco {
-        includeNoLocationClasses = true
-        excludes = ["jdk.internal.*"]
-    }
-}
-jacocoTestReport {
-    dependsOn test // tests are required to run before generating the report
-    classDirectories.setFrom(instrumentCode)
-    reports {
-        xml.required = true
-    }
-    outputs.upToDateWhen { false } // Always generate report
 }

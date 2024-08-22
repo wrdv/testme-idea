@@ -200,7 +200,7 @@ public class FTManager {
     mySortedTemplates = null;
 
     LOG.assertTrue(previous == null, "Duplicate bundled template " + qName +
-                                     " [" + template.getTemplateURL() + ", " + previous + ']');
+                                     " [" + template.getName() + ", " + previous + ']');
     return testMeFileTemplate;
   }
 

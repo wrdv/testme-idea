@@ -1,37 +1,32 @@
-import org.gradle.api.tasks.testing.logging.TestExceptionFormat
-import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 plugins {
-    id "org.jetbrains.intellij" version "1.17.1"
+//    id "org.jetbrains.intellij" version "1.17.1"
     id 'jacoco'
     id 'org.unbroken-dome.test-sets' version '4.0.0'
     id "io.freefair.lombok" version "8.3"
+    id("org.jetbrains.intellij.platform") version "2.0.1"
+    id("org.jetbrains.intellij.platform.migration") version "2.0.1"
 }
-
-def enableIdeaGroovyPlugin=Boolean.valueOf(enableIdeaGroovyPlugin)
-def groovyOn = enableIdeaGroovyPlugin ? 'enabled':'disabled'
-def enableIdeaScalaPlugin=Boolean.valueOf(enableIdeaScalaPlugin)
-def scalaOn = enableIdeaScalaPlugin ? 'enabled':'disabled'
-
-println "*****************************************************************************************************************************************************************"
-println "              Running build for ideaVersion: $ideaVersion and scalaPluginVersion: $scalaPluginVersion with Groovy plugin ${groovyOn} and Scala plugin ${scalaOn}"
-println "*****************************************************************************************************************************************************************"
 
 apply plugin: 'java'
 apply plugin: 'groovy'
 apply plugin: 'idea'
-apply plugin: 'org.jetbrains.intellij'
+apply plugin: 'org.jetbrains.intellij.platform'
 
 def isRunInCI=Boolean.valueOf(System.getenv('CI'))
-//def spockVersion = ideaVersion.startsWith("2021")?   "1.0-groovy-2.4" : "2.2-groovy-3.0" //can't run spock 2.0 on Junit 4 engine
 def spockVersion = "1.0-groovy-2.4"
-def testedProjects = subprojects + rootProject
+
+repositories {
+    mavenCentral()
+    intellijPlatform {
+        defaultRepositories()
+    }
+}
+
 allprojects {
     sourceCompatibility = jvmTargetVersion
     targetCompatibility = jvmTargetVersion
-    repositories {
-        mavenCentral()
-    }
+
     jacoco {
         toolVersion = "0.8.11"
     }
@@ -40,83 +35,13 @@ allprojects {
         options.encoding = 'UTF-8'
         if (!javaHome) {
             println "javaHome var not set. setting java home from JAVA_HOME env var"
-            javaHome = System.getenv().JAVA_HOME //            javaHome =  'C:\\Program Files\\AdoptOpenJDK\\jdk-13.0.2.8-hotspot'
+            javaHome = System.getenv().JAVA_HOME
         }
         println "JAVA_HOME=$javaHome"
-//        options.bootClasspath = "$javaHome/jre/lib/rt.jar"
-    }
-    testSets {
-        integrationTest
     }
 
-    integrationTest {
-        afterTest { desc, result ->
-            println "Executing test [${desc.className}].${desc.name} with result: ${result.resultType}"
-        }
-        reports.html.required = !isRunInCI
-//        exclude '**/TestMeGenerator*'  //temp exclude. for shortening build time when testing build changes
-//        include '**/utils/TestSubjectResolverUtilsTest.class'  //temp exclude
-        jacoco {
-            includeNoLocationClasses = true
-            excludes = ["jdk.internal.*"]
-        }
-    }
-    tasks.withType(Test) {
-        systemProperty 'java.awt.headless', 'true'
-        systemProperty 'enableIdeaGroovyPlugin', enableIdeaGroovyPlugin
-        systemProperty 'enableIdeaScalaPlugin', enableIdeaScalaPlugin
-        reports.html.destination = file("${reporting.baseDir}/${name}")
-        testLogging {
-            exceptionFormat = TestExceptionFormat.FULL
-//            events TestLogEvent.FAILED, TestLogEvent.STANDARD_OUT, TestLogEvent.STANDARD_ERROR
-            events TestLogEvent.values()
-            showStandardStreams = true
-        }
-    }
-    test {
-        afterTest { desc, result ->
-            println "Executing test [${desc.className}].${desc.name} with result: ${result.resultType}"
-        }
-        reports.html.enabled = !isRunInCI
-        jacoco {
-            includeNoLocationClasses = true
-            excludes = ["jdk.internal.*"]
-        }
-    }
 }
 
-jacocoTestReport {
-    dependsOn test
-    classDirectories.setFrom(instrumentCode)
-    reports {
-        xml.enabled true //isRunInCI
-        html.enabled !isRunInCI
-    }
-    classDirectories.from = files(classDirectories.files.collect {
-        fileTree(dir: it, exclude: 'com/weirddev/testme/intellij/ui/**')
-    })
-    outputs.upToDateWhen { false } // Always generate report
-}
-tasks.register('jacocoIntTestReport', JacocoReport) {
-    dependsOn integrationTest
-    additionalSourceDirs.from = files(testedProjects.sourceSets.main.allSource.srcDirs)
-    sourceDirectories.from = files(testedProjects.sourceSets.main.allSource.srcDirs)
-    classDirectories.setFrom(instrumentCode)
-//    classDirectories.setFrom(testedProjects.findAll {it.instrumentCode.exists} collect {it.instrumentCode}) //https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin-faq.html#jacoco-reports-0-coverage
-//    executionData jacocoMerge.destinationFile
-    executionData(test, integrationTest)
-    reports {
-        xml.enabled true //isRunInCI
-        xml.destination file("${buildDir}/reports/jacoco/integrationTest/jacocoTestReport.xml")
-//        xml.required true
-        html.enabled !isRunInCI
-        html.destination file("${buildDir}/reports/jacoco/integrationTest/html")
-    }
-    classDirectories.from = files(classDirectories.files.collect {
-        fileTree(dir: it, exclude: 'com/weirddev/testme/intellij/ui/**')
-    })
-    outputs.upToDateWhen { false } // Always generate report
-}
 subprojects{
     apply plugin: 'java'
     apply plugin: 'groovy'
@@ -125,63 +50,31 @@ subprojects{
     apply plugin: "io.freefair.lombok"
     dependencies {
         testImplementation("org.spockframework:spock-core:$spockVersion"){
-//            exclude group: 'org.codehaus.groovy'
         }
     }
 }
 
-task jacocoMerge(type: JacocoMerge) {
-    testedProjects.each { proj ->
-        executionData proj.tasks.withType(Test)
-    }
-    doFirst {
-        executionData = files(executionData.findAll { it.exists() })
-    }
-}
-jacocoMerge.dependsOn check
+def enabledPlugins = ['java','junit','properties','Groovy',]
+enabledPlugins += ('org.intellij.scala:' + scalaPluginVersion)
 
-tasks.register('jacocoRootReport', JacocoReport) {
-    description = 'Generates an aggregate report from all subprojects'
-    dependsOn check, jacocoMerge
-    additionalSourceDirs.from = files(testedProjects.sourceSets.main.allSource.srcDirs)
-    sourceDirectories.from = files(testedProjects.sourceSets.main.allSource.srcDirs)
-//    classDirectories.from = files(testedProjects.sourceSets.main.output)
-//    classDirectories.setFrom(instrumentCode)
-    classDirectories.setFrom(testedProjects.collect {it.instrumentCode}) //https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin-faq.html#jacoco-reports-0-coverage
-//     executionData files(testedProjects*.tasks.withType(Test).executionData)
-    executionData jacocoMerge.destinationFile
-    reports {
-        xml.enabled true //isRunInCI
-        html.enabled !isRunInCI
-        html.destination file("${buildDir}/jacocoHtml")
+//intellij {
+//    pluginName = 'TestMe'
+//    instrumentCode = true
+//    version = '2023.2'
+//    type = 'IC'
+//    downloadSources = !isRunInCI
+//    sameSinceUntilBuild = false
+//    updateSinceUntilBuild = false
+//    plugins = enabledPlugins
+//}
+
+intellijPlatform {
+    pluginConfiguration {
+        name = 'TestMe'
     }
-    classDirectories.from = files(classDirectories.files.collect {
-        fileTree(dir: it, exclude: 'com/weirddev/testme/intellij/ui/**')
-    })
-    //outputs.upToDateWhen { false } // Always generate report
 }
 
-def shouldInstrumentCode = !Boolean.valueOf(System.getProperty('skipCodeInstrumentation','false'))
-def enabledPlugins = ['java','junit','properties']
-if (enableIdeaGroovyPlugin) {
-    enabledPlugins += 'Groovy'
-}
-if (enableIdeaScalaPlugin) {
-    enabledPlugins += ('org.intellij.scala:' + scalaPluginVersion)
-}
-apply from: "$rootProject.projectDir/shared.gradle"
-enabledPlugins = filterPlugins(enabledPlugins)
 
-intellij {
-    pluginName = 'TestMe'
-    instrumentCode = shouldInstrumentCode
-    version = ideaVersion
-    type = ideaType
-    downloadSources = !isRunInCI
-    sameSinceUntilBuild = false
-    updateSinceUntilBuild = false
-    plugins = enabledPlugins
-}
 publishPlugin {
     token = System.getenv("ORG_GRADLE_PROJECT_intellijPublishToken")
     channels = [ideaPublishChannel]
@@ -195,6 +88,18 @@ idea {
 }
 
 dependencies {
+    intellijPlatform {
+        intellijIdeaCommunity '2024.2.0.1'
+
+        bundledPlugin 'com.intellij.java'
+
+        pluginVerifier()
+        zipSigner()
+        instrumentationTools()
+
+    }
+
+    testImplementation 'junit:junit:4.13.2'
     implementation(project(':testme-intellij-common')){
         exclude group:'com.jetbrains', module: 'ideaIC'
         exclude group:'org.jetbrains.plugins', module: 'junit'
@@ -217,56 +122,5 @@ dependencies {
 
     compileOnly 'org.projectlombok:lombok:1.18.12'
     annotationProcessor 'org.projectlombok:lombok:1.18.12'
+}
 
-    testImplementation 'junit:junit:4.12'
-    testImplementation 'org.mockito:mockito-core:4.3.1'
-    testImplementation("org.spockframework:spock-core:$spockVersion"){
-//        exclude group: 'org.codehaus.groovy'
-    }
-//    testCompileOnly group: 'org.scala-lang', name: 'scala-library', version: '2.10.6'
-    testCompileOnly group: 'org.scala-lang', name: 'scala-library', version: '2.11.12'
-}
-def javadocHeader = ""
-check.dependsOn integrationTest
-integrationTest.mustRunAfter test
-task templateContextJavadocs(type: Javadoc, description: 'Generate javadocs for template context', group: 'Documentation') {
-    dependsOn delombok
-//    failOnError = false
-    destinationDir = file("$buildDir/docs/templateContextJavadoc")
-    title = "$project.name $version API"
-    options.author true
-    options.version true
-    options.memberLevel = JavadocMemberLevel.PUBLIC
-    options.links 'http://docs.oracle.com/javase/17/docs/api/'
-    options.addStringOption 'Xdoclint:none', '-quiet'
-    options.addBooleanOption "-allow-script-in-comments", true
-    options.header  = javadocHeader
-//    source = sourceSets.main.allJava
-    source += delombok
-//    classpath = configurations.compile  //should default to project.sourceSets.main.compileClasspath
-//    classpath += configurations.runtimeClasspath
-    include 'com/weirddev/testme/intellij/template/context/*'
-    exclude 'com/weirddev/testme/intellij/template/context/impl*'
-
-}
-task allJavadocs(type: Javadoc, description: 'Generate javadocs from all child projects as if it was a single project', group: 'Documentation') {
-    dependsOn delombok
-//    failOnError = false
-    destinationDir = file("$buildDir/docs/allJavadoc")
-    title = "$project.name $version API"
-    options.author true
-    options.version true
-    options.links 'http://docs.oracle.com/javase/17/docs/api/'
-    options.memberLevel = JavadocMemberLevel.PUBLIC
-    options.addBooleanOption "-allow-script-in-comments", true
-    options.header  = javadocHeader
-    options.addStringOption 'Xdoclint:none', '-quiet'
-    (subprojects+project).each { proj ->
-        proj.tasks.withType(Javadoc).each { javadocTask ->
-        source += javadocTask.source
-            classpath += javadocTask.classpath
-            excludes += "**/*.form"
-            excludes += "**/*.flex"
-        }
-    }
-}

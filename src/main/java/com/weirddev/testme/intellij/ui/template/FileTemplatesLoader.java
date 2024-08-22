@@ -13,6 +13,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.project.ProjectKt;
+import com.intellij.util.ResourceUtil;
 import com.intellij.util.UriUtil;
 import com.intellij.util.containers.MultiMap;
 import com.weirddev.testme.intellij.utils.UrlClassLoaderUtils;
@@ -23,6 +24,8 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
@@ -129,11 +132,11 @@ class FileTemplatesLoader {
               if (!processedUrls.add(url)) {
                 continue;
               }
-              loadDefaultsFromRoot(url, prefixes, result);
+              loadDefaultsFromRoot(plugin, url, prefixes, result);
             }
           }
         }
-        catch (IOException e) {
+        catch (Exception e) {
           LOG.error(e);
         }
       }
@@ -141,7 +144,7 @@ class FileTemplatesLoader {
     return result;
   }
 
-  private static void loadDefaultsFromRoot(@NotNull URL root, @NotNull List<String> prefixes, @NotNull FileTemplateLoadResult result) throws IOException {
+  private static void loadDefaultsFromRoot(PluginDescriptor module, @NotNull URL root, @NotNull List<String> prefixes, @NotNull FileTemplateLoadResult result) throws Exception {
     final List<String> children = UrlUtil.getChildrenRelativePaths(root);
     if (children.isEmpty()) {
       return;
@@ -177,11 +180,41 @@ class FileTemplatesLoader {
         String descriptionPath = getDescriptionPath(prefix, templateName, extension, descriptionPaths);
         URL descriptionUrl = descriptionPath == null ? null : toFullPath(root, descriptionPath);
         assert templateUrl != null;
-        result.getResult().putValue(prefix, new DefaultTemplate(templateName, extension, templateUrl, descriptionUrl));
+        ClassLoader classLoader = module.getClassLoader();
+        result.getResult().putValue(prefix,
+            new DefaultTemplate(
+                templateName,
+                extension,
+                it -> loadFileContent(classLoader, templateUrl, it),
+                it -> loadFileContent(classLoader, descriptionUrl, it),
+                descriptionPath,
+                Path.of(DEFAULT_TEMPLATES_ROOT).resolve(path),
+                module));
         // FTManagers loop
         break;
       }
     }
+  }
+
+  private static String loadFileContent(ClassLoader classLoader, Object root, String path){
+    String result = null;
+    try {
+      byte[] resourceAsBytesSafely = ResourceUtil.getResourceAsBytesSafely(path, classLoader);
+      if (!Objects.isNull(resourceAsBytesSafely)) {
+        return new String(resourceAsBytesSafely, StandardCharsets.UTF_8);
+      }
+      if (root instanceof URL rootUrl) {
+          URL url = new URL(rootUrl.getProtocol(), rootUrl.getHost(), rootUrl.getPort(),
+            rootUrl.getPath().replace(DEFAULT_TEMPLATES_ROOT, path));
+        result = ResourceUtil.loadText(url.openStream());
+      } else if (root instanceof Path dirPath) {
+        result = Files.readString(dirPath.resolve(path));
+      }
+
+    } catch (IOException e)  {
+      LOG.error(e.getMessage(), e);
+    }
+    return result;
   }
 
   private static URL toFullPath(@NotNull URL root, String path) throws MalformedURLException {
