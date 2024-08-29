@@ -1,32 +1,40 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 plugins {
-//    id "org.jetbrains.intellij" version "1.17.1"
     id 'jacoco'
-    id 'org.unbroken-dome.test-sets' version '4.0.0'
+    id 'org.unbroken-dome.test-sets' version '4.1.0'
     id "io.freefair.lombok" version "8.3"
     id("org.jetbrains.intellij.platform") version "2.0.1"
     id("org.jetbrains.intellij.platform.migration") version "2.0.1"
 }
 
-apply plugin: 'java'
-apply plugin: 'groovy'
-apply plugin: 'idea'
-apply plugin: 'org.jetbrains.intellij.platform'
+def enableIdeaGroovyPlugin=Boolean.valueOf(enableIdeaGroovyPlugin)
+def groovyOn = enableIdeaGroovyPlugin ? 'enabled':'disabled'
+def enableIdeaScalaPlugin=Boolean.valueOf(enableIdeaScalaPlugin)
+def scalaOn = enableIdeaScalaPlugin ? 'enabled':'disabled'
 
+println "*****************************************************************************************************************************************************************"
+println "              Running build for ideaVersion: $ideaVersion and scalaPluginVersion: $scalaPluginVersion with Groovy plugin ${groovyOn} and Scala plugin ${scalaOn}"
+println "*****************************************************************************************************************************************************************"
 def isRunInCI=Boolean.valueOf(System.getenv('CI'))
-def spockVersion = "1.0-groovy-2.4"
-
+def testedProjects = subprojects + rootProject
 repositories {
     mavenCentral()
+
     intellijPlatform {
         defaultRepositories()
     }
 }
 
+apply plugin: 'jacoco'
+
 allprojects {
     sourceCompatibility = jvmTargetVersion
     targetCompatibility = jvmTargetVersion
-
+    repositories {
+        mavenCentral()
+    }
     jacoco {
         toolVersion = "0.8.11"
     }
@@ -35,92 +43,89 @@ allprojects {
         options.encoding = 'UTF-8'
         if (!javaHome) {
             println "javaHome var not set. setting java home from JAVA_HOME env var"
-            javaHome = System.getenv().JAVA_HOME
+            javaHome = System.getenv().JAVA_HOME //            javaHome =  'C:\\Program Files\\AdoptOpenJDK\\jdk-13.0.2.8-hotspot'
         }
         println "JAVA_HOME=$javaHome"
     }
+    testSets {
+        integrationTest
+    }
 
-}
-
-subprojects{
-    apply plugin: 'java'
-    apply plugin: 'groovy'
-    apply plugin: 'idea'
-    apply plugin: 'jacoco'
-    apply plugin: "io.freefair.lombok"
-    dependencies {
-        testImplementation("org.spockframework:spock-core:$spockVersion"){
+    integrationTest {
+        afterTest { desc, result ->
+            println "Executing test [${desc.className}].${desc.name} with result: ${result.resultType}"
+        }
+        reports.html.required = !isRunInCI
+        jacoco {
+            includeNoLocationClasses = true
+            excludes = ["jdk.internal.*"]
+        }
+    }
+    tasks.withType(Test) {
+        systemProperty 'java.awt.headless', 'true'
+        systemProperty 'enableIdeaGroovyPlugin', enableIdeaGroovyPlugin
+        systemProperty 'enableIdeaScalaPlugin', enableIdeaScalaPlugin
+        reports.html.destination = file("${reporting.baseDir}/${name}")
+        testLogging {
+            exceptionFormat = TestExceptionFormat.FULL
+//            events TestLogEvent.FAILED, TestLogEvent.STANDARD_OUT, TestLogEvent.STANDARD_ERROR
+            events TestLogEvent.values()
+            showStandardStreams = true
+        }
+    }
+    test {
+        afterTest { desc, result ->
+            println "Executing test [${desc.className}].${desc.name} with result: ${result.resultType}"
+        }
+        reports.html.required = !isRunInCI
+        jacoco {
+            includeNoLocationClasses = true
+            excludes = ["jdk.internal.*"]
         }
     }
 }
 
-def enabledPlugins = ['java','junit','properties','Groovy',]
-enabledPlugins += ('org.intellij.scala:' + scalaPluginVersion)
+def javadocHeader = ""
+task templateContextJavadocs(type: Javadoc, description: 'Generate javadocs for template context', group: 'Documentation') {
+    dependsOn delombok
+//    failOnError = false
+    destinationDir = file("$buildDir/docs/templateContextJavadoc")
+    title = "$project.name $version API"
+    options.author true
+    options.version true
+    options.memberLevel = JavadocMemberLevel.PUBLIC
+    options.links 'http://docs.oracle.com/javase/17/docs/api/'
+    options.addStringOption 'Xdoclint:none', '-quiet'
+    options.addBooleanOption "-allow-script-in-comments", true
+    options.header  = javadocHeader
+//    source = sourceSets.main.allJava
+    source += delombok
+//    classpath = configurations.compile  //should default to project.sourceSets.main.compileClasspath
+//    classpath += configurations.runtimeClasspath
+    include 'com/weirddev/testme/intellij/template/context/*'
+    exclude 'com/weirddev/testme/intellij/template/context/impl*'
 
-//intellij {
-//    pluginName = 'TestMe'
-//    instrumentCode = true
-//    version = '2023.2'
-//    type = 'IC'
-//    downloadSources = !isRunInCI
-//    sameSinceUntilBuild = false
-//    updateSinceUntilBuild = false
-//    plugins = enabledPlugins
-//}
-
-intellijPlatform {
-    pluginConfiguration {
-        name = 'TestMe'
-    }
 }
 
-
-publishPlugin {
-    token = System.getenv("ORG_GRADLE_PROJECT_intellijPublishToken")
-    channels = [ideaPublishChannel]
-}
-idea {
-    project {
-        jdkName         = jvmTargetVersion
-        languageLevel   = jvmTargetVersion
-        vcs = 'Git'
+task allJavadocs(type: Javadoc, description: 'Generate javadocs from all child projects as if it was a single project', group: 'Documentation') {
+    dependsOn delombok
+//    failOnError = false
+    destinationDir = file("$buildDir/docs/allJavadoc")
+    title = "$project.name $version API"
+    options.author true
+    options.version true
+    options.links 'http://docs.oracle.com/javase/17/docs/api/'
+    options.memberLevel = JavadocMemberLevel.PUBLIC
+    options.addBooleanOption "-allow-script-in-comments", true
+    options.header  = javadocHeader
+    options.addStringOption 'Xdoclint:none', '-quiet'
+    (subprojects+project).each { proj ->
+        proj.tasks.withType(Javadoc).each { javadocTask ->
+        source += javadocTask.source
+            classpath += javadocTask.classpath
+            excludes += "**/*.form"
+            excludes += "**/*.flex"
+        }
     }
-}
-
-dependencies {
-    intellijPlatform {
-        intellijIdeaCommunity '2024.2.0.1'
-
-        bundledPlugin 'com.intellij.java'
-
-        pluginVerifier()
-        zipSigner()
-        instrumentationTools()
-
-    }
-
-    testImplementation 'junit:junit:4.13.2'
-    implementation(project(':testme-intellij-common')){
-        exclude group:'com.jetbrains', module: 'ideaIC'
-        exclude group:'org.jetbrains.plugins', module: 'junit'
-        exclude group:'org.jetbrains.plugins', module: 'properties'
-        exclude group:'org.jetbrains.plugins', module: 'Groovy'
-    }
-    implementation(project(':testme-intellij-groovy')){
-        exclude group:'com.jetbrains', module: 'ideaIC'
-        exclude group:'org.jetbrains.plugins', module: 'junit'
-        exclude group:'org.jetbrains.plugins', module: 'properties'
-        exclude group:'org.jetbrains.plugins', module: 'Groovy'
-    }
-    implementation(project(':testme-intellij-scala')){
-        exclude group:'com.jetbrains', module: 'ideaIC'
-        exclude group:'org.jetbrains.plugins', module: 'junit'
-        exclude group:'org.jetbrains.plugins', module: 'properties'
-        exclude group:'org.jetbrains.plugins', module: 'Groovy'
-        exclude group:'org.jetbrains.plugins', module: 'Scala'
-    }
-
-    compileOnly 'org.projectlombok:lombok:1.18.12'
-    annotationProcessor 'org.projectlombok:lombok:1.18.12'
 }
 

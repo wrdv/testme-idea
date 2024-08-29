@@ -1,43 +1,24 @@
-//apply plugin: 'org.jetbrains.intellij'
 apply plugin: 'org.jetbrains.intellij.platform'
-
-def enabledPlugins = ['com.intellij.java','org.intellij.groovy']
-
-//intellij {
-//    pluginName = 'TestMe'
-//    instrumentCode = true
-//    version = '2023.2'
-//    type = 'IC'
-//    downloadSources = true
-//    sameSinceUntilBuild = false
-//    updateSinceUntilBuild = false
-//    plugins = enabledPlugins
-//}
-
-intellijPlatform {
-    pluginConfiguration {
-        name = 'TestMe'
-    }
-}
 
 repositories {
     mavenCentral()
-
     intellijPlatform {
         defaultRepositories()
     }
 }
 
+intellijPlatform {
+    pluginConfiguration {
+        name = 'TestMe-groovy'
+    }
+}
+
+def enabledPlugins = ['com.intellij.java','org.intellij.groovy']
 dependencies {
     intellijPlatform {
         intellijIdeaCommunity '2024.2.0.1'
-
         bundledPlugins(enabledPlugins)
-
-        pluginVerifier()
-        zipSigner()
         instrumentationTools()
-
     }
     implementation(project(':testme-intellij-common')){
         exclude group:'com.jetbrains', module: 'ideaIC'

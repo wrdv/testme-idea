@@ -1,19 +1,9 @@
-//apply plugin: 'org.jetbrains.intellij'
 apply plugin: 'org.jetbrains.intellij.platform'
-
-//intellij {
-//    pluginName = 'TestMe'
-//    instrumentCode = true
-//    version = '2023.2'
-//    type = 'IC'
-//    downloadSources = true
-//    sameSinceUntilBuild = false
-//    updateSinceUntilBuild = false
-//    plugins = ['java','junit','properties']
-//}
+apply plugin: "io.freefair.lombok"
 
 repositories {
     mavenCentral()
+//    maven { url 'https://maven.aliyun.com/nexus/content/groups/public/' }
 
     intellijPlatform {
         defaultRepositories()
@@ -22,20 +12,16 @@ repositories {
 
 intellijPlatform {
     pluginConfiguration {
-        name = 'TestMe'
+        name = 'TestMe-common'
     }
 }
 
 dependencies {
     intellijPlatform {
         intellijIdeaCommunity '2024.2.0.1'
-
         bundledPlugin 'com.intellij.java'
-
-        pluginVerifier()
-        zipSigner()
         instrumentationTools()
-
     }
     testImplementation 'org.mockito:mockito-core:4.3.1'
+    annotationProcessor 'org.projectlombok:lombok:1.18.12'
 }

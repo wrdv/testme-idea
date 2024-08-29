@@ -177,8 +177,8 @@ class FileTemplatesLoader {
         String extension = FileUtilRt.getExtension(filename);
         String templateName = filename.substring(0, filename.length() - extension.length() - 1);
         URL templateUrl = toFullPath(root, path);
-        String descriptionPath = getDescriptionPath(prefix, templateName, extension, descriptionPaths);
-        URL descriptionUrl = descriptionPath == null ? null : toFullPath(root, descriptionPath);
+        String descriptionPath = FileTemplatesLoader.TESTS_DIR+"/"+ DEFAULT_TEMPLATE_DESCRIPTION_FILENAME;
+        URL descriptionUrl = toFullPath(root, descriptionPath);
         assert templateUrl != null;
         ClassLoader classLoader = module.getClassLoader();
         result.getResult().putValue(prefix,

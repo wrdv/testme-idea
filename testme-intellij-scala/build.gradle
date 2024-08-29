@@ -1,22 +1,6 @@
-//apply plugin: 'org.jetbrains.intellij'
 apply plugin: 'org.jetbrains.intellij.platform'
-def scalaPluginVersion = (rootProject.hasProperty('scalaPluginVersion') && rootProject.scalaPluginVersion) ? rootProject.scalaPluginVersion : '2019.3.19'
-def enabledPlugins = ['com.intellij.java',"org.intellij.scala:$scalaPluginVersion"]
-
-//intellij {
-//    pluginName = 'TestMe'
-//    instrumentCode = true
-//    version = '2023.2'
-//    type = 'IC'
-//    downloadSources = true
-//    sameSinceUntilBuild = false
-//    updateSinceUntilBuild = false
-//    plugins = enabledPlugins
-//}
-
 repositories {
     mavenCentral()
-
     intellijPlatform {
         defaultRepositories()
     }
@@ -24,21 +8,16 @@ repositories {
 
 intellijPlatform {
     pluginConfiguration {
-        name = 'TestMe'
+        name = 'TestMe-scala'
     }
 }
 
 dependencies {
     intellijPlatform {
         intellijIdeaCommunity '2024.2.0.1'
-
         bundledPlugin 'com.intellij.java'
         plugin 'org.intellij.scala:2024.2.1'
-
-        pluginVerifier()
-        zipSigner()
         instrumentationTools()
-
     }
     implementation(project(':testme-intellij-common')){
         exclude group:'com.jetbrains', module: 'ideaIC'
