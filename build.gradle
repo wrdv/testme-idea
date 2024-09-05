@@ -107,11 +107,19 @@ intellijPlatform {
 }
 
 def spockVersion = "1.0-groovy-2.4"
+def enabledBundledPlugins = ["com.intellij.java"]
+if (enableIdeaGroovyPlugin) {
+    enabledBundledPlugins += "org.intellij.groovy"
+}
+def otherPlugins = []
+if (enableIdeaScalaPlugin) {
+    otherPlugins += ("org.intellij.scala:" + scalaPluginVersion)
+}
 dependencies {
     intellijPlatform {
         create(providers.gradleProperty("ideaType"), providers.gradleProperty("ideaVersion"))
-        bundledPlugins providers.gradleProperty("platformBundledPlugins").map { it.split(',').toList() }
-        plugins providers.gradleProperty("platformPlugins").map { it.split(',').toList() }
+        bundledPlugins(enabledBundledPlugins)
+        plugins(otherPlugins)
         instrumentationTools()
         pluginVerifier()
         zipSigner()
