@@ -22,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -30,6 +31,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.function.Function;
 
 /**
  * Serves as a container for all existing template manager types and loads corresponding templates upon creation (at construction time).
@@ -144,62 +146,87 @@ class FileTemplatesLoader {
     return result;
   }
 
-  private static void loadDefaultsFromRoot(PluginDescriptor module, @NotNull URL root, @NotNull List<String> prefixes, @NotNull FileTemplateLoadResult result) throws Exception {
-    final List<String> children = UrlUtil.getChildrenRelativePaths(root);
-    if (children.isEmpty()) {
-      return;
-    }
-
-    final Set<String> descriptionPaths = new HashSet<>();
-    for (String path : children) {
-      if (path.equals(FileTemplatesLoader.TESTS_DIR+"/"+ DEFAULT_TEMPLATE_DESCRIPTION_FILENAME)) {
-        result.setDefaultTemplateDescription(toFullPath(root, path));
-      }
-      else if (path.equals(FileTemplatesLoader.INCLUDES_DIR + "/"+ DEFAULT_TEMPLATE_DESCRIPTION_FILENAME)) {
-        result.setDefaultIncludeDescription(toFullPath(root, path));
-      }
-      else if (path.endsWith(DESCRIPTION_EXTENSION_SUFFIX)) {
-        descriptionPaths.add(path);
-      }
-    }
-
-    for (final String path : children) {
-      if (!path.endsWith(FTManager.TEMPLATE_EXTENSION_SUFFIX)) {
-        continue;
+  private static void loadDefaultsFromRoot(PluginDescriptor module, @NotNull URL root, @NotNull List<String> prefixes,
+      @NotNull FileTemplateLoadResult result) throws Exception {
+      final List<String> children = UrlUtil.getChildrenRelativePaths(root);
+      if (children.isEmpty()) {
+          return;
       }
 
-      for (String prefix : prefixes) {
-        if (!matchesPrefix(path, prefix)) {
-          continue;
-        }
-
-        String filename = path.substring(prefix.length(), path.length() - FTManager.TEMPLATE_EXTENSION_SUFFIX.length());
-        String extension = FileUtilRt.getExtension(filename);
-        String templateName = filename.substring(0, filename.length() - extension.length() - 1);
-        URL templateUrl = toFullPath(root, path);
-        String descriptionPath = FileTemplatesLoader.TESTS_DIR+"/"+ DEFAULT_TEMPLATE_DESCRIPTION_FILENAME;
-        URL descriptionUrl = toFullPath(root, descriptionPath);
-        assert templateUrl != null;
-        ClassLoader classLoader = module.getClassLoader();
-        result.getResult().putValue(prefix,
-            new DefaultTemplate(
-                templateName,
-                extension,
-                it -> loadFileContent(classLoader, templateUrl, it),
-                it -> loadFileContent(classLoader, descriptionUrl, it),
-                descriptionPath,
-                Path.of(DEFAULT_TEMPLATES_ROOT).resolve(path),
-                module));
-        // FTManagers loop
-        break;
+      final Set<String> descriptionPaths = new HashSet<>();
+      for (String path : children) {
+          if (path.equals(FileTemplatesLoader.TESTS_DIR + "/" + DEFAULT_TEMPLATE_DESCRIPTION_FILENAME)) {
+              result.setDefaultTemplateDescription(toFullPath(root, path));
+          } else if (path.equals(FileTemplatesLoader.INCLUDES_DIR + "/" + DEFAULT_TEMPLATE_DESCRIPTION_FILENAME)) {
+              result.setDefaultIncludeDescription(toFullPath(root, path));
+          } else if (path.endsWith(DESCRIPTION_EXTENSION_SUFFIX)) {
+              descriptionPaths.add(path);
+          }
       }
-    }
+
+      for (final String path : children) {
+          if (!path.endsWith(FTManager.TEMPLATE_EXTENSION_SUFFIX)) {
+              continue;
+          }
+
+          for (String prefix : prefixes) {
+              if (!matchesPrefix(path, prefix)) {
+                  continue;
+              }
+
+              result.getResult().putValue(prefix,
+                  createDefaultTemplateInstance(root, module, path, prefix, descriptionPaths));
+              // FTManagers loop
+              break;
+          }
+      }
+  }
+
+  private static DefaultTemplate createDefaultTemplateInstance(URL root, PluginDescriptor module, String path,
+      String prefix, Set<String> descriptionPaths) throws Exception {
+      Class<DefaultTemplate> defaultTemplateClass = DefaultTemplate.class;
+      Constructor<?>[] constructors = defaultTemplateClass.getConstructors();
+      // only one constructor in DefaultTemplate
+      Constructor<DefaultTemplate> constructor = (Constructor<DefaultTemplate>)constructors[0];
+      int parameterCount = constructor.getParameterCount();
+
+      String filename = path.substring(prefix.length(), path.length() - FTManager.TEMPLATE_EXTENSION_SUFFIX.length());
+      String extension = FileUtilRt.getExtension(filename);
+      String templateName = filename.substring(0, filename.length() - extension.length() - 1);
+      URL templateUrl = toFullPath(root, path);
+      assert templateUrl != null;
+
+      // for idea 2024
+      if (parameterCount == 7) {
+          String descriptionPath = FileTemplatesLoader.TESTS_DIR + "/" + DEFAULT_TEMPLATE_DESCRIPTION_FILENAME;
+          URL descriptionUrl = toFullPath(root, descriptionPath);
+          ClassLoader classLoader = module.getClassLoader();
+          Function<String, String> templateLoaderFun = it -> loadFileContent(classLoader, templateUrl, it);
+          Function<String, String> descriptionLoaderFun = it -> loadFileContent(classLoader, descriptionUrl, it);
+          return constructor.newInstance(
+              templateName,
+              extension,
+              templateLoaderFun,
+              descriptionLoaderFun,
+              descriptionPath,
+              Path.of(DEFAULT_TEMPLATES_ROOT).resolve(path),
+              module);
+      } else {
+          // for idea before 2024
+          String descriptionPath = getDescriptionPath(prefix, templateName, extension, descriptionPaths);
+          URL descriptionUrl = descriptionPath == null ? null : toFullPath(root, descriptionPath);
+          return constructor.newInstance(
+              templateName,
+              extension,
+              templateUrl,
+              descriptionUrl);
+      }
   }
 
   private static String loadFileContent(ClassLoader classLoader, Object root, String path){
     String result = null;
     try {
-      byte[] resourceAsBytesSafely = ResourceUtil.getResourceAsBytesSafely(path, classLoader);
+      byte[] resourceAsBytesSafely = ResourceUtil.getResourceAsBytes(path, classLoader);
       if (!Objects.isNull(resourceAsBytesSafely)) {
         return new String(resourceAsBytesSafely, StandardCharsets.UTF_8);
       }
