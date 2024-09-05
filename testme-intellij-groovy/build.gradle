@@ -1,4 +1,6 @@
-apply plugin: 'org.jetbrains.intellij.platform'
+plugins {
+    id 'org.jetbrains.intellij.platform.module'
+}
 
 repositories {
     mavenCentral()
@@ -16,7 +18,7 @@ intellijPlatform {
 def enabledPlugins = ['com.intellij.java','org.intellij.groovy']
 dependencies {
     intellijPlatform {
-        intellijIdeaCommunity '2024.2.0.1'
+        create(providers.gradleProperty("ideaType"), providers.gradleProperty("ideaVersion"))
         bundledPlugins(enabledPlugins)
         instrumentationTools()
     }

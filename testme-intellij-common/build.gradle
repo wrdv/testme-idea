@@ -1,10 +1,9 @@
-apply plugin: 'org.jetbrains.intellij.platform'
+plugins {
+    id 'org.jetbrains.intellij.platform.module'
+}
 apply plugin: "io.freefair.lombok"
-
 repositories {
     mavenCentral()
-//    maven { url 'https://maven.aliyun.com/nexus/content/groups/public/' }
-
     intellijPlatform {
         defaultRepositories()
     }
@@ -18,7 +17,7 @@ intellijPlatform {
 
 dependencies {
     intellijPlatform {
-        intellijIdeaCommunity '2024.2.0.1'
+        create(providers.gradleProperty("ideaType"), providers.gradleProperty("ideaVersion"))
         bundledPlugin 'com.intellij.java'
         instrumentationTools()
     }
