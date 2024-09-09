@@ -186,9 +186,14 @@ class FileTemplatesLoader {
       String prefix, Set<String> descriptionPaths) throws Exception {
       Class<DefaultTemplate> defaultTemplateClass = DefaultTemplate.class;
       Constructor<?>[] constructors = defaultTemplateClass.getConstructors();
-      // only one constructor in DefaultTemplate
-      Constructor<DefaultTemplate> constructor = (Constructor<DefaultTemplate>)constructors[0];
-      int parameterCount = constructor.getParameterCount();
+
+      // find DefaultTemplate constructor for idea after 2024
+      Constructor<DefaultTemplate> constructor2024 = (Constructor<DefaultTemplate>)Arrays.stream(constructors)
+          .filter(ctor -> ctor.getParameterCount() == 7).findFirst().orElse(null);
+
+      // find DefaultTemplate constructor for idea 2023
+      Constructor<DefaultTemplate> constructor2023 = (Constructor<DefaultTemplate>)Arrays.stream(constructors)
+          .filter(ctor -> ctor.getParameterCount() == 4).findFirst().orElse(null);
 
       String filename = path.substring(prefix.length(), path.length() - FTManager.TEMPLATE_EXTENSION_SUFFIX.length());
       String extension = FileUtilRt.getExtension(filename);
@@ -197,29 +202,21 @@ class FileTemplatesLoader {
       assert templateUrl != null;
 
       // for idea 2024
-      if (parameterCount == 7) {
+      if (null != constructor2024) {
           String descriptionPath = FileTemplatesLoader.TESTS_DIR + "/" + DEFAULT_TEMPLATE_DESCRIPTION_FILENAME;
           URL descriptionUrl = toFullPath(root, descriptionPath);
           ClassLoader classLoader = module.getClassLoader();
           Function<String, String> templateLoaderFun = it -> loadFileContent(classLoader, templateUrl, it);
           Function<String, String> descriptionLoaderFun = it -> loadFileContent(classLoader, descriptionUrl, it);
-          return constructor.newInstance(
-              templateName,
-              extension,
-              templateLoaderFun,
-              descriptionLoaderFun,
-              descriptionPath,
-              Path.of(DEFAULT_TEMPLATES_ROOT).resolve(path),
-              module);
-      } else {
-          // for idea before 2024
+          return constructor2024.newInstance(templateName, extension, templateLoaderFun, descriptionLoaderFun,
+              descriptionPath, Path.of(DEFAULT_TEMPLATES_ROOT).resolve(path), module);
+      } else if (null != constructor2023) {
+          // for idea 2023
           String descriptionPath = getDescriptionPath(prefix, templateName, extension, descriptionPaths);
           URL descriptionUrl = descriptionPath == null ? null : toFullPath(root, descriptionPath);
-          return constructor.newInstance(
-              templateName,
-              extension,
-              templateUrl,
-              descriptionUrl);
+          return constructor2023.newInstance(templateName, extension, templateUrl, descriptionUrl);
+      } else {
+          throw new RuntimeException("FileTemplatesLoader create DefaultTemplate instance with constructor error!");
       }
   }
 

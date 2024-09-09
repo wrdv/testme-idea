@@ -282,7 +282,7 @@ public final class TestTemplatesConfigurable implements SearchableConfigurable, 
     group.add(cloneAction);
     group.add(resetAction);
 
-    addAction.registerCustomShortcutSet(CommonShortcuts.ENTER, myCurrentTab.getComponent());
+    addAction.registerCustomShortcutSet(CommonShortcuts.getInsert(), myCurrentTab.getComponent());
     removeAction.registerCustomShortcutSet(CommonShortcuts.getDelete(),
                                            myCurrentTab.getComponent());
 
