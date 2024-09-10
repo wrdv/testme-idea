@@ -53,6 +53,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.intellij.openapi.actionSystem.CommonShortcuts.getInsertKeystroke;
+
 public final class TestTemplatesConfigurable implements SearchableConfigurable, Configurable.NoMargin, Configurable.NoScroll, Configurable.VariableProjectAppLevel {
 
   private static final Logger LOG = Logger.getInstance(TestTemplatesConfigurable.class);
@@ -282,7 +284,7 @@ public final class TestTemplatesConfigurable implements SearchableConfigurable, 
     group.add(cloneAction);
     group.add(resetAction);
 
-    addAction.registerCustomShortcutSet(CommonShortcuts.getInsert(), myCurrentTab.getComponent());
+    addAction.registerCustomShortcutSet(new CustomShortcutSet(getInsertKeystroke()), myCurrentTab.getComponent());
     removeAction.registerCustomShortcutSet(CommonShortcuts.getDelete(),
                                            myCurrentTab.getComponent());
 
