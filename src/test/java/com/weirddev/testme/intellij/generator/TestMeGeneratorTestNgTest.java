@@ -7,18 +7,17 @@ import com.weirddev.testme.intellij.template.TemplateRegistry;
 import com.weirddev.testme.intellij.template.context.Language;
 import com.weirddev.testme.intellij.ui.customizedialog.FileTemplateCustomization;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Date: 13/12/2016
+ * Date: 23/05/2017
  *
  * @author Yaron Yamin
  */
-public class TestMeGeneratorJunit5Test extends TestMeGeneratorTestBase {
+public class TestMeGeneratorTestNgTest extends TestMeGeneratorTestBase {
 
-    public TestMeGeneratorJunit5Test() {
-        super(TemplateRegistry.JUNIT5_MOCKITO_JAVA_TEMPLATE, "testJunit5", Language.Java);
+    public TestMeGeneratorTestNgTest() {
+        super(TemplateRegistry.TESTNG_MOCKITO_JAVA_TEMPLATE, "testTestNg", Language.Java);
     }
 
     public void testSimpleClass() throws Exception {
@@ -64,4 +63,5 @@ public class TestMeGeneratorJunit5Test extends TestMeGeneratorTestBase {
             new FileTemplateCustomization(selectedFieldNameList, selectedMethodIdList, true);
         doTest(fileTemplateConfig, customization);
     }
+
 }

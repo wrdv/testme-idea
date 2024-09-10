@@ -7,7 +7,6 @@ import com.weirddev.testme.intellij.template.TemplateRegistry;
 import com.weirddev.testme.intellij.template.context.Language;
 import com.weirddev.testme.intellij.ui.customizedialog.FileTemplateCustomization;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class TestMeGeneratorJunit4PowerMockTest extends TestMeGeneratorTestBase {

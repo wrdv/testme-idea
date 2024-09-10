@@ -1,39 +1,26 @@
-apply plugin: 'org.jetbrains.intellij'
+plugins {
+    id 'org.jetbrains.intellij.platform.module'
+}
+apply plugin: "io.freefair.lombok"
+repositories {
+    mavenCentral()
+    intellijPlatform {
+        defaultRepositories()
+    }
+}
 
-
-def ideaVersion = (rootProject.hasProperty('ideaVersion') && rootProject.ideaVersion) ? rootProject.ideaVersion : '2019.3'
-def ideaType = (rootProject.hasProperty('ideaType') && rootProject.ideaType) ? rootProject.ideaType : 'IC'
-//def spockVersion = ideaVersion.startsWith("14.") || ideaVersion.startsWith("15.")? "1.0-groovy-2.3" : "1.0-groovy-2.4"
-def shouldInstrumentCode = rootProject.hasProperty('shouldInstrumentCode') ? rootProject.shouldInstrumentCode  : true
-apply from: "$rootProject.projectDir/shared.gradle"
-def enabledPlugins = ['java','junit','properties']
-enabledPlugins = filterPlugins(enabledPlugins)
-
-intellij {
-    pluginName = 'TestMe'
-    instrumentCode = shouldInstrumentCode
-    version = ideaVersion
-    type = ideaType
-    downloadSources = true
-    sameSinceUntilBuild = false
-    updateSinceUntilBuild = false
-    plugins = enabledPlugins
+intellijPlatform {
+    pluginConfiguration {
+        name = 'TestMe-common'
+    }
 }
 
 dependencies {
+    intellijPlatform {
+        create(providers.gradleProperty("ideaType"), providers.gradleProperty("ideaVersion"))
+        bundledPlugin 'com.intellij.java'
+        instrumentationTools()
+    }
     testImplementation 'org.mockito:mockito-core:4.3.1'
-}
-test {
-    jacoco {
-        includeNoLocationClasses = true
-        excludes = ["jdk.internal.*"]
-    }
-}
-jacocoTestReport {
-    dependsOn test // tests are required to run before generating the report
-    classDirectories.setFrom(instrumentCode)
-    reports {
-        xml.required = true
-    }
-    outputs.upToDateWhen { false } // Always generate report
+    annotationProcessor 'org.projectlombok:lombok:1.18.12'
 }

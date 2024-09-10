@@ -13,6 +13,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.project.ProjectKt;
+import com.intellij.util.ResourceUtil;
 import com.intellij.util.UriUtil;
 import com.intellij.util.containers.MultiMap;
 import com.weirddev.testme.intellij.utils.UrlClassLoaderUtils;
@@ -21,12 +22,16 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.function.Function;
 
 /**
  * Serves as a container for all existing template manager types and loads corresponding templates upon creation (at construction time).
@@ -129,11 +134,11 @@ class FileTemplatesLoader {
               if (!processedUrls.add(url)) {
                 continue;
               }
-              loadDefaultsFromRoot(url, prefixes, result);
+              loadDefaultsFromRoot(plugin, url, prefixes, result);
             }
           }
         }
-        catch (IOException e) {
+        catch (Exception e) {
           LOG.error(e);
         }
       }
@@ -141,47 +146,99 @@ class FileTemplatesLoader {
     return result;
   }
 
-  private static void loadDefaultsFromRoot(@NotNull URL root, @NotNull List<String> prefixes, @NotNull FileTemplateLoadResult result) throws IOException {
-    final List<String> children = UrlUtil.getChildrenRelativePaths(root);
-    if (children.isEmpty()) {
-      return;
+  private static void loadDefaultsFromRoot(PluginDescriptor module, @NotNull URL root, @NotNull List<String> prefixes,
+      @NotNull FileTemplateLoadResult result) throws Exception {
+      final List<String> children = UrlUtil.getChildrenRelativePaths(root);
+      if (children.isEmpty()) {
+          return;
+      }
+
+      final Set<String> descriptionPaths = new HashSet<>();
+      for (String path : children) {
+          if (path.equals(FileTemplatesLoader.TESTS_DIR + "/" + DEFAULT_TEMPLATE_DESCRIPTION_FILENAME)) {
+              result.setDefaultTemplateDescription(toFullPath(root, path));
+          } else if (path.equals(FileTemplatesLoader.INCLUDES_DIR + "/" + DEFAULT_TEMPLATE_DESCRIPTION_FILENAME)) {
+              result.setDefaultIncludeDescription(toFullPath(root, path));
+          } else if (path.endsWith(DESCRIPTION_EXTENSION_SUFFIX)) {
+              descriptionPaths.add(path);
+          }
+      }
+
+      for (final String path : children) {
+          if (!path.endsWith(FTManager.TEMPLATE_EXTENSION_SUFFIX)) {
+              continue;
+          }
+
+          for (String prefix : prefixes) {
+              if (!matchesPrefix(path, prefix)) {
+                  continue;
+              }
+
+              result.getResult().putValue(prefix,
+                  createDefaultTemplateInstance(root, module, path, prefix, descriptionPaths));
+              // FTManagers loop
+              break;
+          }
+      }
+  }
+
+  private static DefaultTemplate createDefaultTemplateInstance(URL root, PluginDescriptor module, String path,
+      String prefix, Set<String> descriptionPaths) throws Exception {
+      Class<DefaultTemplate> defaultTemplateClass = DefaultTemplate.class;
+      Constructor<?>[] constructors = defaultTemplateClass.getConstructors();
+
+      // find DefaultTemplate constructor for idea after 2024
+      Constructor<DefaultTemplate> constructor2024 = (Constructor<DefaultTemplate>)Arrays.stream(constructors)
+          .filter(ctor -> ctor.getParameterCount() == 7).findFirst().orElse(null);
+
+      // find DefaultTemplate constructor for idea 2023
+      Constructor<DefaultTemplate> constructor2023 = (Constructor<DefaultTemplate>)Arrays.stream(constructors)
+          .filter(ctor -> ctor.getParameterCount() == 4).findFirst().orElse(null);
+
+      String filename = path.substring(prefix.length(), path.length() - FTManager.TEMPLATE_EXTENSION_SUFFIX.length());
+      String extension = FileUtilRt.getExtension(filename);
+      String templateName = filename.substring(0, filename.length() - extension.length() - 1);
+      URL templateUrl = toFullPath(root, path);
+      assert templateUrl != null;
+
+      // for idea 2024
+      if (null != constructor2024) {
+          String descriptionPath = FileTemplatesLoader.TESTS_DIR + "/" + DEFAULT_TEMPLATE_DESCRIPTION_FILENAME;
+          URL descriptionUrl = toFullPath(root, descriptionPath);
+          ClassLoader classLoader = module.getClassLoader();
+          Function<String, String> templateLoaderFun = it -> loadFileContent(classLoader, templateUrl, it);
+          Function<String, String> descriptionLoaderFun = it -> loadFileContent(classLoader, descriptionUrl, it);
+          return constructor2024.newInstance(templateName, extension, templateLoaderFun, descriptionLoaderFun,
+              descriptionPath, Path.of(DEFAULT_TEMPLATES_ROOT).resolve(path), module);
+      } else if (null != constructor2023) {
+          // for idea 2023
+          String descriptionPath = getDescriptionPath(prefix, templateName, extension, descriptionPaths);
+          URL descriptionUrl = descriptionPath == null ? null : toFullPath(root, descriptionPath);
+          return constructor2023.newInstance(templateName, extension, templateUrl, descriptionUrl);
+      } else {
+          throw new RuntimeException("FileTemplatesLoader create DefaultTemplate instance with constructor error!");
+      }
+  }
+
+  private static String loadFileContent(ClassLoader classLoader, Object root, String path){
+    String result = null;
+    try {
+      byte[] resourceAsBytesSafely = ResourceUtil.getResourceAsBytes(path, classLoader);
+      if (!Objects.isNull(resourceAsBytesSafely)) {
+        return new String(resourceAsBytesSafely, StandardCharsets.UTF_8);
+      }
+      if (root instanceof URL rootUrl) {
+          URL url = new URL(rootUrl.getProtocol(), rootUrl.getHost(), rootUrl.getPort(),
+            rootUrl.getPath().replace(DEFAULT_TEMPLATES_ROOT, path));
+        result = ResourceUtil.loadText(url.openStream());
+      } else if (root instanceof Path dirPath) {
+        result = Files.readString(dirPath.resolve(path));
+      }
+
+    } catch (IOException e)  {
+      LOG.error(e.getMessage(), e);
     }
-
-    final Set<String> descriptionPaths = new HashSet<>();
-    for (String path : children) {
-      if (path.equals(FileTemplatesLoader.TESTS_DIR+"/"+ DEFAULT_TEMPLATE_DESCRIPTION_FILENAME)) {
-        result.setDefaultTemplateDescription(toFullPath(root, path));
-      }
-      else if (path.equals(FileTemplatesLoader.INCLUDES_DIR + "/"+ DEFAULT_TEMPLATE_DESCRIPTION_FILENAME)) {
-        result.setDefaultIncludeDescription(toFullPath(root, path));
-      }
-      else if (path.endsWith(DESCRIPTION_EXTENSION_SUFFIX)) {
-        descriptionPaths.add(path);
-      }
-    }
-
-    for (final String path : children) {
-      if (!path.endsWith(FTManager.TEMPLATE_EXTENSION_SUFFIX)) {
-        continue;
-      }
-
-      for (String prefix : prefixes) {
-        if (!matchesPrefix(path, prefix)) {
-          continue;
-        }
-
-        String filename = path.substring(prefix.length(), path.length() - FTManager.TEMPLATE_EXTENSION_SUFFIX.length());
-        String extension = FileUtilRt.getExtension(filename);
-        String templateName = filename.substring(0, filename.length() - extension.length() - 1);
-        URL templateUrl = toFullPath(root, path);
-        String descriptionPath = getDescriptionPath(prefix, templateName, extension, descriptionPaths);
-        URL descriptionUrl = descriptionPath == null ? null : toFullPath(root, descriptionPath);
-        assert templateUrl != null;
-        result.getResult().putValue(prefix, new DefaultTemplate(templateName, extension, templateUrl, descriptionUrl));
-        // FTManagers loop
-        break;
-      }
-    }
+    return result;
   }
 
   private static URL toFullPath(@NotNull URL root, String path) throws MalformedURLException {

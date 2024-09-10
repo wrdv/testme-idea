@@ -7,38 +7,30 @@ import com.weirddev.testme.intellij.template.TemplateRegistry;
 import com.weirddev.testme.intellij.template.context.Language;
 import com.weirddev.testme.intellij.ui.customizedialog.FileTemplateCustomization;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Date: 23/05/2017
+ * Date: 24/02/2017
  *
  * @author Yaron Yamin
  */
-public class TestMeGeneratorTestNgTest extends TestMeGeneratorTestBase {
-
-    public TestMeGeneratorTestNgTest() {
-        super(TemplateRegistry.TESTNG_MOCKITO_JAVA_TEMPLATE, "testTestNg", Language.Java);
+public class TestMeGeneratorSpockTest extends TestMeGeneratorTestBase {
+    public TestMeGeneratorSpockTest() {
+        super(TemplateRegistry.SPOCK_MOCKITO_GROOVY_TEMPLATE, "testSpock", Language.Groovy);
+        expectedTestClassExtension = "groovy";
+        skipTestIfGroovyPluginDisabled();
     }
-
-    public void testSimpleClass() throws Exception {
+    public void testBean() throws Exception{
         doTest();
     }
-    public void testVariousFieldTypes() throws Exception {
-        doTest();
+    public void testCtorOverProps() throws Exception{
+        doTest(true,true,true);
     }
-    public void testArrays() throws Exception {
-        doTest(false, false, true);
+
+    public void testGenerics() throws Exception{
+        doTest(true,true,true);
     }
     public void testMockReturned() throws Exception {
-        doTest(new FileTemplateConfig(TestMeConfigPersistent.getInstance().getState()));
-    }
-
-    public void testUtilWithoutAccessableCtor() {
-        doTest(true, true, true);
-    }
-
-    public void testVerifyMethodCall() {
         doTest(new FileTemplateConfig(TestMeConfigPersistent.getInstance().getState()));
     }
 
@@ -64,5 +56,4 @@ public class TestMeGeneratorTestNgTest extends TestMeGeneratorTestBase {
             new FileTemplateCustomization(selectedFieldNameList, selectedMethodIdList, true);
         doTest(fileTemplateConfig, customization);
     }
-
 }
