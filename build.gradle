@@ -23,7 +23,7 @@ println "***********************************************************************
 println "              Running build for ideaVersion: $ideaVersion and scalaPluginVersion: $scalaPluginVersion with Groovy plugin ${groovyOn} and Scala plugin ${scalaOn}"
 println "*****************************************************************************************************************************************************************"
 def isRunInCI=Boolean.valueOf(System.getenv('CI'))
-def testedProjects = subprojects + rootProject
+
 repositories {
     mavenCentral()
     intellijPlatform {
@@ -85,6 +85,7 @@ allprojects {
             includeNoLocationClasses = true
             excludes = ["jdk.internal.*"]
         }
+        useJUnitPlatform()
     }
 }
 
@@ -130,37 +131,44 @@ dependencies {
 //                "TemplateWordInPluginId,ForbiddenPluginIdPrefix"
 //        )
 //    }
-        testFramework(TestFrameworkType.Platform.INSTANCE)
+//        testFramework(TestFrameworkType.Platform.INSTANCE)
+        testFramework(TestFrameworkType.JUnit5.INSTANCE)
         testFramework(TestFrameworkType.Plugin.Java.INSTANCE)
+        pluginModule(implementation(project(':testme-intellij-common')))
+        pluginModule(implementation(project(':testme-intellij-groovy')))
+        pluginModule(implementation(project(':testme-intellij-scala')))
     }
 
-    testImplementation 'junit:junit:4.13.2'
-    implementation(project(':testme-intellij-common')) {
-        exclude group: 'com.jetbrains', module: 'ideaIC'
-        exclude group: 'org.jetbrains.plugins', module: 'junit'
-        exclude group: 'org.jetbrains.plugins', module: 'properties'
-        exclude group: 'org.jetbrains.plugins', module: 'Groovy'
-    }
-    implementation(project(':testme-intellij-groovy')) {
-        exclude group: 'com.jetbrains', module: 'ideaIC'
-        exclude group: 'org.jetbrains.plugins', module: 'junit'
-        exclude group: 'org.jetbrains.plugins', module: 'properties'
-        exclude group: 'org.jetbrains.plugins', module: 'Groovy'
-    }
-    implementation(project(':testme-intellij-scala')) {
-        exclude group: 'com.jetbrains', module: 'ideaIC'
-        exclude group: 'org.jetbrains.plugins', module: 'junit'
-        exclude group: 'org.jetbrains.plugins', module: 'properties'
-        exclude group: 'org.jetbrains.plugins', module: 'Groovy'
-        exclude group: 'org.jetbrains.plugins', module: 'Scala'
-    }
-
+//    implementation(project(':testme-intellij-common')) {
+//        exclude group: 'com.jetbrains', module: 'ideaIC'
+//        exclude group: 'org.jetbrains.plugins', module: 'junit'
+//        exclude group: 'org.jetbrains.plugins', module: 'properties'
+//        exclude group: 'org.jetbrains.plugins', module: 'Groovy'
+//    }
+//    implementation(project(':testme-intellij-groovy')) {
+//        exclude group: 'com.jetbrains', module: 'ideaIC'
+//        exclude group: 'org.jetbrains.plugins', module: 'junit'
+//        exclude group: 'org.jetbrains.plugins', module: 'properties'
+//        exclude group: 'org.jetbrains.plugins', module: 'Groovy'
+//    }
+//    implementation(project(':testme-intellij-scala')) {
+//        exclude group: 'com.jetbrains', module: 'ideaIC'
+//        exclude group: 'org.jetbrains.plugins', module: 'junit'
+//        exclude group: 'org.jetbrains.plugins', module: 'properties'
+//        exclude group: 'org.jetbrains.plugins', module: 'Groovy'
+//        exclude group: 'org.jetbrains.plugins', module: 'Scala'
+//    }
+//
     compileOnly 'org.projectlombok:lombok:1.18.20'
     annotationProcessor 'org.projectlombok:lombok:1.18.20'
 
+    testCompileOnly group: 'org.scala-lang', name: 'scala-library', version: '2.11.12'
     testImplementation 'org.mockito:mockito-core:4.3.1'
     testImplementation("org.spockframework:spock-core:2.3-groovy-3.0")
-    testCompileOnly group: 'org.scala-lang', name: 'scala-library', version: '2.11.12'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.7.1'
+    testImplementation 'junit:junit:4.13.2'
+    testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
 }
 
 def javadocHeader = ""

@@ -9,11 +9,11 @@ repositories {
     }
 }
 
-intellijPlatform {
-    pluginConfiguration {
-        name = 'TestMe-scala'
-    }
-}
+//intellijPlatform {
+//    pluginConfiguration {
+//        name = 'TestMe-scala'
+//    }
+//}
 
 dependencies {
     intellijPlatform {

@@ -29,8 +29,8 @@
   <idea-version since-build="232" until-build="241.*"/>
   <depends>com.intellij.modules.java</depends>
   <depends>JUnit</depends>
-  <depends optional="true" config-file="META-INF/plugin-groovy.xml">org.intellij.groovy</depends>
-  <depends optional="true" config-file="META-INF/plugin-scala.xml">org.intellij.scala</depends>
+  <depends optional="true" config-file="plugin-groovy.xml">org.intellij.groovy</depends>
+  <depends optional="true" config-file="plugin-scala.xml">org.intellij.scala</depends>
   <extensions defaultExtensionNs="com.intellij">
     <applicationConfigurable parentId="root" displayName="TestMe" id="preferences.TestMe" instance="com.weirddev.testme.intellij.ui.settings.TestMeConfigurable"/>
     <projectConfigurable  id="preferences.TestMe.templates"  parentId="preferences.TestMe"  displayName="TestMe Templates" provider="com.weirddev.testme.intellij.ui.template.TestTemplatesConfigurable$Provider"/>

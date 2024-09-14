@@ -9,11 +9,11 @@ repositories {
     }
 }
 
-intellijPlatform {
-    pluginConfiguration {
-        name = 'TestMe-groovy'
-    }
-}
+//intellijPlatform {
+//    pluginConfiguration {
+//        name = 'TestMe-groovy'
+//    }
+//}
 
 def enabledPlugins = ['com.intellij.java','org.intellij.groovy']
 dependencies {
