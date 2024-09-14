@@ -9,10 +9,8 @@ plugins {
     id("org.jetbrains.intellij.platform") version "2.0.1"
 }
 
-//apply plugin: 'jacoco'
-//apply plugin: "org.jetbrains.intellij.platform"
-apply plugin: 'java'
 apply plugin: 'groovy'
+apply plugin: 'java'
 
 def enableIdeaGroovyPlugin=Boolean.valueOf(enableIdeaGroovyPlugin)
 def groovyOn = enableIdeaGroovyPlugin ? 'enabled':'disabled'
@@ -88,7 +86,18 @@ allprojects {
         useJUnitPlatform()
     }
 }
-
+jacocoTestReport {
+    dependsOn test
+    classDirectories.setFrom(instrumentCode)
+    reports {
+        xml.required = true
+        html.required = !isRunInCI
+    }
+    classDirectories.from = files(classDirectories.files.collect {
+        fileTree(dir: it, exclude: 'com/weirddev/testme/intellij/ui/**')
+    })
+    outputs.upToDateWhen { false } // Always generate report
+}
 def shouldInstrumentCode = !Boolean.valueOf(System.getProperty('skipCodeInstrumentation', 'false'))
 intellijPlatform {
     projectName = 'TestMe'
@@ -168,7 +177,23 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
 }
-
+//tasks.register('jacocoRootReport', JacocoReport) {
+//    description = 'Generates an aggregate report from all subprojects'
+//    dependsOn check, jacocoMerge
+//    additionalSourceDirs.from = files(testedProjects.sourceSets.main.allSource.srcDirs)
+//    sourceDirectories.from = files(testedProjects.sourceSets.main.allSource.srcDirs)
+////    classDirectories.from = files(testedProjects.sourceSets.main.output)
+////    classDirectories.setFrom(instrumentCode)
+//    classDirectories.setFrom(testedProjects.collect { it.instrumentCode })
+//    //https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin-faq.html#jacoco-reports-0-coverage
+////     executionData files(testedProjects*.tasks.withType(Test).executionData)
+//    executionData jacocoMerge.destinationFile
+//    reports {
+//        xml.enabled true //isRunInCI
+//        html.enabled !isRunInCI
+//        html.destination file("${buildDir}/jacocoHtml")
+//    }
+//}
 def javadocHeader = ""
 task templateContextJavadocs(type: Javadoc, description: 'Generate javadocs for template context', group: 'Documentation') {
     dependsOn delombok

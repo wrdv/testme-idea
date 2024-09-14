@@ -37,7 +37,8 @@ jobs:
 #        uses: gradle/gradle-build-action@v2
 #        with:
         run: |
-          ./gradlew check jacocoTestReport jacocoIntTestReport -PideaVersion=${{ inputs.IDEA_VERSION }} -PscalaPluginVersion=${{ inputs.SCALA_PLUGIN_VERSION }} -PenableIdeaGroovyPlugin=${{ inputs.WITH_IDEA_PLUGINS }} -PenableIdeaScalaPlugin=${{ inputs.WITH_IDEA_PLUGINS }}
+#          ./gradlew check jacocoTestReport jacocoIntTestReport -PideaVersion=${{ inputs.IDEA_VERSION }} -PscalaPluginVersion=${{ inputs.SCALA_PLUGIN_VERSION }} -PenableIdeaGroovyPlugin=${{ inputs.WITH_IDEA_PLUGINS }} -PenableIdeaScalaPlugin=${{ inputs.WITH_IDEA_PLUGINS }}
+          ./gradlew check jacocoTestReport -PideaVersion=${{ inputs.IDEA_VERSION }} -PscalaPluginVersion=${{ inputs.SCALA_PLUGIN_VERSION }} -PenableIdeaGroovyPlugin=${{ inputs.WITH_IDEA_PLUGINS }} -PenableIdeaScalaPlugin=${{ inputs.WITH_IDEA_PLUGINS }}
 
       - name: Test Report
         uses: dorny/test-reporter@v1

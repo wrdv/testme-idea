@@ -1,5 +1,6 @@
 plugins {
     id 'org.jetbrains.intellij.platform.module'
+    id 'jacoco'
 }
 apply plugin: 'groovy'
 repositories {
@@ -30,4 +31,19 @@ dependencies {
     }
     compileOnly group: 'org.scala-lang', name: 'scala-library', version: '2.11.12'
     testImplementation("org.spockframework:spock-core:2.3-groovy-3.0")
+}
+
+test {
+    jacoco {
+          includeNoLocationClasses = true
+        excludes = ["jdk.internal.*"]
+    }
+}
+jacocoTestReport {
+    dependsOn test // tests are required to run before generating the report
+    classDirectories.setFrom(instrumentCode)
+    reports {
+        xml.required = true
+    }
+    outputs.upToDateWhen { false } // Always generate report
 }

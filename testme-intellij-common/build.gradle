@@ -1,5 +1,6 @@
 plugins {
     id 'org.jetbrains.intellij.platform.module'
+    id 'jacoco'
 }
 apply plugin: "io.freefair.lombok"
 apply plugin: 'groovy'
@@ -26,4 +27,18 @@ dependencies {
     testImplementation 'org.mockito:mockito-core:4.3.1'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.7.1'
     testImplementation("org.spockframework:spock-core:2.3-groovy-3.0")
+}
+test {
+    jacoco {
+        includeNoLocationClasses = true
+        excludes = ["jdk.internal.*"]
+    }
+}
+jacocoTestReport {
+    dependsOn test // tests are required to run before generating the report
+    classDirectories.setFrom(instrumentCode)
+    reports {
+        xml.required = true
+    }
+    outputs.upToDateWhen { false } // Always generate report
 }
