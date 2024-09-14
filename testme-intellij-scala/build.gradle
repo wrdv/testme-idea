@@ -1,7 +1,7 @@
 plugins {
     id 'org.jetbrains.intellij.platform.module'
 }
-
+apply plugin: 'groovy'
 repositories {
     mavenCentral()
     intellijPlatform {
@@ -28,4 +28,6 @@ dependencies {
         exclude group:'org.jetbrains.plugins', module: 'properties'
         exclude group:'org.jetbrains.plugins', module: 'Groovy'
     }
+    compileOnly group: 'org.scala-lang', name: 'scala-library', version: '2.11.12'
+    testImplementation("org.spockframework:spock-core:2.3-groovy-3.0")
 }

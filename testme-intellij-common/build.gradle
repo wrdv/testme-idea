@@ -2,6 +2,7 @@ plugins {
     id 'org.jetbrains.intellij.platform.module'
 }
 apply plugin: "io.freefair.lombok"
+apply plugin: 'groovy'
 repositories {
     mavenCentral()
     intellijPlatform {
@@ -9,11 +10,11 @@ repositories {
     }
 }
 
-intellijPlatform {
-    pluginConfiguration {
-        name = 'TestMe-common'
-    }
-}
+//intellijPlatform {
+//    pluginConfiguration {
+//        name = 'TestMe-common'
+//    }
+//}
 
 dependencies {
     intellijPlatform {
@@ -21,6 +22,8 @@ dependencies {
         bundledPlugin 'com.intellij.java'
         instrumentationTools()
     }
-    testImplementation 'org.mockito:mockito-core:4.3.1'
     annotationProcessor 'org.projectlombok:lombok:1.18.12'
+    testImplementation 'org.mockito:mockito-core:4.3.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.7.1'
+    testImplementation("org.spockframework:spock-core:2.3-groovy-3.0")
 }
