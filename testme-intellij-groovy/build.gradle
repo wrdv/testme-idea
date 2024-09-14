@@ -31,6 +31,10 @@ dependencies {
     }
 }
 test {
+    afterTest { desc, result ->
+        println "Executing test [${desc.className}].${desc.name} with result: ${result.resultType}"
+    }
+    useJUnitPlatform()
     jacoco {
           includeNoLocationClasses = true
         excludes = ["jdk.internal.*"]

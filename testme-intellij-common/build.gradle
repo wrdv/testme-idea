@@ -29,6 +29,10 @@ dependencies {
     testImplementation("org.spockframework:spock-core:2.3-groovy-3.0")
 }
 test {
+    afterTest { desc, result ->
+        println "Executing test [${desc.className}].${desc.name} with result: ${result.resultType}"
+    }
+    useJUnitPlatform()
     jacoco {
         includeNoLocationClasses = true
         excludes = ["jdk.internal.*"]
