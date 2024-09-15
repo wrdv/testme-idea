@@ -20,20 +20,33 @@ def scalaOn = enableIdeaScalaPlugin ? 'enabled':'disabled'
 println "*****************************************************************************************************************************************************************"
 println "              Running build for ideaVersion: $ideaVersion and scalaPluginVersion: $scalaPluginVersion with Groovy plugin ${groovyOn} and Scala plugin ${scalaOn}"
 println "*****************************************************************************************************************************************************************"
-def isRunInCI=Boolean.valueOf(System.getenv('CI'))
 
+def isRunInCI=Boolean.valueOf(System.getenv('CI'))
+def turnOffPlugins = []
+if (!enableIdeaScalaPlugin) {
+    turnOffPlugins += "org.intellij.scala"
+}
+if (!enableIdeaGroovyPlugin) {
+    turnOffPlugins += "org.intellij.groovy"
+}
 repositories {
     mavenCentral()
     intellijPlatform {
         defaultRepositories()
+        jetbrainsRuntime()
     }
 }
 dependencies {
     intellijPlatform {
-        create(providers.gradleProperty("ideaType"), providers.gradleProperty("ideaVersion"))
+        create(providers.gradleProperty("ideaType"), providers.gradleProperty("ideaVersion")/*, useInstaller = false*/)
+        jetbrainsRuntime()
         bundledPlugins(["org.intellij.groovy"])
         plugins(["org.intellij.scala:" + scalaPluginVersion])
         instrumentationTools()
+        prepareTestSandbox {
+            disabledPlugins = turnOffPlugins
+        }
+
 //        pluginVerifier()
 //        zipSigner()
 //    pluginVerification {
@@ -79,27 +92,6 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
 }
-def disabledPlugins = []
-if (!enableIdeaScalaPlugin) {
-    disabledPlugins += "org.intellij.scala"
-}
-if (!enableIdeaGroovyPlugin) {
-    disabledPlugins += "org.intellij.groovy"
-}
-intellijPlatformTesting.testIde {
-    testCustomSetup {
-        plugins  {
-            println "disablePlugins: "+disabledPlugins
-            disablePlugins(disabledPlugins)
-        }
-    }
-}
-//tasks.test.configure {
-//    actions +=  tasks.named('testCustomSetup').get().actions
-//    actions.clear()
-//    dependsOn('testCustomSetup')
-//}
-//tasks.named('testCustomSetup', Test) {
 def shouldInstrumentCode = !Boolean.valueOf(System.getProperty('skipCodeInstrumentation', 'false'))
 intellijPlatform {
     projectName = 'TestMe'
@@ -163,7 +155,6 @@ allprojects {
 }
 
 test {
-    actions +=  tasks.named('testCustomSetup').get().actions
     afterTest { desc, result ->
         println "Executing test [${desc.className}].${desc.name} with result: ${result.resultType}"
     }
