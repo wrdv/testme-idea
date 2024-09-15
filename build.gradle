@@ -74,18 +74,8 @@ allprojects {
             showStandardStreams = true
         }
     }
-    test {
-        afterTest { desc, result ->
-            println "Executing test [${desc.className}].${desc.name} with result: ${result.resultType}"
-        }
-        reports.html.required = !isRunInCI
-        jacoco {
-            includeNoLocationClasses = true
-            excludes = ["jdk.internal.*"]
-        }
-        useJUnitPlatform()
-    }
 }
+
 jacocoTestReport {
     dependsOn test
     classDirectories.setFrom(instrumentCode)
@@ -187,6 +177,18 @@ tasks.test.configure {
     actions.clear()
     dependsOn('testCustomSetup')
 }
+tasks.named('testCustomSetup', Test) {
+    afterTest { desc, result ->
+        println "Executing test [${desc.className}].${desc.name} with result: ${result.resultType}"
+    }
+    reports.html.required = !isRunInCI
+    jacoco {
+        includeNoLocationClasses = true
+        excludes = ["jdk.internal.*"]
+    }
+    useJUnitPlatform()
+}
+
 //tasks.register('jacocoRootReport', JacocoReport) {
 //    description = 'Generates an aggregate report from all subprojects'
 //    dependsOn check, jacocoMerge
