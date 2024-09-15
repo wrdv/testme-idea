@@ -28,84 +28,6 @@ repositories {
         defaultRepositories()
     }
 }
-
-allprojects {
-    sourceCompatibility = jvmTargetVersion
-    targetCompatibility = jvmTargetVersion
-    repositories {
-        mavenCentral()
-    }
-    jacoco {
-        toolVersion = "0.8.11"
-    }
-
-    tasks.withType(JavaCompile) {
-        options.encoding = 'UTF-8'
-        if (!javaHome) {
-            println "javaHome var not set. setting java home from JAVA_HOME env var"
-            javaHome = System.getenv().JAVA_HOME //            javaHome =  'C:\\Program Files\\AdoptOpenJDK\\jdk-13.0.2.8-hotspot'
-        }
-        println "JAVA_HOME=$javaHome"
-    }
-    testSets {
-        integrationTest
-    }
-    integrationTest {
-        afterTest { desc, result ->
-            println "Executing test [${desc.className}].${desc.name} with result: ${result.resultType}"
-        }
-        reports.html.required = !isRunInCI
-//        exclude '**/TestMeGenerator*'  //temp exclude. for shortening build time when testing build changes
-//        include '**/utils/TestSubjectResolverUtilsTest.class'  //temp exclude
-        jacoco {
-            includeNoLocationClasses = true
-            excludes = ["jdk.internal.*"]
-        }
-    }
-    tasks.withType(Test) {
-        systemProperty 'java.awt.headless', 'true'
-        systemProperty 'enableIdeaGroovyPlugin', enableIdeaGroovyPlugin
-        systemProperty 'enableIdeaScalaPlugin', enableIdeaScalaPlugin
-        reports.html.destination = file("${reporting.baseDir}/${name}")
-        testLogging {
-            exceptionFormat = TestExceptionFormat.FULL
-//            events TestLogEvent.FAILED, TestLogEvent.STANDARD_OUT, TestLogEvent.STANDARD_ERROR
-            events TestLogEvent.values()
-            showStandardStreams = true
-        }
-    }
-}
-
-jacocoTestReport {
-    dependsOn test
-    classDirectories.setFrom(instrumentCode)
-    reports {
-        xml.required = true
-        html.required = !isRunInCI
-    }
-    classDirectories.from = files(classDirectories.files.collect {
-        fileTree(dir: it, exclude: 'com/weirddev/testme/intellij/ui/**')
-    })
-    outputs.upToDateWhen { false } // Always generate report
-}
-def shouldInstrumentCode = !Boolean.valueOf(System.getProperty('skipCodeInstrumentation', 'false'))
-intellijPlatform {
-    projectName = 'TestMe'
-    instrumentCode = shouldInstrumentCode
-    pluginConfiguration {
-        id = group
-        name = 'TestMe'
-        version = testMeVersion
-        ideaVersion {
-            sinceBuild = '232'
-//           untilBuild = '242.*'
-        }
-    }
-    publishing {
-        token = System.getenv("ORG_GRADLE_PROJECT_intellijPublishToken")
-        channels = [ideaPublishChannel]
-    }
-}
 dependencies {
     intellijPlatform {
         create(providers.gradleProperty("ideaType"), providers.gradleProperty("ideaVersion"))
@@ -157,7 +79,6 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
 }
-
 def disabledPlugins = []
 if (!enableIdeaScalaPlugin) {
     disabledPlugins += "org.intellij.scala"
@@ -173,11 +94,76 @@ intellijPlatformTesting.testIde {
         }
     }
 }
-tasks.test.configure {
-    actions.clear()
-    dependsOn('testCustomSetup')
+//tasks.test.configure {
+//    actions +=  tasks.named('testCustomSetup').get().actions
+//    actions.clear()
+//    dependsOn('testCustomSetup')
+//}
+//tasks.named('testCustomSetup', Test) {
+def shouldInstrumentCode = !Boolean.valueOf(System.getProperty('skipCodeInstrumentation', 'false'))
+intellijPlatform {
+    projectName = 'TestMe'
+    instrumentCode = shouldInstrumentCode
+    pluginConfiguration {
+        id = group
+        name = 'TestMe'
+        version = testMeVersion
+        ideaVersion {
+            sinceBuild = '232'
+//           untilBuild = '242.*'
+        }
+    }
+    publishing {
+        token = System.getenv("ORG_GRADLE_PROJECT_intellijPublishToken")
+        channels = [ideaPublishChannel]
+    }
 }
-tasks.named('testCustomSetup', Test) {
+
+allprojects {
+    sourceCompatibility = jvmTargetVersion
+    targetCompatibility = jvmTargetVersion
+    jacoco {
+        toolVersion = "0.8.11"
+    }
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
+        if (!javaHome) {
+            println "javaHome var not set. setting java home from JAVA_HOME env var"
+            javaHome = System.getenv().JAVA_HOME //            javaHome =  'C:\\Program Files\\AdoptOpenJDK\\jdk-13.0.2.8-hotspot'
+        }
+        println "JAVA_HOME=$javaHome"
+    }
+    testSets {
+        integrationTest
+    }
+    integrationTest {
+        afterTest { desc, result ->
+            println "Executing test [${desc.className}].${desc.name} with result: ${result.resultType}"
+        }
+        reports.html.required = !isRunInCI
+//        exclude '**/TestMeGenerator*'  //temp exclude. for shortening build time when testing build changes
+//        include '**/utils/TestSubjectResolverUtilsTest.class'  //temp exclude
+        jacoco {
+            includeNoLocationClasses = true
+            excludes = ["jdk.internal.*"]
+        }
+    }
+    tasks.withType(Test) {
+        systemProperty 'java.awt.headless', 'true'
+        systemProperty 'enableIdeaGroovyPlugin', enableIdeaGroovyPlugin
+        systemProperty 'enableIdeaScalaPlugin', enableIdeaScalaPlugin
+        reports.html.destination = file("${reporting.baseDir}/${name}")
+        testLogging {
+            exceptionFormat = TestExceptionFormat.FULL
+//            events TestLogEvent.FAILED, TestLogEvent.STANDARD_OUT, TestLogEvent.STANDARD_ERROR
+            events TestLogEvent.values()
+            showStandardStreams = true
+        }
+    }
+}
+
+test {
+    actions +=  tasks.named('testCustomSetup').get().actions
     afterTest { desc, result ->
         println "Executing test [${desc.className}].${desc.name} with result: ${result.resultType}"
     }
@@ -188,6 +174,19 @@ tasks.named('testCustomSetup', Test) {
     }
     useJUnitPlatform()
 }
+jacocoTestReport {
+    dependsOn test
+    classDirectories.setFrom(instrumentCode)
+    reports {
+        xml.required = true
+        html.required = !isRunInCI
+    }
+    classDirectories.from = files(classDirectories.files.collect {
+        fileTree(dir: it, exclude: 'com/weirddev/testme/intellij/ui/**')
+    })
+    outputs.upToDateWhen { false } // Always generate report
+}
+
 
 //tasks.register('jacocoRootReport', JacocoReport) {
 //    description = 'Generates an aggregate report from all subprojects'
