@@ -116,21 +116,11 @@ intellijPlatform {
         channels = [ideaPublishChannel]
     }
 }
-
-def enabledBundledPlugins = ["com.intellij.java"]
-if (enableIdeaGroovyPlugin) {
-    enabledBundledPlugins += "org.intellij.groovy"
-}
-def otherPlugins = []
-if (enableIdeaScalaPlugin) {
-    otherPlugins += ("org.intellij.scala:" + scalaPluginVersion)
-}
 dependencies {
     intellijPlatform {
         create(providers.gradleProperty("ideaType"), providers.gradleProperty("ideaVersion"))
-        bundledPlugins(enabledBundledPlugins)
-        plugins(otherPlugins)
-
+        bundledPlugins(["org.intellij.groovy"])
+        plugins(["org.intellij.scala:" + scalaPluginVersion])
         instrumentationTools()
 //        pluginVerifier()
 //        zipSigner()
@@ -177,6 +167,23 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     testRuntimeOnly 'org.junit.vintage:junit-vintage-engine'
 }
+
+def disabledPlugins = []
+if (!enableIdeaScalaPlugin) {
+    disabledPlugins += "org.intellij.scala"
+}
+if (!enableIdeaGroovyPlugin) {
+    disabledPlugins += "org.intellij.groovy"
+}
+intellijPlatformTesting.testIde {
+    testCustomSetup {
+        plugins  {
+            println "disablePlugins: "+disabledPlugins
+            disablePlugins(disabledPlugins)
+        }
+    }
+}
+
 //tasks.register('jacocoRootReport', JacocoReport) {
 //    description = 'Generates an aggregate report from all subprojects'
 //    dependsOn check, jacocoMerge

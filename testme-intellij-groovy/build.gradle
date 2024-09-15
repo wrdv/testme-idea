@@ -16,11 +16,10 @@ repositories {
 //    }
 //}
 
-def enabledPlugins = ['com.intellij.java','org.intellij.groovy']
 dependencies {
     intellijPlatform {
         create(providers.gradleProperty("ideaType"), providers.gradleProperty("ideaVersion"))
-        bundledPlugins(enabledPlugins)
+        bundledPlugins(['com.intellij.java', 'org.intellij.groovy'])
         instrumentationTools()
     }
     implementation(project(':testme-intellij-common')){
@@ -36,7 +35,7 @@ test {
     }
     useJUnitPlatform()
     jacoco {
-          includeNoLocationClasses = true
+        includeNoLocationClasses = true
         excludes = ["jdk.internal.*"]
     }
 }

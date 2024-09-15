@@ -67,7 +67,7 @@ jobs:
           
       - name: Upload to Codecov
         uses: codecov/codecov-action@v4
-        if: github.event.pull_request.head.repo.fork == false
+        if: ${{ github.event.pull_request.head.repo.fork == false && inputs.WITH_IDEA_PLUGINS == 'true' }}
         with:
 #          files: ./coverage1.xml,./coverage2.xml # optional
 #          flags: unittests # optional
