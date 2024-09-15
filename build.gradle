@@ -183,7 +183,10 @@ intellijPlatformTesting.testIde {
         }
     }
 }
-
+tasks.test.configure {
+    actions.clear()
+    dependsOn('testCustomSetup')
+}
 //tasks.register('jacocoRootReport', JacocoReport) {
 //    description = 'Generates an aggregate report from all subprojects'
 //    dependsOn check, jacocoMerge
