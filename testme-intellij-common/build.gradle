@@ -8,6 +8,8 @@ repositories {
     mavenCentral()
     intellijPlatform {
         defaultRepositories()
+        jetbrainsRuntime()
+        snapshots()
     }
 }
 
@@ -19,7 +21,7 @@ repositories {
 
 dependencies {
     intellijPlatform {
-        create(providers.gradleProperty("ideaType"), providers.gradleProperty("ideaVersion"))
+        create(providers.gradleProperty("ideaType"), providers.gradleProperty("ideaVersion"), useInstaller)
         bundledPlugin 'com.intellij.java'
         instrumentationTools()
     }

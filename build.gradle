@@ -1,6 +1,7 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
+//import org.jetbrains.intellij.platform.gradle.IntelliJPlatformType
 
 plugins {
     id 'jacoco'
@@ -29,16 +30,20 @@ if (!enableIdeaScalaPlugin) {
 if (!enableIdeaGroovyPlugin) {
     turnOffPlugins += "org.intellij.groovy"
 }
+ext {
+    useInstaller = ideaVersion != 'LATEST-EAP-SNAPSHOT' //EAP versions are not bundled with OS installer. for other versions better use bundled OS installer as it's more like production environment
+}
 repositories {
     mavenCentral()
     intellijPlatform {
         defaultRepositories()
         jetbrainsRuntime()
+        snapshots()
     }
 }
 dependencies {
     intellijPlatform {
-        create(providers.gradleProperty("ideaType"), providers.gradleProperty("ideaVersion")/*, useInstaller = false*/)
+        create(providers.gradleProperty("ideaType"), providers.gradleProperty("ideaVersion"), useInstaller)
         jetbrainsRuntime()
         bundledPlugins(["org.intellij.groovy"])
         plugins(["org.intellij.scala:" + scalaPluginVersion])
