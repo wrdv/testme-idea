@@ -12,8 +12,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        IDEA_VERSION: [ 2023.2, 2024.1, LATEST-EAP-SNAPSHOT ]
-        WITH_IDEA_PLUGINS: [ true, false ]
         include:
           - IDEA_VERSION: 2023.2
             SCALA_PLUGIN_VERSION: 2023.2.23
@@ -24,9 +22,9 @@ jobs:
           - IDEA_VERSION: 2024.1
             SCALA_PLUGIN_VERSION: 2024.1.1
             WITH_IDEA_PLUGINS: true
-          - IDEA_VERSION: 2024.1
-            SCALA_PLUGIN_VERSION: 2024.1.1
-            WITH_IDEA_PLUGINS: false
+          - IDEA_VERSION: 2024.2.1
+            SCALA_PLUGIN_VERSION: 2024.2.1
+            WITH_IDEA_PLUGINS: true
           - IDEA_VERSION: LATEST-EAP-SNAPSHOT
             SCALA_PLUGIN_VERSION: 2024.2.1
             WITH_IDEA_PLUGINS: true

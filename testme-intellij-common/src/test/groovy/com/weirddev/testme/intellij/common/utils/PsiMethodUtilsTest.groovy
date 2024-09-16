@@ -5,10 +5,11 @@ import com.intellij.psi.PsiMethod
 import com.intellij.psi.PsiParameter
 import com.intellij.psi.PsiParameterList
 import com.intellij.psi.PsiType
-import org.junit.Test
-import org.junit.Before
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
+
 import static org.mockito.Mockito.*
 
 class PsiMethodUtilsTest {
@@ -23,9 +24,9 @@ class PsiMethodUtilsTest {
     @Mock
     private PsiClass psiClass
 
-    @Before
+    @BeforeEach
     void setUp() {
-        MockitoAnnotations.initMocks(this)
+        MockitoAnnotations.openMocks(this)
     }
 
     @Test
@@ -35,11 +36,11 @@ class PsiMethodUtilsTest {
         when(psiClass.getQualifiedName()).thenReturn("my.Class")
         when(psiMethod.getParameterList()).thenReturn(psiParameterList)
         when(psiMethod.getContainingClass()).thenReturn(psiClass)
-        when(psiParameterList.getParameters()).thenReturn([psiParameter] as PsiParameter[])
+        when(psiParameterList.getParameters()).thenReturn(new PsiParameter[]{psiParameter})
         when(psiMethod.getName()).thenReturn("methodName")
-        assert PsiMethodUtils.formatMethodId(psiMethod) == "my.Class#methodName(my.Type)"
-    }
 
+        assert PsiMethodUtils.formatMethodId(psiMethod).equals("my.Class#methodName(my.Type)")
+    }
 }
 
 //Generated with love by TestMe :) Please raise issues & feature requests at: https://weirddev.com/forum#!/testme

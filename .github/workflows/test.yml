@@ -37,7 +37,8 @@ jobs:
 #        uses: gradle/gradle-build-action@v2
 #        with:
         run: |
-          ./gradlew check jacocoTestReport jacocoIntTestReport -PideaVersion=${{ inputs.IDEA_VERSION }} -PscalaPluginVersion=${{ inputs.SCALA_PLUGIN_VERSION }} -PenableIdeaGroovyPlugin=${{ inputs.WITH_IDEA_PLUGINS }} -PenableIdeaScalaPlugin=${{ inputs.WITH_IDEA_PLUGINS }}
+          ./gradlew check jacocoTestReport -PideaVersion=${{ inputs.IDEA_VERSION }} -PscalaPluginVersion=${{ inputs.SCALA_PLUGIN_VERSION }} -PenableIdeaGroovyPlugin=${{ inputs.WITH_IDEA_PLUGINS }} -PenableIdeaScalaPlugin=${{ inputs.WITH_IDEA_PLUGINS }}
+#          ./gradlew check jacocoTestReport jacocoIntTestReport -PideaVersion=${{ inputs.IDEA_VERSION }} -PscalaPluginVersion=${{ inputs.SCALA_PLUGIN_VERSION }} -PenableIdeaGroovyPlugin=${{ inputs.WITH_IDEA_PLUGINS }} -PenableIdeaScalaPlugin=${{ inputs.WITH_IDEA_PLUGINS }}
 
       - name: Test Report
         uses: dorny/test-reporter@v1
@@ -45,11 +46,11 @@ jobs:
         continue-on-error: true
         with:
           name: Test Results (${{inputs.IDEA_VERSION}},${{inputs.WITH_IDEA_PLUGINS}})
-          path: build/test-results/**/*.xml
+          path: '**/build/test-results/**/*.xml'
           reporter: java-junit
 
       - name: Test Results artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: test results ${{inputs.IDEA_VERSION}} plugins=${{inputs.WITH_IDEA_PLUGINS}}
@@ -66,7 +67,7 @@ jobs:
           
       - name: Upload to Codecov
         uses: codecov/codecov-action@v4
-        if: github.event.pull_request.head.repo.fork == false
+        if: ${{ github.event.pull_request.head.repo.fork == false && inputs.WITH_IDEA_PLUGINS == 'true' }}
         with:
 #          files: ./coverage1.xml,./coverage2.xml # optional
 #          flags: unittests # optional

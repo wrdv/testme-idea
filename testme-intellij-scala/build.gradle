@@ -1,23 +1,20 @@
 plugins {
     id 'org.jetbrains.intellij.platform.module'
+    id 'jacoco'
 }
-
+apply plugin: 'groovy'
 repositories {
     mavenCentral()
     intellijPlatform {
         defaultRepositories()
-    }
-}
-
-intellijPlatform {
-    pluginConfiguration {
-        name = 'TestMe-scala'
+        jetbrainsRuntime()
+        snapshots()
     }
 }
 
 dependencies {
     intellijPlatform {
-        create(providers.gradleProperty("ideaType"), providers.gradleProperty("ideaVersion"))
+        create(providers.gradleProperty("ideaType"), providers.gradleProperty("ideaVersion"), useInstaller)
         bundledPlugin 'com.intellij.java'
         plugin 'org.intellij.scala:' + scalaPluginVersion
         instrumentationTools()
@@ -28,4 +25,25 @@ dependencies {
         exclude group:'org.jetbrains.plugins', module: 'properties'
         exclude group:'org.jetbrains.plugins', module: 'Groovy'
     }
+    compileOnly group: 'org.scala-lang', name: 'scala-library', version: '2.11.12'
+    testImplementation("org.spockframework:spock-core:2.3-groovy-3.0")
+}
+
+test {
+    afterTest { desc, result ->
+        println "Executing test [${desc.className}].${desc.name} with result: ${result.resultType}"
+    }
+    useJUnitPlatform()
+    jacoco {
+        includeNoLocationClasses = true
+        excludes = ["jdk.internal.*"]
+    }
+}
+jacocoTestReport {
+    dependsOn test // tests are required to run before generating the report
+    classDirectories.setFrom(instrumentCode)
+    reports {
+        xml.required = true
+    }
+    outputs.upToDateWhen { false } // Always generate report
 }

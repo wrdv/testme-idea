@@ -1,26 +1,44 @@
 plugins {
     id 'org.jetbrains.intellij.platform.module'
+    id 'jacoco'
 }
 apply plugin: "io.freefair.lombok"
+apply plugin: 'groovy'
 repositories {
     mavenCentral()
     intellijPlatform {
         defaultRepositories()
-    }
-}
-
-intellijPlatform {
-    pluginConfiguration {
-        name = 'TestMe-common'
+        jetbrainsRuntime()
+        snapshots()
     }
 }
 
 dependencies {
     intellijPlatform {
-        create(providers.gradleProperty("ideaType"), providers.gradleProperty("ideaVersion"))
+        create(providers.gradleProperty("ideaType"), providers.gradleProperty("ideaVersion"), useInstaller)
         bundledPlugin 'com.intellij.java'
         instrumentationTools()
     }
-    testImplementation 'org.mockito:mockito-core:4.3.1'
     annotationProcessor 'org.projectlombok:lombok:1.18.12'
+    testImplementation 'org.mockito:mockito-core:5.13.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.7.1'
+    testImplementation("org.spockframework:spock-core:2.3-groovy-3.0")
+}
+test {
+    afterTest { desc, result ->
+        println "Executing test [${desc.className}].${desc.name} with result: ${result.resultType}"
+    }
+    useJUnitPlatform()
+    jacoco {
+        includeNoLocationClasses = true
+        excludes = ["jdk.internal.*"]
+    }
+}
+jacocoTestReport {
+    dependsOn test // tests are required to run before generating the report
+    classDirectories.setFrom(instrumentCode)
+    reports {
+        xml.required = true
+    }
+    outputs.upToDateWhen { false } // Always generate report
 }
