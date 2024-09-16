@@ -12,12 +12,6 @@ repositories {
     }
 }
 
-//intellijPlatform {
-//    pluginConfiguration {
-//        name = 'TestMe-groovy'
-//    }
-//}
-
 dependencies {
     intellijPlatform {
         create(providers.gradleProperty("ideaType"), providers.gradleProperty("ideaVersion"), useInstaller)

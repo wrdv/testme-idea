@@ -13,12 +13,6 @@ repositories {
     }
 }
 
-//intellijPlatform {
-//    pluginConfiguration {
-//        name = 'TestMe-common'
-//    }
-//}
-
 dependencies {
     intellijPlatform {
         create(providers.gradleProperty("ideaType"), providers.gradleProperty("ideaVersion"), useInstaller)
