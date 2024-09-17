@@ -78,7 +78,7 @@ intellijPlatform {
         version = testMeVersion
         ideaVersion {
             sinceBuild = '232'
-//           untilBuild = '242.*'
+            untilBuild = providers.provider { null }
         }
     }
     publishing {
