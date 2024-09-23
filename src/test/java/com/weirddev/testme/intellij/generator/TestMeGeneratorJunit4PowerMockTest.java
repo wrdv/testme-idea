@@ -59,6 +59,12 @@ public class TestMeGeneratorJunit4PowerMockTest extends TestMeGeneratorTestBase 
         doTest(new FileTemplateConfig(testMeConfig));
     }
 
+    public void testDeclareSpecificTestMethodIgnoreThrownExceptionTypes() {
+        final TestMeConfig testMeConfig = new TestMeConfig();
+        testMeConfig.setThrowSpecificExceptionTypes(false);
+        doTest(new FileTemplateConfig(testMeConfig));
+    }
+
 
     public void testRenderInternalMethodCallStubsThrowExceptions() {
         final TestMeConfig testMeConfig = new TestMeConfig();
