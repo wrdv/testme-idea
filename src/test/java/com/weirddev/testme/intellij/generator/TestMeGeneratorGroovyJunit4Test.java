@@ -50,4 +50,9 @@ public class TestMeGeneratorGroovyJunit4Test extends TestMeGeneratorJunit4Test {
         testMeConfig.setThrowSpecificExceptionTypes(false);
         doTest(new FileTemplateConfig(testMeConfig));
     }
+    public void testDeclareSpecificTestMethodIgnoreThrownExceptionTypes() {
+        final TestMeConfig testMeConfig = new TestMeConfig();
+        testMeConfig.setThrowSpecificExceptionTypes(false);
+        doTest(new FileTemplateConfig(testMeConfig));
+    }
 }
