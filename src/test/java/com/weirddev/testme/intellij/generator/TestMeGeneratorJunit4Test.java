@@ -212,6 +212,13 @@ public class TestMeGeneratorJunit4Test extends TestMeGeneratorTestBase{
         doTest(new FileTemplateConfig(testMeConfig));
     }
 
+
+    public void testDeclareSpecificTestMethodIgnoreThrownExceptionTypes() {
+        final TestMeConfig testMeConfig = new TestMeConfig();
+        testMeConfig.setThrowSpecificExceptionTypes(false);
+        doTest(new FileTemplateConfig(testMeConfig));
+    }
+
     //todo TC - use static init method when constructor not available
 
      // TODO TC different test target dir
